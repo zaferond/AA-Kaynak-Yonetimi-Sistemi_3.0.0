@@ -1,7 +1,7 @@
 {
   "format": "aa-deployment-v1",
   "version": "3.0.0",
-  "commit": "d60055cfe9c4a75c6b1acfd23b2b1533e992db5b",
+  "commit": "6f853b7183b27973f638a760feaba94996aa0071",
   "sources": {
     "backend/active-directory.mjs": "3664ad7f8903dab2e832c09ae9553f2008510f34470f76ef3886d5e780cdf08f",
     "backend/activity-report.mjs": "1a4cf74425980574afd5352e2e1a307590666e269295e76e7d94abde4444ef2f",
@@ -212,10 +212,10 @@
     "frontend/src/features/editor-state.ts": "c9d43b4068afcfc0133984f8397157d579a82508f83129f852f176acb016ae20",
     "frontend/src/features/editors/BulkResourceEditorFields.tsx": "0afbc5ed878ff6acadf0d6de2c966be75600e9f7d1b5ee9f23fb9bd0c00627ec",
     "frontend/src/features/editors/editor-field-props.ts": "5a4794f046acd3393749005c17e654cc349d55eab76baf19c7d0a337f680a677",
-    "frontend/src/features/editors/MilestoneEditorFields.tsx": "b9058b33a5de1d19861db8b5296c0aa1d5828bb5fcd967f59d106d8fe1846a64",
+    "frontend/src/features/editors/MilestoneEditorFields.tsx": "eec30beb33a1929d8e00eae3fcdcd6d1f5df691404a6f87dd1d81651529c277b",
     "frontend/src/features/editors/ProjectAccessFields.tsx": "d9a3cb019e4291699eaa1ab462a8cfc6a729001789a80fb387a7cb929d6fb67d",
     "frontend/src/features/editors/ProjectEditorFields.tsx": "6d9c02debba06800980c1e285ab6970a0cbe488feb38e80fc6a4442e217f9070",
-    "frontend/src/features/editors/ProjectPhaseEditorFields.tsx": "79136644ce3270599a9840c7054af6d18877e3eeffaf7ca05cb1e5ac03b97514",
+    "frontend/src/features/editors/ProjectPhaseEditorFields.tsx": "64836f60fec4fdf5120310d78038b6162ff93ca3aa443a26e9689b3c62a9f173",
     "frontend/src/features/editors/ResourceEditorFields.tsx": "11ecbdacadc89f6c041fe2635a8318cfe0d09207363d47c77f7d79a391591e4a",
     "frontend/src/features/organization-picker-items.ts": "ef4e3be18227a6df10247a8da0cdd4cedd696ddd1a51b38e87228f894a96245c",
     "frontend/src/features/planned-allocation/plan-density.ts": "ed04f88f39f61585dce1e9964a94a11f92c71389bf145a5a63d50ae9f52348bb",
@@ -391,7 +391,7 @@
     "frontend/src/styles/allocation/empty-cells.css": "1103a938a380f43cd8275c1697fc70d4451f69e9f42dabbb75a0daa39c3c1840",
     "frontend/src/styles/allocation/frozen-columns.css": "3b1323c5e5bb0cdf610c100621f96ba1bbfd24bfc0afe54559a12370244592c7",
     "frontend/src/styles/calendar/work-calendar.css": "8e9438837abe09280dce0d5bc426fcce60e91f631f10f40f75886facdef1ebcc",
-    "frontend/src/styles/manifest.json": "1afc33dfc51708459ea786e5e347861fb2c0cc4ab468ed9da4527531851bbd03",
+    "frontend/src/styles/manifest.json": "f29965d9cb7bed599ad2121c5796fa4f71b43cbb5fd5e3af971354cfe586a2ad",
     "frontend/src/styles/planning/capacity-summary.css": "e696c10185a7155270f8e18505f6c7f9e9a71dc984f7216f9efcc5613481d890",
     "frontend/src/styles/planning/grid.css": "a7e159a2749cc79e2473a4d2e2bd5972969bfd4f82415908cb31131f473dfda5",
     "frontend/src/styles/planning/schedule-scenario.css": "41b86622214396d7f996b0f1b220dcbc14f5a3515fe4336e9085a01238a1e13d",
@@ -431,6 +431,7 @@
     "frontend/src/styles/workspace/technical-buttons.css": "0915c6197b3189ad71f6bd6d00d2080ddc3c59d513e6773c47f8dc9bd60c160f",
     "frontend/src/styles/workspace/technical-chrome.css": "5de63c0e4cf1478c92de0a9db77c064f97747e60e678a0727fee46965d3dea74",
     "frontend/src/styles/workspace/technical-evaluation.css": "f2535bb92f4e684a58f06730066a4563a06f7d7a898e6e69879cbb554a9f2098",
+    "frontend/src/styles/workspace/technical-forms.css": "d2a11bd7398b3d08d7b5817d5112800d8223837583a472e580ee0c2f6122ef0d",
     "frontend/src/styles/workspace/technical-tables.css": "5d9f9ca6170061ed02383f8f788b7c0bdf6a2d34dbc838bed61e7080ee764390",
     "frontend/src/styles/workspace/technical-theme.css": "0c4796d7a7b03addb80e4abfc1a782e114af4c0119186c0d9cacdcf7b85b82be",
     "frontend/src/styles/workspace/viewport-tables.css": "4c25f35a52da1e716b030d2b2d20704048c5d334cac7a3630c9ad591f4bafaf9",
@@ -611,6 +612,10 @@
   "artifacts": {
     "site/assets/app.666497a6707e.js": "666497a6707e827d37c264d12a7c7c1865212d8d8f7abb6eb6b4e97246de81b9",
     "site/assets/app.666497a6707e.js.gz": "434cf3a28a82bee0be9375b894db5438ce416a8ad61988c106880b76f250969d",
+    "site/assets/app.7e9c5e030051.css": "7e9c5e030051f625c86fabaecc00ee0a200c232ee242abd4e8dddc96a36b40b6",
+    "site/assets/app.7e9c5e030051.css.gz": "65d19fa2c49740693e88f05255cb84ee397134efae2a1ac773f7251d92dcf4d3",
+    "site/assets/app.925ada7d79f8.js": "925ada7d79f8640ff1d4886b1302268a46da132bc8b4179aefe9cf573ea11344",
+    "site/assets/app.925ada7d79f8.js.gz": "11512c475b799a99d2a0c0f301c1e3730fb261dc180c7efb4e723408aac7908c",
     "site/assets/app.ab7a8f13a166.css": "ab7a8f13a1665441596ae7f359bd3d25a3468632d2dcf1a44b0ee0de109e5941",
     "site/assets/app.ab7a8f13a166.css.gz": "b63bac652d3af016c51e5db39169982d8d70796906a434bdeddb27409b4877f4",
     "site/assets/favicon.08cfa513c84c.svg": "08cfa513c84cd921d201771d163d23be212b100aac07ecf54ebb4219d4a08c4b",
@@ -619,21 +624,21 @@
     "site/assets/ibm-plex-sans-latin.1e875856600a.woff2": "1e875856600a34cb44a406a7deef0e3f9ae70e6f636e0f37fbca2248dec2dca4",
     "site/assets/login-background.2eaf093270a8.png": "2eaf093270a89c095cb84dc7c2458b3b7d8fe068ac6fa470484ff27c66675fa5",
     "site/assets/otokar-logo.svg": "486de40ba4120bd86b887036af3920b218cad55899f686f5f6b70c6c6feb3b38",
-    "site/index.html": "ea9fead98417dd4b0ccf26e1423673d6224595633b6b10300d44a770dccd97ba",
-    "site/index.html.gz": "3a4828ad922bb8686d9028b86a46a520dd0cc02ce9584182a19d33598b8b2f07"
+    "site/index.html": "476d1ca0acdfdfb1eb4bd68ba94fe3c1a7ed4b25cab4017e45703f9108d66a5e",
+    "site/index.html.gz": "a8b4a97640c7e33096bf0838d4464bcdced98f4c904f42f021d88705efbc3351"
   },
   "releaseArtifacts": {
-    "site/assets/app.666497a6707e.js": "666497a6707e827d37c264d12a7c7c1865212d8d8f7abb6eb6b4e97246de81b9",
-    "site/assets/app.666497a6707e.js.gz": "434cf3a28a82bee0be9375b894db5438ce416a8ad61988c106880b76f250969d",
-    "site/assets/app.ab7a8f13a166.css": "ab7a8f13a1665441596ae7f359bd3d25a3468632d2dcf1a44b0ee0de109e5941",
-    "site/assets/app.ab7a8f13a166.css.gz": "b63bac652d3af016c51e5db39169982d8d70796906a434bdeddb27409b4877f4",
+    "site/assets/app.7e9c5e030051.css": "7e9c5e030051f625c86fabaecc00ee0a200c232ee242abd4e8dddc96a36b40b6",
+    "site/assets/app.7e9c5e030051.css.gz": "65d19fa2c49740693e88f05255cb84ee397134efae2a1ac773f7251d92dcf4d3",
+    "site/assets/app.925ada7d79f8.js": "925ada7d79f8640ff1d4886b1302268a46da132bc8b4179aefe9cf573ea11344",
+    "site/assets/app.925ada7d79f8.js.gz": "11512c475b799a99d2a0c0f301c1e3730fb261dc180c7efb4e723408aac7908c",
     "site/assets/favicon.08cfa513c84c.svg": "08cfa513c84cd921d201771d163d23be212b100aac07ecf54ebb4219d4a08c4b",
     "site/assets/favicon.08cfa513c84c.svg.gz": "0468933db70f1eba77c50daca6644cfd7742fedf729dc075582c54d0b4d0eaf4",
     "site/assets/ibm-plex-sans-latin-ext.d43e5954a354.woff2": "d43e5954a3549d82ea11577d0aa403fe00cb334aaefae6b58bc6ba0542c146d2",
     "site/assets/ibm-plex-sans-latin.1e875856600a.woff2": "1e875856600a34cb44a406a7deef0e3f9ae70e6f636e0f37fbca2248dec2dca4",
     "site/assets/login-background.2eaf093270a8.png": "2eaf093270a89c095cb84dc7c2458b3b7d8fe068ac6fa470484ff27c66675fa5",
     "site/assets/otokar-logo.svg": "486de40ba4120bd86b887036af3920b218cad55899f686f5f6b70c6c6feb3b38",
-    "site/index.html": "ea9fead98417dd4b0ccf26e1423673d6224595633b6b10300d44a770dccd97ba",
-    "site/index.html.gz": "3a4828ad922bb8686d9028b86a46a520dd0cc02ce9584182a19d33598b8b2f07"
+    "site/index.html": "476d1ca0acdfdfb1eb4bd68ba94fe3c1a7ed4b25cab4017e45703f9108d66a5e",
+    "site/index.html.gz": "a8b4a97640c7e33096bf0838d4464bcdced98f4c904f42f021d88705efbc3351"
   }
 }

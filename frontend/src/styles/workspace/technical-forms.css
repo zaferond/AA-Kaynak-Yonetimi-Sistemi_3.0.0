@@ -1,0 +1,156 @@
+/* Technical theme form recipe. Text controls take the button heights of
+   their place (filter bars 28, pages 32, dialogs 36) and the same 3px
+   corner. A field label is one style everywhere; choices (checkbox, radio,
+   switch) read as text, section titles as sentence-case headings. Inputs
+   inside table cells keep their grid design. */
+html[data-theme="technical"] :is(.app, [data-slot="dialog-content"]) {
+  --ctl-h: 32px;
+}
+html[data-theme="technical"]
+  .app
+  :is(.planning-filterbar, .progress-filterbar, .progress-card-fields) {
+  --ctl-h: 28px;
+}
+html[data-theme="technical"] [data-slot="dialog-content"] {
+  --ctl-h: 36px;
+}
+
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  :is(
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="color"],
+      [type="file"]
+    ),
+    select
+  ):not(td *) {
+  height: var(--ctl-h);
+  min-height: var(--ctl-h);
+  padding-block: 0;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  textarea:not(td *) {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  :is(input, select, textarea):not(td *):disabled {
+  border-color: var(--btn-disabled-border);
+  background: var(--btn-disabled-background);
+  color: var(--btn-disabled-ink);
+}
+
+/* One field label. */
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  label:has(
+    > :is(input:not([type="checkbox"], [type="radio"]), select, textarea)
+  ) {
+  color: var(--tbl-head-ink);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+/* Choices are read, not labelled. */
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  label:has(> input:is([type="checkbox"], [type="radio"])) {
+  color: var(--brand-text);
+  font-weight: 500;
+}
+
+/* Section titles and groups inside dialogs. */
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  :is(legend, .resource-form-section, .employee-access-editor h3) {
+  color: var(--brand-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[data-theme="technical"]
+  .editor
+  .resource-editor-form
+  h3.resource-form-section {
+  border-top-color: var(--tbl-rule);
+}
+html[data-theme="technical"]
+  .employee-access-editor
+  :is(.employee-resource-fields, .resource-account-section) {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  :is(fieldset, .phasecontext, .timeline-live-preview) {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  :is(.milestone-range-row, .milestone-range-date-card, .milestone-note-row) {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+}
+/* The project caption and the preview label are plain labels. */
+html[data-theme="technical"] .timeline-editor-form > .phasecontext small,
+html[data-theme="technical"] .timeline-live-preview > span {
+  color: var(--brand-muted);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+/* Detail numbers are references, not filled chips. */
+html[data-theme="technical"]
+  [data-slot="dialog-content"]
+  :is(.milestone-range-number, .milestone-note-number) {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+}
+
+/* Team and leadership managers: the record list is one ruled list. */
+html[data-theme="technical"] .directory-manager-records {
+  gap: 0;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+}
+html[data-theme="technical"] .directory-manager-list .directory-record {
+  border: 0;
+  border-bottom: 1px solid var(--tbl-rule);
+  border-radius: 0;
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .directory-manager-list .directory-record:hover {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  .directory-manager-list
+  .directory-record.selected {
+  background: var(--tbl-selected);
+  box-shadow: inset 3px 0 var(--brand-primary);
+}
+html[data-theme="technical"] .directory-manager-list .directory-record small {
+  color: var(--brand-muted);
+}
+
+/* Remaining uppercase captions. */
+html[data-theme="technical"]
+  :is(
+    .milestone-report-heading,
+    .user-menu .user-menu-title,
+    .schedule-impact-block h4
+  ) {
+  letter-spacing: 0;
+  text-transform: none;
+}

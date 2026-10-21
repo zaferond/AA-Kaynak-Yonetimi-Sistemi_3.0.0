@@ -11,7 +11,7 @@ export default function ProjectPhaseEditorFields({ editor, setEditor }: Props) {
     <>
       <div className="phasecontext">
         <div>
-          <small>PROJE</small>
+          <small>Proje</small>
           <strong>{editor.value.name}</strong>
           <ProjectResponsible project={editor.value} />
         </div>
@@ -78,7 +78,7 @@ export default function ProjectPhaseEditorFields({ editor, setEditor }: Props) {
         </div>
       </fieldset>
       <div className="timeline-live-preview">
-        <span>TAKVİM ÖNİZLEMESİ</span>
+        <span>Takvim önizlemesi</span>
         <div
           className="timeline-phase-preview phase-chip phase-chip-preview"
           style={phaseChipStyle(editor.value, editor.phaseMonth)}

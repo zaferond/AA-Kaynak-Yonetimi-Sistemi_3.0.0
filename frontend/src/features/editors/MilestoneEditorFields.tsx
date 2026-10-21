@@ -24,7 +24,7 @@ export default function MilestoneEditorFields({
     <>
       <div className="phasecontext">
         <div>
-          <small>PROJE</small>
+          <small>Proje</small>
           <strong>
             {data?.projects.find((p) => p.id === editor.projectId)?.name}
           </strong>
@@ -97,7 +97,7 @@ export default function MilestoneEditorFields({
         </div>
       </fieldset>
       <div className="timeline-live-preview">
-        <span>TAKVİM ÖNİZLEMESİ</span>
+        <span>Takvim önizlemesi</span>
         <div className="milestone-preview-list">
           {editor.draftEmpty && (
             <p className="milestone-preview-empty">
