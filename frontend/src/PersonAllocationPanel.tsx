@@ -1,6 +1,6 @@
 import { allowedActualTeam, canReadPersonalCalendar } from "./access";
 import { actualVersionAt } from "./model";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Resource, Project } from "./model";
 import type { ActualUnit } from "./actual-units";
 import { writeBatch } from "./storage";
@@ -9,7 +9,6 @@ import {
   prepareWorkedHoursChange,
   type ActualEntry,
 } from "./features/actual-allocation-commands";
-import Pager from "./Pager";
 import { Switch } from "@/components/ui/switch";
 import ActualAllocationControls from "./features/actual-allocation/ActualAllocationControls";
 import ActualAllocationTable from "./features/actual-allocation/ActualAllocationTable";
@@ -41,7 +40,6 @@ export default function PersonAllocationPanel(
     layout,
   } = props;
   const [unit, setUnit] = useState<ActualUnit>("percent");
-  const [page, setPage] = useState(0);
   const [phaseDetail, setPhaseDetail] = useState<ActualPhaseDetail | null>(
     null,
   );
@@ -66,10 +64,8 @@ export default function PersonAllocationPanel(
         else next.delete(key);
         return next;
       });
-  const view = useActualAllocationView(props, page, { layout, query, added });
-  const { scopeKey, visiblePage, totalRows, pageSize, people, actualMonths } =
-    view;
-  useEffect(() => setPage(0), [scopeKey]);
+  const view = useActualAllocationView(props, { layout, query, added });
+  const { totalRows, people, actualMonths } = view;
   const limit = useActualCapacityDialog();
   const { openLimit } = limit;
   const selection = useActualCellSelection({
@@ -184,13 +180,9 @@ export default function PersonAllocationPanel(
             kalan, hücre seçilince üstteki Kalan alanında
           </span>
         )}
-        <Pager
-          total={totalRows}
-          page={visiblePage}
-          size={pageSize}
-          onChange={setPage}
-          label={layout === "person" ? "Kişi" : "Kişi / proje satırı"}
-        />
+        <span className="actual-record-count">
+          {totalRows} {layout === "person" ? "kişi" : "kişi / proje satırı"}
+        </span>
       </div>
       <ActualAllocationTable
         data={data}

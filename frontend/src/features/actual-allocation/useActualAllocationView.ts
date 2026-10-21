@@ -4,7 +4,7 @@ import { visibleActualInScope } from "../../../../shared/actual-visibility.ts";
 import { createActualMonthIndex } from "../../../../shared/actual-months.ts";
 import { groupPage, groupPageLists } from "../../metrics";
 import type { PersonAllocationPanelProps } from "./types";
-import { PERSONS_PER_PAGE, personGroups } from "./person-layout";
+import { personGroups } from "./person-layout";
 
 export type ActualLayout = "person" | "project";
 
@@ -34,7 +34,6 @@ export function useActualAllocationView(
     monthSummaries,
     onlyDataRows,
   }: Scope,
-  page: number,
   person: {
     layout: ActualLayout;
     query: string;
@@ -93,10 +92,6 @@ export function useActualAllocationView(
           onlyDataRows,
         })
       : [];
-  const pageSize =
-    person.layout === "person"
-      ? PERSONS_PER_PAGE
-      : Math.max(20, Math.min(100, Math.floor(1200 / months.length)));
   // "Sadece veri olanlar": a person row stays only if it has a value in the
   // visible months for that project; projects without such rows are hidden.
   const dataLists =
@@ -120,22 +115,12 @@ export function useActualAllocationView(
       : dataLists
         ? dataLists.reduce((sum, list) => sum + list.length, 0)
         : projects.length * Math.max(people.length, 1);
-  const visiblePage = Math.min(
-    page,
-    Math.max(0, Math.ceil(totalRows / pageSize) - 1),
-  );
-  const personPage = personList.slice(
-    visiblePage * pageSize,
-    (visiblePage + 1) * pageSize,
-  );
+  // One table for every row: the windowed sections mount as they scroll in,
+  // so there is no page limit.
+  const rows = Math.max(1, totalRows);
   const groups = dataLists
-    ? groupPageLists(dataLists, visiblePage, pageSize).groups
-    : groupPage(
-        projects.length,
-        Math.max(people.length, 1),
-        visiblePage,
-        pageSize,
-      );
+    ? groupPageLists(dataLists, 0, rows).groups
+    : groupPage(projects.length, Math.max(people.length, 1), 0, rows);
   const actualMonths = useMemo(() => {
     const index = createActualMonthIndex(data);
     return {
@@ -154,14 +139,12 @@ export function useActualAllocationView(
   const years = [...new Set(months.map((month) => month.slice(0, 4)))];
   return {
     layout: person.layout,
-    personPage,
+    personPage: personList,
     eligible,
     people,
     scopeKey,
     monthKey,
-    pageSize,
     totalRows,
-    visiblePage,
     groups,
     actualMonths,
     personMonthTotals,

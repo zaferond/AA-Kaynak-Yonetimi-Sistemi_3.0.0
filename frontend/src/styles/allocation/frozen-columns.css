@@ -1,5 +1,7 @@
-/* Fixed identification columns; the month cells alone scroll horizontally. */
-.app.tab-plan .project-team-view .project-phase-group > td:first-child {
+/* Fixed identification columns; the month cells alone scroll horizontally.
+   The project row's label must outrank the generic first-cell rule in
+   controls.css, or a phase run that started off screen paints over it. */
+.app.tab-plan .project-team-view tbody tr.project-phase-group > td:first-child {
   position: sticky;
   left: 0;
   z-index: 3;

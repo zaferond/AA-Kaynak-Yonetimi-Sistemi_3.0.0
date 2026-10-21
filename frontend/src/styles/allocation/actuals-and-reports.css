@@ -212,8 +212,8 @@
   pointer-events: none;
 }
 
-/* "Sadece veri olanlar" anahtarı sayfalama ile aynı satırı paylaşır;
-   sayfalama gizliyken (tek sayfa) anahtar tek başına kalır. */
+/* "Sadece veri olanlar" anahtarı satır sayısıyla aynı satırı paylaşır;
+   tüm satırlar tek tabloda, kaydırdıkça yüklenir. */
 .app .person-allocation .actual-view-bar {
   display: flex;
   align-items: center;
@@ -233,10 +233,11 @@
   font-weight: 600;
   cursor: pointer;
 }
-.app .person-allocation .actual-view-bar > .pager {
-  flex: 1;
-  min-width: 0;
-  border-block: 0;
-  border-left: 1px solid var(--brand-border, #d5dfcf);
-  background: transparent;
+.app .person-allocation .actual-view-bar > .actual-record-count {
+  margin-left: auto;
+  padding: 0 12px;
+  color: var(--brand-muted, #60715e);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }

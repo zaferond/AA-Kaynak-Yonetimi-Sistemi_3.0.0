@@ -565,7 +565,7 @@ export default function ActualAllocationTable({
     tableRef,
     view.layout === "person" ? personSections : projectSections,
     months.length + 1,
-    view.scopeKey + ":" + view.visiblePage,
+    view.scopeKey,
   );
   return (
     <Table

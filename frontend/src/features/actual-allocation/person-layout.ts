@@ -9,8 +9,6 @@ export type PersonGroup = {
   hasData: boolean;
 };
 
-export const PERSONS_PER_PAGE = 30;
-
 const searchText = (value: string) => value.toLocaleLowerCase("tr").trim();
 
 export function personGroups({

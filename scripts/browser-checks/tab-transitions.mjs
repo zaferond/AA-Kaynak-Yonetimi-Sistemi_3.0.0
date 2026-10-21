@@ -206,7 +206,7 @@ export async function checkTabTransitions(f) {
       },
     );
     await f.check(
-      "windowed actuals: failed draft stays mounted while scrolling; all rows on the current page remain reachable",
+      "windowed actuals: failed draft stays mounted while scrolling; every row is reachable in one table without pages",
       async () => {
         await page.goto(f.origin);
         await selectWorkspaceTab(page, "Aktivite Girişi");
@@ -250,16 +250,16 @@ export async function checkTabTransitions(f) {
           await table.locator(`tbody[data-window-key="${oldKey}"]`).count(),
           1,
         );
-        // Page size follows the visible months (1200 / months); the pager
-        // states the current page's last row.
-        const lastRow = Number(
-          (
-            await page.locator(".person-allocation .pager > span").innerText()
-          ).match(/–(\d+)/)[1],
+        // No pager: the last person of the first project loads as the
+        // table scrolls.
+        assert.equal(
+          await page.locator(".person-allocation .pager").count(),
+          0,
         );
         const person = before.resources
           .slice()
-          .sort((a, b) => a.name.localeCompare(b.name, "tr"))[lastRow - 1];
+          .sort((a, b) => a.name.localeCompare(b.name, "tr"))
+          .at(-1);
         const final = table.getByRole("textbox", {
           name: person.name + " / Browser Project A / 2026-01 / %",
           exact: true,

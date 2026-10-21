@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import {
   ChevronDown,
+  ChevronUp,
   GripVertical,
   Lock,
   Pencil,
@@ -143,7 +144,7 @@ export default function ProjectTimelineRows({
               aria-expanded={expanded}
               onClick={() => setExpanded(!expanded)}
             >
-              {expanded ? <ChevronDown size={14} /> : <Plus size={14} />}
+              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
             <div className="project-name-copy">
               <button

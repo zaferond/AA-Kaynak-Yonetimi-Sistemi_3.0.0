@@ -5,7 +5,6 @@ import type { ActualCellSelection } from "./types";
 export function useActualCellSelection({
   scopeKey,
   loading = false,
-  visiblePage,
   eligible,
   months,
   currentMonth,
@@ -14,7 +13,6 @@ export function useActualCellSelection({
 }: {
   scopeKey: string;
   loading?: boolean;
-  visiblePage: number;
   eligible: ReadonlySet<string>;
   months: string[];
   currentMonth: string;
@@ -30,7 +28,6 @@ export function useActualCellSelection({
     if (settledScope.current !== scopeKey) setSelectedCell(null);
     settledScope.current = scopeKey;
   }, [scopeKey, loading]);
-  useEffect(() => setSelectedCell(null), [visiblePage]);
   useEffect(() => {
     const withinSelection = (target: EventTarget | null) =>
       target instanceof Element &&

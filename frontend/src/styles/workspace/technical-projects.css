@@ -1,0 +1,201 @@
+/* Technical theme for the Projeler detail rows. An opened project reads as
+   one block: its heading row is selected and every detail row carries the
+   same left rule and ground. Critical topic bars use the phase-chip
+   language: a tint of the chosen colour, a solid edge and ink text, one
+   line high. The full notes and dates stay in the tooltip. */
+
+/* The opened project as one block. */
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  tbody[data-project-group]:has(.project-expand[aria-expanded="true"])
+  > tr.project-freeze-row
+  > td {
+  background: var(--tbl-selected);
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  tbody[data-project-group]:has(.project-expand[aria-expanded="true"])
+  > tr
+  > td:first-child {
+  box-shadow: inset 3px 0 var(--brand-primary);
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  :is(.milestone-row, .milestone-section-row),
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  :is(.milestone-row, .milestone-section-row)
+  td {
+  border-color: var(--tbl-rule);
+  background: #f6f9fc;
+}
+html[data-theme="technical"] .app .projectmatrix .milestone-row td:first-child {
+  border-bottom: 1px solid var(--tbl-rule);
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  tbody[data-project-group]
+  > tr:last-child
+  > td {
+  border-bottom-color: var(--tbl-rule-strong);
+}
+html[data-theme="technical"] .app .projectmatrix .milestone-name-copy strong {
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"] .app .projectmatrix .milestone-name-copy small {
+  color: var(--brand-muted);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme="technical"] .app .projectmatrix .milestone-add {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .app .projectmatrix .milestone-add:hover {
+  border-color: var(--btn-border-hover);
+  background: var(--btn-hover);
+}
+
+/* Expand toggle: a quiet square, like the row icon buttons. */
+html[data-theme="technical"] .app .projectmatrix .project-expand {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .project-expand:is(:hover, :focus-visible) {
+  border-color: var(--btn-border-hover);
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .project-expand[aria-expanded="true"] {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
+}
+
+/* Critical topic bars: one line, tint + edge + ink. */
+html[data-theme="technical"] .app .projectmatrix .gantt-bar {
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--gantt-color) 45%, #fff);
+  border-left: 3px solid var(--gantt-color);
+  background: color-mix(in srgb, var(--gantt-color) 14%, #fff);
+  color: var(--brand-text);
+  box-shadow: none;
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .gantt-bar:is(.start, .end, .start.end) {
+  border-radius: 3px;
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-bar.outline {
+  background: #fff;
+  box-shadow: none;
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-bar.striped {
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--gantt-color) 14%, #fff) 0 6px,
+    color-mix(in srgb, var(--gantt-color) 26%, #fff) 6px 9px
+  );
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-bar.editable:hover {
+  border-color: var(--gantt-color);
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-note-list {
+  flex: 1;
+  overflow: hidden;
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-note-list li {
+  overflow: hidden;
+  font-weight: 600;
+  line-height: 22px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-note-list li::before {
+  content: none;
+}
+/* The bar shows its first note; the counter tells how many follow. */
+html[data-theme="technical"] .app .projectmatrix .gantt-note-list li + li,
+html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-dates {
+  display: none;
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .gantt-note-list
+  .gantt-note-text {
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .gantt-note-list
+  li.completed
+  .gantt-note-text {
+  color: var(--brand-muted);
+  text-decoration-thickness: 1px;
+  opacity: 1;
+}
+html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-more {
+  display: inline-block;
+  flex: none;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0 5px;
+  border-radius: 2px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme="technical"]
+  .app
+  .projectmatrix
+  .gantt-bar
+  .gantt-resize-handle::after {
+  background: var(--gantt-color);
+}
+
+/* Weekly view boxes follow the same colour rule. */
+html[data-theme="technical"] .app .projectmatrix .weekly-note-box {
+  border-color: color-mix(in srgb, var(--gantt-color) 45%, #fff);
+  border-left-color: var(--gantt-color);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--gantt-color) 14%, #fff);
+  color: var(--brand-text);
+  box-shadow: none;
+}
+html[data-theme="technical"] .app .projectmatrix .weekly-note-box.solid {
+  background: color-mix(in srgb, var(--gantt-color) 14%, #fff);
+  color: var(--brand-text);
+}
+/* A bar too short for words keeps only its colour and counter; a single
+   clipped letter reads as noise. */
+html[data-theme="technical"] .app .projectmatrix .milestone-track .gantt-bar {
+  container-type: inline-size;
+}
+@container (max-width: 88px) {
+  html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-list {
+    visibility: hidden;
+  }
+}

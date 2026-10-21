@@ -408,6 +408,11 @@ export default function MilestoneTrack({
                 </li>
               ))}
             </ul>
+            {entries.length > 1 && (
+              <span className="gantt-note-more" aria-hidden="true">
+                +{entries.length - 1}
+              </span>
+            )}
             {isAdmin &&
               (["start", "end"] as const).map((edge) => (
                 <span
