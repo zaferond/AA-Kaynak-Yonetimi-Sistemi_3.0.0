@@ -33,6 +33,7 @@ export default function ProgressManagementMatrix({
   ctx,
   projects,
   months,
+  monthWidth,
   month,
   expanded,
   setExpanded,
@@ -42,6 +43,7 @@ export default function ProgressManagementMatrix({
   ctx: ProgressContext;
   projects: ManagedProject[];
   months: string[];
+  monthWidth: number;
   month: string;
   expanded: Set<string>;
   setExpanded: (value: Set<string>) => void;
@@ -122,8 +124,15 @@ export default function ProgressManagementMatrix({
     >
       <table
         className="progress-table progress-report-table progress-monthly-matrix"
-        aria-label="Proje ilerleme raporu"
-        style={{ width: 580 + months.length * 86, minWidth: "100%" }}
+        data-density={
+          monthWidth <= 24
+            ? "overview"
+            : monthWidth <= 68
+              ? "compact"
+              : "detail"
+        }
+        aria-label="Proje ve Kaynak Değerlendirme Raporu"
+        style={{ width: 580 + months.length * monthWidth, minWidth: "100%" }}
       >
         <colgroup>
           <col style={{ width: 220 }} />

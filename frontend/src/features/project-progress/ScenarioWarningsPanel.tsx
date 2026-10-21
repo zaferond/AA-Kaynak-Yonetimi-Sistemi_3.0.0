@@ -11,6 +11,7 @@ import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
+import ProgressFilters from "./ProgressFilters";
 import { downloadScenarioWarnings } from "./scenario-warning-export";
 
 const dateLabel = (at: string) => new Date(at).toLocaleString("tr-TR");
@@ -108,14 +109,15 @@ export default function ScenarioWarningsPanel({
   }
   return (
     <section className="scenario-warnings-panel" aria-label="Senaryo Uyarıları">
-      <p>
-        Son kilitli aya göre ilerleme ve gelecek kaynak planı birlikte
-        değerlendirilir. Durum sırası: Açık → Görüldü → Aksiyon Alındı. Senaryo
-        veya ay değiştiğinde önceki uyarı kapanır; geçmişi korunur.
-      </p>
-      <div className="progress-filters">
-        <label>
-          Proje
+      <ProgressFilters
+        onReset={() => {
+          setProject("");
+          setStatus("");
+          setSort("month-desc");
+        }}
+      >
+        <label className="pick progress-project-filter">
+          <span>Proje</span>
           <select value={project} onChange={(e) => setProject(e.target.value)}>
             <option value="">Tümü</option>
             {data.projects.map((p) => (
@@ -125,8 +127,8 @@ export default function ScenarioWarningsPanel({
             ))}
           </select>
         </label>
-        <label>
-          Durum
+        <label className="pick">
+          <span>Durum</span>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
@@ -139,8 +141,8 @@ export default function ScenarioWarningsPanel({
             ))}
           </select>
         </label>
-        <label>
-          Sıralama
+        <label className="pick">
+          <span>Sıralama</span>
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="month-desc">Ay: yeniden eskiye</option>
             <option value="month-asc">Ay: eskiden yeniye</option>
@@ -149,6 +151,9 @@ export default function ScenarioWarningsPanel({
             <option value="status">Durum</option>
           </select>
         </label>
+      </ProgressFilters>
+      <div className="progress-toolbar">
+        <span className="progress-result-count">{rows.length} uyarı</span>
         <button
           className="button"
           disabled={!rows.length}
@@ -163,7 +168,6 @@ export default function ScenarioWarningsPanel({
         >
           CSV’ye Aktar
         </button>
-        <span>{rows.length} uyarı</span>
       </div>
       {error && (
         <p className="progress-error" role="alert">

@@ -111,10 +111,13 @@
   line-height: 1.2;
   cursor: pointer;
 }
-.app .person-allocation .actual-person-month > :is(strong, small) {
+.app .person-allocation .actual-person-balance {
+  display: inline-block;
+  border-radius: 3px;
+}
+.app .person-allocation .actual-person-balance > :is(strong, small) {
   display: flex;
   justify-content: center;
-  margin-inline: -6px;
 }
 .app .person-allocation .actual-person-month strong {
   font-size: var(--fs-xs);

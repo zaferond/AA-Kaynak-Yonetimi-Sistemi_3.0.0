@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Data } from "../../model";
+import type { WorkspaceDensity } from "../WorkspaceNavigation";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
 import { monthLabel } from "../../format";
@@ -21,12 +22,18 @@ export type ProgressView = "plan" | "report" | "warnings" | "settings";
 /** Proje İlerlemesi: plan and monthly entry on one screen, and the report. */
 export default function ProjectProgressPanel({
   data,
+  actionsHost,
+  density,
+  onDensityChange,
   user,
   saving,
   view,
   onSave,
 }: {
   data: Data;
+  actionsHost: HTMLElement | null;
+  density: WorkspaceDensity;
+  onDensityChange: (value: WorkspaceDensity) => void;
   user: Principal | null;
   saving: boolean;
   view: ProgressView;
@@ -67,8 +74,8 @@ export default function ProjectProgressPanel({
 
   const responsibleFilter = (
     <>
-      <label className="progress-responsible-filter">
-        Proje sorumlusu
+      <label className="pick progress-responsible-filter">
+        <span>Proje Sorumlusu</span>
         <select
           value={responsible === null ? "all" : "name:" + responsible}
           onChange={(e) =>
@@ -86,8 +93,8 @@ export default function ProjectProgressPanel({
         </select>
       </label>
       {months.length > 0 && (
-        <label className="progress-month">
-          Ay
+        <label className="pick progress-month">
+          <span>Ay</span>
           <select value={month} onChange={(e) => setMonth(e.target.value)}>
             {[...months].reverse().map((m) => (
               <option key={m} value={m}>
@@ -100,22 +107,25 @@ export default function ProjectProgressPanel({
     </>
   );
 
+  function resetSharedFilters() {
+    setResponsible(null);
+    setMonth(defaultEntryMonth(currentMonth, data.projectProgress));
+  }
+
   return (
     <section className="panel project-progress">
       {view === "warnings" && (
-        <ScenarioWarningsPanel
-          data={progressData}
-          saving={saving}
-          onSave={onSave}
-        />
+        <ScenarioWarningsPanel data={data} saving={saving} onSave={onSave} />
       )}
       {view === "settings" && user?.role === "admin" && (
         <WarningSettingsPanel data={data} saving={saving} onSave={onSave} />
       )}
       {view === "plan" && (
         <PlanAndEntry
+          actionsHost={actionsHost}
           ctx={ctx}
           responsibleFilter={responsibleFilter}
+          onResetFilters={resetSharedFilters}
           user={user}
           month={month}
           currentMonth={currentMonth}
@@ -125,8 +135,12 @@ export default function ProjectProgressPanel({
       )}
       {view === "report" && (
         <ProgressReport
+          actionsHost={actionsHost}
+          density={density}
+          onDensityChange={onDensityChange}
           ctx={ctx}
           responsibleFilter={responsibleFilter}
+          onResetFilters={resetSharedFilters}
           user={user}
           month={reportMonth}
           currentMonth={currentMonth}

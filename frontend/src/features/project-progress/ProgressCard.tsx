@@ -2,7 +2,6 @@ import { ScenarioWarningStatus } from "./ScenarioWarningStatus";
 import { useEffect, useRef, useState } from "react";
 import type { Principal } from "../../access";
 import type { Project } from "../../model";
-import ProjectResponsible from "../../ProjectResponsible";
 import type { Change } from "../../../../shared/commands";
 import {
   PROGRESS_NOTE_MAX,
@@ -471,8 +470,6 @@ export default function ProgressCard({
               (a) => a.id === project.id,
             )}
           />
-          <span>{leader}</span>
-          <ProjectResponsible project={project} />
         </div>
         <div className="progress-card-statuses" aria-label="İlerleme durumları">
           <ProgressStatusCard
@@ -500,16 +497,6 @@ export default function ProgressCard({
             />
           )}
         </div>
-        {resourceStart && (
-          <span className="progress-card-hint">
-            Başlangıç: {monthLabel(resourceStart)} · ilk kaynak planlanan ay
-          </span>
-        )}
-        {baseline && !form && (
-          <span className="progress-card-hint">
-            Başlangıç %: {pctLabel(baseline.openingPct)}
-          </span>
-        )}
         {form && resourceStart && (
           <div className="progress-card-fields">
             <label>
@@ -545,13 +532,6 @@ export default function ProgressCard({
             )}
           </div>
         )}
-        <small className="progress-card-meta">
-          {monthLabel(project.start)} – {monthLabel(project.end)}
-          {record?.proposal?.submittedByName &&
-            ` · gönderen ${record.proposal.submittedByName}`}
-          {baseline &&
-            ` · onay ${baseline.approvedByName}, ${new Date(baseline.approvedAt).toLocaleDateString("tr-TR")}`}
-        </small>
       </header>
       {!resourceStart && (
         <p className="progress-card-hint">

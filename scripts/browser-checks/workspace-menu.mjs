@@ -224,8 +224,18 @@ export async function checkWorkspaceMenu(f) {
           "active tab receives keyboard focus",
         );
         await page.keyboard.press("ArrowDown");
+        const planning = menu.getByRole("tab", {
+          name: "Kaynak Planlama",
+          exact: true,
+        });
+        await f.wait(
+          async () =>
+            await planning.evaluate((el) => document.activeElement === el),
+          "resource planning follows projects",
+        );
+        await page.keyboard.press("ArrowDown");
         const progress = menu.getByRole("tab", {
-          name: "Proje İlerlemesi",
+          name: "Proje ve Kaynak Değerlendirme",
           exact: true,
         });
         await f.wait(
@@ -297,7 +307,10 @@ export async function checkWorkspaceMenu(f) {
           if (role === "employee")
             assert.equal(
               await navigation
-                .getByRole("tab", { name: "Proje İlerlemesi", exact: true })
+                .getByRole("tab", {
+                  name: "Proje ve Kaynak Değerlendirme",
+                  exact: true,
+                })
                 .count(),
               0,
             );

@@ -85,6 +85,8 @@ export default function Portal() {
   const [organizationView, setOrganizationView] = useState("employees");
   const [reportView, setReportView] = useState<ReportView>("resources");
   const [projectView, setProjectView] = useState<ProjectView>("projects");
+  const [progressActionsHost, setProgressActionsHost] =
+    useState<HTMLDivElement | null>(null);
   const [progressView, setProgressView] = useState<ProgressView>("plan");
   const [actualLayout, setActualLayout] = useActualLayout();
   const [sharedCalendarOpen, setSharedCalendarOpen] = useState(false);
@@ -630,6 +632,7 @@ export default function Portal() {
             actualLayout={actualLayout}
             setActualLayout={setActualLayout}
             progressView={progressView}
+            progressActionsRef={setProgressActionsHost}
             setProgressView={setProgressView}
             projectView={projectView}
             setProjectView={setProjectView}
@@ -978,6 +981,12 @@ export default function Portal() {
               {(isAdmin || isManager) && tab === "progress" && (
                 <TabsContent value="progress">
                   <ProjectProgressPanel
+                    actionsHost={progressActionsHost}
+                    density={density}
+                    onDensityChange={(mode) => {
+                      setDensity(mode);
+                      if (mode === "overview") setCount(60);
+                    }}
                     view={progressView}
                     data={data}
                     user={user}

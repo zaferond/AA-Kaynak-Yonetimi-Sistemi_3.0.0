@@ -195,6 +195,19 @@
   font-weight: 700;
   line-height: 18px;
 }
+/* Keep context labels muted and the selected person's values black. */
+html[data-theme] .app .person-allocation .actual-person-item strong,
+html[data-theme] .app .person-allocation .actual-month-item strong,
+html[data-theme] .app .person-allocation .actual-hours-item .worked-hours-input,
+html[data-theme]
+  .app
+  .person-allocation
+  .actual-hours-item
+  .worked-hours-input
+  input {
+  color: #161616;
+  -webkit-text-fill-color: #161616;
+}
 /* Kalan: still to enter (amber), complete (green), over capacity (red).
    Field-scoped so the theme's context text colour does not override it. */
 .person-allocation
@@ -280,8 +293,23 @@
   white-space: nowrap;
 }
 .person-allocation .allocation-grid td.actual-context-selected {
-  outline: 2px solid #5a96bd;
-  outline-offset: -2px;
+  outline: 0;
+}
+.person-allocation
+  .allocation-grid
+  td.actual-context-selected
+  .person-amount
+  input,
+.person-allocation
+  .allocation-grid
+  td.actual-context-selected
+  > .actual-fully-allocated,
+.person-allocation
+  .allocation-grid
+  td.actual-context-selected
+  > .actual-person-balance {
+  outline: 2px solid var(--brand-focus, #5a96bd);
+  outline-offset: 1px;
 }
 .person-allocation .actual-unit-control > small {
   display: block;

@@ -1,15 +1,15 @@
 import { useId, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
 import ProgressCard from "./ProgressCard";
-import ProgressProcessHelp from "./ProgressProcessHelp";
+import ProgressFilters from "./ProgressFilters";
 import {
   baselineStatus,
   entryStatus,
   PLAN_LABELS,
-  PLAN_STATUS_TITLE,
-  ENTRY_STATUS_TITLE,
   ENTRY_LABELS,
   entryPresentation,
   type PlanStatus,
@@ -36,7 +36,9 @@ const PLAN_ORDER: Record<PlanStatus, number> = {
  */
 export default function PlanAndEntry({
   ctx,
+  actionsHost,
   responsibleFilter,
+  onResetFilters,
   user,
   month,
   currentMonth,
@@ -44,7 +46,9 @@ export default function PlanAndEntry({
   onSave,
 }: {
   ctx: ProgressContext;
+  actionsHost: HTMLElement | null;
   responsibleFilter: ReactNode;
+  onResetFilters: () => void;
   user: Principal | null;
   month: string;
   currentMonth: string;
@@ -100,9 +104,34 @@ export default function PlanAndEntry({
 
   return (
     <div className="progress-baseline">
-      <div className="progress-baseline-bar">
-        <label>
-          Liderlik
+      {actionsHost &&
+        createPortal(
+          <ProgressLeadershipToggle
+            checked={groups.some(([name]) => !collapsed.has(name))}
+            disabled={!groups.length}
+            onChange={(open) => {
+              setCollapsed((previous) => {
+                const next = new Set(previous);
+                groups.forEach(([name]) => {
+                  if (open) next.delete(name);
+                  else next.add(name);
+                });
+                return next;
+              });
+            }}
+          />,
+          actionsHost,
+        )}
+      <ProgressFilters
+        onReset={() => {
+          setLeader("");
+          setPlanFilter("");
+          setEntryFilter("");
+          onResetFilters();
+        }}
+      >
+        <label className="pick">
+          <span>Liderlik</span>
           <select value={leader} onChange={(e) => setLeader(e.target.value)}>
             <option value="">Tümü</option>
             {leaders.map((name) => (
@@ -113,8 +142,8 @@ export default function PlanAndEntry({
           </select>
         </label>
         {responsibleFilter}
-        <label>
-          {PLAN_STATUS_TITLE}
+        <label className="pick progress-status-filter">
+          <span>Hedef Plan</span>
           <select
             value={planFilter}
             onChange={(e) => setPlanFilter(e.target.value as "" | PlanStatus)}
@@ -127,8 +156,8 @@ export default function PlanAndEntry({
             ))}
           </select>
         </label>
-        <label>
-          {ENTRY_STATUS_TITLE}
+        <label className="pick progress-status-filter">
+          <span>Gerçekleşen Plan</span>
           <select
             value={entryFilter}
             onChange={(e) => setEntryFilter(e.target.value as "" | EntryStatus)}
@@ -144,50 +173,7 @@ export default function PlanAndEntry({
             )}
           </select>
         </label>
-        {groups.length > 0 && (
-          <div className="progress-group-actions">
-            <button
-              type="button"
-              className="button"
-              disabled={!groups.some(([name]) => collapsed.has(name))}
-              onClick={() =>
-                setCollapsed((previous) => {
-                  const next = new Set(previous);
-                  groups.forEach(([name]) => next.delete(name));
-                  return next;
-                })
-              }
-            >
-              Tümünü Aç
-            </button>
-            <button
-              type="button"
-              className="button"
-              disabled={groups.every(([name]) => collapsed.has(name))}
-              onClick={() =>
-                setCollapsed(
-                  (previous) =>
-                    new Set([...previous, ...groups.map(([name]) => name)]),
-                )
-              }
-            >
-              Tümünü Kapat
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="progress-entry-summary">
-        {month ? (
-          <span className="progress-entry-count">
-            Gerçekleşeni girilmeyen: {entryCount("waiting")}
-          </span>
-        ) : (
-          <span className="progress-entry-count">
-            Gerçekleşen girişi için henüz takip ayı yok.
-          </span>
-        )}
-      </div>
-      <ProgressProcessHelp />
+      </ProgressFilters>
       {groups.length ? (
         groups.map(([name, items]) => (
           <section

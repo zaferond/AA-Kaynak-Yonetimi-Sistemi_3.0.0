@@ -109,12 +109,15 @@ export async function checkProgressManagement(f) {
   );
   const { page, context } = await f.client("root-admin");
   const open = async () => {
-    await selectWorkspaceTab(page, "Proje İlerlemesi");
+    await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
     await page
       .getByRole("combobox", { name: "Ay", exact: true })
       .selectOption("2026-09");
     await page
-      .getByRole("tab", { name: "Proje İlerleme Raporu", exact: true })
+      .getByRole("tab", {
+        name: "Proje ve Kaynak Değerlendirme Raporu",
+        exact: true,
+      })
       .click();
   };
   await f.store.mutate(f.actor, (d, u) =>
@@ -137,7 +140,7 @@ export async function checkProgressManagement(f) {
   try {
     await open();
     const matrix = page.getByRole("table", {
-      name: "Proje ilerleme raporu",
+      name: "Proje ve Kaynak Değerlendirme Raporu",
       exact: true,
     });
     const projectA = () => matrix.locator('[data-project="p-a"]').first();
@@ -259,8 +262,8 @@ export async function checkProgressManagement(f) {
           "0,2",
         );
         await page
-          .getByRole("button", { name: "Liderlikleri Kapat", exact: true })
-          .click();
+          .getByRole("switch", { name: "Liderlikleri Aç / Kapa", exact: true })
+          .uncheck();
         assert.equal(await matrix.locator(".progress-leader-row").count(), 0);
         await matrix
           .getByRole("button", { name: "Browser Project A", exact: true })
@@ -444,7 +447,10 @@ export async function checkProgressManagement(f) {
         await f.capture(page, "scenario-warning-settings");
         const manager = await f.client("manager");
         try {
-          await selectWorkspaceTab(manager.page, "Proje İlerlemesi");
+          await selectWorkspaceTab(
+            manager.page,
+            "Proje ve Kaynak Değerlendirme",
+          );
           assert.equal(
             await manager.page
               .getByRole("tab", { name: "Uyarı Ayarları", exact: true })

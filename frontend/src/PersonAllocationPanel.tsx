@@ -177,15 +177,11 @@ export default function PersonAllocationPanel(
           />
           Sadece veri olanlar
         </label>
-        {layout === "project" ? (
+        {layout === "project" && (
           <span className="actual-load-legend">
             <i aria-hidden="true" />
             Hücre altındaki çubuk: kişinin o ay tüm projelerdeki toplamı ·
             kalan, hücre seçilince üstteki Kalan alanında
-          </span>
-        ) : (
-          <span className="actual-load-legend">
-            Kişi satırı: o ay tüm projeler ve eğitim toplamı ile kalan
           </span>
         )}
         <Pager

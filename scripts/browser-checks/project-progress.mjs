@@ -13,7 +13,7 @@ export async function checkProjectProgress(f) {
   const tab = (page) =>
     page
       .locator("#workspace-main-menu")
-      .getByText("Proje İlerlemesi", { exact: true });
+      .getByText("Proje ve Kaynak Değerlendirme", { exact: true });
   const name = "Browser Project A · " + f.teamA.lead;
   const otherName = "Browser Project B · " + f.teamA.lead;
   const otherProject = (await f.state()).projects.find((p) => p.id === "p-b");
@@ -45,7 +45,7 @@ export async function checkProjectProgress(f) {
       "progress: a leader sees its leadership's projects and proposes a baseline",
       async () => {
         const { page } = leader;
-        await selectWorkspaceTab(page, "Proje İlerlemesi");
+        await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
         assert.equal(
           await page
             .getByRole("tab", { name: "Hedef Plan / Gerçekleşen Plan Giriş" })
@@ -78,14 +78,15 @@ export async function checkProjectProgress(f) {
           name: otherName,
           exact: true,
         });
-        await card
-          .getByText("Proje Sorumlusu : Synthetic owner", { exact: true })
-          .waitFor();
-        await otherCard
-          .getByText("Proje Sorumlusu : —", { exact: true })
-          .waitFor();
+        await card.waitFor();
+        await otherCard.waitFor();
+        assert.equal(await card.locator(".project-responsible").count(), 0);
+        assert.equal(
+          await otherCard.locator(".project-responsible").count(),
+          0,
+        );
         const ownerFilter = page.getByRole("combobox", {
-          name: "Proje sorumlusu",
+          name: "Proje Sorumlusu",
           exact: true,
         });
         await ownerFilter.selectOption({ label: "Synthetic owner" });
@@ -108,7 +109,7 @@ export async function checkProjectProgress(f) {
         assert.equal(
           await page
             .getByRole("combobox", {
-              name: "Gerçekleşen Plan Durumu",
+              name: "Gerçekleşen Plan",
               exact: true,
             })
             .locator('option[value="needsPlan"]')
@@ -120,11 +121,11 @@ export async function checkProjectProgress(f) {
           await card.getByLabel(`${name} · başlangıç ayı`).count(),
           0,
         );
-        await card
-          .getByText("Başlangıç: Eyl 2026 · ilk kaynak planlanan ay", {
-            exact: true,
-          })
-          .waitFor();
+        await card.getByLabel(`${name} · başlangıç %`).waitFor();
+        assert.equal(
+          await card.getByText(/ilk kaynak planlanan ay/).count(),
+          0,
+        );
         assert.equal(
           await card.locator(".progress-grid thead th").nth(1).textContent(),
           "Oca 26",
@@ -153,14 +154,14 @@ export async function checkProjectProgress(f) {
           "0",
         );
         await page
-          .getByRole("button", { name: "Tümünü Kapat", exact: true })
-          .click();
+          .getByRole("switch", { name: "Liderlikleri Aç / Kapa", exact: true })
+          .uncheck();
         assert.equal(await card.isVisible(), false);
         assert.equal(await otherCard.isVisible(), false);
         await f.capture(page, "progress-groups-collapsed");
         await page
-          .getByRole("button", { name: "Tümünü Aç", exact: true })
-          .click();
+          .getByRole("switch", { name: "Liderlikleri Aç / Kapa", exact: true })
+          .check();
         assert.equal(await otherCard.isVisible(), true);
         assert.equal(
           await card.getByLabel(`${name} · başlangıç %`).inputValue(),
@@ -196,12 +197,8 @@ export async function checkProjectProgress(f) {
           ]),
         );
         await page.reload();
-        await selectWorkspaceTab(page, "Proje İlerlemesi");
-        await card
-          .getByText("Başlangıç: Kas 2026 · ilk kaynak planlanan ay", {
-            exact: true,
-          })
-          .waitFor();
+        await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
+        await card.getByLabel(`${name} · başlangıç %`).waitFor();
         assert.equal(
           await card.locator(".progress-grid thead th").nth(1).textContent(),
           "Oca 26",
@@ -265,7 +262,7 @@ export async function checkProjectProgress(f) {
       async () => {
         const { page } = admin;
         await page.reload();
-        await selectWorkspaceTab(page, "Proje İlerlemesi");
+        await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
         assert.equal(
           await page
             .getByRole("tab", { name: "Hedef Plan / Gerçekleşen Plan Giriş" })
@@ -305,7 +302,7 @@ export async function checkProjectProgress(f) {
           })
           .waitFor();
         const entryFilter = page.getByRole("combobox", {
-          name: "Gerçekleşen Plan Durumu",
+          name: "Gerçekleşen Plan",
           exact: true,
         });
         assert.equal(
@@ -318,17 +315,19 @@ export async function checkProjectProgress(f) {
           await card.getByLabel(`${name} · Kas 2026 hedef %`).count(),
           0,
         );
-        await page.getByRole("tab", { name: "Proje İlerleme Raporu" }).click();
         await page
-          .getByRole("table", { name: "Proje ilerleme raporu" })
+          .getByRole("tab", { name: "Proje ve Kaynak Değerlendirme Raporu" })
+          .click();
+        await page
+          .getByRole("table", { name: "Proje ve Kaynak Değerlendirme Raporu" })
           .getByRole("button", { name: "Browser Project A", exact: true })
           .waitFor();
         const ownerFilter = page.getByRole("combobox", {
-          name: "Proje sorumlusu",
+          name: "Proje Sorumlusu",
           exact: true,
         });
         const report = page.getByRole("table", {
-          name: "Proje ilerleme raporu",
+          name: "Proje ve Kaynak Değerlendirme Raporu",
         });
         await ownerFilter.selectOption({ label: "Synthetic owner" });
         assert.equal(await report.locator(".progress-project-row").count(), 1);
@@ -349,7 +348,9 @@ export async function checkProjectProgress(f) {
           .waitFor();
         await ownerFilter.selectOption({ label: "Tümü" });
         await f.capture(page, "progress-plan-and-entry");
-        await page.getByRole("tab", { name: "Proje İlerleme Raporu" }).click();
+        await page
+          .getByRole("tab", { name: "Proje ve Kaynak Değerlendirme Raporu" })
+          .click();
         await f.capture(page, "progress-report-owners");
       },
     );
@@ -377,11 +378,11 @@ export async function checkProjectProgress(f) {
           .getByRole("combobox", { name: "Ay", exact: true })
           .selectOption("2026-09");
         const entryFilter = page.getByRole("combobox", {
-          name: "Gerçekleşen Plan Durumu",
+          name: "Gerçekleşen Plan",
           exact: true,
         });
         const planFilter = page.getByRole("combobox", {
-          name: "Hedef Plan Durumu",
+          name: "Hedef Plan",
           exact: true,
         });
         await entryFilter.selectOption("closed");
@@ -552,11 +553,12 @@ export async function checkProjectProgress(f) {
         await page
           .getByRole("combobox", { name: "Ay", exact: true })
           .selectOption("2026-10");
-        assert.equal(
-          await otherCard
-            .getByLabel(`${otherName} · Eki 2026 gerçekleşen %`)
-            .inputValue(),
-          "",
+        await f.wait(
+          async () =>
+            (await otherCard
+              .getByLabel(`${otherName} · Eki 2026 gerçekleşen %`)
+              .inputValue()) === "",
+          "Month change resets the unsaved actual revision",
         );
         assert.equal(await noteField.inputValue(), "");
         await page
@@ -567,7 +569,10 @@ export async function checkProjectProgress(f) {
         assert.equal(await actualField.count(), 0);
         assert.equal(await noteField.count(), 0);
         await page
-          .getByRole("tab", { name: "Proje İlerleme Raporu", exact: true })
+          .getByRole("tab", {
+            name: "Proje ve Kaynak Değerlendirme Raporu",
+            exact: true,
+          })
           .click();
         await page
           .getByRole("button", {
@@ -687,12 +692,17 @@ export async function checkProjectProgress(f) {
           "Yalnız açıklama revize edildi",
         );
         await f.capture(page, "progress-independent-statuses");
+        assert.equal(
+          await page
+            .getByText("Durumlar ve süreç nasıl işler?", { exact: true })
+            .count(),
+          0,
+        );
         await page
-          .getByText("Durumlar ve süreç nasıl işler?", { exact: true })
-          .click();
-        await f.capture(page, "progress-process-help");
-        await page
-          .getByRole("tab", { name: "Proje İlerleme Raporu", exact: true })
+          .getByRole("tab", {
+            name: "Proje ve Kaynak Değerlendirme Raporu",
+            exact: true,
+          })
           .click();
         await page
           .getByRole("button", {
@@ -736,7 +746,10 @@ export async function checkProjectProgress(f) {
           )
           .waitFor();
         await page
-          .getByRole("tab", { name: "Proje İlerleme Raporu", exact: true })
+          .getByRole("tab", {
+            name: "Proje ve Kaynak Değerlendirme Raporu",
+            exact: true,
+          })
           .click();
         await page
           .getByRole("button", {
@@ -769,7 +782,10 @@ export async function checkProjectProgress(f) {
         assert.equal(await saveActual.count(), 0);
         assert.equal(await reviseActual.count(), 0);
         await page
-          .getByRole("tab", { name: "Proje İlerleme Raporu", exact: true })
+          .getByRole("tab", {
+            name: "Proje ve Kaynak Değerlendirme Raporu",
+            exact: true,
+          })
           .click();
         await page
           .getByRole("button", {

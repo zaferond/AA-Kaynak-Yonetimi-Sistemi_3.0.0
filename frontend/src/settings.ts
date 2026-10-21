@@ -12,7 +12,7 @@ export const TAB_LABELS = {
   activity: "Aktivite Raporu",
   critical: "Haftalık Kritik Konular",
   overview: "Raporlar",
-  progress: "Proje İlerlemesi",
+  progress: "Proje ve Kaynak Değerlendirme",
 };
 export const DEFAULT_FILTERS = {
   start: currentPlanningMonth().slice(0, 4) + "-01",

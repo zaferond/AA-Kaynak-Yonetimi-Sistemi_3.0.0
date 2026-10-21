@@ -9,7 +9,9 @@
   --progress-series-spent: #1baf7a;
 }
 .project-progress > .progress-baseline,
-.project-progress > .progress-report {
+.project-progress > .progress-report,
+.project-progress > .scenario-warnings-panel,
+.project-progress > .scenario-settings {
   margin-inline: 10px;
 }
 .project-progress .panelhead {
@@ -240,7 +242,7 @@
 .project-progress .progress-card[data-status="approved"] {
   border-left-color: var(--progress-green);
 }
-/* Title, opening controls and dates share one line. */
+/* Keep the project title and editable opening controls together. */
 .project-progress .progress-card-head {
   display: flex;
   align-items: center;
@@ -369,11 +371,6 @@
 .project-progress .progress-card-fields .wide input {
   width: 280px;
   text-align: left;
-}
-.project-progress .progress-card-meta {
-  margin-left: auto;
-  color: var(--brand-muted, #60715e);
-  font-size: var(--fs-xs);
 }
 .project-progress .progress-card-actions {
   display: flex;
@@ -761,6 +758,7 @@
   display: inline-flex;
   gap: 6px;
   margin-left: auto;
+  justify-self: end;
 }
 .project-progress .progress-group-projects {
   display: grid;
@@ -1469,5 +1467,126 @@
 @media (max-width: 1000px) {
   .scenario-expanded-details {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Progress tabs use the workspace's standard horizontal filter strip. */
+.app.tab-progress .progress-filterbar.planning-filterbar .filters > label.pick {
+  flex: 1 1 210px;
+  min-width: 200px;
+  max-width: 340px;
+}
+.app.tab-progress
+  .progress-filterbar.planning-filterbar
+  .filters
+  > label.progress-month {
+  flex: 0 1 150px;
+  min-width: 150px;
+}
+.app.tab-progress
+  .progress-filterbar.planning-filterbar
+  .filters
+  > label.progress-status-filter {
+  flex: 1 1 290px;
+  min-width: 285px;
+  max-width: 400px;
+}
+.app.tab-progress
+  .progress-filterbar.planning-filterbar
+  .filters
+  > label.progress-project-filter,
+.app.tab-progress
+  .progress-filterbar.planning-filterbar
+  .filters
+  > label.progress-decision-filter {
+  flex: 1 1 270px;
+  min-width: 245px;
+}
+.project-progress .progress-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+.project-progress .progress-toolbar .button,
+.project-progress .progress-group-actions .button {
+  min-height: 28px;
+  height: auto;
+  font-size: var(--fs-xs);
+}
+.project-progress .progress-result-count {
+  margin-right: auto;
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+}
+.project-progress > .scenario-warnings-panel {
+  padding-top: 0;
+}
+.project-progress
+  .progress-monthly-matrix[data-density="overview"]
+  :is(td:not([rowspan]), .monthhead) {
+  padding-inline: 1px;
+  font-size: 10px;
+}
+.project-progress
+  .progress-monthly-matrix[data-density="overview"]
+  .monthhead
+  span {
+  display: block;
+  overflow: hidden;
+}
+@media (max-width: 650px) {
+  .app.tab-progress
+    .progress-filterbar.planning-filterbar
+    .filters
+    > label.pick {
+    flex: none;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+  .app.tab-progress
+    .progress-filterbar.planning-filterbar
+    .filters
+    > .pick
+    > span {
+    white-space: normal;
+  }
+  .project-progress .progress-toolbar .button {
+    white-space: normal;
+  }
+}
+
+/* Entry and report filters share one desktop row with readable labels. */
+@media (min-width: 1200px) {
+  .app.tab-progress
+    :is(.progress-baseline, .progress-report)
+    .progress-filterbar.planning-filterbar {
+    flex-wrap: nowrap;
+    column-gap: 8px;
+  }
+  .app.tab-progress
+    :is(.progress-baseline, .progress-report)
+    .progress-filterbar.planning-filterbar
+    .filters {
+    display: grid;
+    grid-template-columns:
+      minmax(115px, 1fr) minmax(155px, 1.15fr) minmax(110px, 0.8fr)
+      minmax(165px, 1.15fr) minmax(190px, 1.4fr);
+    flex: 1 1 0;
+    gap: 8px;
+    min-width: 0;
+  }
+  .app.tab-progress
+    :is(.progress-baseline, .progress-report)
+    .progress-filterbar.planning-filterbar
+    .filters
+    > label.pick {
+    min-width: 0;
+    max-width: none;
+    width: auto;
   }
 }

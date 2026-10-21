@@ -293,8 +293,10 @@ export default function ActualAllocationTable({
         }
         onClick={() => selectHoursContext(resource.id, month, key)}
       >
-        <strong>%{whole(balance.percent)}</strong>
-        <small>{note}</small>
+        <span className="actual-person-balance">
+          <strong>%{whole(balance.percent)}</strong>
+          <small>{note}</small>
+        </span>
       </TableCell>
     );
   }

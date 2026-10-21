@@ -44,7 +44,7 @@
    doluluk çubuğu. Tam değer ipucunda ve ekran okuyucu etiketinde. */
 .app.tab-actual .allocation-grid td:has(> .actual-cell-load) {
   position: relative;
-  padding-bottom: 8px;
+  padding-block: 8px;
 }
 .app.tab-actual .actual-cell-load {
   position: absolute;

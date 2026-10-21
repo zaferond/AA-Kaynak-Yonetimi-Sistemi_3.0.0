@@ -1,15 +1,14 @@
 import {
-  SCENARIO_WARNING_RULES,
-  WARNING_PROGRESS_LABELS,
-  WARNING_RESOURCE_LABELS,
-} from "../../../../shared/scenario-warning-policy.ts";
-import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
 import type { WarningAssessment } from "../../../../shared/scenario-warnings.ts";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowDownToLine, Lock, LockOpen } from "lucide-react";
+import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
+import { createPortal } from "react-dom";
+import WorkspaceDensityControl from "../workspace/WorkspaceDensityControl";
+import type { WorkspaceDensity } from "../WorkspaceNavigation";
 import type { Principal } from "../../access";
 import ProjectResponsible from "../../ProjectResponsible";
 import type { Change } from "../../../../shared/commands";
@@ -27,6 +26,7 @@ import {
   type ManagedProject,
 } from "./progress-management";
 import ProgressManagementMatrix from "./ProgressManagementMatrix";
+import ProgressFilters from "./ProgressFilters";
 import {
   managementSheets,
   managementExportRows,
@@ -107,7 +107,11 @@ const PAGE_SIZE = 10;
 /** Project headings, leadership detail and monthly cumulative progress. */
 export default function ProgressReport({
   ctx,
+  actionsHost,
+  density,
+  onDensityChange,
   responsibleFilter,
+  onResetFilters,
   user,
   month,
   currentMonth,
@@ -115,7 +119,11 @@ export default function ProgressReport({
   onSave,
 }: {
   ctx: ProgressContext;
+  actionsHost: HTMLElement | null;
+  density: WorkspaceDensity;
+  onDensityChange: (value: WorkspaceDensity) => void;
   responsibleFilter: ReactNode;
+  onResetFilters: () => void;
   user: Principal | null;
   month: string;
   currentMonth: string;
@@ -129,12 +137,9 @@ export default function ProgressReport({
   const [decision, setDecision] = useState<DecisionFilter>("");
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [detail, setDetail] = useState("");
-  const [year, setYear] = useState(month.slice(0, 4));
+  const year = month.slice(0, 4);
   const [page, setPage] = useState(0);
   const [error, setError] = useState("");
-  useEffect(() => {
-    setYear(month.slice(0, 4));
-  }, [month]);
   useEffect(() => {
     setPage(0);
   }, [ctx, month, leader, projectId, decision]);
@@ -192,23 +197,12 @@ export default function ProgressReport({
   const monthColumns = useMemo(
     () =>
       Array.from(
-        { length: 12 },
-        (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`,
+        { length: density === "overview" ? 60 : 12 },
+        (_, index) =>
+          `${Number(year) + Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, "0")}`,
       ),
-    [year],
+    [year, density],
   );
-  const years = useMemo(() => {
-    const values = new Set([month.slice(0, 4), currentMonth.slice(0, 4)]);
-    for (const row of allRows) {
-      for (
-        let y = Number(row.project.start.slice(0, 4));
-        y <= Number(row.project.end.slice(0, 4));
-        y++
-      )
-        values.add(String(y));
-    }
-    return [...values].sort();
-  }, [allRows, month, currentMonth]);
   const leaderNames = [
     ...new Set(allRows.flatMap((r) => r.leaders.map((l) => l.record.leader))),
   ].sort((a, b) => a.localeCompare(b, "tr"));
@@ -220,7 +214,7 @@ export default function ProgressReport({
     (Math.min(page, pageCount - 1) + 1) * PAGE_SIZE,
   );
   const lastLockedMonth = [...(data.progressLocks || [])]
-    .map((l) => l.id)
+    .map((item) => item.id)
     .sort()
     .at(-1);
   const lock = (data.progressLocks || []).find((item) => item.id === month);
@@ -257,26 +251,58 @@ export default function ProgressReport({
   }
   return (
     <div className="progress-report">
-      <header className="progress-management-head">
-        <div>
-          <h3>Proje ve Liderlik Bazında Aylık İlerleme</h3>
-          <p>
-            Senaryo değerlendirmesi:{" "}
-            {lastLockedMonth
-              ? monthLabel(lastLockedMonth) + " (son kilitli ay)"
-              : "Kilitli ay bekleniyor"}{" "}
-            · Kümülatif tamamlanma yüzdeleri · {projects.length} proje /{" "}
-            {projects.reduce((n, p) => n + p.row.leaders.length, 0)} liderlik
-            kaydı
-          </p>
-        </div>
-        <span className="progress-management-period">
-          Aylık görünüm: {year}
-        </span>
-      </header>
-      <div className="progress-filters">
-        <label>
-          Liderlik
+      {actionsHost &&
+        createPortal(
+          <>
+            {lock && (
+              <span className="progress-period-closed" role="status">
+                Hedef Plan Giriş Dönemi Kapandı (
+                {new Intl.DateTimeFormat("tr-TR", { month: "long" }).format(
+                  new Date(month + "-01T12:00:00"),
+                )}
+                )
+              </span>
+            )}
+            <WorkspaceDensityControl
+              value={density}
+              onChange={onDensityChange}
+            />
+            <ProgressLeadershipToggle
+              checked={visible.some((project) =>
+                expanded.has(project.row.project.id),
+              )}
+              disabled={!visible.length}
+              onChange={(open) => {
+                const next = new Set(expanded);
+                visible.forEach((project) => {
+                  if (open) next.add(project.row.project.id);
+                  else next.delete(project.row.project.id);
+                });
+                setExpanded(next);
+              }}
+            />
+            <button
+              type="button"
+              className="button progress-lock-button"
+              disabled={!filtered.length}
+              onClick={exportReport}
+            >
+              <ArrowDownToLine size={14} />
+              Excel’e Aktar
+            </button>
+          </>,
+          actionsHost,
+        )}
+      <ProgressFilters
+        onReset={() => {
+          setLeader("");
+          setProjectId("");
+          setDecision("");
+          onResetFilters();
+        }}
+      >
+        <label className="pick">
+          <span>Liderlik</span>
           <select
             value={leader}
             onChange={(e) => {
@@ -293,8 +319,8 @@ export default function ProgressReport({
           </select>
         </label>
         {responsibleFilter}
-        <label>
-          Proje
+        <label className="pick progress-project-filter">
+          <span>Proje</span>
           <select
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
@@ -307,8 +333,8 @@ export default function ProgressReport({
             ))}
           </select>
         </label>
-        <label>
-          Değerlendirme
+        <label className="pick progress-decision-filter">
+          <span>Değerlendirme</span>
           <select
             value={decision}
             onChange={(e) => setDecision(e.target.value as DecisionFilter)}
@@ -320,42 +346,21 @@ export default function ProgressReport({
             ))}
           </select>
         </label>
-        <label>
-          Aylık görünüm yılı
-          <select value={year} onChange={(e) => setYear(e.target.value)}>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          className="button progress-lock-button"
-          disabled={!filtered.length}
-          onClick={exportReport}
-        >
-          <ArrowDownToLine size={14} />
-          Excel’e Aktar
-        </button>
-        {admin && (
-          <button
-            type="button"
-            className="button progress-lock-button"
-            disabled={saving}
-            onClick={() => void toggleLock()}
-          >
-            {lock ? <LockOpen size={14} /> : <Lock size={14} />}
-            {monthLabel(month)} Ayını Değişikliğe {lock ? "Aç" : "Kapat"}
-          </button>
-        )}
-      </div>
-      {lock && (
-        <p className="progress-locked">
-          Ay kilidi ({monthLabel(month)}): Değişikliğe kapalı ·{" "}
-          {lock.lockedByName}
-        </p>
+      </ProgressFilters>
+      {admin && (
+        <div className="progress-toolbar">
+          {admin && (
+            <button
+              type="button"
+              className="button progress-lock-button"
+              disabled={saving}
+              onClick={() => void toggleLock()}
+            >
+              {lock ? <LockOpen size={14} /> : <Lock size={14} />}
+              {monthLabel(month)} Ayını Değişikliğe {lock ? "Aç" : "Kapat"}
+            </button>
+          )}
+        </div>
       )}
       {error && (
         <p role="alert" className="progress-error">
@@ -406,61 +411,6 @@ export default function ProgressReport({
           </button>
         ))}
       </div>
-      <details className="progress-process-help progress-report-help">
-        <summary>İlerleme ve kaynak kararları nasıl değerlendirilir?</summary>
-        <p>
-          İlerleme, son kilitli ayın kümülatif gerçekleşeni ile hedefi
-          arasındaki sapmadır. Eşiklere göre Planın İlerisinde, Planda, Planın
-          Gerisinde veya Kritik Gecikme gösterilir. Ardışık kilitli takvim
-          aylarında planın gerisinde kalma, ayarlanan süre sonunda Kritik
-          Gecikme durumuna yükseltilir.
-        </p>
-        <p>
-          Kalan iş = %100 − gerçekleşen. Gelecek Planlı %, onay anında
-          sabitlenen kaynak/hedef oranıyla gelecekteki kaynaklardan hesaplanır.
-          Karşılama = Gelecek Planlı % / Kalan İş %. Yakın dönemde kaynak yoksa
-          Planlanmamış; diğer durumlarda karşılama eşiklerine göre Yetersiz,
-          Yeterli veya Fazla olur.
-        </p>
-        <p>
-          1. Uyarı ilerleme durumunu, 2. Uyarı senaryo matrisindeki aksiyonu
-          gösterir. Matriste karşılığı olmayan birleşimlerde yalnız 1. Uyarı
-          gösterilir. Gerçekleşen %100 ise uyarı üretilmez. Son kilitli ayda
-          herhangi bir liderliğin verisi eksikse “Veri eksik” gösterilir.
-        </p>
-        <p>
-          Senaryo değerlendirmesi proje genelini kapsar; liderlik filtresi veya
-          aylık görünüm seçimi bu hesabı değiştirmez. Eksik giriş, kapasite ve
-          kritik konu uyarıları “Hesap ve diğer uyarılar” ayrıntısında korunur.
-          Kaynak aktarımı için eşleşmeler aynı liderlikteki projelerle
-          sınırlıdır; miktar ve takım yetkinliği yönetici tarafından
-          değerlendirilir.
-        </p>
-        <table className="progress-table compact" aria-label="Senaryo matrisi">
-          <thead>
-            <tr>
-              <th>Kod</th>
-              <th>İlerleme</th>
-              <th>Kaynak</th>
-              <th>2. Uyarı / Aksiyon</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SCENARIO_WARNING_RULES.map((rule) => (
-              <tr key={rule.kod}>
-                <td>{rule.kod}</td>
-                <td>
-                  {rule.ilerleme
-                    .map((state) => WARNING_PROGRESS_LABELS[state])
-                    .join(" / ")}
-                </td>
-                <td>{WARNING_RESOURCE_LABELS[rule.kaynak]}</td>
-                <td>{rule.uyari2}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
       {comparisons.length > 0 && (
         <section
           className="progress-transfer-review"
@@ -497,41 +447,20 @@ export default function ProgressReport({
       )}
       <div className="progress-matrix-toolbar">
         <span>
-          {filtered.length} proje · {year} aylık görünümü · Son kilitli ay:{" "}
+          {filtered.length} proje ·{" "}
+          {density === "overview" ? `${year}–${Number(year) + 4}` : year} aylık
+          görünümü · Son kilitli ay:{" "}
           {lastLockedMonth ? monthLabel(lastLockedMonth) : "—"}
         </span>
-        <div>
-          <button
-            type="button"
-            className="button"
-            disabled={!visible.some((p) => !expanded.has(p.row.project.id))}
-            onClick={() => {
-              const next = new Set(expanded);
-              visible.forEach((p) => next.add(p.row.project.id));
-              setExpanded(next);
-            }}
-          >
-            Liderlikleri Aç
-          </button>
-          <button
-            type="button"
-            className="button"
-            disabled={!visible.some((p) => expanded.has(p.row.project.id))}
-            onClick={() => {
-              const next = new Set(expanded);
-              visible.forEach((p) => next.delete(p.row.project.id));
-              setExpanded(next);
-            }}
-          >
-            Liderlikleri Kapat
-          </button>
-        </div>
       </div>
       {filtered.length ? (
         <ProgressManagementMatrix
           ctx={ctx}
           projects={visible}
           months={monthColumns}
+          monthWidth={
+            density === "overview" ? 24 : density === "compact" ? 68 : 150
+          }
           month={month}
           expanded={expanded}
           setExpanded={setExpanded}

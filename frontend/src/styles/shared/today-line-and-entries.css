@@ -177,9 +177,6 @@
   td.has-entry:not(.actual-exceeds-plan) {
   color: #205d53;
 }
-.app.tab-actual .allocation-grid td.has-entry {
-  background: var(--table-actual-cell-background);
-}
 .person-allocation
   .allocation-grid
   td.has-entry

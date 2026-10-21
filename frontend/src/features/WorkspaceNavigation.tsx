@@ -20,6 +20,7 @@ import type { WorkspaceMenu } from "./workspace/useWorkspaceMenu";
 import WorkspaceSectionHeader, {
   type WorkspaceSectionTab,
 } from "./workspace/WorkspaceSectionHeader";
+import WorkspaceDensityControl from "./workspace/WorkspaceDensityControl";
 import type { ActualLayout } from "./actual-allocation/useActualAllocationView";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
 export type WorkspaceDensity = "detail" | "compact" | "overview";
@@ -52,6 +53,7 @@ type Props = {
   actualLayout: ActualLayout;
   setActualLayout: (view: ActualLayout) => void;
   progressView: ProgressView;
+  progressActionsRef: (node: HTMLDivElement | null) => void;
   setProgressView: (view: ProgressView) => void;
   projectView: ProjectView;
   setProjectView: (view: ProjectView) => void;
@@ -83,6 +85,7 @@ export default function WorkspaceNavigation({
   actualLayout,
   setActualLayout,
   progressView,
+  progressActionsRef,
   setProgressView,
   projectView,
   setProjectView,
@@ -110,26 +113,19 @@ export default function WorkspaceNavigation({
   // "Normal-Proje" sees only the project and critical-topic screens.
   const anyRole =
     isAdmin || isManager || (user?.role === "normal" && !projectEditor);
-  // Order and grouping: actuals · planning and projects · reports · administration.
+  // Order and grouping: planning and projects · reports · actuals · administration.
   const mainTabs = (
     [
-      { value: "actual", Icon: CalendarDays, group: "actuals", show: anyRole },
-      {
-        value: "activity",
-        Icon: CalendarDays,
-        group: "actuals",
-        show: anyRole,
-      },
       { value: "projects", Icon: FolderKanban, group: "planning", show: true },
       {
-        value: "progress",
-        Icon: TrendingUp,
+        value: "plan",
+        Icon: CalendarDays,
         group: "planning",
         show: isAdmin || isManager,
       },
       {
-        value: "plan",
-        Icon: CalendarDays,
+        value: "progress",
+        Icon: TrendingUp,
         group: "planning",
         show: isAdmin || isManager,
       },
@@ -150,6 +146,13 @@ export default function WorkspaceNavigation({
         Icon: Layers3,
         group: "reports",
         show: isAdmin || isManager,
+      },
+      { value: "actual", Icon: CalendarDays, group: "actuals", show: anyRole },
+      {
+        value: "activity",
+        Icon: CalendarDays,
+        group: "actuals",
+        show: anyRole,
       },
       { value: "resources", Icon: Users, group: "admin", show: isAdmin },
     ] as const
@@ -189,7 +192,7 @@ export default function WorkspaceNavigation({
         label: "Hedef Plan / Gerçekleşen Plan Giriş",
         badge: isAdmin ? pendingProgressApprovals : 0,
       },
-      { value: "report", label: "Proje İlerleme Raporu" },
+      { value: "report", label: "Proje ve Kaynak Değerlendirme Raporu" },
       { value: "warnings", label: "Senaryo Uyarıları" },
       ...(isAdmin ? [{ value: "settings", label: "Uyarı Ayarları" }] : []),
     ];
@@ -314,85 +317,84 @@ export default function WorkspaceNavigation({
         value={sectionValue}
         onChange={changeSection}
         actionsPlacement={
-          ["actual", "projects", "plan", "overview"].includes(tab)
+          ["actual", "projects", "plan", "overview"].includes(tab) ||
+          (tab === "progress" && ["plan", "report"].includes(progressView))
             ? "tabs"
             : "heading"
         }
         actions={
-          ![
-            "access",
-            "teams",
-            "critical",
-            "risk",
-            "activity",
-            "progress",
-          ].includes(tab) &&
-          !(tab === "projects" && projectView === "scenario") && (
-            <div className="workspace-nav-actions">
-              {["plan", "actual", "projects", "overview"].includes(tab) &&
-                !(tab === "overview" && reportView === "headcount") && (
-                  <label className="densitycontrol">
-                    Görünüm
-                    <select
-                      aria-label="Takvim yoğunluğu"
+          tab === "progress" && ["plan", "report"].includes(progressView) ? (
+            <div
+              className="workspace-nav-actions progress-report-actions"
+              ref={progressActionsRef}
+            />
+          ) : (
+            ![
+              "access",
+              "teams",
+              "critical",
+              "risk",
+              "activity",
+              "progress",
+            ].includes(tab) &&
+            !(tab === "projects" && projectView === "scenario") && (
+              <div className="workspace-nav-actions">
+                {["plan", "actual", "projects", "overview"].includes(tab) &&
+                  !(tab === "overview" && reportView === "headcount") && (
+                    <WorkspaceDensityControl
                       value={density}
-                      onChange={(e) => {
-                        const mode = e.target.value as typeof density;
+                      onChange={(mode) => {
                         setDensity(mode);
                         if (mode === "overview") setCount(60);
                       }}
-                    >
-                      <option value="detail">Ayrıntılı</option>
-                      <option value="compact">Kompakt</option>
-                      <option value="overview">5 Yıllık Genel Bakış</option>
-                    </select>
-                  </label>
+                    />
+                  )}
+                {tab === "overview" &&
+                  reportView === "resources" &&
+                  reportPostingControl}
+                {tab === "projects" && (isAdmin || projectEditor) && (
+                  <button
+                    className="button project-create"
+                    onClick={() => openProject()}
+                  >
+                    <Plus size={17} />
+                    Yeni Proje
+                  </button>
                 )}
-              {tab === "overview" &&
-                reportView === "resources" &&
-                reportPostingControl}
-              {tab === "projects" && (isAdmin || projectEditor) && (
-                <button
-                  className="button project-create"
-                  onClick={() => openProject()}
-                >
-                  <Plus size={17} />
-                  Yeni Proje
-                </button>
-              )}
-              {tab === "actual" && isAdmin && (
-                <button
-                  type="button"
-                  className="button"
-                  aria-label="Çalışma Takvimi'ni aç"
-                  onClick={onOpenSharedCalendar}
-                  disabled={!dataLoaded}
-                >
-                  <CalendarDays size={17} />
-                  Çalışma Takvimi
-                </button>
-              )}
-              {tab !== "resources" && (
-                <button
-                  className="button"
-                  onClick={onExport}
-                  disabled={
-                    !dataLoaded ||
-                    (tab === "overview" && !hasTeams) ||
-                    (tab === "projects" && !hasProjects)
-                  }
-                >
-                  <ArrowDownToLine size={17} />
-                  {tab === "projects"
-                    ? "Proje Raporunu İndir"
-                    : tab === "overview"
-                      ? reportView === "headcount"
-                        ? "Head Count Excel'e Aktar"
-                        : "Kaynak Raporu İndir"
-                      : "Excel'e Aktar"}
-                </button>
-              )}
-            </div>
+                {tab === "actual" && isAdmin && (
+                  <button
+                    type="button"
+                    className="button"
+                    aria-label="Çalışma Takvimi'ni aç"
+                    onClick={onOpenSharedCalendar}
+                    disabled={!dataLoaded}
+                  >
+                    <CalendarDays size={17} />
+                    Çalışma Takvimi
+                  </button>
+                )}
+                {tab !== "resources" && (
+                  <button
+                    className="button"
+                    onClick={onExport}
+                    disabled={
+                      !dataLoaded ||
+                      (tab === "overview" && !hasTeams) ||
+                      (tab === "projects" && !hasProjects)
+                    }
+                  >
+                    <ArrowDownToLine size={17} />
+                    {tab === "projects"
+                      ? "Proje Raporunu İndir"
+                      : tab === "overview"
+                        ? reportView === "headcount"
+                          ? "Head Count Excel'e Aktar"
+                          : "Kaynak Raporu İndir"
+                        : "Excel'e Aktar"}
+                  </button>
+                )}
+              </div>
+            )
           )
         }
       />
