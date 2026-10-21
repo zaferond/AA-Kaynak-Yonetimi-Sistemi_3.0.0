@@ -1,4 +1,8 @@
-import { selectWorkspaceTab, hoverMainMenu } from "./fixture.mjs";
+import {
+  selectWorkspaceTab,
+  hoverMainMenu,
+  leaveMainMenu,
+} from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 import { openRisks, riskSaveConfirmation } from "./risk.mjs";
@@ -178,9 +182,10 @@ export async function checkRiskSaveConfirmation(f) {
         );
         assert.equal(writes, requests);
         assert.deepEqual((await f.state()).risks, before.risks);
-        // A declined navigation keeps the menu open; leaving it closes it.
-        await page.mouse.move(1200, 700);
-        await page.locator('#workspace-main-menu[data-open="false"]').waitFor();
+        // A declined navigation keeps the docked menu open, also after the
+        // pointer leaves it.
+        await leaveMainMenu(page);
+        await page.locator('#workspace-main-menu[data-open="true"]').waitFor();
         await respond(otherRow, true);
         await f.wait(
           async () => (await editing().getAttribute("data-risk-id")) === ids[1],

@@ -49,6 +49,9 @@ export async function checkPlannedTeamFreeze(f) {
             await f.wait(
               async () =>
                 container.evaluate((el) => {
+                  // Switching the view can re-render the table after the
+                  // scroll was set; reapply it until it holds.
+                  if (el.scrollLeft === 0) el.scrollLeft = 420;
                   const cr = el.getBoundingClientRect();
                   const cells = [
                     ...el.querySelectorAll(

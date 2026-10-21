@@ -1,0 +1,524 @@
+/* Technical theme for Proje ve Kaynak Değerlendirme and Haftalık Kritik
+   Konular. The olive surfaces of the earlier theme are written as fixed
+   colours there, so they are restated here on the table and button tokens.
+   Status colours (approved, behind, ahead, completed) keep their meaning. */
+
+/* Hedef Plan / Gerçekleşen Plan Giriş: one card per project. */
+html[data-theme="technical"] .project-progress .progress-card {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"] .project-progress .progress-card-head {
+  border-bottom-color: var(--tbl-frame);
+  background: var(--tbl-head-background);
+}
+html[data-theme="technical"] .project-progress .progress-card-title strong {
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"] .project-progress .progress-status-card-label {
+  color: var(--brand-muted);
+  font-weight: 600;
+}
+html[data-theme="technical"] .project-progress .progress-status {
+  border-radius: 3px;
+  background: var(--tbl-group-background);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+html[data-theme="technical"] .project-progress .progress-card-actions {
+  border-top-color: var(--tbl-rule);
+}
+html[data-theme="technical"] .scenario-progress-badge {
+  border-radius: 3px;
+  font-weight: 600;
+}
+/* Only the neutral badge changes colour; each progress state keeps its own. */
+html[data-theme="technical"]
+  .scenario-progress-badge:not(
+    [data-progress="ahead"],
+    [data-progress="onTrack"],
+    [data-progress="completed"],
+    [data-progress="behind"],
+    [data-progress="critical"]
+  ) {
+  border-color: var(--tbl-frame);
+  background: var(--tbl-group-background);
+  color: var(--brand-muted);
+}
+
+/* Month grid inside each card. */
+html[data-theme="technical"] .project-progress .progress-grid :is(th, td) {
+  border-right-color: var(--tbl-rule);
+  border-bottom-color: var(--tbl-rule);
+}
+html[data-theme="technical"] .project-progress .progress-grid thead th,
+html[data-theme="technical"] .project-progress .progress-grid th[scope="row"] {
+  background: var(--tbl-head-background);
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+}
+html[data-theme="technical"] .project-progress .progress-grid tr.readonly td {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"] .project-progress .progress-grid td.opening {
+  border-right-color: var(--tbl-rule-strong);
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-grid
+  tr.editable
+  input {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-grid
+  tr.editable
+  input:placeholder-shown {
+  background: #fff;
+}
+/* The month chosen in the filter reads as a selection, like elsewhere. */
+html[data-theme="technical"]
+  .project-progress
+  .progress-grid
+  thead
+  th[data-selected="true"] {
+  background: var(--tbl-selected);
+  color: var(--brand-primary);
+  box-shadow: inset 0 -2px var(--brand-primary);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-grid
+  td[data-selected="true"] {
+  background: #f3f7fb;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-grid-topics
+  td[data-has-topics]:is(:hover, :focus-visible) {
+  background: var(--tbl-group-background);
+}
+
+/* Proje ve Kaynak Değerlendirme Raporu: the summary filters form one ruled
+   strip, like the title block on Raporlar. Tone stays as a left rule. */
+html[data-theme="technical"] .project-progress .progress-management-cards {
+  gap: 0;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button {
+  padding: 10px 14px;
+  border: 0;
+  border-left: 1px solid var(--tbl-frame);
+  border-radius: 0;
+  box-shadow: inset 3px 0 var(--progress-card-tone, var(--tbl-rule-strong));
+  transition: background-color 150ms;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button:first-child {
+  border-left: 0;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button
+  > span {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button
+  > strong {
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button:hover {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button[aria-pressed="true"] {
+  outline: 0;
+  background: var(--tbl-selected);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button:focus-visible {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: -2px;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button[data-tone="risk"] {
+  --progress-card-tone: #b42318;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button[data-tone="ahead"] {
+  --progress-card-tone: #087f6a;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button[data-tone="donor"] {
+  --progress-card-tone: var(--brand-primary);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-management-cards
+  button[data-tone="missing"] {
+  --progress-card-tone: #9a6a12;
+}
+html[data-theme="technical"] .project-progress .progress-management-period {
+  border-radius: 3px;
+  background: var(--tbl-group-background);
+}
+
+html[data-theme="technical"] .project-progress .progress-transfer-review {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-transfer-review
+  article {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+}
+
+/* Report matrix. */
+html[data-theme="technical"] .project-progress .progress-matrix-scroll {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  thead
+  th {
+  border-right-color: var(--tbl-rule);
+  border-bottom: 1px solid var(--tbl-rule-strong);
+  background: var(--tbl-head-background);
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  thead
+  .yearrow
+  th {
+  border-bottom-color: var(--tbl-rule);
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  :is(td, tbody th) {
+  border-right-color: var(--tbl-rule);
+  border-bottom-color: var(--tbl-rule);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  tbody
+  th.progress-matrix-metric {
+  background: var(--tbl-row-hover);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  :is(.progress-matrix-assessment, .progress-matrix-name) {
+  border-right-color: var(--tbl-rule-strong);
+  background: #fff;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  thead
+  :is(.progress-matrix-assessment, .progress-matrix-name) {
+  background: var(--tbl-head-background);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  :is(
+    .progress-project-row td,
+    .progress-project-metric td,
+    .progress-project-metric th
+  ) {
+  background: #fff;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  .progress-project-row
+  > td {
+  border-top-color: var(--tbl-rule-strong);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  .progress-leader-row
+  .progress-matrix-name {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-monthly-matrix
+  td[data-selected="true"] {
+  box-shadow:
+    inset 2px 0 var(--brand-primary),
+    inset -2px 0 var(--brand-primary);
+}
+html[data-theme="technical"] .project-progress .progress-expand {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"]
+  .project-progress
+  :is(.progress-assessment-caption, .progress-card-hint) {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .project-progress .progress-assessment-content {
+  border-left-color: var(--tbl-frame);
+}
+html[data-theme="technical"]
+  .project-progress
+  :is(
+    .progress-assessment .progress-action,
+    .progress-resource-decision:not([data-review])
+  ) {
+  color: var(--brand-text);
+}
+
+/* Senaryo Uyarıları and Uyarı Ayarları. */
+html[data-theme="technical"]
+  :is(.scenario-warnings-panel, .scenario-settings)
+  > p,
+html[data-theme="technical"]
+  :is(.scenario-calculation dt, .scenario-event-history span) {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  :is(.scenario-calculation dd, .scenario-warning-action) {
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .scenario-calculation dl > div {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"] .scenario-reference-note {
+  border-left-color: var(--tbl-rule-strong);
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"] .scenario-lifecycle {
+  border-radius: 3px;
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"] .scenario-settings-grid input {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+/* The detail link sits under the action, at the table's text size. */
+html[data-theme="technical"]
+  .scenario-warning-table
+  .textbutton.scenario-warning-detail {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--fs-xs);
+}
+
+/* Haftalık Kritik Konular. One quiet card per project; a topic's actions
+   stay plain until pointed at, so the status label is the only colour. */
+html[data-theme="technical"] .app.tab-critical .project-info-group {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-group > header {
+  border-bottom-color: var(--tbl-frame);
+  border-left: 0;
+  background: var(--tbl-head-background);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-group h3 {
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-entry
+  + .project-info-entry {
+  border-top-color: var(--tbl-rule);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-entry-index {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-weight: 600;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-entry h4 {
+  font-weight: 600;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-entry-count {
+  border-radius: 3px;
+  background: var(--tbl-group-background);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-entry ul {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-entry li {
+  border-top-color: var(--tbl-rule);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-content
+  small {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand-muted);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  :is(.project-info-project-status em, .project-info-status) {
+  border-radius: 3px;
+  font-weight: 600;
+}
+html[data-theme="technical"] .app.tab-critical button.project-info-edit {
+  border-color: transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  button.project-info-edit:hover:not(:disabled) {
+  border-color: var(--btn-border);
+  background: var(--btn-hover);
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-actions
+  button {
+  border-color: transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--brand-muted);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-actions
+  button:hover:not(:disabled) {
+  border-color: var(--btn-border);
+  background: var(--btn-hover);
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-actions
+  button.complete:hover:not(:disabled) {
+  border-color: #9fcdb0;
+  background: #eef7f1;
+  color: #1d6b3c;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-actions
+  button.remove:hover:not(:disabled) {
+  border-color: var(--btn-danger-border);
+  background: var(--btn-danger-hover);
+  color: var(--btn-danger-ink);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-topic-actions
+  button:focus-visible {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: 1px;
+}
+/* Week filter and week chips share the 3px corner. */
+html[data-theme="technical"] .app.tab-critical .project-info-weekbar button {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-weekbar
+  button:hover {
+  background: var(--btn-hover);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-weekbar
+  button
+  span {
+  border-radius: 2px;
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-weekbar
+  button[aria-pressed="true"] {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-weekbar
+  button[aria-pressed="true"]
+  span {
+  background: #ffffff2e;
+}
+html[data-theme="technical"]
+  :is(.app.tab-critical, .project-info-topic-dialog)
+  .project-info-week {
+  border-radius: 2px;
+  background: var(--tbl-group-background);
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  :is(.app.tab-critical, .project-info-topic-dialog)
+  .project-info-week[data-current] {
+  border-color: var(--brand-primary);
+  box-shadow: none;
+  color: var(--brand-primary);
+}
+html[data-theme="technical"]
+  :is(.app.tab-critical, .project-info-topic-dialog)
+  .project-info-week[data-selected] {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
+}

@@ -1,0 +1,357 @@
+/* Technical theme table recipe. One header, one rule weight per meaning:
+   the strong rule closes the header and opens a total, the light rule
+   separates rows. Columns are not boxed; only deviations take colour.
+   List tables (records with actions) are covered here first; month
+   matrices keep their year bands from technical-theme.css. */
+html[data-theme="technical"] {
+  --tbl-frame: #d3dae3;
+  --tbl-rule: #e3e8ee;
+  --tbl-rule-strong: #9aa8b8;
+  --tbl-head-background: #eef2f6;
+  --tbl-head-ink: #34475c;
+  --tbl-group-background: #f3f6f9;
+  --tbl-row-hover: #f8fafc;
+  --tbl-selected: #e2ebf4;
+  --tbl-total-rule: #18212c;
+  --tbl-zero-ink: #7b8794;
+  --tbl-pad-y: 8px;
+  --tbl-pad-x: 12px;
+}
+
+/* List tables: header, rules and spacing only. Row tints (import errors,
+   duplicates) and numeric alignment stay with each feature. Dialog tables
+   render outside .app, so the selector is not scoped to it. :is() takes its
+   most specific argument, which also outranks the important header colour
+   in military-theme.css. */
+html[data-theme="technical"]
+  :is(
+    .employee-access-table,
+    .team-directory .directory-table,
+    .absence-report table,
+    .importtable table,
+    .audit-log-entry table,
+    .resource-chart-values table,
+    .project-progress .progress-table:not(.progress-monthly-matrix),
+    .schedule-summary-table,
+    .schedule-impact-table
+  )
+  thead
+  th {
+  height: auto;
+  padding: var(--tbl-pad-y) var(--tbl-pad-x) !important;
+  border: 0;
+  border-bottom: 1px solid var(--tbl-rule-strong);
+  background: var(--tbl-head-background);
+  color: var(--tbl-head-ink) !important;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: bottom;
+}
+html[data-theme="technical"]
+  :is(
+    .employee-access-table,
+    .team-directory .directory-table,
+    .absence-report table,
+    .importtable table,
+    .audit-log-entry table,
+    .resource-chart-values table,
+    .project-progress .progress-table:not(.progress-monthly-matrix),
+    .schedule-summary-table,
+    .schedule-impact-table
+  )
+  :is(td, tbody th) {
+  padding: var(--tbl-pad-y) var(--tbl-pad-x);
+  border: 0;
+  border-bottom: 1px solid var(--tbl-rule);
+  line-height: 1.4;
+}
+html[data-theme="technical"]
+  :is(
+    .employee-access-table,
+    .team-directory .directory-table,
+    .absence-report table,
+    .importtable table,
+    .audit-log-entry table,
+    .resource-chart-values table,
+    .project-progress .progress-table:not(.progress-monthly-matrix),
+    .schedule-summary-table,
+    .schedule-impact-table
+  )
+  tbody
+  tr:last-child
+  :is(td, th) {
+  border-bottom: 0;
+}
+/* Row headers read as the row's name, not as a column head. */
+html[data-theme="technical"]
+  :is(.audit-log-entry table, .resource-chart-values table)
+  tbody
+  th {
+  background: transparent;
+  color: var(--brand-text) !important;
+  font-weight: 600;
+  text-align: left;
+}
+/* Compact tables keep their density with the same rules. */
+html[data-theme="technical"]
+  .project-progress
+  .progress-table.compact
+  :is(th, td) {
+  padding-block: 5px !important;
+}
+
+/* Record lists people edit: white rows that answer the pointer. */
+html[data-theme="technical"]
+  .app
+  .employee-access-panel
+  .employee-access-table-wrap {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"]
+  .app
+  :is(.employee-access-table, .team-directory .directory-table)
+  th {
+  text-align: left;
+}
+html[data-theme="technical"]
+  .app
+  :is(.employee-access-table, .team-directory .directory-table)
+  td {
+  background: #fff;
+}
+html[data-theme="technical"]
+  .app
+  :is(.employee-access-table, .team-directory .directory-table)
+  tbody
+  tr:hover
+  td {
+  background: var(--tbl-row-hover);
+}
+
+/* Değişiklik Geçmişi: its column heads are a grid, not a table header. */
+html[data-theme="technical"] .audit-log-head {
+  padding: var(--tbl-pad-y) 12px;
+  border-bottom: 1px solid var(--tbl-rule-strong);
+  background: var(--tbl-head-background);
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[data-theme="technical"] .audit-log-entry table {
+  border: 1px solid var(--tbl-frame);
+}
+
+/* Çalışan & Yetki: system and account-only rows differ by text, not tint. */
+html[data-theme="technical"] .app .employee-access-table .system-account-row td,
+html[data-theme="technical"] .app .employee-access-table .account-only-row td {
+  background: #fff;
+}
+html[data-theme="technical"]
+  .app
+  .employee-access-table
+  .access-selected-row
+  td {
+  background: var(--tbl-selected);
+  box-shadow: none;
+}
+html[data-theme="technical"]
+  .app
+  .employee-access-table
+  .access-selected-row
+  td:first-child {
+  box-shadow: inset 3px 0 var(--brand-primary);
+}
+html[data-theme="technical"] .app .employee-access-table .access-role-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  :is(.employee-access-count, .protected-account-label) {
+  color: var(--brand-muted);
+}
+
+/* Organizasyon Yapısı: a leadership row heads its teams. */
+html[data-theme="technical"] .app .team-directory .directory-group td {
+  border-top: 1px solid var(--tbl-rule-strong);
+  background: var(--tbl-group-background);
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app
+  .team-directory
+  .directory-group:first-child
+  td {
+  border-top: 0;
+}
+html[data-theme="technical"]
+  .app
+  .team-directory
+  .directory-group
+  .directory-team-count {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-weight: 500;
+}
+html[data-theme="technical"]
+  .app
+  .team-directory
+  :is(.directory-team td, .directory-team:nth-child(even) td) {
+  background: #fff;
+}
+html[data-theme="technical"] .app .team-directory .directory-team:hover td {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"] .app .team-directory td:first-child {
+  color: var(--brand-text);
+}
+
+/* Raporlar: the total is closed by an ink rule, as on a drawing's bill of
+   materials, instead of a filled band. Zeros step back. */
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-report-totals
+  td {
+  border-top: 0;
+  /* A collapsed border is lost on a sticky cell; the inset rule stays. */
+  box-shadow: inset 0 2px var(--tbl-total-rule);
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-report-totals
+  td:not(.over-warning, .over-critical) {
+  background: #fff;
+}
+/* A shortage in the total is the deviation the report exists for. */
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-report-totals
+  td.over-warning {
+  background: #fff0d6;
+  color: #93520a;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-report-totals
+  td.over-critical {
+  background: #ffe4e4;
+  color: #b32c32;
+}
+/* Text columns read from the left, like their cells. */
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  thead
+  tr:last-child
+  th:nth-child(-n + 2) {
+  text-align: left;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-report-totals
+  .remaining-total-label {
+  padding-inline: var(--tbl-pad-x);
+  background: #fff;
+  color: var(--brand-text);
+  text-align: left;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-total-heading {
+  justify-content: flex-start;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-total-icon {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+  background: var(--tbl-head-background);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  .remaining-total-value {
+  font-weight: 700;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .remaining-report
+  td[data-zero]
+  > :is(.table-value, .remaining-total-value) {
+  color: var(--tbl-zero-ink);
+  font-weight: 400;
+}
+
+/* Month matrices. Aktivite Raporu: rows are separated by rules like every
+   other table, not by the olive zebra of the earlier theme; headings carry
+   the shared weight. */
+html[data-theme="technical"] .app .activity-matrix tbody tr:nth-child(even) {
+  background: #fff;
+}
+html[data-theme="technical"] .app .activity-matrix thead th {
+  font-weight: 600;
+}
+html[data-theme="technical"] .app .activity-matrix .activity-person {
+  font-weight: 600;
+}
+html[data-theme="technical"] .app .activity-matrix thead .activity-person,
+html[data-theme="technical"] .app .activity-matrix .activity-year-label {
+  padding-inline: var(--tbl-pad-x);
+  text-align: left;
+}
+html[data-theme="technical"]
+  .app
+  .activity-matrix
+  .activity-group-label
+  strong {
+  font-weight: 600;
+}
+/* Months without activity step back; only recorded activity is emphasised. */
+html[data-theme="technical"]
+  .app
+  .activity-matrix
+  td.activity-value:not(.has-activity)
+  strong {
+  color: var(--tbl-zero-ink);
+  font-weight: 400;
+}
+html[data-theme="technical"]
+  .app
+  .activity-matrix
+  :is(td.activity-other-team, td.activity-future) {
+  background: var(--tbl-group-background);
+  color: var(--tbl-zero-ink);
+}
+/* Projeler, Kaynak Planlama and Aktivite Girişi share the list heading weight. */
+html[data-theme="technical"] .app .matrix thead th {
+  font-weight: 600;
+}
+/* Kaynak Planlama summary: the hue shift turned the old green "Kalan Kaynak"
+   label violet; the label is a row name like the ones above it. */
+html[data-theme="technical"]
+  .app
+  .capacitystrip
+  .planning-grid
+  tbody
+  .summary.s3
+  td:first-child {
+  background: var(--tbl-group-background);
+  color: var(--brand-text);
+  font-weight: 600;
+}

@@ -46,5 +46,8 @@
   "workspace/sidebar.css",
   "workspace/section-header.css",
   "workspace/technical-chrome.css",
-  "projects/phase-chips-technical.css"
+  "projects/phase-chips-technical.css",
+  "workspace/technical-tables.css",
+  "workspace/technical-buttons.css",
+  "workspace/technical-evaluation.css"
 ]

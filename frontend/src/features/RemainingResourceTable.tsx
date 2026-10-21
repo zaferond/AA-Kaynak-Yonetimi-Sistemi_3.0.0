@@ -170,6 +170,7 @@ export default function RemainingResourceTable({
                     <TableCell
                       key={m}
                       className={capacityStatus(c.current, c.total).className}
+                      data-zero={fmt(Math.abs(remaining)) === "0" || undefined}
                       data-scenario-change={diff.kind}
                       title={
                         monthLabel(m) +
@@ -206,6 +207,7 @@ export default function RemainingResourceTable({
                   <TableCell
                     key={month}
                     data-total-month={month}
+                    data-zero={fmt(Math.abs(remaining)) === "0" || undefined}
                     data-scenario-change={diff.kind}
                     className={status.className}
                     title={`${monthLabel(month)}: mevcut ${fmt(value.current)} − dağıtılan ${fmt(value.total)} = ${fmt(remaining)} · ${status.label}${diff.note || ""}`}
