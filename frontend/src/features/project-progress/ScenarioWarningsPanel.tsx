@@ -11,6 +11,7 @@ import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
+import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressFilters from "./ProgressFilters";
 import { downloadScenarioWarnings } from "./scenario-warning-export";
 
@@ -154,20 +155,16 @@ export default function ScenarioWarningsPanel({
       </ProgressFilters>
       <div className="progress-toolbar">
         <span className="progress-result-count">{rows.length} uyarı</span>
-        <button
-          className="button"
+        <ReportDownloadButton
+          label="Excel’e Aktar"
           disabled={!rows.length}
           onClick={() => exportList("xlsx")}
-        >
-          Excel’e Aktar
-        </button>
-        <button
-          className="button"
+        />
+        <ReportDownloadButton
+          label="CSV’ye Aktar"
           disabled={!rows.length}
           onClick={() => exportList("csv")}
-        >
-          CSV’ye Aktar
-        </button>
+        />
       </div>
       {error && (
         <p className="progress-error" role="alert">

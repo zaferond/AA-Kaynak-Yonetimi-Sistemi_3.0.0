@@ -347,7 +347,8 @@ select {
   color: #25796f;
 }
 .remaining-report .negative {
-  background: #fff1eb;
+  color: #b32c32;
+  font-weight: 750;
 }
 .remaining-report tbody tr:hover td {
   background: #f0f6fd;
@@ -420,16 +421,12 @@ select {
 .remaining-report td.within-capacity {
   color: #25796f;
 }
-.remaining-report td.over-warning,
-.matrix td.over-warning,
-.remaining-report tbody tr:hover td.over-warning {
+.matrix td.over-warning {
   color: #93520a !important;
   background: #fff0d6 !important;
   font-weight: 600;
 }
-.remaining-report td.over-critical,
-.matrix td.over-critical,
-.remaining-report tbody tr:hover td.over-critical {
+.matrix td.over-critical {
   color: #b32c32 !important;
   background: #ffe4e4 !important;
   font-weight: 700;
@@ -606,4 +603,24 @@ select {
 }
 .editor-discard > span {
   flex: 1;
+}
+
+/* Reports and Excel exports share a compact icon-only download action. */
+html[data-theme] button.button.report-download-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  gap: 0;
+}
+html[data-theme] button.button.report-download-button > svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
 }

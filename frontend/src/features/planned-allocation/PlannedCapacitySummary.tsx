@@ -1,15 +1,13 @@
-import { ChevronDown, Layers3 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Table, TableBody } from "@/components/ui/table";
 import PlannedTableHeaders from "./PlannedTableHeaders";
 import PlannedSummaryRows from "./PlannedSummaryRows";
-import { FilterSummaryChips } from "../workspace/WorkspaceFilterSummary";
 import type { PlannedAllocationProps } from "./types";
 export default function PlannedCapacitySummary(
   props: Pick<
     PlannedAllocationProps,
     | "showCapacity"
     | "onCapacityChange"
-    | "capacityFilters"
     | "capacityTableRef"
     | "todayDate"
     | "months"
@@ -25,7 +23,6 @@ export default function PlannedCapacitySummary(
   const {
     showCapacity,
     onCapacityChange,
-    capacityFilters,
     capacityTableRef,
     todayDate,
     months,
@@ -34,23 +31,15 @@ export default function PlannedCapacitySummary(
   } = props;
   return (
     <details
-      className="capacitystrip"
+      className="capacitystrip planned-capacity-summary"
+      aria-label="Filtrelenen Takımlar Özet Raporu"
       open={showCapacity}
       onToggle={(e) => onCapacityChange(e.currentTarget.open)}
     >
       <summary>
-        <span className="capacitystrip-icon" aria-hidden="true">
-          <Layers3 size={18} />
-        </span>
-        <span className="capacitystrip-copy">
-          <strong>Filtrelenen Takımlar Özet Raporu</strong>
-          <span aria-label="Özet kaynak raporunda uygulanan filtreler">
-            <FilterSummaryChips filters={capacityFilters} />
-          </span>
-        </span>
-        <span className="capacitystrip-action" aria-hidden="true">
-          {showCapacity ? "Detayı Gizle" : "Detayı Göster"}
-          <ChevronDown size={17} />
+        <span className="capacitystrip-action">
+          {showCapacity ? "Detay Raporu Kapat" : "Detay Raporu Aç"}
+          <ChevronDown size={17} aria-hidden="true" />
         </span>
       </summary>
       {showCapacity && (

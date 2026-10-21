@@ -251,7 +251,9 @@ export default function Portal() {
   const monthWidth =
     density === "overview" ? 24 : density === "compact" ? 68 : 150;
   const planMonthWidth =
-    density === "overview" ? 23 : density === "compact" ? 65 : 144;
+    density === "overview" ? 23 : density === "compact" ? 60 : 120;
+  const reportMonthWidth =
+    density === "overview" ? 24 : density === "compact" ? 56 : 100;
   const labelWidth = density === "overview" ? 210 : 240;
   // 5 yıllık genel bakışta haftalık sütunlar okunamaz; görünüm aylık kalır.
   const timelineWeekly = projectWeekly && density !== "overview";
@@ -535,7 +537,11 @@ export default function Portal() {
       style={
         {
           "--month-width":
-            (tab === "plan" ? planMonthWidth : monthWidth) + "px",
+            (tab === "plan"
+              ? planMonthWidth
+              : tab === "overview"
+                ? reportMonthWidth
+                : monthWidth) + "px",
           "--label-width":
             (tab === "projects"
               ? projectLabelWidth
@@ -1021,7 +1027,7 @@ export default function Portal() {
                         data={reportScenario?.data || data}
                         teams={teams}
                         months={months}
-                        monthWidth={monthWidth}
+                        monthWidth={reportMonthWidth}
                         todayDate={todayDate}
                         currentMonth={currentMonth}
                         currentTeamMembers={currentTeamMembers}

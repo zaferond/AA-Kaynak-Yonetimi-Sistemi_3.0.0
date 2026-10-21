@@ -106,18 +106,25 @@
 /* Month total and what is left; colours follow the "Kalan" field. */
 /* Centered in the month column even when "kalan %24" is wider than it. */
 .app .person-allocation .allocation-grid td.actual-person-month {
+  /* Override the wider padding inherited from generic group headings. */
+  padding: 4px 6px !important;
   vertical-align: middle;
   text-align: center;
   line-height: 1.2;
   cursor: pointer;
 }
 .app .person-allocation .actual-person-balance {
-  display: inline-block;
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  margin: 0;
   border-radius: 3px;
 }
 .app .person-allocation .actual-person-balance > :is(strong, small) {
-  display: flex;
-  justify-content: center;
+  display: block;
+  width: max-content;
+  margin: 0;
+  text-align: center;
 }
 .app .person-allocation .actual-person-month strong {
   font-size: var(--fs-xs);

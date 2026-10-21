@@ -4,7 +4,8 @@ import {
 } from "./ScenarioWarningStatus";
 import type { WarningAssessment } from "../../../../shared/scenario-warnings.ts";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowDownToLine, Lock, LockOpen } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
+import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
 import { createPortal } from "react-dom";
 import WorkspaceDensityControl from "../workspace/WorkspaceDensityControl";
@@ -281,15 +282,11 @@ export default function ProgressReport({
                 setExpanded(next);
               }}
             />
-            <button
-              type="button"
-              className="button progress-lock-button"
+            <ReportDownloadButton
+              label="Excel’e Aktar"
               disabled={!filtered.length}
               onClick={exportReport}
-            >
-              <ArrowDownToLine size={14} />
-              Excel’e Aktar
-            </button>
+            />
           </>,
           actionsHost,
         )}

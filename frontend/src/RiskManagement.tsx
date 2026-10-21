@@ -7,7 +7,8 @@ import {
   type RefObject,
   type SetStateAction,
 } from "react";
-import { Plus, ShieldAlert, Download, ChevronDown, Layers } from "lucide-react";
+import { Plus, ShieldAlert, ChevronDown, Layers } from "lucide-react";
+import ReportDownloadButton from "./components/ReportDownloadButton";
 import RiskSystemDialog from "./features/risk-table/RiskSystemDialog";
 import { useDirectoryEditor } from "./features/team-directory/useDirectoryEditor";
 import type { Data, Risk } from "./model";
@@ -296,16 +297,13 @@ export default function RiskManagement({
               </select>
             </Field>
           )}
-          <button
-            type="button"
-            className="button risk-export-button"
+          <ReportDownloadButton
+            label="Excel'e Aktar"
+            className="risk-export-button"
             data-risk-leave
             disabled={exporting || selectedProjects.length === 0}
             onClick={() => void exportRisks()}
-          >
-            <Download size={16} />
-            Excel'e Aktar
-          </button>
+          />
           <button
             type="button"
             className="button primary"

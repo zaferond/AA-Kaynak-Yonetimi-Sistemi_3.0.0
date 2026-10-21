@@ -1,3 +1,4 @@
+import ReportDownloadButton from "./components/ReportDownloadButton";
 import { useMemo, useState } from "react";
 import type { Data } from "./model";
 import { openExcel } from "./excel-reader";
@@ -121,8 +122,8 @@ export default function ResourceImportPanel({
           </li>
         </ol>
         <div className="actions">
-          <button
-            className="button"
+          <ReportDownloadButton
+            label="Excel Şablonunu İndir"
             disabled={busy}
             onClick={() => {
               try {
@@ -131,9 +132,7 @@ export default function ResourceImportPanel({
                 setError((e as Error).message);
               }
             }}
-          >
-            Excel Şablonunu İndir
-          </button>
+          />
           <label className="button">
             {busy ? "Dosya işleniyor…" : "Excel Dosyası Seç"}
             <input

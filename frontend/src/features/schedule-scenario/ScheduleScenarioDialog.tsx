@@ -5,15 +5,8 @@ import {
   type SetStateAction,
   type ReactNode,
 } from "react";
-import {
-  ArrowDownToLine,
-  ChartColumn,
-  Copy,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from "lucide-react";
+import { ChartColumn, Copy, Plus, Save, Trash2, X } from "lucide-react";
+import ReportDownloadButton from "../../components/ReportDownloadButton";
 import {
   Dialog,
   DialogContent,
@@ -355,15 +348,11 @@ export default function ScheduleScenarioDialog({
             alınabilir.
           </small>
         )}
-        <button
-          type="button"
-          className="button"
+        <ReportDownloadButton
+          label="Excel'e Aktar"
           disabled={!comparison.ready}
           onClick={() => downloadScenarioWorkbook(data, comparison)}
-        >
-          <ArrowDownToLine size={16} aria-hidden="true" />
-          Excel'e Aktar
-        </button>
+        />
         <button
           type="button"
           className="button"

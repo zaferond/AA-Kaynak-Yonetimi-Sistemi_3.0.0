@@ -1,7 +1,6 @@
 import { useEffect, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import {
-  ArrowDownToLine,
   CalendarDays,
   FolderKanban,
   Layers3,
@@ -20,6 +19,7 @@ import type { WorkspaceMenu } from "./workspace/useWorkspaceMenu";
 import WorkspaceSectionHeader, {
   type WorkspaceSectionTab,
 } from "./workspace/WorkspaceSectionHeader";
+import ReportDownloadButton from "../components/ReportDownloadButton";
 import WorkspaceDensityControl from "./workspace/WorkspaceDensityControl";
 import type { ActualLayout } from "./actual-allocation/useActualAllocationView";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
@@ -374,24 +374,23 @@ export default function WorkspaceNavigation({
                   </button>
                 )}
                 {tab !== "resources" && (
-                  <button
-                    className="button"
+                  <ReportDownloadButton
+                    label={
+                      tab === "projects"
+                        ? "Proje Raporunu İndir"
+                        : tab === "overview"
+                          ? reportView === "headcount"
+                            ? "Head Count Excel'e Aktar"
+                            : "Kaynak Raporu İndir"
+                          : "Excel'e Aktar"
+                    }
                     onClick={onExport}
                     disabled={
                       !dataLoaded ||
                       (tab === "overview" && !hasTeams) ||
                       (tab === "projects" && !hasProjects)
                     }
-                  >
-                    <ArrowDownToLine size={17} />
-                    {tab === "projects"
-                      ? "Proje Raporunu İndir"
-                      : tab === "overview"
-                        ? reportView === "headcount"
-                          ? "Head Count Excel'e Aktar"
-                          : "Kaynak Raporu İndir"
-                        : "Excel'e Aktar"}
-                  </button>
+                  />
                 )}
               </div>
             )

@@ -133,3 +133,12 @@ html[data-theme="technical"]
   > :is(label, small) {
   color: var(--brand-text);
 }
+
+/* The capacity report heading contains only its left-aligned disclosure. */
+html[data-theme="technical"]
+  .app
+  .capacitystrip.planned-capacity-summary
+  > summary
+  .capacitystrip-action {
+  margin: 6px 10px 6px 4px;
+}

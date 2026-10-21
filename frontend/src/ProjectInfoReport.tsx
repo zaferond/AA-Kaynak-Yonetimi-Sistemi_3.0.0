@@ -1,6 +1,6 @@
+import ReportDownloadButton from "./components/ReportDownloadButton";
 import { useMemo, useState } from "react";
 import {
-  ArrowDownToLine,
   Check,
   ChevronDown,
   ChevronRight,
@@ -167,9 +167,9 @@ export default function ProjectInfoReport({
           </p>
         </div>
         {!!topicCount && (
-          <button
-            type="button"
-            className="button project-info-export"
+          <ReportDownloadButton
+            label="Excel’e Aktar"
+            className="project-info-export"
             onClick={() => {
               try {
                 downloadProjectInfoReport(allGroups);
@@ -178,10 +178,7 @@ export default function ProjectInfoReport({
                 setError((cause as Error).message);
               }
             }}
-          >
-            <ArrowDownToLine size={15} />
-            Excel’e Aktar
-          </button>
+          />
         )}
       </div>
       {error && !editing && (

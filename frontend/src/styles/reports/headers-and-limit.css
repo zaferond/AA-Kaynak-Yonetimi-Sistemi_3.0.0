@@ -176,3 +176,12 @@
   border-bottom: 1px solid var(--table-grid-border, #bdcede);
   border-right: 1px solid var(--table-grid-border, #bdcede);
 }
+
+/* Shortages use red bold numbers while cells keep their normal row surface. */
+.app.tab-overview
+  .remaining-report
+  td:is(.over-warning, .over-critical)
+  > :is(.table-value, .remaining-total-value) {
+  color: #b32c32;
+  font-weight: 750;
+}
