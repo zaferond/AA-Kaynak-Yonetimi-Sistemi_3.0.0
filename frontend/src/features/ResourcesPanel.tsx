@@ -1,4 +1,5 @@
 import { planningGrantSummary } from "./access/planning-permission-tree";
+import Badge, { resourceStatusTone } from "../components/Badge";
 import {
   resourceRole,
   resourceRoleLabels,
@@ -326,12 +327,14 @@ export default function ResourcesPanel({
                   status: (
                     <TableCell>
                       {v ? (
-                        <span
-                          className="badge resource-status-badge"
+                        <Badge
+                          variant="status"
+                          tone={resourceStatusTone(v.status)}
+                          className="resource-status-badge"
                           data-resource-status={v.status}
                         >
                           {v.status}
-                        </span>
+                        </Badge>
                       ) : (
                         "—"
                       )}
@@ -375,11 +378,14 @@ export default function ResourcesPanel({
                     <TableCell>
                       {account ? (
                         <>
-                          <span
+                          <Badge
+                            tone={
+                              account.role === "normal" ? "neutral" : "info"
+                            }
                             className={"access-role-badge role-" + account.role}
                           >
                             {accountRoleLabel(account)}
-                          </span>
+                          </Badge>
                           <small
                             className={
                               "subline account-state " +

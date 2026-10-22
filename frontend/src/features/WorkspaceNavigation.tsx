@@ -2,18 +2,14 @@ import { useEffect, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import {
   CalendarDays,
-  FolderKanban,
   Layers3,
   Plus,
-  ShieldAlert,
-  TrendingUp,
-  Users,
   PanelLeftClose,
   ChevronRight,
 } from "lucide-react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Principal } from "../access";
-import { RISK_MANAGEMENT_ENABLED, SYSTEM_NAME, TAB_LABELS } from "../settings";
+import { SYSTEM_NAME, TAB_LABELS } from "../settings";
 import { isProjectEditor } from "../../../shared/project-access.ts";
 import type { WorkspaceMenu } from "./workspace/useWorkspaceMenu";
 import WorkspaceSectionHeader, {
@@ -22,6 +18,7 @@ import WorkspaceSectionHeader, {
 import ReportDownloadButton from "../components/ReportDownloadButton";
 import WorkspaceDensityControl from "./workspace/WorkspaceDensityControl";
 import WorkspaceViewControl from "./workspace/WorkspaceViewControl";
+import { menuTabs } from "./workspace/menu-tabs";
 import type { ActualLayout } from "./actual-allocation/useActualAllocationView";
 import type { ActualUnit } from "../actual-units";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
@@ -120,53 +117,7 @@ export default function WorkspaceNavigation({
   const isAdmin = user?.role === "admin",
     isManager = user?.role === "manager",
     projectEditor = isProjectEditor(user);
-  // "Normal-Proje" sees only the project and critical-topic screens.
-  const anyRole =
-    isAdmin || isManager || (user?.role === "normal" && !projectEditor);
-  // Order and grouping: planning and projects · reports · actuals · administration.
-  const mainTabs = (
-    [
-      { value: "projects", Icon: FolderKanban, group: "planning", show: true },
-      {
-        value: "plan",
-        Icon: CalendarDays,
-        group: "planning",
-        show: isAdmin || isManager,
-      },
-      {
-        value: "progress",
-        Icon: TrendingUp,
-        group: "planning",
-        show: isAdmin || isManager,
-      },
-      {
-        value: "risk",
-        Icon: ShieldAlert,
-        group: "planning",
-        show: RISK_MANAGEMENT_ENABLED,
-      },
-      {
-        value: "critical",
-        Icon: FolderKanban,
-        group: "planning",
-        show: isAdmin || isManager || projectEditor,
-      },
-      {
-        value: "overview",
-        Icon: Layers3,
-        group: "reports",
-        show: isAdmin || isManager,
-      },
-      { value: "actual", Icon: CalendarDays, group: "actuals", show: anyRole },
-      {
-        value: "activity",
-        Icon: CalendarDays,
-        group: "actuals",
-        show: anyRole,
-      },
-      { value: "resources", Icon: Users, group: "admin", show: isAdmin },
-    ] as const
-  ).filter((item) => item.show);
+  const mainTabs = menuTabs(user);
   let sectionTabs: WorkspaceSectionTab[] = [],
     sectionValue = tab;
   let changeSection: (value: string) => void = () => {};
@@ -367,9 +318,14 @@ export default function WorkspaceNavigation({
               ref={progressActionsRef}
             />
           ) : (
-            !["access", "teams", "critical", "risk", "progress"].includes(
-              tab,
-            ) &&
+            ![
+              "home",
+              "access",
+              "teams",
+              "critical",
+              "risk",
+              "progress",
+            ].includes(tab) &&
             !(tab === "projects" && projectView === "scenario") && (
               <div className="workspace-nav-actions">
                 {viewChoice}

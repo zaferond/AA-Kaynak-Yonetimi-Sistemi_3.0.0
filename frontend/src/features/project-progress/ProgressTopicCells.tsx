@@ -17,12 +17,10 @@ const accent = (color: string) =>
 export default function ProgressTopicCells({
   project,
   months,
-  currentMonth,
   selectedMonth,
 }: {
   project: Project;
   months: string[];
-  currentMonth?: string;
   selectedMonth?: string;
 }) {
   const tipRef = useRef<HTMLDivElement>(null);
@@ -33,7 +31,6 @@ export default function ProgressTopicCells({
   };
   const mark = (month: string) => ({
     "data-month": month,
-    "data-now": month === currentMonth ? "true" : undefined,
     "data-selected": month === selectedMonth ? "true" : undefined,
   });
   return (

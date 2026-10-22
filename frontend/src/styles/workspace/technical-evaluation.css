@@ -29,23 +29,6 @@ html[data-theme="technical"] .project-progress .progress-status {
 html[data-theme="technical"] .project-progress .progress-card-actions {
   border-top-color: var(--tbl-rule);
 }
-html[data-theme="technical"] .scenario-progress-badge {
-  border-radius: 3px;
-  font-weight: 600;
-}
-/* Only the neutral badge changes colour; each progress state keeps its own. */
-html[data-theme="technical"]
-  .scenario-progress-badge:not(
-    [data-progress="ahead"],
-    [data-progress="onTrack"],
-    [data-progress="completed"],
-    [data-progress="behind"],
-    [data-progress="critical"]
-  ) {
-  border-color: var(--tbl-frame);
-  background: var(--tbl-group-background);
-  color: var(--brand-muted);
-}
 
 /* Month grid inside each card. */
 html[data-theme="technical"] .project-progress .progress-grid :is(th, td) {
@@ -189,10 +172,6 @@ html[data-theme="technical"]
   button[data-tone="missing"] {
   --progress-card-tone: #9a6a12;
 }
-html[data-theme="technical"] .project-progress .progress-management-period {
-  border-radius: 3px;
-  background: var(--tbl-group-background);
-}
 
 html[data-theme="technical"] .project-progress .progress-transfer-review {
   border-color: var(--tbl-frame);
@@ -302,9 +281,6 @@ html[data-theme="technical"]
   :is(.progress-assessment-caption, .progress-card-hint) {
   color: var(--brand-muted);
 }
-html[data-theme="technical"] .project-progress .progress-assessment-content {
-  border-left-color: var(--tbl-frame);
-}
 html[data-theme="technical"]
   .project-progress
   :is(
@@ -318,8 +294,7 @@ html[data-theme="technical"]
 html[data-theme="technical"]
   :is(.scenario-warnings-panel, .scenario-settings)
   > p,
-html[data-theme="technical"]
-  :is(.scenario-calculation dt, .scenario-event-history span) {
+html[data-theme="technical"] .scenario-calculation dt {
   color: var(--brand-muted);
 }
 html[data-theme="technical"]
@@ -335,10 +310,6 @@ html[data-theme="technical"] .scenario-reference-note {
   border-left-color: var(--tbl-rule-strong);
   background: var(--tbl-group-background);
 }
-html[data-theme="technical"] .scenario-lifecycle {
-  border-radius: 3px;
-  background: var(--tbl-group-background);
-}
 html[data-theme="technical"] .scenario-settings-grid input {
   border-color: var(--btn-border);
   border-radius: 3px;
@@ -347,8 +318,6 @@ html[data-theme="technical"] .scenario-settings-grid input {
 html[data-theme="technical"]
   .scenario-warning-table
   .textbutton.scenario-warning-detail {
-  display: block;
-  margin-top: 6px;
   font-size: var(--fs-xs);
 }
 
@@ -404,12 +373,6 @@ html[data-theme="technical"]
   background: none;
   color: var(--brand-muted);
   font-variant-numeric: tabular-nums;
-}
-html[data-theme="technical"]
-  .app.tab-critical
-  :is(.project-info-project-status em, .project-info-status) {
-  border-radius: 3px;
-  font-weight: 600;
 }
 html[data-theme="technical"] .app.tab-critical button.project-info-edit {
   border-color: transparent;
@@ -712,16 +675,6 @@ html[data-theme="technical"] .app.tab-progress .progress-waiting-option input {
   margin: 0;
   accent-color: var(--brand-primary);
 }
-html[data-theme="technical"] .app.tab-progress .progress-waiting-count {
-  min-width: 24px;
-  padding: 0 6px;
-  border-radius: 3px;
-  background: var(--tbl-head-bg, #eef2f6);
-  color: var(--brand-text);
-  font-variant-numeric: tabular-nums;
-  line-height: 20px;
-  text-align: center;
-}
 html[data-theme="technical"] .app.tab-progress .progress-approve-all {
   min-height: 32px;
 }
@@ -765,4 +718,36 @@ html[data-theme="technical"]
   border-color: #b7791f;
   background: #fae7c2;
   color: #5f3a00;
+}
+
+/* "Eksik Hedef Plan": the leaderships still missing a plan, one per line
+   under the badge. */
+html[data-theme="technical"] .scenario-missing-leaders {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+}
+html[data-theme="technical"] .scenario-missing-leaders li + li {
+  margin-top: 2px;
+}
+
+/* Hedef Plan / Gerçekleşen Plan cards: an evaluation action ("Ek kaynak
+   gerekli") sits at the right end of the project row. */
+html[data-theme="technical"] .project-progress .progress-card-head {
+  align-items: center;
+}
+html[data-theme="technical"]
+  .project-progress
+  .progress-card-head
+  > .progress-card-title {
+  flex: 1 1 auto;
+}
+html[data-theme="technical"] .project-progress .progress-card-action {
+  margin-left: auto;
+  color: var(--brand-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
 }

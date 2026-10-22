@@ -16,6 +16,16 @@ export async function checkEmployeeAccess(f) {
     assert.equal((await response).status(), status);
     if (status === 200) await dialog().waitFor({ state: "hidden" });
   }
+  // The opening screen is an account preference set from the user menu.
+  async function setOpening(label) {
+    await page.getByRole("button", { name: /^Kullanıcı menüsü: / }).click();
+    const response = page.waitForResponse((r) =>
+      r.url().endsWith("/api/auth/preferences"),
+    );
+    await page.getByLabel("Varsayılan Sekme").selectOption({ label });
+    assert.equal((await response).status(), 200);
+    await page.keyboard.press("Escape");
+  }
   async function choose(label, name) {
     await dialog().getByRole("button", { name: label, exact: true }).click();
     const picker = page.locator('.pickerpanel[data-state="open"]');
@@ -35,14 +45,9 @@ export async function checkEmployeeAccess(f) {
   }
   try {
     await f.check(
-      "employee access: one navigation entry and legacy opening preference migrates",
+      "employee access: one navigation entry, chosen as the account's opening screen",
       async () => {
-        await page.evaluate(() =>
-          localStorage.setItem(
-            "aa-kaynak-varsayilan-sekme-v1:root-admin",
-            "access",
-          ),
-        );
+        await setOpening("Organizasyon & Çalışan & Yetki");
         await page.reload();
         await hoverMainMenu(page);
         const tab = page.getByRole("tab", {
@@ -66,14 +71,8 @@ export async function checkEmployeeAccess(f) {
       },
     );
     await f.check(
-      "organization: legacy teams preference and two views preserve main navigation",
+      "organization: the opening screen keeps one entry and two views preserve main navigation",
       async () => {
-        await page.evaluate(() =>
-          localStorage.setItem(
-            "aa-kaynak-varsayilan-sekme-v1:root-admin",
-            "teams",
-          ),
-        );
         await page.reload();
         await hoverMainMenu(page);
         const main = page.locator('#workspace-main-menu [role="tablist"]');
@@ -158,6 +157,8 @@ export async function checkEmployeeAccess(f) {
         assert.equal(await combined.getAttribute("aria-selected"), "true");
         assert.equal(await page.locator(".team-directory").count(), 0);
         assert.equal(await page.locator(".employee-access-table").count(), 1);
+        // Later checks expect the default opening screen again.
+        await setOpening("Ana Sayfa");
       },
     );
     await f.check(

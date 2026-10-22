@@ -20,6 +20,18 @@ export type PersonDay = {
 };
 export type PersonCalendar = Record<string, PersonDay>;
 
+/** Leave days per "resourceId|month", for the reports' monthly leave row. */
+export function leaveDaysByMonth(calendar: PersonCalendar = {}) {
+  const days: Record<string, number> = {};
+  for (const [key, entry] of Object.entries(calendar)) {
+    if (entry.type !== "leave" || !(entry.hours > 0)) continue;
+    const [resourceId, date] = key.split("|");
+    const id = resourceId + "|" + date.slice(0, 7);
+    days[id] = (days[id] || 0) + entry.hours / HOURS_PER_WORKDAY;
+  }
+  return days;
+}
+
 /** Legacy entries retain their IDs; new types get independent per-day records. */
 export function personDayKey(
   resourceId: string,

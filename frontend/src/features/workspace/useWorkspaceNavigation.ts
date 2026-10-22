@@ -8,13 +8,9 @@ import {
 } from "react";
 import type { Principal } from "../../access";
 import type { RiskLeaveGuard } from "../risk-table/types";
-import {
-  allowedDefaultTabs,
-  defaultTabKey,
-  readDefaultTab,
-} from "../../navigation";
+import { allowedDefaultTabs, readDefaultTab } from "../../navigation";
 import { TAB_LABELS } from "../../settings";
-import { currentUser, logout } from "../../storage";
+import { currentUser, logout, saveDefaultTab } from "../../storage";
 import { createWorkspaceNavigation } from "./workspace-navigation";
 
 export function useWorkspaceNavigation({
@@ -73,19 +69,22 @@ export function useWorkspaceNavigation({
   }, [user?.role, user?.projectEditor, tab, navigation]);
   useEffect(() => {
     setDefaultTab(readDefaultTab(user));
-  }, [user?.id, user?.role, user?.projectEditor]);
-  function setOpeningTab(nextTab: string) {
+  }, [user?.id, user?.role, user?.projectEditor, user?.defaultTab]);
+  /** Kept on the account, so every computer opens the same screen. */
+  async function setOpeningTab(nextTab: string) {
     if (!user || !allowedDefaultTabs(user).includes(nextTab)) return;
+    const previous = defaultTab;
+    setDefaultTab(nextTab);
     try {
-      localStorage.setItem(defaultTabKey(user.id), nextTab);
-      setDefaultTab(nextTab);
+      await saveDefaultTab(nextTab);
       setNotice(
         "Varsayılan Sekme ayarlandı: " +
           TAB_LABELS[nextTab as keyof typeof TAB_LABELS] +
-          ". Sonraki açılışta bu sekme gösterilir.",
+          ". Her girişte bu ekran açılır.",
       );
-    } catch {
-      setError("Varsayılan Sekme bu tarayıcıda kaydedilemedi.");
+    } catch (error) {
+      setDefaultTab(previous);
+      setError((error as Error).message);
     }
   }
   return {

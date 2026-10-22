@@ -240,12 +240,8 @@ function AuthLayout({
   return (
     <main className="auth-screen">
       <div className="auth-shell">
+        {/* The Otokar mark is in the background picture; one is enough. */}
         <aside className="auth-brand">
-          <img
-            className="auth-logo"
-            src="/assets/otokar-logo.svg"
-            alt="Otokar"
-          />
           <div className="auth-brand-content">
             <h1>{SYSTEM_NAME}</h1>
             <p>

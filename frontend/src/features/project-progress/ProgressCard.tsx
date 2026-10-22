@@ -16,6 +16,8 @@ import {
   proposalProblems,
   suggestTargets,
   targetAt,
+  lastLockedMonth,
+  lockedTargets,
   type ProgressProposal,
   type ProjectProgress,
   type ProgressTargets,
@@ -98,6 +100,8 @@ export default function ProgressCard({
   const revision = record ? data.revisions["progress:" + record.id] || 0 : 0;
   // Monthly actual of the chosen month.
   const locked = (data.progressLocks || []).some((lock) => lock.id === month);
+  // A revision keeps the approved targets up to the newest locked month.
+  const lockedThrough = lastLockedMonth(data.progressLocks);
   const entry = entryStatus(record, month, currentMonth);
   const entryState = entryPresentation(entry, locked);
   const saved = month ? record?.actuals[month] : undefined;
@@ -132,7 +136,14 @@ export default function ProgressCard({
       return setForm({
         openingMonth: p.openingMonth,
         openingPct: text(p.openingPct),
-        targets: asText(p.targets),
+        targets: asText(
+          baseline
+            ? {
+                ...p.targets,
+                ...lockedTargets(baseline, p.openingMonth, lockedThrough),
+              }
+            : p.targets,
+        ),
         reason: p.reason || "",
       });
     if (baseline) return setForm(null);
@@ -184,7 +195,7 @@ export default function ProgressCard({
     setForm({
       openingMonth: resourceOpening,
       openingPct: text(aligned.openingPct),
-      targets: {},
+      targets: asText(lockedTargets(aligned, resourceOpening, lockedThrough)),
       reason: "",
     });
     setRebaseline(true);
@@ -194,10 +205,24 @@ export default function ProgressCard({
   const opening = form ? num(form.openingPct) : (baseline?.openingPct ?? null);
   const openingValid =
     Number.isFinite(opening) && opening! >= 0 && opening! <= 100;
+  const frozen = (m: string) => !!baseline && m <= lockedThrough;
+  // After a lock the suggested curve starts from the newest locked month.
+  const suggestFrom =
+    baseline && form && lockedThrough > form.openingMonth ? lockedThrough : "";
   const suggested =
     form && openingValid
       ? (form.adjustedSuggestion ??
-        suggestTargets(form.openingMonth, opening!, project.end, planned))
+        (suggestFrom
+          ? {
+              ...lockedTargets(baseline!, form.openingMonth, suggestFrom),
+              ...suggestTargets(
+                suggestFrom,
+                targetAt(baseline, suggestFrom)!,
+                project.end,
+                planned,
+              ),
+            }
+          : suggestTargets(form.openingMonth, opening!, project.end, planned)))
       : undefined;
   const months = form ? monthsAfter(form.openingMonth, project.end) : [];
   const proposal = form && {
@@ -397,7 +422,14 @@ export default function ProgressCard({
           editable,
           cell: (m: string) =>
             proposalCell(m, () =>
-              editable ? (
+              editable && frozen(m) ? (
+                <strong
+                  className="progress-target-locked"
+                  title="Kilitli ay: onaylı hedef değiştirilemez"
+                >
+                  {targets[m]}
+                </strong>
+              ) : editable ? (
                 <input
                   aria-label={`${label} · ${fullMonth(m)} hedef %`}
                   inputMode="decimal"
@@ -461,17 +493,20 @@ export default function ProgressCard({
       ]
     : planRows;
 
+  const cardAction = data.warningAssessments?.find(
+    (a) => a.id === project.id,
+  )?.warning2;
   return (
     <section className="progress-card" data-status={status} aria-label={label}>
       <header className="progress-card-head">
         <div className="progress-card-title">
           <strong>{project.name}</strong>
-          <ScenarioWarningStatus
-            assessment={data.warningAssessments?.find(
-              (a) => a.id === project.id,
-            )}
-          />
         </div>
+        {/* Only an action (e.g. "Ek kaynak gerekli") is shown, at the right
+            end of the project row; plan and actual states sit below. */}
+        {cardAction && (
+          <span className="progress-card-action">{cardAction}</span>
+        )}
         <div className="progress-card-statuses" aria-label="İlerleme durumları">
           <ProgressStatusCard
             label={PLAN_STATUS_TITLE}
@@ -498,23 +533,6 @@ export default function ProgressCard({
             />
           )}
         </div>
-        {form && resourceStart && (baseline || form.reason) && (
-          <div className="progress-card-fields">
-            {(baseline || form.reason) && (
-              <label className="wide">
-                Gerekçe
-                <input
-                  aria-label={label + " · revizyon gerekçesi"}
-                  value={form.reason}
-                  maxLength={500}
-                  disabled={!editable}
-                  placeholder="Kapsam veya teslim tarihi değişikliği"
-                  onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                />
-              </label>
-            )}
-          </div>
-        )}
       </header>
       {!resourceStart && (
         <p className="progress-card-hint">
@@ -569,6 +587,22 @@ export default function ProgressCard({
               )}
             </>
           )}
+        </footer>
+      )}
+      {form && resourceStart && (baseline || form.reason) && (
+        // The revision reason takes the same full-width line above the
+        // buttons as the month's actual note.
+        <footer className="progress-card-actions progress-card-entry">
+          <label className="progress-card-noteinput">
+            <input
+              aria-label={label + " · revizyon gerekçesi"}
+              value={form.reason}
+              maxLength={500}
+              disabled={!editable}
+              placeholder="Revizyon gerekçesini giriniz (kapsam veya teslim tarihi değişikliği)…"
+              onChange={(e) => setForm({ ...form, reason: e.target.value })}
+            />
+          </label>
         </footer>
       )}
       <footer className="progress-card-actions">

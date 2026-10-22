@@ -240,10 +240,16 @@ export default function PersonAllocationPanel(
           <p className="emptymsg">“{query.trim()}” ile eşleşen kişi yok.</p>
         )}
       {!!projects.length && props.onlyDataRows && !totalRows && (
-        <p className="emptymsg">
-          Seçili dönemde gerçekleşen değeri girilmiş satır yok. Bütün satırları
-          görmek için “Sadece veri olanlar” anahtarını kapatın.
-        </p>
+        <div className="emptymsg">
+          <p>Seçili dönemde gerçekleşen değeri girilmiş satır yok.</p>
+          <button
+            type="button"
+            className="button"
+            onClick={() => props.onOnlyDataRowsChange(false)}
+          >
+            Tüm Satırları Göster
+          </button>
+        </div>
       )}
       {!!projects.length && !people.length && (
         <p className="emptymsg">

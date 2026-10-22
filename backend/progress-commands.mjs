@@ -11,6 +11,8 @@ import {
   alignPlanStart,
   isTopLeader,
   topLeaderResourceByMonth,
+  lastLockedMonth,
+  changedLockedMonth,
 } from "../shared/project-progress.ts";
 import { currentPlanningDate } from "../shared/resource-dates.ts";
 
@@ -120,6 +122,18 @@ export function stageProgressChange(
       if (problems.length) fail(400, problems[0]);
       if (baselines.length && !proposal.reason?.trim())
         fail(400, "Yeni temel plan için gerekçe yazın.");
+      const frozen =
+        baselines.length &&
+        changedLockedMonth(
+          proposal,
+          baselines.at(-1),
+          lastLockedMonth(d.progressLocks),
+        );
+      if (frozen)
+        fail(
+          409,
+          `${frozen} kilitli; revizyonda yalnız en son kilitli aydan sonraki hedefler değişebilir.`,
+        );
     }
     const changedContent = !same(content(proposal), content(before));
     if (to === "approved") {

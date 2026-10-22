@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Badge, { scenarioStatusTone } from "../../components/Badge";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Data } from "../../model";
 import { fullDateLabel, monthLabel } from "../../format";
@@ -101,9 +102,13 @@ export default function SavedScenarioList({
         </button>
         <span className="saved-scenarios-summary">
           {counts.map(({ status, n }) => (
-            <span key={status} data-scenario-status={status}>
+            <Badge
+              key={status}
+              tone={scenarioStatusTone(status)}
+              data-scenario-status={status}
+            >
               {n} {SCENARIO_STATUS_LABELS[status].toLocaleLowerCase("tr")}
-            </span>
+            </Badge>
           ))}
         </span>
         {open && history.length > 0 && (
@@ -140,9 +145,13 @@ export default function SavedScenarioList({
               <li key={s.id} data-scenario-status={s.status}>
                 <div className="saved-scenario-main">
                   <strong>{s.name}</strong>
-                  <span className="saved-scenario-status">
+                  <Badge
+                    variant="status"
+                    tone={scenarioStatusTone(s.status)}
+                    className="saved-scenario-status"
+                  >
                     {SCENARIO_STATUS_LABELS[s.status]}
-                  </span>
+                  </Badge>
                   <span className="saved-scenario-shifts">
                     {s.shifts
                       .map(

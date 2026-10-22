@@ -74,20 +74,12 @@
   border: 1px solid #ffffff15;
   border-radius: 50%;
 }
-.auth-logo {
-  display: block;
-  width: 165px;
-  height: 54px;
-  max-width: 55%;
-  padding: 7px 13px;
-  border-radius: 8px;
-  background: #fff;
-  object-fit: contain;
-  box-shadow: 0 5px 15px #081d3133;
-}
+/* The title block sits in the middle of the panel; the footer stays at the
+   bottom. */
 .auth-brand-content {
   position: relative;
   max-width: 355px;
+  margin-block: auto;
 }
 .auth-brand h1 {
   margin: 0;
@@ -107,7 +99,7 @@
   text-shadow: 0 1px 8px #0009;
 }
 .auth-brand-footer {
-  margin-top: auto;
+  margin-top: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

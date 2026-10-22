@@ -100,9 +100,6 @@
   border-color: var(--brand-primary, #405440);
   color: var(--brand-dark, #2f4030);
 }
-.app.tab-critical .project-info-collapse-all {
-  margin-left: auto;
-}
 .app.tab-critical .project-info-filter-empty {
   margin: 16px 18px;
 }
@@ -155,15 +152,6 @@
   display: flex;
   gap: 6px;
   margin-left: auto;
-}
-.app.tab-critical :is(.project-info-project-status em, .project-info-status) {
-  padding: 2px 7px;
-  border: 1px solid;
-  border-radius: 4px;
-  font-size: var(--fs-xs);
-  font-style: normal;
-  font-weight: 700;
-  white-space: nowrap;
 }
 .app.tab-critical [data-status="late"]:is(em) {
   border-color: #f0c4bf;
@@ -253,12 +241,6 @@
   flex: 1 1 100%;
   flex-wrap: wrap;
 }
-.app.tab-critical .project-info-weekbar-label {
-  margin-right: 2px;
-  color: var(--brand-muted, #60715e);
-  font-size: var(--fs-xs);
-  font-weight: 650;
-}
 .app.tab-critical .project-info-weekbar button {
   display: inline-flex;
   align-items: center;
@@ -295,10 +277,6 @@
   width: auto;
   min-width: 200px;
   height: 28px;
-  font-size: var(--fs-xs);
-}
-.app.tab-critical .project-info-weekbar-range {
-  color: var(--brand-muted, #60715e);
   font-size: var(--fs-xs);
 }
 
@@ -411,9 +389,6 @@
   }
 }
 @media (max-width: 700px) {
-  .app.tab-critical .project-info-collapse-all {
-    margin-left: 0;
-  }
   .app.tab-critical .project-info-project-filter select {
     min-width: 0;
   }

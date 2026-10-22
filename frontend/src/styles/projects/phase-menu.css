@@ -1,14 +1,14 @@
 /* Project details and month-specific phase editing */
 .app .projectmatrix .phasebutton:disabled {
-  background: #f3f5f8 !important;
-  color: #97a7b7 !important;
-  border-left-color: #d3dce6 !important;
+  background: #f3f5f8;
+  color: #97a7b7;
+  border-left-color: #d3dce6;
   cursor: default;
 }
 .app .planning-grid .month-work:disabled {
-  background: #f3f5f8 !important;
-  color: #97a7b7 !important;
-  border-left-color: #d3dce6 !important;
+  background: #f3f5f8;
+  color: #97a7b7;
+  border-left-color: #d3dce6;
   cursor: default;
 }
 .phasecontext {

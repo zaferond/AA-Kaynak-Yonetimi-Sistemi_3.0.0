@@ -76,16 +76,11 @@
   margin-bottom: 6px;
 }
 .app.full-plan .workspace-nav .navtabs,
-.app.full-plan .stats,
-.app.full-plan .bottomnote,
 .app.full-plan .tab-plan .infonote {
   display: none !important;
 }
 .app.full-plan .planning-filterbar {
   margin-bottom: 6px;
-}
-.app.full-plan .filterline {
-  margin-bottom: 5px;
 }
 .app.full-plan [data-slot="table-container"]:has(> .allocation-grid) {
   max-height: calc(100dvh - 190px) !important;
@@ -101,14 +96,6 @@
   .app.full-plan [data-slot="table-container"]:has(> .allocation-grid) {
     max-height: 65dvh !important;
   }
-}
-
-.leadership-unit-label {
-  display: block;
-  margin-top: 2px;
-  color: #53674a;
-  font-size: var(--fs-xs);
-  font-weight: 600;
 }
 .leadership-planning-row .rowname {
   background: #edf2e7;

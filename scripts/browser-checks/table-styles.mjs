@@ -132,25 +132,10 @@ export async function checkTableStyles(f) {
             "0",
           );
         }
+        // Projects show one month row ("Oca 26"); it sticks at the top.
         assert.equal(
           await style(".tab-projects thead tr:not(.yearrow) th", "top"),
-          "24px",
-        );
-        await page
-          .locator(".tab-projects")
-          .evaluate((el) =>
-            el.style.setProperty("--table-project-year-height", "32px"),
-          );
-        assert(
-          Math.abs(
-            Number.parseFloat(
-              await style(".tab-projects .yearrow th", "height"),
-            ) - 32,
-          ) < 0.02,
-        );
-        assert.equal(
-          await style(".tab-projects thead tr:not(.yearrow) th", "top"),
-          "32px",
+          "0px",
         );
       },
     );

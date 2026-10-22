@@ -2,7 +2,6 @@ import { currentPlanningDate } from "../../../shared/resource-dates";
 import { organizationPickerItems } from "./organization-picker-items";
 import {
   useFilterAppliedToast,
-  useMessageToast,
   type FilterNotice,
 } from "./workspace/useFilterAppliedToast";
 import { useMemo } from "react";
@@ -45,8 +44,6 @@ type Props = {
   resetFilters: () => void;
   saving: boolean;
   resetAll: () => Promise<void>;
-  notice: string;
-  noticeId: number;
   showPeriodFilters?: boolean;
 };
 export default function WorkspaceFilters({
@@ -74,13 +71,10 @@ export default function WorkspaceFilters({
   resetFilters,
   saving,
   resetAll,
-  notice,
-  noticeId,
   showPeriodFilters = true,
 }: Props) {
   const isAdmin = user?.role === "admin";
   const { notify, toast } = useFilterAppliedToast();
-  const messageToast = useMessageToast(notice, noticeId);
   function applySelection(
     current: string[],
     next: string[],
@@ -245,7 +239,6 @@ export default function WorkspaceFilters({
         </>
       )}
       {toast}
-      {messageToast}
     </>
   );
 }

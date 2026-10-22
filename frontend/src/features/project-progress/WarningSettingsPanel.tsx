@@ -7,6 +7,8 @@ import {
   SCENARIO_WARNING_RULES,
   WARNING_PROGRESS_LABELS,
   WARNING_RESOURCE_LABELS,
+  type WarningProgressState,
+  type WarningResourceState,
   type WarningSettings,
 } from "../../../../shared/scenario-warning-policy.ts";
 import { warningSettings } from "../../../../shared/scenario-warnings.ts";
@@ -48,6 +50,39 @@ const fields: { key: keyof WarningSettings; label: string; step: string }[] = [
     step: "1",
   },
 ];
+const n = (value: number) => String(value).replace(".", ",");
+const signed = (value: number) => (value > 0 ? "+" : "") + n(value);
+/** S = Gerçekleşen % − Hedef % of the newest locked month. */
+function progressFormula(
+  states: readonly WarningProgressState[],
+  s: Readonly<WarningSettings>,
+) {
+  const behind = states.includes("behind"),
+    critical = states.includes("critical");
+  if (behind && critical) return `S < ${signed(s.behindThreshold)}`;
+  return states
+    .map((state) =>
+      state === "ahead"
+        ? `S ≥ ${signed(s.aheadThreshold)}`
+        : state === "onTrack"
+          ? `${signed(s.behindThreshold)} ≤ S < ${signed(s.aheadThreshold)}`
+          : state === "behind"
+            ? `${signed(s.criticalThreshold)} ≤ S < ${signed(s.behindThreshold)}`
+            : `S < ${signed(s.criticalThreshold)} veya ${s.trendMonths} ardışık ay gerisinde`,
+    )
+    .join(" veya ");
+}
+/** K = planned remaining work % ÷ (100 − Gerçekleşen %) × 100. */
+function resourceFormula(
+  state: WarningResourceState,
+  s: Readonly<WarningSettings>,
+) {
+  if (state === "unplanned")
+    return `Sonraki ${s.resourceHorizonMonths} ay planlı kaynak = 0`;
+  if (state === "insufficient") return `K < %${n(s.coverageMinimum)}`;
+  if (state === "excess") return `K > %${n(s.coverageMaximum)}`;
+  return `%${n(s.coverageMinimum)} ≤ K ≤ %${n(s.coverageMaximum)}`;
+}
 const strings = (settings: Readonly<WarningSettings>) =>
   Object.fromEntries(
     fields.map(({ key }) => [key, String(settings[key])]),
@@ -62,6 +97,7 @@ export default function WarningSettingsPanel({
   saving: boolean;
   onSave: (changes: Change[]) => Promise<void>;
 }) {
+  const current = warningSettings(data);
   const [values, setValues] = useState(() => strings(warningSettings(data)));
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -166,7 +202,9 @@ export default function WarningSettingsPanel({
               <th>İlerleme</th>
               <th>Kaynak</th>
               <th>1. Uyarı</th>
+              <th>1. Uyarı Hesabı</th>
               <th>2. Uyarı / Aksiyon</th>
+              <th>2. Uyarı Hesabı</th>
             </tr>
           </thead>
           <tbody>
@@ -180,11 +218,24 @@ export default function WarningSettingsPanel({
                 </td>
                 <td>{WARNING_RESOURCE_LABELS[r.kaynak]}</td>
                 <td>{r.uyari1}</td>
+                <td className="scenario-rule-formula">
+                  {progressFormula(r.ilerleme, current)}
+                </td>
                 <td>{r.uyari2}</td>
+                <td className="scenario-rule-formula">
+                  {progressFormula(r.ilerleme, current)} ve{" "}
+                  {resourceFormula(r.kaynak, current)}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <p className="scenario-rule-legend">
+          <strong>S</strong> (sapma) = son kilitli ayın Gerçekleşen % − Hedef %
+          (liderlik ağırlıklarıyla). <strong>K</strong> (kaynak karşılama) =
+          kalan ayların planlı kaynağının karşıladığı iş % ÷ (100 − Gerçekleşen
+          %) × 100. 1. Uyarı yalnız S ile, 2. Uyarı S ve K birlikte belirlenir.
+        </p>
         <p>
           Kritik Gecikme durumunda 1. Uyarı aynı adla gösterilir. Matriste
           karşılığı olmayan birleşimlerde yalnız ilerleme durumu gösterilir.

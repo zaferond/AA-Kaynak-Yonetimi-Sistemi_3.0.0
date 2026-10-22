@@ -346,7 +346,13 @@ export async function checkProgressManagement(f) {
         await row
           .getByRole("textbox", { name: "Aksiyon açıklaması", exact: true })
           .fill("Fazla kaynak için ekip değerlendirmesi yapıldı.");
+        await f.capture(page, "scenario-action-entry");
         await acted.click();
+        // The newest action is listed in its own column.
+        assert.equal(
+          await row.locator(".scenario-action-cell p").textContent(),
+          "Fazla kaynak için ekip değerlendirmesi yapıldı.",
+        );
         await row
           .getByText("Aksiyon Alındı", { exact: true })
           .first()
@@ -372,8 +378,15 @@ export async function checkProgressManagement(f) {
         const entries = zipEntries(bytes);
         await validateXml(page, entries);
         assert.match(entries["xl/worksheets/sheet1.xml"], /Aksiyon Alındı/);
-        await row.getByText("Hesap ve geçmiş", { exact: true }).click();
-        await row
+        await row.getByRole("button", { name: "Hesap ve geçmiş" }).click();
+        const timeline = panel.getByRole("list", { name: "Aksiyon geçmişi" });
+        assert.deepEqual(
+          await timeline
+            .locator("li")
+            .evaluateAll((items) => items.map((item) => item.dataset.status)),
+          ["open", "seen", "acted"],
+        );
+        await timeline
           .getByText("Browser root-admin", { exact: false })
           .first()
           .waitFor();
@@ -390,6 +403,18 @@ export async function checkProgressManagement(f) {
           name: "Uyarı Ayarları",
           exact: true,
         });
+        // The rule table explains each warning with the saved thresholds.
+        await settings.getByText("Senaryo kural tablosu").click();
+        const s02 = settings.getByRole("row").filter({ hasText: "S-02" });
+        assert.equal(
+          await s02.locator(".scenario-rule-formula").first().textContent(),
+          "S < -5",
+        );
+        assert.equal(
+          await s02.locator(".scenario-rule-formula").last().textContent(),
+          "S < -5 ve K < %90",
+        );
+        await f.capture(page, "scenario-rule-formulas");
         await settings
           .getByRole("spinbutton", {
             name: "Yeterli kaynak: en fazla karşılama (%)",

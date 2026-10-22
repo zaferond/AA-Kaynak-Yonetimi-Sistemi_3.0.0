@@ -119,20 +119,6 @@ export default function MonthlyActivityReport({
           ))}
         </colgroup>
         <TableHeader>
-          <TableRow className="activity-year-row">
-            <TableHead className="activity-year-label">
-              Çalışan / Dönem
-            </TableHead>
-            {years.map((year, index) => (
-              <TableHead
-                key={year}
-                colSpan={months.filter((m) => m.startsWith(year)).length}
-                className={"year-band-" + (index % 6)}
-              >
-                {year}
-              </TableHead>
-            ))}
-          </TableRow>
           <TableRow className="activity-month-row">
             <TableHead className="activity-person">Çalışan</TableHead>
             {months.map((month) => (
@@ -144,7 +130,9 @@ export default function MonthlyActivityReport({
                   "year-band-" + (years.indexOf(month.slice(0, 4)) % 6)
                 }
               >
-                {shortDateFormat.format(new Date(month + "-01T12:00:00"))}
+                {shortDateFormat.format(new Date(month + "-01T12:00:00")) +
+                  " " +
+                  month.slice(2, 4)}
               </TableHead>
             ))}
           </TableRow>

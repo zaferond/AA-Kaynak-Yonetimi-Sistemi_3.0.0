@@ -92,7 +92,7 @@
 }
 .app.tab-actual .allocation-grid td:has(> .person-amount),
 .app.tab-actual .allocation-grid td:has(> .actual-fully-allocated) {
-  vertical-align: middle !important;
+  vertical-align: middle;
 }
 .person-allocation .actual-fully-allocated {
   max-width: 64px;

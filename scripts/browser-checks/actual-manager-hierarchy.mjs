@@ -109,7 +109,8 @@ export async function checkActualManagerHierarchy(f) {
       );
       if (payload.monthSummaries) {
         const summary = payload.monthSummaries["qa-grand-member|2026-01"];
-        assert.equal(summary.effectiveHours, 191);
+        // 200 recorded hours less 9 h leave and the 1 January holiday.
+        assert.equal(summary.effectiveHours, 182);
         assert.equal(summary.trainingHours, 4.5);
       }
     }
@@ -153,13 +154,14 @@ export async function checkActualManagerHierarchy(f) {
           exact: true,
         });
         assert(await hours.isEnabled());
-        assert.equal(await hours.inputValue(), "191");
+        assert.equal(await hours.inputValue(), "182");
         await hours.fill("210");
         await hours.press("Enter");
         await f.wait(
           async () =>
+            // Stored hours add back the leave and the holiday (18 h).
             (await f.state()).actualWorkedHours["qa-grand-member|2026-01"] ===
-            219,
+            228,
           "descendant existing hours updated",
         );
         await page.reload();

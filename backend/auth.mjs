@@ -67,6 +67,7 @@ export const publicUser = (u) => ({
   planningTeams: u.planningTeams || [],
   ...(u.role === "normal" && u.projectEditor ? { projectEditor: true } : {}),
   ...(u.mustChangePassword ? { mustChangePassword: true } : {}),
+  ...(u.defaultTab ? { defaultTab: u.defaultTab } : {}),
   active: u.active,
 });
 export function fail(status, message) {

@@ -9,7 +9,6 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   TimelineMonthHead,
-  TimelineYearRow,
   yearBandClass,
 } from "../components/TimelineHeaders";
 import ProjectTimelineRows from "../ProjectTimelineRows";
@@ -238,10 +237,6 @@ export default function ProjectTimelinePanel({
           ))}
         </colgroup>
         <TableHeader>
-          <TimelineYearRow
-            years={projectPeriods.map((period) => period.year)}
-            labelColumns={labelColumns}
-          />
           <TableRow>
             <TableHead>Proje</TableHead>
             {showCodes && (
@@ -253,6 +248,7 @@ export default function ProjectTimelinePanel({
                   key={period.key}
                   month={period.month}
                   years={projectYearBands}
+                  withYear
                 />
               ) : (
                 <TableHead

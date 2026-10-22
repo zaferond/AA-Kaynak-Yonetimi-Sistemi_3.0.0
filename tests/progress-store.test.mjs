@@ -459,3 +459,31 @@ test("a leadership rename follows into progress and a project delete removes it"
   assert.equal(await f.record(), undefined);
   assert((await f.state()).revisions["progress:prg-1"] >= 3);
 });
+
+test("a revision changes targets only after the newest locked month", async (t) => {
+  const f = await setup(t);
+  await f.save(f.users.admin, {
+    ...draft(f.lead),
+    proposal: { ...draft(f.lead).proposal, status: "approved" },
+  });
+  await f.lock(f.users.admin, "2026-11");
+  const revise = async (revised) =>
+    f.save(f.users.lead, {
+      ...(await f.record()),
+      proposal: {
+        openingMonth: "2026-10",
+        openingPct: 40,
+        targets: revised,
+        reason: "Kapsam değişikliği",
+        status: "pending",
+      },
+    });
+  for (const revised of [
+    { "2026-11": 45, "2026-12": 70, "2027-01": 100 },
+    // An empty locked month would fall back to the opening value.
+    { "2026-12": 70, "2027-01": 100 },
+  ])
+    await assert.rejects(revise(revised), status(409));
+  await revise({ "2026-11": 50, "2026-12": 60, "2027-01": 100 });
+  assert.equal((await f.record()).proposal.status, "pending");
+});

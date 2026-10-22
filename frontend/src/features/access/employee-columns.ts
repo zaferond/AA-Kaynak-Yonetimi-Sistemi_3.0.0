@@ -3,19 +3,21 @@ import { useEffect, useState } from "react";
 /** Employee & account table columns. Relative widths are shared out again
  * among the visible columns, so hiding one widens the others. */
 export const EMPLOYEE_COLUMNS = [
-  { id: "select", label: "Seç", width: 3, fixed: true },
+  // Status, role and date columns are sized so their badges and dates fit
+  // on one line at the usual width; long text columns give way.
+  { id: "select", label: "Seç", width: 3.5, fixed: true },
   { id: "name", label: "Ad Soyad", width: 10, fixed: true },
-  { id: "leadership", label: "Liderlik", width: 10 },
-  { id: "team", label: "Takım", width: 10 },
-  { id: "status", label: "Statü", width: 7 },
+  { id: "leadership", label: "Liderlik", width: 9 },
+  { id: "team", label: "Takım", width: 9 },
+  { id: "status", label: "Statü", width: 9 },
   { id: "included", label: "Kaynak Planına Dahil", width: 5 },
-  { id: "start", label: "İşbaşı Tarihi", width: 6 },
-  { id: "end", label: "İşten Ayrılış Tarihi", width: 6 },
-  { id: "account", label: "Hesap", width: 8 },
-  { id: "email", label: "E-posta Adresi", width: 7 },
-  { id: "role", label: "Rol / Yetki", width: 8 },
-  { id: "scope", label: "Yetki Kapsamı", width: 8 },
-  { id: "note", label: "Açıklama", width: 7 },
+  { id: "start", label: "İşbaşı Tarihi", width: 6.5 },
+  { id: "end", label: "İşten Ayrılış Tarihi", width: 6.5 },
+  { id: "account", label: "Hesap", width: 7.5 },
+  { id: "email", label: "E-posta Adresi", width: 6 },
+  { id: "role", label: "Rol / Yetki", width: 9.5 },
+  { id: "scope", label: "Yetki Kapsamı", width: 7 },
+  { id: "note", label: "Açıklama", width: 6 },
   { id: "actions", label: "İşlemler", width: 5, fixed: true },
 ] as const;
 export type EmployeeColumn = (typeof EMPLOYEE_COLUMNS)[number];

@@ -55,8 +55,8 @@ export default function MonthGrid({
   const months = progressDisplayMonths(currentMonth, project.end);
   const keys = months.map((m) => phaseRunKey(project, m));
   const spans = phaseRunSpans(keys);
+  // Only the entry month is marked; the current month needs no line.
   const mark = (m: string) => ({
-    "data-now": m === currentMonth ? "true" : undefined,
     "data-selected": m === selectedMonth ? "true" : undefined,
   });
   return (
@@ -97,7 +97,6 @@ export default function MonthGrid({
             <ProgressTopicCells
               project={project}
               months={months}
-              currentMonth={currentMonth}
               selectedMonth={selectedMonth}
             />
           </tr>

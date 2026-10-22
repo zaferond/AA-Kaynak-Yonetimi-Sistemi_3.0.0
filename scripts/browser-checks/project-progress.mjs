@@ -665,6 +665,22 @@ export async function checkProjectProgress(f) {
         await otherCard
           .getByRole("button", { name: "Hedef Plan Revize Et", exact: true })
           .click();
+        // September is locked: a revision keeps its approved target and may
+        // change only the months after it.
+        const targetField = (month) =>
+          otherCard.getByLabel(`${otherName} · ${month} hedef %`, {
+            exact: true,
+          });
+        assert.equal(await targetField("Eyl 2026").count(), 0);
+        await targetField("Eki 2026").waitFor();
+        assert.equal(
+          await otherCard
+            .locator(".progress-target-locked")
+            .filter({ hasText: /\S/ })
+            .last()
+            .getAttribute("title"),
+          "Kilitli ay: onaylı hedef değiştirilemez",
+        );
         await otherCard
           .getByLabel(`${otherName} · revizyon gerekçesi`)
           .fill("Teslim takvimi güncellendi");
@@ -738,12 +754,19 @@ export async function checkProjectProgress(f) {
             exact: true,
           })
           .click();
-        await page
-          .getByRole("button", {
-            name: "Eylül Ayının Kilidini Aç",
-            exact: true,
-          })
-          .click();
+        const unlock = page.getByRole("button", {
+          name: "Eylül Ayının Kilidini Aç",
+          exact: true,
+        });
+        // Unlocking asks first; declining keeps the month locked.
+        page.once("dialog", (dialog) => dialog.dismiss());
+        await unlock.click();
+        await page.waitForTimeout(300);
+        assert(
+          (await f.state()).progressLocks?.some((l) => l.id === "2026-09"),
+        );
+        page.once("dialog", (dialog) => dialog.accept());
+        await unlock.click();
         await page
           .getByRole("button", {
             name: "Eylül Ayını Kilitle",
@@ -821,6 +844,7 @@ export async function checkProjectProgress(f) {
             exact: true,
           })
           .click();
+        page.once("dialog", (dialog) => dialog.accept());
         await page
           .getByRole("button", {
             name: "Ekim Ayının Kilidini Aç",

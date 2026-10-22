@@ -12,10 +12,17 @@ test("CSV Türkçe metin, açıklama ve kullanıcıyı korur; Excel formül enje
   const d = warningFixture();
   synchronizeScenarioWarnings(d, new Date("2026-10-20T10:00:00Z"));
   d.projects[0].name = '=SUM(1,2) "Proje"';
-  d.scenarioWarnings[0].history.at(-1).explanation =
-    'Açıklama; "Türkçe"\nikinci satır';
+  // Aksiyon Açıklaması is the newest action taken on the warning.
+  d.scenarioWarnings[0].history.push({
+    status: "acted",
+    explanation: 'Açıklama; "Türkçe"\nikinci satır',
+    at: "2026-10-20T10:00:00.000Z",
+    byId: "system",
+    byName: "Sistem",
+  });
   const csv = scenarioWarningsCsv(d, d.scenarioWarnings);
   assert.ok(csv.startsWith("\uFEFF"));
+  assert.match(csv, /"Durum";"Aksiyon Açıklaması";"İşlemi yapan"/);
   assert.match(csv, /"'=SUM\(1,2\) ""Proje"""/);
   assert.match(csv, /"Açıklama; ""Türkçe""\nikinci satır"/);
   assert.match(csv, /"Sistem";"2026-10-20T10:00:00.000Z"/);

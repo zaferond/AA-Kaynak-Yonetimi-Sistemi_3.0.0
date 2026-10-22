@@ -99,10 +99,10 @@
 .app .matrix .windowed-table-spacer,
 .app .matrix .windowed-table-spacer tr,
 .app .matrix .windowed-table-spacer td {
-  background: transparent !important;
+  background: transparent;
   border: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
+  padding: 0;
+  box-shadow: none;
   position: static !important;
   min-height: 0;
   line-height: 0;
@@ -112,18 +112,4 @@
   font-size: var(--fs-xs);
   color: var(--brand-dark, #344736);
   border-bottom: 1px solid var(--brand-border, #d5dfcf);
-}
-
-/* Freeze reports from the applied-filter summary; filter inputs scroll away. */
-.app.tab-overview .reports-filter-dock {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  margin: 0 0 10px;
-  background: var(--brand-surface-soft, #f6f8f4);
-  border-radius: 10px;
-  box-shadow: 0 3px 12px #29372d26;
-}
-.app.tab-overview .reports-filter-summary {
-  margin: 0;
 }

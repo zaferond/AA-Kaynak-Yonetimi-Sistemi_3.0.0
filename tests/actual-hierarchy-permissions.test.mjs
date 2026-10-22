@@ -97,3 +97,49 @@ test("actual hierarchy view: descendant revisions survive scoping; transferred h
   );
   assert.deepEqual(result.data.personCalendar, {});
 });
+test("report leave row: monthly leave days only for people and months a manager may see, never the daily calendar", async () => {
+  const { scopeData } = await import("../shared/access.ts");
+  const d = {
+    ...directory(),
+    projects: [],
+    allocations: {},
+    actualAllocations: {},
+    actualWorkedHours: {},
+    actualPercentEntries: {},
+    workCalendar: {},
+    risks: [],
+    revisions: {},
+    resources: [
+      {
+        id: "r",
+        name: "Synthetic employee",
+        note: "",
+        versions: [
+          ["2026-01", "outside", "Other"],
+          ["2026-10", "grand", "Grand"],
+        ].map(([effective, team, lead]) => ({
+          effective,
+          start: "2026-01-01",
+          end: "",
+          team,
+          lead,
+          status: "Aktif Çalışan",
+          included: true,
+          amount: 1,
+        })),
+      },
+    ],
+    personCalendar: {
+      "r|2026-09-15|leave": { type: "leave", hours: 9, label: "PRIVATE" },
+      "r|2026-10-01|leave": { type: "leave", hours: 9, label: "PRIVATE" },
+      "r|2026-10-02|leave": { type: "leave", hours: 4.5, label: "PRIVATE" },
+      "r|2026-10-05|training": { type: "training", hours: 9, label: "" },
+    },
+  };
+  // Names, and so leave, are shown for the manager's own teams.
+  const view = scopeData(d, { ...manager, leaders: ["Grand"] });
+  assert.deepEqual(view.personCalendar, {});
+  // September belongs to the outside team: not the manager's to see.
+  assert.deepEqual(view.leaveDays, { "r|2026-10": 1.5 });
+  assert(!JSON.stringify(view).includes("PRIVATE"));
+});

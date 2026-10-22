@@ -1,144 +1,3 @@
-/* Employee accounts and authorization scopes share the same administration panel. */
-.access-control-panel .panelhead {
-  align-items: center;
-}
-.access-user-count {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 10px;
-  border: 1px solid #cbdbe7;
-  border-radius: 6px;
-  background: #f3f8fb;
-  color: #315f80;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  white-space: nowrap;
-}
-.access-role-overview {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px;
-  margin: 14px 18px 16px;
-}
-.access-role-overview > div {
-  display: grid;
-  grid-template-columns: 19px 1fr;
-  gap: 3px 7px;
-  align-items: center;
-  padding: 12px 13px;
-  border: 1px solid #d3e0ea;
-  border-radius: 8px;
-  background: #f5f9fc;
-  color: #315f80;
-}
-.access-role-overview strong {
-  font-size: var(--fs-xs);
-}
-.access-role-overview span {
-  grid-column: 2;
-  color: #5d7588;
-  font-size: var(--fs-xs);
-  line-height: 1.4;
-}
-.access-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 350px);
-  gap: 16px;
-  padding: 0 18px 20px;
-  align-items: start;
-}
-.access-content:not(:has(.access-permission-form)) {
-  grid-template-columns: minmax(0, 1fr);
-}
-.access-list {
-  min-width: 0;
-}
-.access-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: min(100%, 390px);
-  height: 36px;
-  margin-bottom: 10px;
-  padding: 0 10px;
-  border: 1px solid #c4d4e1;
-  border-radius: 6px;
-  background: #fff;
-  color: #637e93;
-}
-.access-search input {
-  width: 100%;
-  height: 32px;
-  min-height: 32px;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  font-size: var(--fs-xs);
-}
-.access-search:focus-within {
-  border-color: #397ba8;
-  box-shadow: 0 0 0 2px #c4ddef;
-}
-.access-control-panel .accesstable {
-  overflow: auto;
-  border: 1px solid #d9e4ec;
-  border-radius: 8px;
-}
-.access-control-panel .accesstable table {
-  font-size: var(--fs-xs);
-}
-.access-control-panel .accesstable th,
-.access-control-panel .accesstable td {
-  padding: 10px 12px;
-}
-.access-control-panel .accesstable td:first-child strong,
-.access-control-panel .accesstable td:first-child small,
-.access-control-panel .accesstable td:nth-child(3) small {
-  display: block;
-}
-.access-control-panel .accesstable td small {
-  margin-top: 3px;
-  color: #73889a;
-  font-size: var(--fs-xs);
-}
-.access-control-panel .accesstable tr.access-selected-row td {
-  background: #eef6fb;
-}
-.access-role-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 7px;
-  border: 1px solid #c6d8e6;
-  border-radius: 5px;
-  background: #edf5fa;
-  color: #315f80;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  white-space: nowrap;
-}
-.access-role-badge.role-admin {
-  background: #e9f0f7;
-  border-color: #bad0e1;
-}
-.access-role-badge.role-manager {
-  background: #e7f2ec;
-  border-color: #bad9c6;
-  color: #28654a;
-}
-.access-role-badge.role-normal {
-  background: #f3f6fa;
-  border-color: #d6e0e9;
-  color: #50697d;
-}
-.access-edit-button {
-  min-height: 27px;
-  height: 27px;
-  padding: 3px 8px;
-  font-size: var(--fs-xs);
-  white-space: nowrap;
-}
 .access-notice {
   margin: 0 0 10px;
   padding: 9px 11px;
@@ -267,23 +126,6 @@
   padding: 5px 12px;
   font-size: var(--fs-xs);
 }
-@media (max-width: 1000px) {
-  .access-content {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 650px) {
-  .access-role-overview {
-    grid-template-columns: 1fr;
-    margin-inline: 10px;
-  }
-  .access-content {
-    padding-inline: 10px;
-  }
-  .access-control-panel .accesstable table {
-    min-width: 650px;
-  }
-}
 .access-unlinked {
   padding: 22px;
   color: #38566f;
@@ -318,7 +160,6 @@
   cursor: default;
 }
 
-.access-account-actions,
 .access-leader-actions {
   display: flex;
   flex-wrap: wrap;
@@ -525,9 +366,6 @@
   gap: 4px;
   white-space: nowrap;
 }
-.employee-access-table .access-account-actions {
-  gap: 5px;
-}
 .protected-account-label {
   color: #5b6b50;
   font-size: var(--fs-xs);
@@ -676,23 +514,6 @@
   overflow-wrap: anywhere;
   font-size: var(--fs-xs);
   line-height: 1.4;
-}
-
-/* Distinct status tones retain readable labels in narrow employee columns. */
-.app.tab-resources .employee-access-table .resource-status-badge {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  padding: 4px 7px;
-  border: 1px solid var(--resource-status-border, #cbd2db);
-  border-radius: 5px;
-  background: var(--resource-status-background, #eef0f3);
-  color: var(--resource-status-color, #5b6673);
-  font-weight: 650;
-  line-height: 1.35;
-  /* Breaks only between words: "Aktif Çalışan" stays on one line. */
-  white-space: normal;
-  overflow-wrap: normal;
 }
 .app.tab-resources .employee-access-table .same-as-leadership {
   color: var(--brand-muted, #60715e);

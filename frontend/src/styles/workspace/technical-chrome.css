@@ -21,7 +21,7 @@ html[data-theme="technical"] .app .project-filter-summary {
   border-radius: 0;
   box-shadow: none;
 }
-/* Matches the open-state rule in military-theme.css, which is more specific. */
+/* Matches the open-state rule in theme-base.css, which is more specific. */
 html[data-theme="technical"] .app .capacitystrip[open] > summary {
   border-bottom: 1px solid var(--brand-border-strong);
   background: #fff;

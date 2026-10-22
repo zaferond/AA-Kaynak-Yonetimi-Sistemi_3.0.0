@@ -145,7 +145,7 @@ export default function PlannedAllocationTable(
                         <strong>{p.name}</strong>
                         <ProjectResponsible project={p} />
                         <span>
-                          {p.start} — {p.end}
+                          {monthLabel(p.start)} → {monthLabel(p.end)}
                         </span>
                       </TableCell>
                       {months.map((m) => (

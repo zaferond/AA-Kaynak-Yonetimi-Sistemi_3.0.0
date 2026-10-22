@@ -44,6 +44,8 @@ export type WarningAssessment = {
   horizonMonths: number;
   nextResources: number;
   migratedReference: boolean;
+  /** Leaderships with planned resource but no approved target plan. */
+  missingLeaders?: string[];
 };
 export type WarningEvent = {
   status: WarningLifecycleState;
@@ -229,16 +231,27 @@ export function assessProjectWarning(
       status: "notStarted",
       reason: "Son kilitli ayda proje takibi başlamamış.",
     };
+  // Every leadership with resource on the project needs an approved plan;
+  // name all of them so the screen says who is missing.
+  const missingLeaders = [...leaders]
+    .filter(
+      (leader) => !records.find((r) => r.leader === leader)?.baselines.length,
+    )
+    .sort((a, b) => a.localeCompare(b, "tr"));
+  if (missingLeaders.length)
+    return {
+      ...result,
+      status: "missing",
+      warning1: "Eksik Hedef Plan",
+      reason:
+        "Onaylı hedef planı eksik liderlikler: " +
+        missingLeaders.join(", ") +
+        ".",
+      missingLeaders,
+    };
   const rows: ScopeRow[] = [];
   for (const leader of leaders) {
-    const record = records.find((r) => r.leader === leader);
-    if (!record?.baselines.length)
-      return {
-        ...result,
-        status: "missing",
-        warning1: "Veri eksik",
-        reason: "İlgili liderliklerin onaylı hedef planları tamamlanmalı.",
-      };
+    const record = records.find((r) => r.leader === leader)!;
     const baseline = record.baselines.at(-1)!;
     const values = planned.get(leader) || {};
     const total =
@@ -248,6 +261,22 @@ export function assessProjectWarning(
     rows.push({ record, planned: values, weight: record.weight ?? total });
   }
   const point = projectPoint(rows, month);
+  // A leadership that has not entered the locked month's actual: name them.
+  const missingActuals = rows
+    .filter((row) => !row.record.actuals[month])
+    .map((row) => row.record.leader)
+    .sort((a, b) => a.localeCompare(b, "tr"));
+  if (!point && missingActuals.length)
+    return {
+      ...result,
+      status: "missing",
+      warning1: "Gerçekleşen Planlar Eksik",
+      reason:
+        "Gerçekleşen planı eksik liderlikler: " +
+        missingActuals.join(", ") +
+        ".",
+      missingLeaders: missingActuals,
+    };
   if (!point)
     return {
       ...result,

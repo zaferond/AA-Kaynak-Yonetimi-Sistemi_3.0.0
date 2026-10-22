@@ -1,0 +1,85 @@
+/* The one badge (components/Badge.tsx): five tones, three forms, one size.
+   Tones: neutral, info, success, warning (someone has to act), danger.
+   Badges may wrap in narrow cells (white-space stays normal). */
+html[data-theme="technical"] .ui-badge {
+  --badge-bg: #f1f4f7;
+  --badge-bd: #d0d9e2;
+  --badge-ink: #3b4a5a;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-sizing: border-box;
+  min-height: 20px;
+  max-width: 100%;
+  margin: 0;
+  padding: 1px 7px;
+  border: 1px solid var(--badge-bd);
+  border-radius: 3px;
+  background: var(--badge-bg);
+  color: var(--badge-ink);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: normal;
+  box-shadow: none;
+}
+html[data-theme="technical"] .ui-badge[data-tone="info"] {
+  --badge-bg: #e8f0f8;
+  --badge-bd: #b9cde3;
+  --badge-ink: #234f7a;
+}
+html[data-theme="technical"] .ui-badge[data-tone="success"] {
+  --badge-bg: #e9f5ee;
+  --badge-bd: #a9d4b9;
+  --badge-ink: #1d6b3f;
+}
+html[data-theme="technical"] .ui-badge[data-tone="warning"] {
+  --badge-bg: #fdf3df;
+  --badge-bd: #ecc77e;
+  --badge-ink: #7a4b00;
+}
+html[data-theme="technical"] .ui-badge[data-tone="danger"] {
+  --badge-bg: #fdecea;
+  --badge-bd: #f0b9b3;
+  --badge-ink: #a4261b;
+}
+/* Status: a leading dot gives the state a shape, not only a colour. */
+html[data-theme="technical"] .ui-badge[data-variant="status"]::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+/* Count: figures aligned, at least square. */
+html[data-theme="technical"] .ui-badge[data-variant="count"] {
+  justify-content: center;
+  min-width: 20px;
+  padding-inline: 5px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+html[data-theme="technical"] button.ui-badge {
+  cursor: pointer;
+}
+html[data-theme="technical"] button.ui-badge:hover {
+  border-color: color-mix(in srgb, var(--badge-ink) 45%, transparent);
+}
+html[data-theme="technical"] button.ui-badge:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 1px;
+}
+/* Çalışan & Yetki tells all six employee statuses apart: the badge keeps
+   its shape and takes each status's own tint (access-panel.css). */
+html[data-theme="technical"]
+  .app.tab-resources
+  .ui-badge[data-resource-status] {
+  --badge-bg: var(--resource-status-background);
+  --badge-bd: var(--resource-status-border);
+  --badge-ink: var(--resource-status-color);
+}

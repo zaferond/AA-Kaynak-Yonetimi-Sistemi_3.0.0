@@ -8,7 +8,7 @@ html[data-theme="technical"] :is(.app, [data-slot="dialog-content"]) {
 }
 html[data-theme="technical"]
   .app
-  :is(.planning-filterbar, .progress-filterbar, .progress-card-fields) {
+  :is(.planning-filterbar, .progress-filterbar) {
   --ctl-h: 28px;
 }
 html[data-theme="technical"] [data-slot="dialog-content"] {

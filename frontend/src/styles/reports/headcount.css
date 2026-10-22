@@ -49,7 +49,7 @@
   height: 44px;
   background: var(--headcount-header-color, var(--brand-primary, #405341));
   /* Shared legacy header colors are important. */
-  color: #fff !important;
+  color: #fff;
   border-right-color: #ffffff26;
   font-weight: 650;
 }

@@ -1,17 +1,3 @@
-/* A compact read-only matrix; frozen labels stay above the today marker. */
-.app.tab-activity .reports-filter-dock {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--brand-surface-soft);
-  margin-bottom: 12px;
-}
-.app.tab-activity .reports-filter-dock .planning-filterbar {
-  margin-top: 0;
-}
-.app.tab-activity .reports-filter-summary {
-  margin: 0;
-}
 .app .monthly-activity-report {
   padding: 0;
   overflow: hidden;

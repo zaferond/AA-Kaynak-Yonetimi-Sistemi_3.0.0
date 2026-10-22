@@ -4,6 +4,7 @@ export { SYSTEM_NAME, UI_THEME } from "./branding.ts";
 export const RISK_MANAGEMENT_ENABLED =
   process.env.AA_RISK_UI_ENABLED === "true";
 export const TAB_LABELS = {
+  home: "Ana Sayfa",
   plan: "Kaynak Planlama",
   projects: "Projeler",
   risk: "Risk Yönetimi",

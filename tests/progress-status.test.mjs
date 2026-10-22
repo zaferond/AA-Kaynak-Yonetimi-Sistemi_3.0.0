@@ -51,7 +51,8 @@ test("saved entry presentation includes edit availability and follows lock chang
   assert.equal(open.label, "Tamamlandı - Değişikliğe Açık");
   assert.equal(open.status, "entered");
   assert.equal(locked.label, "Tamamlandı - Değişikliğe Kapalı");
-  assert.equal(locked.status, "locked");
+  // A completed entry keeps its green state when the month is locked.
+  assert.equal(locked.status, "entered");
   assert.match(locked.help, /giriş veya revizyon yapılamaz/);
   assert.doesNotMatch(locked.help, /düzenlenebilir/);
   assert.deepEqual(entryPresentation("entered", false), open);

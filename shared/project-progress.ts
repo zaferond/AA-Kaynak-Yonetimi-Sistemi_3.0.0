@@ -142,6 +142,43 @@ export function monthsAfter(from: string, to: string) {
 export const currentBaseline = (record: ProjectProgress) =>
   record.baselines.at(-1);
 
+/** The newest locked month ("" when none is locked). */
+export const lastLockedMonth = (locks: { id: string }[] | undefined) =>
+  (locks || []).reduce((last, lock) => (lock.id > last ? lock.id : last), "");
+
+/**
+ * A revision may change targets only after the newest locked month: from the
+ * plan's opening up to that month the approved targets stay as they are.
+ */
+export function lockedTargets(
+  approved: Pick<ProgressBaseline, "openingMonth" | "openingPct" | "targets">,
+  openingMonth: string,
+  lockedThrough: string,
+) {
+  const targets: ProgressTargets = {};
+  for (const month of monthsAfter(openingMonth, lockedThrough))
+    targets[month] = targetAt(approved, month)!;
+  return targets;
+}
+
+/** The first locked month whose target a revision changes, if any. */
+export function changedLockedMonth(
+  proposal: Pick<ProgressProposal, "openingMonth" | "openingPct" | "targets">,
+  approved: Pick<ProgressBaseline, "openingMonth" | "openingPct" | "targets">,
+  lockedThrough: string,
+) {
+  const months =
+    proposal.openingMonth <= lockedThrough
+      ? [
+          proposal.openingMonth,
+          ...monthsAfter(proposal.openingMonth, lockedThrough),
+        ]
+      : [];
+  return months.find(
+    (month) => targetAt(proposal, month) !== targetAt(approved, month),
+  );
+}
+
 /**
  * Problems that keep a proposal from being submitted; empty when valid.
  * Months may stay empty: an empty month keeps the previous target. Entered

@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode } from "react";
+import Badge from "../../components/Badge";
 import { createPortal } from "react-dom";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
 import { CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
@@ -258,9 +259,13 @@ export default function PlanAndEntry({
             {key === "evaluation"
               ? `${month ? monthName(month) : "Seçili"} ${label}`
               : label}
-            <span className="progress-waiting-count" aria-label="adet">
+            <Badge
+              variant="count"
+              className="progress-waiting-count"
+              aria-label="adet"
+            >
               {waitingCount(key)}
-            </span>
+            </Badge>
           </label>
         ))}
         {isAdmin && (

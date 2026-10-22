@@ -72,7 +72,6 @@
   font-weight: 600;
 }
 .work-calendar-personal,
-.work-calendar-form,
 .work-calendar-list {
   border: 1px solid #dbe6ef;
   border-radius: 8px;
@@ -83,8 +82,7 @@
   background: #fff;
 }
 .work-calendar-personal h3,
-.work-calendar-list h3,
-.work-calendar-form-title {
+.work-calendar-list h3 {
   margin: 0 0 10px;
   color: #244761;
   font-size: var(--fs-sm);

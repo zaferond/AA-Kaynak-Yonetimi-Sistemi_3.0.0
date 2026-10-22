@@ -124,20 +124,12 @@ html[data-theme] .app .workspace-section-tabs [role="tab"]:focus-visible {
   outline-offset: -2px;
 }
 .app .workspace-section-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex: none;
-  min-width: 19px;
-  min-height: 19px;
-  padding: 1px 5px;
-  border-radius: 10px;
-  color: #fff;
-  background: #8c661b;
-  font-size: var(--fs-xs);
 }
-.app.tab-resources .panelhead > div > h2,
-.app.tab-resources .panelhead > h2 {
+/* The page heading names the main panel; the leave and training panel
+   below it keeps its own title. */
+.app.tab-resources :not(.absence-report) > .panelhead > div > h2,
+.app.tab-resources :not(.absence-report) > .panelhead > h2 {
   display: none;
 }
 .app.full-plan .workspace-section-heading {
@@ -149,12 +141,6 @@ html[data-theme] .app .workspace-section-tabs [role="tab"]:focus-visible {
 .app .schedule-scenario-page {
   padding: 16px;
   min-width: 0;
-}
-.app .schedule-scenario-page .schedule-scenario-intro {
-  margin: 0 0 16px;
-  color: var(--brand-muted, #60715e);
-  font-size: var(--fs-sm);
-  line-height: 1.5;
 }
 .app .schedule-scenario-page .schedule-scenario-body {
   overflow-y: visible;

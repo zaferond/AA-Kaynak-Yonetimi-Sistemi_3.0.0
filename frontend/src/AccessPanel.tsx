@@ -1,4 +1,5 @@
 import { employeeAssignment } from "../../shared/employee-directory";
+import Badge from "./components/Badge";
 import { currentPlanningMonth } from "../../shared/resource-dates";
 import AuditLogDialog from "./AuditLogDialog";
 import {
@@ -131,9 +132,13 @@ export default function AccessPanel({
           <DialogTitle>{selected.name}</DialogTitle>
           <DialogDescription>{selected.username}</DialogDescription>
         </DialogHeader>
-        <span className="access-role-badge">
+        <Badge
+          variant="status"
+          tone={selected.active ? "success" : "neutral"}
+          className="access-role-badge"
+        >
           {selected.active ? "Aktif" : "Yetki Kaldırıldı"}
-        </span>
+        </Badge>
       </div>
       <AccessPermissionFields
         data={data}

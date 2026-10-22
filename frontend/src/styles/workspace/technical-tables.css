@@ -22,7 +22,7 @@ html[data-theme="technical"] {
    duplicates) and numeric alignment stay with each feature. Dialog tables
    render outside .app, so the selector is not scoped to it. :is() takes its
    most specific argument, which also outranks the important header colour
-   in military-theme.css. */
+   in theme-base.css. */
 html[data-theme="technical"]
   :is(
     .employee-access-table,
@@ -166,11 +166,6 @@ html[data-theme="technical"]
   td:first-child {
   box-shadow: inset 3px 0 var(--brand-primary);
 }
-html[data-theme="technical"] .app .employee-access-table .access-role-badge {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 600;
-}
 html[data-theme="technical"]
   :is(.employee-access-count, .protected-account-label) {
   color: var(--brand-muted);
@@ -189,17 +184,6 @@ html[data-theme="technical"]
   .directory-group:first-child
   td {
   border-top: 0;
-}
-html[data-theme="technical"]
-  .app
-  .team-directory
-  .directory-group
-  .directory-team-count {
-  border-color: var(--tbl-frame);
-  border-radius: 3px;
-  background: #fff;
-  color: var(--brand-muted);
-  font-weight: 500;
 }
 html[data-theme="technical"]
   .app
@@ -470,8 +454,8 @@ html[data-theme="technical"] .app.tab-overview .report-summary {
 }
 
 html[data-theme="technical"] .app.tab-plan .allocation-grid td.selectedcell {
-  background: transparent !important;
-  box-shadow: none !important;
+  background: transparent;
+  box-shadow: none;
 }
 html[data-theme="technical"]
   .app.tab-plan

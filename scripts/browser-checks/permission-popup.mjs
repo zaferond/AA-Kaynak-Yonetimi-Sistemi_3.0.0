@@ -191,7 +191,7 @@ export async function checkPermissionPopup(f) {
             bounds.x + bounds.width <= cell.x + cell.width + 1,
         );
         for (const selector of [
-          ".badge",
+          ".ui-badge",
           ".access-role-badge",
           ".button",
           ".subline",

@@ -84,10 +84,6 @@ html[data-theme="technical"] .schedule-card-options .textbutton {
 html[data-theme="technical"] .schedule-timeline-option {
   color: var(--brand-muted);
 }
-html[data-theme="technical"] .schedule-card-status {
-  margin-left: auto;
-  color: var(--brand-muted);
-}
 html[data-theme="technical"] .schedule-scenario-card > .negative {
   margin: 0;
 }
@@ -108,11 +104,6 @@ html[data-theme="technical"] .schedule-scenario-add {
 html[data-theme="technical"] .schedule-scenario-add:hover {
   border-color: var(--btn-border-hover);
   background: var(--btn-hover);
-}
-html[data-theme="technical"] .schedule-scenario-empty {
-  border-color: var(--tbl-frame);
-  border-radius: 6px;
-  background: #fff;
 }
 
 /* Comparison: no inner vertical scroll. */
@@ -136,7 +127,7 @@ html[data-theme="technical"]
   tbody
   th {
   background: #fff;
-  /* The shared header colour in military-theme.css is important. */
+  /* The shared header colour in theme-base.css is important. */
   color: var(--brand-text) !important;
   font-weight: 600;
 }
@@ -211,13 +202,4 @@ html[data-theme="technical"]
   > .schedule-card-duplicate {
   font-size: var(--fs-xs);
   font-weight: 600;
-}
-html[data-theme="technical"] .schedule-impact-empty {
-  margin: 0;
-  padding: 12px;
-  border: 1px solid var(--tbl-frame);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--brand-muted);
-  font-size: var(--fs-xs);
 }

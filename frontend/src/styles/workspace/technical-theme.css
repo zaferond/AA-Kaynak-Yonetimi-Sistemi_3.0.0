@@ -1,5 +1,5 @@
 /* Technical drawing theme: graphite ink, steel blue and cool paper.
-   Reuses the shared rules in military-theme.css; only the variables differ.
+   Reuses the shared rules in theme-base.css; only the variables differ.
    The olive tints there rotate to steel blue through --brand-hue-shift and
    lose some chroma so surfaces read as paper rather than tinted glass. */
 html[data-theme="technical"] {

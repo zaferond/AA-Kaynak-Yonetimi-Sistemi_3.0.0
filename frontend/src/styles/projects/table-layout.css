@@ -41,27 +41,18 @@ html[data-theme]
     transparent 1px
   );
 }
-/* Keep both calendar header rows visible while scrolling project rows. */
+/* Keep the calendar header row visible while scrolling project rows. */
 .app.tab-projects .projectmatrix thead {
   position: static;
 }
-.app.tab-projects .projectmatrix .yearrow th {
+.app.tab-projects .projectmatrix thead tr > th {
   position: sticky;
   top: 0;
-  height: var(--table-project-year-height);
-  z-index: 11;
-}
-.app.tab-projects .projectmatrix thead tr:not(.yearrow) > th {
-  position: sticky;
-  top: var(--table-project-year-height);
   z-index: 10;
   background: var(--table-header-background);
   box-shadow: 0 2px 3px #1b3d5b1c;
 }
-.app.tab-projects .projectmatrix thead .yearrow th:first-child {
-  z-index: 13;
-}
-.app.tab-projects .projectmatrix thead tr:not(.yearrow) > th:first-child {
+.app.tab-projects .projectmatrix thead tr > th:first-child {
   z-index: 12;
 }
 .app.tab-projects .projectmatrix .weekhead {
@@ -115,7 +106,7 @@ html[data-theme]
   font-size: var(--fs-xs);
   font-weight: 650;
 }
-.app.tab-projects .projectmatrix thead tr:not(.yearrow) > .project-code-cell {
+.app.tab-projects .projectmatrix thead tr > .project-code-cell {
   z-index: 12;
   background: var(--table-header-background);
 }

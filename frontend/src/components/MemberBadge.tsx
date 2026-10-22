@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { badgeAttrs, type BadgeTone } from "./Badge";
 import {
   Popover,
   PopoverTrigger,
@@ -9,10 +10,18 @@ export default function MemberBadge({
   label,
   members,
   currentMonth,
+  heading = "Aktif Çalışanlar",
+  noun = "aktif çalışan",
+  tone = "neutral",
 }: {
   label: string;
   members: string[];
   currentMonth: string;
+  /** The list's title, before the month. */
+  heading?: string;
+  /** What the count counts, for the accessible name. */
+  noun?: string;
+  tone?: BadgeTone;
 }) {
   const [open, setOpen] = useState(false);
   const closing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -31,8 +40,8 @@ export default function MemberBadge({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="team-member-badge"
-          aria-label={label + " · " + members.length + " aktif çalışan"}
+          {...badgeAttrs(tone, "count", "team-member-badge")}
+          aria-label={label + " · " + members.length + " " + noun}
           onPointerEnter={keepOpen}
           onPointerLeave={closeSoon}
           onFocus={keepOpen}
@@ -65,7 +74,7 @@ export default function MemberBadge({
         }}
       >
         <strong id={headingId}>
-          Aktif Çalışanlar · {monthLabel(currentMonth)}
+          {heading} · {monthLabel(currentMonth)}
         </strong>
         <div
           className="team-member-names"
@@ -75,7 +84,7 @@ export default function MemberBadge({
           {members.length ? (
             members.map((name, index) => <span key={index}>{name}</span>)
           ) : (
-            <span>Bu ay aktif çalışan yok.</span>
+            <span>Bu ay {noun} yok.</span>
           )}
         </div>
       </PopoverContent>

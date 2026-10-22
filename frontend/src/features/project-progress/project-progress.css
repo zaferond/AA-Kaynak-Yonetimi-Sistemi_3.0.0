@@ -214,8 +214,7 @@
   gap: 14px;
   flex-wrap: wrap;
 }
-.project-progress .progress-baseline-bar label,
-.project-progress .progress-card-fields label {
+.project-progress .progress-baseline-bar label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -313,6 +312,15 @@
 .project-progress .progress-process-help p {
   margin: 8px 0 0;
 }
+/* Rule table: how each warning is computed, beside its text. */
+.project-progress .scenario-rule-formula {
+  color: var(--brand-muted, #4f5f6f);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.project-progress .scenario-rule-legend strong {
+  font-weight: 700;
+}
 .project-progress .progress-process-columns {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
@@ -352,25 +360,6 @@
 .project-progress .progress-status[data-status="approved"] {
   background: #e7f3e8;
   color: var(--progress-green);
-}
-.project-progress .progress-card-fields {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.project-progress .progress-card-fields select,
-.project-progress .progress-card-fields input {
-  height: 26px;
-  font-size: var(--fs-xs);
-}
-.project-progress .progress-card-fields input {
-  width: 64px;
-  text-align: center;
-}
-.project-progress .progress-card-fields .wide input {
-  width: 280px;
-  text-align: left;
 }
 .project-progress .progress-card-actions {
   display: flex;
@@ -460,11 +449,6 @@
 .project-progress .progress-grid td.opening {
   background: #eef2ea;
   border-right: 2px solid var(--brand-border, #ccd6c5);
-}
-.project-progress .progress-grid [data-now] {
-  box-shadow:
-    inset 2px 0 var(--brand-primary, #405341),
-    inset -2px 0 var(--brand-primary, #405341);
 }
 .project-progress .progress-grid td strong {
   color: var(--brand-text, #293a2d);
@@ -727,19 +711,7 @@
 
 /* Status badge beside project names in critical topics. */
 .progress-badge-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
   margin-left: 6px;
-  padding: 0 6px;
-  height: 18px;
-  border: 1px solid #d5dfcf;
-  border-radius: 9px;
-  background: #fff;
-  color: #293a2d;
-  font-size: 11px;
-  font-weight: 650;
-  vertical-align: middle;
 }
 /* Toolbar controls match the compact filter bars of the other screens. */
 .project-progress .progress-baseline-bar select,
@@ -1231,38 +1203,6 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.scenario-progress-badge {
-  display: inline-flex;
-  padding: 3px 9px;
-  border: 1px solid #d2d9d0;
-  border-radius: 6px;
-  background: #f0f2ee;
-  color: #4a5548;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.5;
-}
-.scenario-progress-badge[data-progress="ahead"] {
-  color: #174a8b;
-  background: #eaf2ff;
-  border-color: #bdd2f4;
-}
-.scenario-progress-badge[data-progress="onTrack"],
-.scenario-progress-badge[data-progress="completed"] {
-  color: #256132;
-  background: #edf7ed;
-  border-color: #b9d8bd;
-}
-.scenario-progress-badge[data-progress="behind"] {
-  color: #805500;
-  background: #fff6d6;
-  border-color: #e6ce7a;
-}
-.scenario-progress-badge[data-progress="critical"] {
-  color: #a52121;
-  background: #fff0ed;
-  border-color: #edb7af;
-}
 .scenario-warning-action {
   font-size: 12px;
   color: #293a2d;
@@ -1319,7 +1259,7 @@
   overflow: auto;
 }
 .scenario-warning-table {
-  min-width: 1100px;
+  min-width: 1200px;
   table-layout: fixed;
 }
 .scenario-warning-table th,
@@ -1332,77 +1272,247 @@
   line-height: 1.5;
 }
 .scenario-warning-table th:nth-child(1) {
-  width: 16%;
+  width: 14%;
 }
 .scenario-warning-table th:nth-child(2) {
   width: 6%;
 }
 .scenario-warning-table th:nth-child(3) {
-  width: 14%;
+  width: 13%;
 }
 .scenario-warning-table th:nth-child(4) {
-  width: 22%;
+  width: 19%;
 }
 .scenario-warning-table th:nth-child(5) {
-  width: 9%;
+  width: 8%;
 }
 .scenario-warning-table th:nth-child(6) {
   width: 10%;
 }
 .scenario-warning-table th:nth-child(7) {
-  width: 23%;
+  width: 18%;
 }
-.scenario-warning-detail {
-  margin-top: 8px;
+.scenario-warning-table th:nth-child(8) {
+  width: 12%;
 }
-.scenario-warning-detail summary {
-  cursor: pointer;
-  font-weight: 600;
+/* Aksiyon Açıklaması: the newest action, three lines at most. */
+.scenario-action-cell p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
-.scenario-lifecycle {
-  display: inline-block;
-  padding: 3px 7px;
-  border-radius: 5px;
-  background: #f0f2ee;
-  font-weight: 600;
-}
-.scenario-lifecycle[data-status="open"] {
-  background: #fff2d7;
-  color: #805500;
-}
-.scenario-lifecycle[data-status="seen"] {
-  background: #eaf2ff;
-  color: #174a8b;
-}
-.scenario-lifecycle[data-status="acted"] {
-  background: #edf7ed;
-  color: #256132;
-}
-.scenario-event-history {
-  margin: 12px 0;
-  padding-left: 18px;
-}
-.scenario-event-history li {
-  margin-bottom: 10px;
-}
-.scenario-event-history span {
+.scenario-action-cell span {
   display: block;
-  color: #53604e;
+  margin-top: 3px;
+  color: var(--brand-muted);
   font-size: 11px;
 }
-.scenario-event-history p {
-  margin: 3px 0;
+.scenario-action-none {
+  color: var(--brand-muted);
+}
+.scenario-row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.scenario-row-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.scenario-warning-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.scenario-warning-detail svg {
+  transition: transform 0.15s ease;
+}
+.scenario-warning-detail[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+/* Hesap ve geçmiş: two cards, the calculation and the action timeline. */
+.scenario-detail-card {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--brand-border);
+  border-radius: 6px;
+  background: #fff;
+}
+.scenario-detail-card h4,
+.scenario-detail-card .scenario-calculation > p:first-child,
+.scenario-action-form h4 {
+  margin: 0 0 8px;
+  color: var(--brand-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+.scenario-timeline {
+  position: relative;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.scenario-timeline li {
+  --step: var(--brand-mid);
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.scenario-timeline li:last-child {
+  padding-bottom: 0;
+}
+/* The rail joins each marker to the next. */
+.scenario-timeline li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 26px;
+  bottom: 0;
+  left: 12px;
+  width: 2px;
+  background: var(--brand-border-strong);
+}
+.scenario-timeline li[data-status="open"] {
+  --step: #b7791f;
+}
+.scenario-timeline li[data-status="seen"] {
+  --step: #2f6fb0;
+}
+.scenario-timeline li[data-status="acted"] {
+  --step: #1d6b3f;
+}
+.scenario-timeline li[data-status="closed"] {
+  --step: #576473;
+}
+.scenario-timeline-marker {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--step);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--step);
+}
+.scenario-timeline li[data-current] .scenario-timeline-marker {
+  background: var(--step);
+  color: #fff;
+}
+.scenario-timeline-body {
+  min-width: 0;
+  padding-top: 3px;
+}
+.scenario-timeline-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.scenario-timeline-head strong {
+  color: var(--step);
+  font-size: 12px;
+  font-weight: 650;
+}
+.scenario-timeline-gap {
+  padding: 0 6px;
+  border-radius: 9px;
+  background: var(--brand-surface);
+  color: var(--brand-muted);
+  font-size: 10.5px;
+}
+.scenario-timeline-meta {
+  display: block;
+  color: var(--brand-muted);
+  font-size: 11px;
+}
+.scenario-timeline-note {
+  margin: 6px 0 0;
+  padding: 7px 10px;
+  border-left: 3px solid var(--step);
+  border-radius: 0 4px 4px 0;
+  background: var(--brand-surface-soft);
+  color: var(--brand-text);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Aksiyon Girişi: a full-width card under its warning. */
+.scenario-action-form {
+  max-width: 860px;
+  padding: 14px 16px;
+  border: 1px solid var(--brand-border);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 6px;
+  background: #fff;
+}
+.scenario-action-form header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-bottom: 8px;
+  color: var(--brand-primary);
+}
+.scenario-action-form header h4 {
+  margin: 0;
+}
+.scenario-action-form header span {
+  color: var(--brand-muted);
+  font-size: 12px;
+}
+.scenario-action-prompt {
+  margin: 0 0 10px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: var(--brand-surface-soft);
+  font-size: 12px;
 }
 .scenario-action-form label {
   display: flex;
   flex-direction: column;
   gap: 5px;
   font-size: 12px;
+  font-weight: 600;
 }
 .scenario-action-form textarea {
   width: 100%;
-  min-height: 80px;
+  min-height: 96px;
+  padding: 8px 10px;
+  border: 1px solid var(--brand-border-strong);
+  border-radius: 4px;
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.5;
   resize: vertical;
+}
+.scenario-action-form textarea:focus-visible {
+  border-color: var(--brand-focus);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--brand-focus-shadow);
+}
+.scenario-action-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+.scenario-action-foot .scenario-form-actions {
+  margin-top: 0;
+}
+.scenario-action-count {
+  color: var(--brand-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 .scenario-form-actions {
   display: flex;
@@ -1433,16 +1543,6 @@
   background: white;
   font: inherit;
 }
-.progress-badge-chip.scenario-project-chip {
-  height: auto;
-  min-height: 20px;
-  padding: 3px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  text-align: left;
-  max-width: 320px;
-}
 .progress-card-head .scenario-warning-status {
   margin-top: 6px;
 }
@@ -1456,12 +1556,13 @@
 }
 .scenario-expanded-details {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-  gap: 24px;
-  padding: 4px 10px;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 14px;
+  padding: 4px 2px;
 }
-.scenario-expanded-row {
-  background: #fafbf8;
+.scenario-expanded-row > td {
+  padding: 12px !important;
+  background: var(--brand-surface-soft);
 }
 .scenario-expanded-details .scenario-calculation dl {
   grid-template-columns: repeat(4, minmax(0, 1fr));

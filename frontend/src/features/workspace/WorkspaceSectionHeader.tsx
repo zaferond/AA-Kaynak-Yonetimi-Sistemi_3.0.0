@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Badge from "../../components/Badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type WorkspaceSectionTab = {
@@ -49,12 +50,14 @@ export default function WorkspaceSectionHeader({
                 <TabsTrigger key={item.value} value={item.value}>
                   {item.label}
                   {!!item.badge && (
-                    <span
+                    <Badge
+                      tone="warning"
+                      variant="count"
                       className="workspace-section-badge"
                       aria-label={item.badge + " onay bekliyor"}
                     >
                       {item.badge}
-                    </span>
+                    </Badge>
                   )}
                 </TabsTrigger>
               ))}

@@ -111,8 +111,7 @@
   padding: 0;
   margin-left: auto;
 }
-.app .planning-filterbar .filteractions .button,
-.app .planning-filterbar .filteractions .bulk-toggle {
+.app .planning-filterbar .filteractions .button {
   height: 34px;
   min-height: 34px;
   padding: 5px 10px;

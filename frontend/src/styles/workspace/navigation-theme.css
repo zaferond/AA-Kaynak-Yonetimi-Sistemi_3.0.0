@@ -1,36 +1,3 @@
-/* Compact opening-tab preference in the blue masthead. */
-.app .masttopright .default-tab-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  white-space: nowrap;
-  color: #dce9f8;
-  font-size: var(--fs-xs);
-  font-weight: 650;
-}
-.app .masttopright .default-tab-control select {
-  width: 145px;
-  height: 27px;
-  min-height: 27px;
-  padding: 3px 6px;
-  border: 1px solid #aabfd4;
-  border-radius: 5px;
-  background: #f2f7fb;
-  color: #173b62;
-  font-size: var(--fs-xs);
-  text-overflow: ellipsis;
-}
-.app .masttopright .default-tab-control select:focus-visible {
-  outline: 2px solid #c9e6ff;
-  outline-offset: 2px;
-}
-@media (max-width: 650px) {
-  .app .masttopright .default-tab-control select {
-    width: 135px;
-  }
-}
-
 /* Main navigation: a clear active state and a compact horizontal strip. */
 .app .workspace-nav {
   margin-bottom: 10px;

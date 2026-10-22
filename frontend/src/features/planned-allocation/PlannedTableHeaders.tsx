@@ -1,8 +1,5 @@
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  TimelineMonthHead,
-  TimelineYearRow,
-} from "../../components/TimelineHeaders";
+import { TimelineMonthHead } from "../../components/TimelineHeaders";
 import type { PlannedAllocationProps } from "./types";
 export default function PlannedTableHeaders({
   months,
@@ -23,11 +20,15 @@ export default function PlannedTableHeaders({
         ))}
       </colgroup>
       <TableHeader>
-        <TimelineYearRow years={years} label="" />
         <TableRow>
           <TableHead>{label}</TableHead>
           {months.map((month) => (
-            <TimelineMonthHead key={month} month={month} years={uniqueYears} />
+            <TimelineMonthHead
+              key={month}
+              month={month}
+              years={uniqueYears}
+              withYear
+            />
           ))}
         </TableRow>
       </TableHeader>

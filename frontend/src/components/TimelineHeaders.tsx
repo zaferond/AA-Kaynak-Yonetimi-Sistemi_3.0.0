@@ -8,11 +8,12 @@ export const yearBandClass = (index: number) =>
 export function TimelineYearRow({
   years,
   labelColumns = 1,
-  label = "Yıl",
+  label = "",
 }: {
   years: string[];
   labelColumns?: number;
-  /** Caption over the label columns; empty where the year speaks for itself. */
+  /** Caption over the label columns; empty by default, the years speak for
+   * themselves. */
   label?: string;
 }) {
   const bands: { year: string; count: number }[] = [];
@@ -40,17 +41,21 @@ export function TimelineYearRow({
 export function TimelineMonthHead({
   month,
   years,
+  withYear = false,
 }: {
   month: string;
   years: string[];
+  /** "Oca 26": the month carries its year where the table has no year row. */
+  withYear?: boolean;
 }) {
+  const name = shortDateFormat.format(new Date(month + "-01T12:00:00"));
   return (
     <TableHead
       data-month={month}
       className={"monthhead " + yearBandClass(years.indexOf(month.slice(0, 4)))}
       title={monthLabel(month)}
     >
-      <span>{shortDateFormat.format(new Date(month + "-01T12:00:00"))}</span>
+      <span>{withYear ? name + " " + month.slice(2, 4) : name}</span>
     </TableHead>
   );
 }

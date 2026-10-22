@@ -143,6 +143,9 @@ test("v35 to v36 preserves every resource-version value, FK and index; CoE persi
     await adapter.transaction(async (c) =>
       c.batch(await migrationSql("sqljs", 44)),
     );
+    await adapter.transaction(async (c) =>
+      c.batch(await migrationSql("sqljs", 45)),
+    );
     assertSchemaContract(adapter.db, await expectedSchemaContract());
     await adapter.close();
     await adapter.open();

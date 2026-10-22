@@ -53,10 +53,16 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
         !!projects.length &&
         onlyDataRows &&
         !groups.length && (
-          <p className="emptymsg">
-            Seçili dönemde planlanan dağılımı olan satır yok. Bütün satırları
-            görmek için “Sadece veri olanlar” anahtarını kapatın.
-          </p>
+          <div className="emptymsg">
+            <p>Seçili dönemde planlanan dağılımı olan satır yok.</p>
+            <button
+              type="button"
+              className="button"
+              onClick={() => props.onOnlyDataRowsChange(false)}
+            >
+              Tüm Satırları Göster
+            </button>
+          </div>
         )}
       <footer className="tablefoot">
         <span>Birim: aylık kişi eşdeğeri · Ondalık giriş: 0,5</span>

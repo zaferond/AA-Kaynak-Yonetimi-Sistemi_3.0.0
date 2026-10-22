@@ -2,21 +2,8 @@
 .app.tab-plan .planning-filterbar {
   margin-bottom: 5px;
 }
-.app.tab-plan .plan-filter-options {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  width: 100%;
-  min-height: 30px;
-  margin: 0 0 9px;
-  padding: 0;
-}
 
 /* Keep the planned-view controls left and team labels inside their own column. */
-.app.tab-plan .plan-filter-options {
-  justify-content: flex-start;
-  margin-left: 0;
-}
 .app.tab-plan .allocation-grid .team-group-label {
   width: calc(var(--label-width) - 20px);
   max-width: calc(var(--label-width) - 20px);

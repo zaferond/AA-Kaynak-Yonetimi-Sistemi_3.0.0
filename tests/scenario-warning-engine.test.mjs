@@ -248,3 +248,33 @@ test("sıfır kaynak referansında gelecekte kaynak da yoksa planlanmamış duru
   d.allocations = {};
   assert.equal(assessProjectWarning(d, d.projects[0]).code, "S-01");
 });
+
+test("eksik hedef plan tüm eksik liderlikleri adıyla listeler", () => {
+  const d = warningFixture();
+  // Two more leaderships carry resource on the project but have no plan.
+  d.leaders.push("Yapısal Tasarım", "Elektrik Elektronik");
+  d.teams.push(
+    { id: "y", name: "Y", lead: "Yapısal Tasarım", excelCapacity: 1 },
+    { id: "e", name: "E", lead: "Elektrik Elektronik", excelCapacity: 1 },
+  );
+  d.allocations["y|p|2026-10"] = 5;
+  d.allocations["e|p|2026-10"] = 5;
+  const value = assessProjectWarning(d, d.projects[0]);
+  assert.equal(value.status, "missing");
+  assert.equal(value.warning1, "Eksik Hedef Plan");
+  assert.deepEqual(value.missingLeaders, [
+    "Elektrik Elektronik",
+    "Yapısal Tasarım",
+  ]);
+  assert.match(value.reason, /Elektrik Elektronik, Yapısal Tasarım/);
+});
+
+test("kilitli ayda eksik gerçekleşen, liderlikleri adıyla listeler", () => {
+  const d = warningFixture();
+  delete d.projectProgress[0].actuals["2026-09"];
+  const value = assessProjectWarning(d, d.projects[0]);
+  assert.equal(value.status, "missing");
+  assert.equal(value.warning1, "Gerçekleşen Planlar Eksik");
+  assert.deepEqual(value.missingLeaders, ["Liderlik"]);
+  assert.match(value.reason, /Gerçekleşen planı eksik liderlikler: Liderlik/);
+});

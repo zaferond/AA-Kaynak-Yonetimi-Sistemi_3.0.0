@@ -3,26 +3,11 @@
   display: flex;
   flex-direction: column;
 }
-.app .mastbrandrow,
-.app .masttoolbar {
+.app .mastbrandrow {
   width: 100%;
-}
-.app .masttoolbar {
-  justify-content: flex-end;
 }
 .app .mastglobalactions {
   margin-left: auto;
-}
-.app .mastbulk {
-  align-self: flex-end;
-  justify-content: flex-end;
-  width: max-content;
-  max-width: 100%;
-  margin: 8px 0 0;
-  padding: 7px 9px;
-  border: 1px solid #ffffff2b;
-  border-radius: 7px;
-  background: #ffffff0d;
 }
 .app .workspace-nav {
   display: flex;
@@ -151,10 +136,6 @@
   .app .workspace-nav-actions .densitycontrol select {
     width: 100%;
   }
-  .app .mastbulk {
-    width: 100%;
-    justify-content: flex-end;
-  }
 }
 
 /* Compact blue header: account and global actions share the top row. */
@@ -166,10 +147,6 @@
   gap: 12px;
   min-height: 38px;
   margin: 0;
-}
-.app .mastbrandrow .systembrand {
-  font-size: var(--fs-md);
-  line-height: 1.25;
 }
 .app .mastbrandrow .mark {
   width: 28px;
@@ -202,17 +179,6 @@
   padding: 3px 7px;
   font-size: var(--fs-xs);
 }
-.app .mastbulk {
-  margin-top: 5px;
-  padding: 4px 7px;
-  gap: 7px;
-}
-.app .mastbulk .button {
-  height: 26px;
-  min-height: 26px;
-  padding: 3px 7px;
-  font-size: var(--fs-xs);
-}
 @media (max-width: 1000px) {
   .app .mastbrandrow {
     flex-wrap: wrap;
@@ -220,9 +186,6 @@
   .app .masttopright {
     width: 100%;
     margin-left: 0;
-  }
-  .app .mastbulk {
-    margin-top: 6px;
   }
 }
 @media (max-width: 650px) {
@@ -235,9 +198,6 @@
   }
   .app .mastuser {
     margin-right: auto;
-  }
-  .app .mastbrandrow .systembrand {
-    font-size: var(--fs-xs);
   }
 }
 
@@ -291,20 +251,6 @@
   background: #f3f7fb;
   color: #315f8c;
   border-color: #cbd9e8;
-}
-.app .filteractions .bulk-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 30px;
-  padding: 4px 8px;
-  border: 1px solid #c9d9e8;
-  border-radius: 6px;
-  background: #f2f7fc;
-  color: #315a7c;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  cursor: pointer;
 }
 @media (max-width: 1150px) {
   .app .planning-filterbar {

@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { monthLabel, shortDateFormat } from "../../format";
 import {
   useWindowedSections,
   type WindowedSection,
@@ -29,7 +30,7 @@ import {
   workdaysInMonth,
   type ActualUnit,
 } from "../../actual-units";
-import { fullMonthFormat, numberFormat } from "./format";
+import { numberFormat } from "./format";
 import { personMonthBalance } from "./person-month-balance";
 import type { ActualAllocationView } from "./useActualAllocationView";
 import type { ActualCapacityDialog } from "./useActualCapacityDialog";
@@ -461,7 +462,7 @@ export default function ActualAllocationTable({
                   <strong>{project.name}</strong>
                   <ProjectResponsible project={project} />
                   <span>
-                    {project.start} — {project.end}
+                    {monthLabel(project.start)} → {monthLabel(project.end)}
                   </span>
                 </TableCell>
                 {(() => {
@@ -591,18 +592,6 @@ export default function ActualAllocationTable({
         ))}
       </colgroup>
       <TableHeader>
-        <TableRow className="yearrow">
-          <TableHead>Yıl</TableHead>
-          {years.map((year, index) => (
-            <TableHead
-              key={year}
-              colSpan={months.filter((month) => month.startsWith(year)).length}
-              className={"year-band-" + (index % 6)}
-            >
-              {year}
-            </TableHead>
-          ))}
-        </TableRow>
         <TableRow>
           <TableHead>
             {view.layout === "person" ? "Kişi / Proje" : "Proje / Kişi"}
@@ -622,7 +611,9 @@ export default function ActualAllocationTable({
               }
             >
               <span>
-                {fullMonthFormat.format(new Date(month + "-01T12:00:00"))}
+                {shortDateFormat.format(new Date(month + "-01T12:00:00")) +
+                  " " +
+                  month.slice(2, 4)}
               </span>
             </TableHead>
           ))}

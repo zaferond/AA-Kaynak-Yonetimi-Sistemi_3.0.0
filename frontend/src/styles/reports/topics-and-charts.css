@@ -34,10 +34,6 @@
   font-size: var(--fs-xs);
   font-weight: 500;
 }
-.monthly-shortage-trend .chartnote {
-  margin: 0;
-  padding-top: 4px;
-}
 .project-info-report {
   background: #eef2ef;
 }
@@ -106,13 +102,6 @@
 }
 .project-info-project-title > div {
   min-width: 0;
-}
-.project-info-project-mark {
-  flex: none;
-  width: 5px;
-  height: 38px;
-  border-radius: 3px;
-  background: #a8c498;
 }
 .project-info-group h3 {
   margin: 0;
@@ -292,54 +281,6 @@
   text-decoration-color: #388260;
   text-decoration-thickness: 1px;
 }
-.project-info-complete-label {
-  display: inline-block;
-  padding: 2px 7px;
-  border: 1px solid #b5d7c1;
-  border-radius: 4px;
-  background: #d9efe1;
-  color: #17643b;
-  font-size: var(--fs-xs);
-  font-style: normal;
-  font-weight: 700;
-}
-.project-info-editor-fields {
-  display: grid;
-  gap: 8px;
-  width: 100%;
-}
-.project-info-editor-fields label {
-  display: grid;
-  gap: 4px;
-  color: #46627a;
-  font-size: var(--fs-xs);
-  font-weight: 650;
-}
-.project-info-editor-fields :is(input, textarea) {
-  width: 100%;
-  min-width: 0;
-  min-height: 32px;
-  padding: 5px 8px;
-  border: 1px solid #9fb9d2;
-  border-radius: 5px;
-  background: #fff;
-  color: #263f55;
-  font-size: var(--fs-xs);
-}
-.project-info-editor-fields textarea {
-  resize: vertical;
-  line-height: 1.5;
-}
-.project-info-editor-fields :is(input, textarea):focus {
-  outline: 2px solid #8bb9e1;
-  outline-offset: 1px;
-}
-.project-info-editor-dates {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  max-width: 420px;
-}
 .project-info-topic-content small {
   display: inline-block;
   padding: 3px 7px;
@@ -408,15 +349,6 @@
   color: #8b3443;
   font-size: var(--fs-xs);
 }
-.project-info-inline-error {
-  margin: 8px 0 3px;
-  padding: 8px 10px;
-  border: 1px solid #dfb2b9;
-  border-radius: 5px;
-  background: #fff4f5;
-  color: #8b3443;
-  font-size: var(--fs-xs);
-}
 @media (max-width: 700px) {
   .project-info-groups {
     padding: 12px 0;
@@ -443,12 +375,6 @@
   .project-info-topic-actions {
     align-self: flex-start;
     flex-wrap: wrap;
-  }
-  .project-info-editor-fields {
-    min-width: 0;
-  }
-  .project-info-editor-dates {
-    grid-template-columns: 1fr;
   }
 }
 .headcount-metrics {
@@ -511,10 +437,6 @@
 }
 .headcount-key.projected {
   border-top: 3.5px dashed var(--report-forecast-color, #b45309);
-}
-.headcount-trend .chartnote {
-  margin: 0;
-  padding-top: 8px;
 }
 @media (max-width: 700px) {
   .headcount-metrics {

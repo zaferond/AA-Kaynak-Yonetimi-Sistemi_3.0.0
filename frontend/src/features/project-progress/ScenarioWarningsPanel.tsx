@@ -1,7 +1,18 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
+import {
+  ChevronDown,
+  CircleAlert,
+  CircleCheck,
+  ClipboardPen,
+  Eye,
+  Lock,
+} from "lucide-react";
 import type { Data } from "../../model.ts";
 import type { Change } from "../../../../shared/commands.ts";
-import type { ScenarioWarning } from "../../../../shared/scenario-warnings.ts";
+import type {
+  ScenarioWarning,
+  WarningEvent,
+} from "../../../../shared/scenario-warnings.ts";
 import {
   WARNING_LIFECYCLE_LABELS,
   type WarningLifecycleState,
@@ -11,12 +22,80 @@ import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
+import Badge, { type BadgeTone } from "../../components/Badge";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressFilters from "./ProgressFilters";
-import { downloadScenarioWarnings } from "./scenario-warning-export";
+import {
+  downloadScenarioWarnings,
+  lastAction,
+} from "./scenario-warning-export";
 
 const dateLabel = (at: string) => new Date(at).toLocaleString("tr-TR");
+const dayLabel = (at: string) =>
+  new Date(at).toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 const PAGE_SIZE = 30;
+const ACTION_MAX = 3000;
+const LIFECYCLE_TONES: Record<WarningLifecycleState, BadgeTone> = {
+  open: "warning",
+  seen: "info",
+  acted: "success",
+  closed: "neutral",
+};
+const LIFECYCLE_ICONS = {
+  open: CircleAlert,
+  seen: Eye,
+  acted: CircleCheck,
+  closed: Lock,
+};
+function elapsed(from: string, to: string) {
+  const days = Math.floor(
+    (new Date(to).getTime() - new Date(from).getTime()) / 86_400_000,
+  );
+  return days < 1 ? "aynı gün" : `${days} gün sonra`;
+}
+
+/** Hesap ve geçmiş: every lifecycle step on a vertical timeline. */
+function WarningTimeline({ history }: { history: WarningEvent[] }) {
+  return (
+    <ol className="scenario-timeline" aria-label="Aksiyon geçmişi">
+      {history.map((event, index) => {
+        const Icon = LIFECYCLE_ICONS[event.status];
+        return (
+          <li
+            key={index}
+            data-status={event.status}
+            data-current={index === history.length - 1 || undefined}
+          >
+            <span className="scenario-timeline-marker" aria-hidden="true">
+              <Icon size={14} />
+            </span>
+            <div className="scenario-timeline-body">
+              <div className="scenario-timeline-head">
+                <strong>{WARNING_LIFECYCLE_LABELS[event.status]}</strong>
+                {index > 0 && (
+                  <span className="scenario-timeline-gap">
+                    {elapsed(history[index - 1].at, event.at)}
+                  </span>
+                )}
+              </div>
+              <span className="scenario-timeline-meta">
+                <time dateTime={event.at}>{dateLabel(event.at)}</time> ·{" "}
+                {event.byName}
+              </span>
+              {event.explanation && (
+                <p className="scenario-timeline-note">{event.explanation}</p>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 export default function ScenarioWarningsPanel({
   data,
   saving,
@@ -185,7 +264,8 @@ export default function ScenarioWarningsPanel({
                 <th>2. Uyarı / Aksiyon</th>
                 <th>Ay</th>
                 <th>Durum</th>
-                <th>İşlem / Ayrıntı</th>
+                <th>Aksiyon Açıklaması</th>
+                <th>İşlem</th>
               </tr>
             </thead>
             <tbody>
@@ -204,107 +284,148 @@ export default function ScenarioWarningsPanel({
                       <td>{w.warning2 || "—"}</td>
                       <td>{monthLabel(w.month)}</td>
                       <td>
-                        <span
-                          className="scenario-lifecycle"
+                        <Badge
+                          tone={LIFECYCLE_TONES[w.status]}
+                          variant="status"
                           data-status={w.status}
                         >
                           {WARNING_LIFECYCLE_LABELS[w.status]}
-                        </span>
+                        </Badge>
                       </td>
                       <td>
-                        {w.status === "open" && (
+                        {(() => {
+                          const action = lastAction(w);
+                          return action ? (
+                            <div className="scenario-action-cell">
+                              <p title={action.explanation}>
+                                {action.explanation}
+                              </p>
+                              <span>
+                                {action.byName} · {dayLabel(action.at)}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="scenario-action-none">—</span>
+                          );
+                        })()}
+                      </td>
+                      <td>
+                        <div className="scenario-row-actions">
+                          {w.status === "open" && (
+                            <button
+                              className="button primary"
+                              disabled={saving}
+                              onClick={() => void update(w, "seen")}
+                            >
+                              <Eye size={14} aria-hidden="true" />
+                              Görüldü İşaretle
+                            </button>
+                          )}
+                          {w.status === "seen" && editing !== w.id && (
+                            <button
+                              className="button primary"
+                              disabled={saving}
+                              onClick={() => {
+                                setEditing(w.id);
+                                setExplanation("");
+                                setError("");
+                              }}
+                            >
+                              <ClipboardPen size={14} aria-hidden="true" />
+                              Aksiyon Gir
+                            </button>
+                          )}
                           <button
-                            className="button"
-                            disabled={saving}
-                            onClick={() => void update(w, "seen")}
+                            type="button"
+                            className="textbutton scenario-warning-detail"
+                            aria-expanded={detail === w.id}
+                            onClick={() =>
+                              setDetail(detail === w.id ? "" : w.id)
+                            }
                           >
-                            Görüldü İşaretle
+                            Hesap ve geçmiş
+                            <ChevronDown size={14} aria-hidden="true" />
                           </button>
-                        )}
-                        {w.status === "seen" && editing !== w.id && (
-                          <button
-                            className="button"
-                            disabled={saving}
-                            onClick={() => {
-                              setEditing(w.id);
-                              setExplanation("");
-                            }}
-                          >
-                            Aksiyon Gir
-                          </button>
-                        )}
-                        {editing === w.id && w.status === "seen" && (
+                        </div>
+                      </td>
+                    </tr>
+                    {editing === w.id && w.status === "seen" && (
+                      <tr className="scenario-expanded-row">
+                        <td colSpan={8}>
                           <form
                             className="scenario-action-form"
+                            aria-label="Aksiyon girişi"
                             onSubmit={(e) => {
                               e.preventDefault();
                               void update(w, "acted");
                             }}
                           >
+                            <header>
+                              <ClipboardPen size={16} aria-hidden="true" />
+                              <h4>Aksiyon Girişi</h4>
+                              <span>
+                                {projects.get(w.projectId)?.name || w.projectId}{" "}
+                                · {w.code || "—"} · {monthLabel(w.month)}
+                              </span>
+                            </header>
+                            {w.warning2 && (
+                              <p className="scenario-action-prompt">
+                                <strong>Beklenen aksiyon:</strong> {w.warning2}
+                              </p>
+                            )}
                             <label>
                               Aksiyon açıklaması
                               <textarea
                                 required
-                                maxLength={3000}
+                                autoFocus
+                                maxLength={ACTION_MAX}
                                 value={explanation}
+                                placeholder="Alınan aksiyonu, sorumluyu ve hedef tarihi yazın…"
                                 onChange={(e) => setExplanation(e.target.value)}
                               />
                             </label>
-                            <div className="scenario-form-actions">
-                              <button
-                                className="button"
-                                type="submit"
-                                disabled={saving || !explanation.trim()}
-                              >
-                                Aksiyon Alındı
-                              </button>
-                              <button
-                                className="button"
-                                type="button"
-                                disabled={saving}
-                                onClick={() => {
-                                  setEditing("");
-                                  setExplanation("");
-                                }}
-                              >
-                                Vazgeç
-                              </button>
+                            <div className="scenario-action-foot">
+                              <span className="scenario-action-count">
+                                {explanation.length} / {ACTION_MAX}
+                              </span>
+                              <div className="scenario-form-actions">
+                                <button
+                                  className="button"
+                                  type="button"
+                                  disabled={saving}
+                                  onClick={() => {
+                                    setEditing("");
+                                    setExplanation("");
+                                  }}
+                                >
+                                  Vazgeç
+                                </button>
+                                <button
+                                  className="button primary"
+                                  type="submit"
+                                  disabled={saving || !explanation.trim()}
+                                >
+                                  Aksiyon Alındı
+                                </button>
+                              </div>
                             </div>
                           </form>
-                        )}
-                        <button
-                          type="button"
-                          className="textbutton scenario-warning-detail"
-                          aria-expanded={detail === w.id}
-                          onClick={() => setDetail(detail === w.id ? "" : w.id)}
-                        >
-                          Hesap ve geçmiş
-                        </button>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                    )}
                     {detail === w.id && (
                       <tr className="scenario-expanded-row">
-                        <td colSpan={7}>
+                        <td colSpan={8}>
                           <div className="scenario-expanded-details">
-                            {" "}
-                            <WarningCalculationSummary
-                              assessment={w.assessment}
-                            />
-                            <ol className="scenario-event-history">
-                              {w.history.map((event, index) => (
-                                <li key={index}>
-                                  <strong>
-                                    {WARNING_LIFECYCLE_LABELS[event.status]}
-                                  </strong>
-                                  <span>
-                                    {dateLabel(event.at)} · {event.byName}
-                                  </span>
-                                  {event.explanation && (
-                                    <p>{event.explanation}</p>
-                                  )}
-                                </li>
-                              ))}
-                            </ol>
+                            <section className="scenario-detail-card">
+                              <WarningCalculationSummary
+                                assessment={w.assessment}
+                              />
+                            </section>
+                            <section className="scenario-detail-card">
+                              <h4>Aksiyon Geçmişi</h4>
+                              <WarningTimeline history={w.history} />
+                            </section>
                           </div>
                         </td>
                       </tr>

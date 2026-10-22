@@ -3,10 +3,10 @@
   align-items: flex-start;
 }
 .app .navtabs {
-  height: auto !important;
+  height: auto;
   min-height: 36px;
   flex-wrap: wrap;
-  row-gap: 3px !important;
+  row-gap: 3px;
 }
 /* Section tabs share the upper row; view and page actions start at the left below. */
 .app .workspace-nav {

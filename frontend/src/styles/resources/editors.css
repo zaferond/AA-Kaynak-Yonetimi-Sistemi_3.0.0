@@ -5,8 +5,8 @@
   table-layout: auto;
 }
 .app.tab-resources .resource-table th {
-  padding: 9px 12px !important;
-  font-size: var(--fs-xs) !important;
+  padding: 9px 12px;
+  font-size: var(--fs-xs);
   line-height: 1.25;
   white-space: nowrap;
 }

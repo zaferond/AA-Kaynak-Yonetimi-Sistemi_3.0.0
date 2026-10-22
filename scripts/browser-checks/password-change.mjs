@@ -19,7 +19,6 @@ export async function checkPasswordChange(f) {
     revision: 1,
   });
   const chosen = "Browser-chosen-password-58!";
-  const again = "Browser-second-password-71!";
   const { page, context } = await f.client("first-login", { login: false });
   const fill = async (current, next) => {
     await page.getByLabel("Mevcut şifre", { exact: true }).fill(current);
@@ -69,23 +68,15 @@ export async function checkPasswordChange(f) {
       },
     );
     await f.check(
-      "password: the user menu changes a local account's password",
+      "password: the user menu offers no password change (accounts sign in through AD)",
       async () => {
         await page.getByRole("button", { name: /Kullanıcı menüsü/ }).click();
-        await page.getByRole("button", { name: "Şifre Değiştir" }).click();
-        const dialog = page.getByRole("dialog", { name: "Şifre Değiştir" });
-        await dialog.waitFor();
-        await fill(chosen, again);
-        await dialog.waitFor({ state: "hidden" });
-        await page
-          .getByRole("button", { name: /^Sol menüyü (aç|kapat)$/ })
-          .waitFor();
-        // The page keeps working under the renewed session.
-        await page.reload();
-        await page
-          .getByRole("button", { name: /^Sol menüyü (aç|kapat)$/ })
-          .waitFor();
-        assert.equal(await page.getByLabel("Kullanıcı Adı").count(), 0);
+        await page.getByLabel("Varsayılan Sekme").waitFor();
+        assert.equal(
+          await page.getByRole("button", { name: "Şifre Değiştir" }).count(),
+          0,
+        );
+        await page.keyboard.press("Escape");
       },
     );
   } finally {

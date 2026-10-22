@@ -219,6 +219,7 @@ export const tables = {
       active: "bit",
       project_editor: "bit",
       must_change_password: "bit",
+      default_tab: "nvarchar(40)",
       password_salt: "varchar(100)",
       password_hash: "varchar(200)",
       revision: "bigint",

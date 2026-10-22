@@ -10,6 +10,7 @@ import ProgressTopicCells from "./ProgressTopicCells";
 import { phaseChipStyle, phaseRunKey, phaseRunSpans } from "../../phase-chip";
 import { monthLabel, monthName, fmt } from "../../format";
 import {
+  actualEntryMissing,
   pctLabel,
   type ProgressContext,
   type LeaderRow,
@@ -73,7 +74,7 @@ export default function ProgressManagementMatrix({
   );
   const metrics = [
     { key: "resource", label: "Planlanan Kaynak (Kişi/Ay)" },
-    { key: "target", label: "Planlanan %" },
+    { key: "target", label: "Hedeflenen %" },
     { key: "actual", label: "Gerçekleşen %" },
     { key: "gap", label: "Fark %" },
   ] as const;
@@ -153,7 +154,7 @@ export default function ProgressManagementMatrix({
                 : "Değerlendirme"}
             </th>
             <th scope="col" className="progress-matrix-name">
-              Proje / Liderlik
+              Proje
             </th>
             <th scope="col">Gösterge</th>
             {months.map((m) => (
@@ -206,6 +207,14 @@ export default function ProgressManagementMatrix({
                         <div className="progress-assessment">
                           <ScenarioWarningStatus
                             assessment={project.scenario}
+                            awaiting={{
+                              month,
+                              leaders: actualEntryMissing(
+                                ctx,
+                                row.project,
+                                month,
+                              ),
+                            }}
                           />
                         </div>
                       </td>

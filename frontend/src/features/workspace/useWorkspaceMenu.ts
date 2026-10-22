@@ -9,9 +9,17 @@ function readOpen() {
   }
 }
 
-/** Navigation stays docked until explicitly closed; remember that choice. */
-export function useWorkspaceMenu() {
-  const [open, setOpen] = useState(readOpen);
+/** Navigation stays docked until explicitly closed; remember that choice.
+ * Ana Sayfa is itself the menu: the sidebar closes there, opens again as
+ * soon as a screen is chosen and closes when Ana Sayfa is chosen again. */
+export function useWorkspaceMenu(tab: string) {
+  const [open, setOpen] = useState(() => tab !== "home" && readOpen());
+  const shownTab = useRef(tab);
+  useEffect(() => {
+    if (shownTab.current === tab) return;
+    shownTab.current = tab;
+    setOpen(tab !== "home");
+  }, [tab]);
   const panelRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   function close(restoreFocus = false) {

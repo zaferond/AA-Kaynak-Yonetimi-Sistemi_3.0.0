@@ -5,7 +5,39 @@ export async function checkWorkspaceMenu(f) {
   const { page, context } = await f.client("root-admin");
   const menu = page.locator("#workspace-main-menu");
   const isOpen = async () => (await menu.getAttribute("data-open")) === "true";
+  async function setOpening(label) {
+    await page.getByRole("button", { name: /^Kullanıcı menüsü: / }).click();
+    const response = page.waitForResponse((r) =>
+      r.url().endsWith("/api/auth/preferences"),
+    );
+    await page.getByLabel("Varsayılan Sekme").selectOption({ label });
+    assert.equal((await response).status(), 200);
+    await page.keyboard.press("Escape");
+  }
   try {
+    await f.check(
+      "sol menü: Ana Sayfa'da kapalı açılır; bir ekran seçilince açılır, Ana Sayfa seçilince kapanır",
+      async () => {
+        await page.locator(".app.tab-home").waitFor();
+        assert.equal(await isOpen(), false);
+        // A card chooses a screen like the menu does.
+        await page
+          .locator(".home-card")
+          .filter({ hasText: "Kaynak Planlama" })
+          .click();
+        await page.locator(".app.tab-plan").waitFor();
+        await f.wait(isOpen, "choosing a screen opens the menu");
+        await menu.getByRole("tab", { name: "Ana Sayfa", exact: true }).click();
+        await page.locator(".app.tab-home").waitFor();
+        await f.wait(async () => !(await isOpen()), "Ana Sayfa closes it");
+        await page
+          .locator(".home-card")
+          .filter({ hasText: "Projeler" })
+          .first()
+          .click();
+        await f.wait(isOpen, "menu open for the next checks");
+      },
+    );
     await f.check(
       "sol menü: dar ve sabit açık başlar, çalışma alanını örtmez, başlık metni kaldırılmıştır",
       async () => {
@@ -169,6 +201,8 @@ export async function checkWorkspaceMenu(f) {
     await f.check(
       "sol menü: açık/kapalı tercihi hatırlanır; kapalıyken fareyle kendiliğinden açılmaz",
       async () => {
+        // The choice applies when the account opens on a screen.
+        await setOpening("Projeler");
         const before = await page.locator(".app > main").boundingBox();
         await menu
           .getByRole("button", { name: "Sol menüyü kapat", exact: true })
@@ -196,6 +230,7 @@ export async function checkWorkspaceMenu(f) {
           .getByRole("button", { name: "Sol menüyü kapat", exact: true })
           .waitFor();
         assert.equal(await isOpen(), true);
+        await setOpening("Ana Sayfa");
       },
     );
     await f.check(
@@ -289,7 +324,8 @@ export async function checkWorkspaceMenu(f) {
         `sol menü: ${role} rolünde yetki sınırları korunur`,
         async () => {
           const navigation = client.page.locator("#workspace-main-menu");
-          assert.equal(await navigation.getAttribute("data-open"), "true");
+          // A new session opens on Ana Sayfa, where the menu is closed.
+          assert.equal(await navigation.getAttribute("data-open"), "false");
           assert.equal(
             await navigation
               .getByRole("tab", {

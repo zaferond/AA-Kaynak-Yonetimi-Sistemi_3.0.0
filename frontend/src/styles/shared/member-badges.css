@@ -18,27 +18,9 @@
 .app.tab-plan .allocation-grid .team-member-badge,
 .app.tab-plan .allocation-grid .team-group-label span.team-member-badge {
   position: relative;
-  display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  min-width: 23px;
-  height: 21px;
   margin: 0;
-  padding: 0 5px;
-  border: 1px solid #a7cfbd;
-  border-radius: 5px;
-  background: #e2f2e8;
-  color: #23654b;
-  font-size: var(--fs-xs);
-  font-weight: 800;
-  line-height: 1;
-  cursor: help;
   overflow: visible;
-}
-.app.tab-plan .allocation-grid .team-member-badge:focus-visible {
-  outline: 2px solid #2c8061;
-  outline-offset: 2px;
 }
 .app.tab-overview .remaining-report td:nth-child(2):has(.team-member-badge) {
   overflow: visible;
@@ -59,26 +41,8 @@
 }
 .app.tab-overview .remaining-report .team-member-badge {
   position: relative;
-  display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  min-width: 23px;
-  height: 21px;
   margin: 0;
-  padding: 0 5px;
-  border: 1px solid #a7cfbd;
-  border-radius: 5px;
-  background: #e2f2e8;
-  color: #23654b;
-  font-size: var(--fs-xs);
-  font-weight: 800;
-  line-height: 1;
-  cursor: help;
-}
-.app.tab-overview .remaining-report .team-member-badge:focus-visible {
-  outline: 2px solid #2c8061;
-  outline-offset: 2px;
 }
 
 /* Portalled outside table scroll/sticky layers; placement flips at viewport edges. */

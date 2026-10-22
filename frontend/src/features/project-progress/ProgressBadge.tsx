@@ -11,7 +11,9 @@ export default function ProgressBadge({
 }: {
   badge: ProgressBadgeInfo | undefined;
 }) {
-  if (!badge) return null;
+  // Only an actual evaluation is worth a badge here; "Eksik Hedef Plan",
+  // "Değerlendirme bekliyor" and the like stay on the evaluation screens.
+  if (!badge || !["ready", "completed"].includes(badge.status)) return null;
   const text = `${badge.month ? monthLabel(badge.month) + ": " : ""}${badge.warning1}${badge.warning2 ? " · " + badge.warning2 : ""}`;
   return (
     <span
@@ -20,7 +22,7 @@ export default function ProgressBadge({
       title={text}
       aria-label={text}
     >
-      <ScenarioWarningStatus assessment={badge} />
+      <ScenarioWarningStatus compact assessment={badge} />
     </span>
   );
 }

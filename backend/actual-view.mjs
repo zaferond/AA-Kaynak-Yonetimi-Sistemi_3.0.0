@@ -116,6 +116,8 @@ export function actualView(data, user, query, date = currentPlanningDate()) {
       risks: [],
       allocations: {},
       actualTeamTotals: {},
+      // The reports' leave row; activity screens read the calendar itself.
+      leaveDays: undefined,
       leaderManagers: {},
       leadershipUnits: filterOwnRecords(
         data.leadershipUnits,

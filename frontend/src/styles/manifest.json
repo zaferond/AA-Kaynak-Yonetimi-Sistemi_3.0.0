@@ -35,7 +35,7 @@
   "shared/today-line-and-entries.css",
   "calendar/work-calendar.css",
   "shared/project-groups.css",
-  "workspace/military-theme.css",
+  "workspace/theme-base.css",
   "workspace/technical-theme.css",
   "shared/phase-chips.css",
   "workspace/viewport-tables.css",
@@ -54,5 +54,8 @@
   "workspace/technical-projects.css",
   "workspace/technical-scenario.css",
   "workspace/technical-topic-editor.css",
-  "workspace/technical-directory.css"
+  "workspace/technical-directory.css",
+  "workspace/technical-badges.css",
+  "workspace/technical-empty.css",
+  "workspace/technical-home.css"
 ]

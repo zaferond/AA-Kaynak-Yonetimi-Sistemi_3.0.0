@@ -1,9 +1,6 @@
 import { CornerDownRight } from "lucide-react";
 import { ownValue } from "../../../shared/records";
-import {
-  TimelineMonthHead,
-  TimelineYearRow,
-} from "../components/TimelineHeaders";
+import { TimelineMonthHead } from "../components/TimelineHeaders";
 import {
   Table,
   TableBody,
@@ -16,6 +13,8 @@ import {
 import { useMemo, type RefObject } from "react";
 import { directoryResponsibilityIndex } from "../../../shared/resource-roles";
 import { capacityStatus } from "../capacity-status";
+import { leaveDaysByMonth } from "../../../shared/actual-units";
+import { versionAt } from "../../../shared/model";
 import MemberBadge from "../components/MemberBadge";
 import { fmt, monthLabel } from "../format";
 import type { Metric } from "../metrics";
@@ -77,16 +76,28 @@ export default function RemainingResourceTable({
     <MemberBadge label={label} members={members} currentMonth={currentMonth} />
   );
   const years = [...new Set(months.map((month) => month.slice(0, 4)))];
-  function reportYearRow() {
-    return (
-      <TimelineYearRow
-        years={months.map((month) => month.slice(0, 4))}
-        labelColumns={2}
-      />
-    );
+  // Leave row: who among the reported units' people takes leave each month.
+  const leaveDays = useMemo(
+    () => data?.leaveDays ?? leaveDaysByMonth(data?.personCalendar),
+    [data],
+  );
+  function leaveTakers(ids: string[], month: string) {
+    const teams = new Set(ids);
+    return (data?.resources || [])
+      .flatMap((resource) => {
+        const days = ownValue(leaveDays, resource.id + "|" + month) || 0;
+        const team = versionAt(resource, month)?.team;
+        return days > 0 && resource.name && team && teams.has(team)
+          ? [{ name: resource.name, days }]
+          : [];
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "tr"))
+      .map(({ name, days }) => name + " · " + fmt(days) + " gün");
   }
   function reportMonthHead(month: string) {
-    return <TimelineMonthHead key={month} month={month} years={years} />;
+    return (
+      <TimelineMonthHead key={month} month={month} years={years} withYear />
+    );
   }
   function reportRows(groups: ReportGroup[], teamReport = false) {
     // Aggregate the same filtered units once, independent of report grouping.
@@ -114,7 +125,30 @@ export default function RemainingResourceTable({
             ))}
           </colgroup>
           <TableHeader>
-            {reportYearRow()}
+            <TableRow className="yearrow leave-count-row">
+              <TableHead colSpan={2}>
+                Yıllık İzin <span>· izin giren kişi</span>
+              </TableHead>
+              {months.map((month) => {
+                const takers = leaveTakers(totalIds, month);
+                return (
+                  <TableHead key={month} data-leave-month={month}>
+                    {takers.length ? (
+                      <MemberBadge
+                        label={monthLabel(month)}
+                        members={takers}
+                        currentMonth={month}
+                        heading="Yıllık İzin"
+                        noun="izin giren kişi"
+                        tone="info"
+                      />
+                    ) : (
+                      <span className="leave-count-none">—</span>
+                    )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
             <TableRow>
               <TableHead>Yönetici</TableHead>
               <TableHead>{teamReport ? "Takım" : "Liderlik / Birim"}</TableHead>

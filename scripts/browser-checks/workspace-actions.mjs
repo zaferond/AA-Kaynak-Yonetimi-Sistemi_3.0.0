@@ -106,6 +106,8 @@ export async function checkWorkspaceActions(f) {
         );
         const employee = await f.client("employee");
         try {
+          // Sessions open on Ana Sayfa; the export belongs to Aktivite Giriş.
+          await selectWorkspaceTab(employee.page, "Aktivite Giriş");
           const bytes = await download(
             employee.page,
             employee.page.getByRole("button", {

@@ -99,6 +99,9 @@ export class Store {
   async saveUser(u, c) {
     await identity.saveUser(c, u);
   }
+  async saveDefaultTab(id, tab) {
+    await this.transaction((c) => identity.saveDefaultTab(c, id, tab));
+  }
   async bootstrapUser(u) {
     await this.transaction(async (c) => {
       if (!(await this.findUser({ id: u._id }, c))) await this.saveUser(u, c);

@@ -1,33 +1,70 @@
 import type { WarningAssessment } from "../../../../shared/scenario-warnings.ts";
+import Badge, { progressTone } from "../../components/Badge";
 import {
   WARNING_PROGRESS_LABELS,
   WARNING_RESOURCE_LABELS,
 } from "../../../../shared/scenario-warning-policy.ts";
-import { monthLabel } from "../../format";
+import { monthLabel, monthName } from "../../format";
 import { pctLabel } from "./progress-view";
 
 export function ScenarioWarningStatus({
   assessment,
   compact = false,
+  awaiting,
 }: {
   assessment?: WarningAssessment;
   compact?: boolean;
+  /** No month is locked yet: the month waiting to be evaluated and the
+   * leaderships that have not entered its actual. */
+  awaiting?: { month: string; leaders: string[] };
 }) {
+  const waiting =
+    !!awaiting?.month && (!assessment || assessment.status === "unlocked");
   return (
     <div
       className="scenario-warning-status"
       data-compact={compact || undefined}
     >
-      <span
+      <Badge
+        variant="status"
+        tone={progressTone(
+          waiting
+            ? "unlocked"
+            : assessment?.progressState || assessment?.status || "unlocked",
+        )}
         className="scenario-progress-badge"
         data-progress={
           assessment?.progressState || assessment?.status || "unlocked"
         }
       >
-        {assessment?.warning1 || "Değerlendirme bekliyor"}
-      </span>
+        {waiting
+          ? awaiting!.leaders.length
+            ? `${monthName(awaiting!.month)} - Gerçekleşen Planların Tamamlanması Bekleniyor`
+            : `${monthName(awaiting!.month)} Ayı Kilitlenmesi Bekleniyor`
+          : assessment?.warning1 || "Değerlendirme bekliyor"}
+      </Badge>
+      {waiting && !!awaiting!.leaders.length && (
+        <ul
+          className="scenario-missing-leaders"
+          aria-label="Gerçekleşen girişi eksik liderlikler"
+        >
+          {awaiting!.leaders.map((leader) => (
+            <li key={leader}>{leader}</li>
+          ))}
+        </ul>
+      )}
       {assessment?.warning2 && (
         <span className="scenario-warning-action">{assessment.warning2}</span>
+      )}
+      {!compact && !!assessment?.missingLeaders?.length && (
+        <ul
+          className="scenario-missing-leaders"
+          aria-label="Hedef planı eksik liderlikler"
+        >
+          {assessment.missingLeaders.map((leader) => (
+            <li key={leader}>{leader}</li>
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -54,7 +91,7 @@ export function WarningCalculationSummary({
       {a.reason && <p>{a.reason}</p>}
       <dl>
         <div>
-          <dt>Kümülatif Planlanan %</dt>
+          <dt>Kümülatif Hedeflenen %</dt>
           <dd>{percent(a.planned)}</dd>
         </div>
         <div>

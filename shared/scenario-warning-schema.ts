@@ -30,6 +30,7 @@ export const warningAssessmentSchema = z
     horizonMonths: z.number().int().min(1).max(60),
     nextResources: z.number().finite().min(0),
     migratedReference: z.boolean(),
+    missingLeaders: z.array(z.string().min(1).max(200)).max(200).optional(),
   })
   .strict();
 export const warningConfigSchema = z

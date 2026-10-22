@@ -212,6 +212,10 @@ export async function changePassword(
   }
   publishSessionChange();
 }
+/** Stores the account's opening screen; the response refreshes the user. */
+export async function saveDefaultTab(defaultTab: string) {
+  await api("/auth/preferences", { defaultTab });
+}
 export async function resumeRemembered() {
   try {
     await api("/auth/me");

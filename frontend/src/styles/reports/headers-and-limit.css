@@ -185,3 +185,19 @@
   color: #b32c32;
   font-weight: 750;
 }
+
+/* Yıllık İzin row: one count badge per month above the month names. */
+.app.tab-overview .remaining-report .leave-count-row th {
+  border-right: 1px solid var(--table-grid-border);
+  font-weight: 400;
+}
+.app.tab-overview .remaining-report .leave-count-row th:first-child {
+  text-align: left;
+  padding-left: 10px;
+  font-weight: 600;
+}
+.app.tab-overview .remaining-report .leave-count-row th:first-child span,
+.app.tab-overview .remaining-report .leave-count-none {
+  color: var(--brand-muted);
+  font-weight: 400;
+}

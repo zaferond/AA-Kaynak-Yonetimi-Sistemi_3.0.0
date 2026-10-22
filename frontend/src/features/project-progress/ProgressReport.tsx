@@ -2,6 +2,7 @@ import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
+import Badge from "../../components/Badge";
 import type { WarningAssessment } from "../../../../shared/scenario-warnings.ts";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Lock, LockOpen } from "lucide-react";
@@ -219,6 +220,15 @@ export default function ProgressReport({
   const detailRow = rows.find((row) => row.project.id === detail);
 
   async function toggleLock() {
+    // Unlocking drops the month's evaluation and reopens its entries; a
+    // second click on the same button must not do that silently.
+    if (
+      lock &&
+      !window.confirm(
+        `${monthName(month)} ayının kilidi açılsın mı? Ayın değerlendirmesi kaldırılır ve girişler yeniden değiştirilebilir.`,
+      )
+    )
+      return;
     setError("");
     try {
       await onSave([
@@ -252,6 +262,16 @@ export default function ProgressReport({
       {actionsHost &&
         createPortal(
           <>
+            {!admin && lock && (
+              // Leaders cannot unlock; they still see that the month is closed.
+              <Badge
+                tone="warning"
+                variant="status"
+                className="progress-lock-state"
+              >
+                {monthName(month)} Ayı Kilitli
+              </Badge>
+            )}
             {admin && (
               <button
                 type="button"

@@ -107,6 +107,33 @@ export function progressContext(
   };
 }
 
+/** Top leaderships with resource on the project that have not entered the
+ * month's actual yet (the month waits for them before it is evaluated). */
+export function actualEntryMissing(
+  ctx: ProgressContext,
+  project: Project,
+  month: string,
+): string[] {
+  const records = (ctx.data.projectProgress || []).filter(
+    (r) => r.projectId === project.id,
+  );
+  return [...ctx.planned(project.id)]
+    .filter(([, values]) =>
+      Object.entries(values).some(
+        ([m, value]) => m >= project.start && m <= project.end && value > 0,
+      ),
+    )
+    .map(([leader]) => leader)
+    .filter((leader) => {
+      const record = records.find((r) => r.leader === leader);
+      // A plan that opens after the month takes no actual for it.
+      if (record?.baselines.length && month <= record.baselines[0].openingMonth)
+        return false;
+      return !record?.actuals[month];
+    })
+    .sort((a, b) => a.localeCompare(b, "tr"));
+}
+
 export const canLead = (user: Principal | null, leader: string) =>
   user?.role === "admin" ||
   (user?.role === "manager" && user.leaders.includes(leader));

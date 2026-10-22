@@ -139,6 +139,9 @@ export type Data = {
   workCalendar?: WorkCalendar;
   personCalendar?: PersonCalendar;
   actualTeamTotals?: Record<string, number>;
+  /** Leave days per "resourceId|month": the reports' leave row, without the
+   * private daily calendar. */
+  leaveDays?: Record<string, number>;
   /** Response-only: planned totals (team|month) of projects this user may not
    * view, so team capacity figures stay complete without revealing them. */
   hiddenAllocationTotals?: Record<string, number>;

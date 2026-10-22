@@ -1,4 +1,5 @@
 import { directoryTree } from "../../shared/directory-tree";
+import Badge from "./components/Badge";
 import { directoryResponsibilityIndex } from "../../shared/resource-roles";
 import { ownValue } from "../../shared/records";
 import React, { useState } from "react";
@@ -107,7 +108,7 @@ export default function TeamDirectory({
                     <Building2 size={14} aria-hidden="true" />
                     <strong>{lead || "Liderlik Eşleştirilmemiş"}</strong>
                     <small className="directory-team-count">
-                      {teams.length} takım
+                      <Badge variant="count">{teams.length}</Badge> takım
                     </small>
                   </span>
                   {parent && (

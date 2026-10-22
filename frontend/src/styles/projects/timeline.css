@@ -92,8 +92,8 @@
   background: #edf4fb;
 }
 .app .projectmatrix .milestone-section-row td {
-  position: static !important;
-  padding: 5px 10px !important;
+  position: static;
+  padding: 5px 10px;
   border-block: 1px solid #d5e2ef;
   background: #edf4fb;
 }
@@ -250,9 +250,6 @@
   border-bottom: 3px solid #b4c8d9;
   background: #edf4fb;
   overflow: hidden;
-}
-.app .projectmatrix .milestone-row td.milestone-range {
-  padding: 5px 0 !important;
 }
 .app .projectmatrix .milestone-track {
   position: relative;
@@ -738,34 +735,6 @@
   border: 2px solid #477eb2;
   background: #eaf3fe;
 }
-.milestone-colors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-.milestone-colors button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 9px;
-  border: 1px solid #d4e0ec;
-  border-radius: 5px;
-  background: #fff;
-  color: #46627d;
-  font-size: var(--fs-xs);
-  cursor: pointer;
-}
-.milestone-colors button.selected {
-  border-color: #3172aa;
-  box-shadow: inset 0 0 0 1px #3172aa;
-  background: #eff7ff;
-}
-.milestone-colors i {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid;
-}
 
 .milestone-point {
   position: absolute;
@@ -827,20 +796,6 @@
 }
 .milestone-point.dragging {
   cursor: grabbing;
-}
-.milestone-point-preview {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-.milestone-point-preview strong,
-.milestone-point-preview small {
-  display: block;
-  overflow-wrap: anywhere;
 }
 
 /* Düzenleme yetkisi olmayan kullanıcıda proje adı soluk görünmesin. */

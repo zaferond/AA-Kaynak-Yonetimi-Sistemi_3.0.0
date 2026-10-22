@@ -1,7 +1,7 @@
 /* Focused project timeline editors with a clear context, controls and preview. */
 .editor.timeline-editor {
   width: min(640px, calc(100vw - 24px));
-  max-width: 640px !important;
+  max-width: 640px;
   max-height: 88dvh;
   padding: 0;
   gap: 0;
@@ -140,12 +140,6 @@
   display: grid;
   gap: 12px;
 }
-.milestone-date-hint {
-  margin: 0 0 11px;
-  color: #61798d;
-  font-size: var(--fs-xs);
-  line-height: 1.45;
-}
 .milestone-range-row {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) 30px;
@@ -236,13 +230,6 @@
   background: #eef6fc;
   box-shadow: 0 1px 2px #183d5b0a;
 }
-.milestone-range-date-arrow {
-  display: grid;
-  place-items: center;
-  align-self: end;
-  height: 36px;
-  color: #4d7696;
-}
 .milestone-range-notes {
   grid-column: 2;
   grid-row: 3;
@@ -253,8 +240,7 @@
   padding-top: 10px;
   border-top: 1px solid #d8e5ef;
 }
-.milestone-range-empty,
-.milestone-preview-empty {
+.milestone-range-empty {
   margin: 8px 0;
   padding: 12px;
   border: 1px dashed #c5d5e3;
@@ -480,12 +466,6 @@
   .milestone-range-dates > .milestone-range-date-card {
     grid-template-columns: minmax(0, 1fr);
   }
-  .milestone-range-date-arrow {
-    justify-self: center;
-    align-self: center;
-    height: 18px;
-    transform: rotate(90deg);
-  }
 }
 .timeline-editor-form .palette {
   display: grid;
@@ -530,26 +510,10 @@
   font-size: var(--fs-xs);
   font-weight: 600;
 }
-.timeline-editor-form .milestone-bar-options button.selected,
-.timeline-editor-form .milestone-colors button.selected {
+.timeline-editor-form .milestone-bar-options button.selected {
   border-color: #315b7d;
   background: #edf5fb;
   box-shadow: 0 0 0 1px #315b7d;
-}
-.timeline-editor-form .milestone-colors {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.timeline-editor-form .milestone-colors button {
-  min-height: 35px;
-  padding: 6px 9px;
-  border-radius: 6px;
-  font-size: var(--fs-xs);
-  font-weight: 600;
-}
-.timeline-editor-form .milestone-colors i {
-  flex: none;
 }
 .timeline-editor-form .timeline-live-preview {
   display: flex;
@@ -559,19 +523,6 @@
   border: 1px solid #d7e2eb;
   border-radius: 7px;
   background: #f7fafc;
-}
-.milestone-preview-list {
-  display: grid;
-  gap: 10px;
-}
-.milestone-preview-list > div {
-  display: grid;
-  gap: 4px;
-}
-.milestone-preview-list small {
-  color: #6b8193;
-  font-size: var(--fs-xs);
-  font-weight: 650;
 }
 .timeline-live-preview > span {
   color: #658096;
@@ -587,41 +538,6 @@
   overflow-wrap: anywhere;
   font-size: var(--fs-xs);
   line-height: 1.45;
-}
-.timeline-live-preview .timeline-milestone-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 7px 12px;
-  border: 1px solid var(--preview-color);
-  border-radius: 6px;
-  background: var(--preview-color);
-  color: #fff;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  text-align: center;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  line-height: 1.4;
-}
-.timeline-live-preview .timeline-milestone-preview.outline {
-  background: var(--preview-soft);
-  color: var(--preview-ink);
-}
-.timeline-live-preview .milestone-preview-notes {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: left;
-}
-.timeline-live-preview .milestone-preview-notes li {
-  line-height: 1.5;
-}
-.timeline-live-preview .milestone-preview-notes li::before {
-  content: "•";
-  margin-right: 6px;
 }
 .timeline-live-preview > small {
   color: #6b8193;
@@ -705,8 +621,7 @@
     flex-direction: column;
     gap: 8px;
   }
-  .timeline-editor-form .palette,
-  .timeline-editor-form .milestone-colors {
+  .timeline-editor-form .palette {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .timeline-editor-form .formrow {

@@ -1,4 +1,5 @@
 import ReportDownloadButton from "./components/ReportDownloadButton";
+import Badge from "./components/Badge";
 import { useMemo, useState } from "react";
 import {
   CalendarPlus,
@@ -392,9 +393,15 @@ export default function ProjectInfoReport({
                     </small>
                   </div>
                   <span className="project-info-project-status">
-                    {late > 0 && <em data-status="late">{late} gecikmiş</em>}
+                    {late > 0 && (
+                      <Badge tone="danger" data-status="late">
+                        {late} gecikmiş
+                      </Badge>
+                    )}
                     {active > 0 && (
-                      <em data-status="active">{active} sürüyor</em>
+                      <Badge tone="info" data-status="active">
+                        {active} sürüyor
+                      </Badge>
                     )}
                   </span>
                   {canEdit && source && (
@@ -466,11 +473,19 @@ export default function ProjectInfoReport({
                                   status === "active") && (
                                   <div className="project-info-topic-state">
                                     {topic.completed ? (
-                                      <em className="project-info-complete-label">
+                                      <Badge
+                                        variant="status"
+                                        tone="success"
+                                        className="project-info-complete-label"
+                                      >
                                         Tamamlandı
-                                      </em>
+                                      </Badge>
                                     ) : (
-                                      <em
+                                      <Badge
+                                        variant="status"
+                                        tone={
+                                          status === "late" ? "danger" : "info"
+                                        }
                                         className="project-info-status"
                                         data-status={status}
                                       >
@@ -479,7 +494,7 @@ export default function ProjectInfoReport({
                                             status as "late" | "active"
                                           ]
                                         }
-                                      </em>
+                                      </Badge>
                                     )}
                                   </div>
                                 )}

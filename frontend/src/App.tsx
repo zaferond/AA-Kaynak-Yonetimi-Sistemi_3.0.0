@@ -1,4 +1,7 @@
 import { createWorkspaceDataActions } from "./features/workspace/workspace-data-actions";
+import { useMessageToast } from "./features/workspace/useFilterAppliedToast";
+import HomePage from "./features/workspace/HomePage";
+import Badge from "./components/Badge";
 import { createProjectActions } from "./features/workspace/project-actions";
 import { createWorkspaceExports } from "./features/workspace/workspace-exports";
 import {
@@ -532,12 +535,12 @@ export default function Portal() {
       resetFilters={resetFilters}
       saving={saving}
       resetAll={resetAll}
-      notice={notice}
-      noticeId={noticeId}
       showPeriodFilters={tab !== "overview" || reportView !== "headcount"}
     />
   );
-  const workspaceMenu = useWorkspaceMenu();
+  const workspaceMenu = useWorkspaceMenu(tab);
+  // Notices show on every screen, also those without a filter bar.
+  const messageToast = useMessageToast(notice, noticeId);
   return (
     <div
       className={
@@ -568,6 +571,7 @@ export default function Portal() {
       }
     >
       <div className="workspace-sidebar-host" ref={setSidebarHost} />
+      {messageToast}
       <WorkspaceHeader
         user={user}
         defaultTab={defaultTab}
@@ -629,10 +633,13 @@ export default function Portal() {
                   onError={setError}
                 />
               ) : activePostingsIncluded(data) !== null ? (
-                <span className="report-posting-status">
+                <Badge
+                  tone={activePostingsIncluded(data) ? "info" : "neutral"}
+                  className="report-posting-status"
+                >
                   Aktif İlanlar:{" "}
                   {activePostingsIncluded(data) ? "Dahil" : "Dahil değil"}
-                </span>
+                </Badge>
               ) : null)
             }
             pendingScenarios={
@@ -674,7 +681,13 @@ export default function Portal() {
           ) : (
             // Keyed by tab: one failing screen never blanks the others.
             <ErrorBoundary key={tab} scope="section">
-              {tab !== "resources" &&
+              {tab === "home" && (
+                <TabsContent value="home">
+                  <HomePage user={user} onOpen={changeTab} />
+                </TabsContent>
+              )}
+              {tab !== "home" &&
+                tab !== "resources" &&
                 tab !== "progress" &&
                 !(tab === "projects" && projectView === "scenario") &&
                 workspaceFilters}

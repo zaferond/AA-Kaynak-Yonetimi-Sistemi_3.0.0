@@ -1,0 +1,97 @@
+/* Ana Sayfa: one card per screen, four to a row, as approved in the
+   "A · Kart ızgarası" preview. Few cards (two or three) grow wider. */
+html[data-theme="technical"] .app .home-page {
+  padding: 0 0 24px;
+}
+html[data-theme="technical"] .app .home-greeting {
+  margin: -6px 0 16px;
+  color: var(--brand-muted);
+  font-size: var(--fs-sm);
+}
+html[data-theme="technical"] .app .home-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+html[data-theme="technical"]
+  .app
+  .home-cards:is([data-count="2"], [data-count="3"]) {
+  grid-template-columns: repeat(var(--home-columns, 3), minmax(0, 1fr));
+  max-width: 1100px;
+}
+html[data-theme="technical"] .app .home-cards[data-count="2"] {
+  --home-columns: 2;
+}
+html[data-theme="technical"] .app .home-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 150px;
+  padding: 16px 18px 18px;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--brand-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+html[data-theme="technical"] .app .home-card:is(:hover, :focus-visible) {
+  border-color: var(--brand-primary);
+  box-shadow:
+    0 0 0 1px var(--brand-primary),
+    0 6px 18px #234f7a1f;
+  outline: none;
+}
+html[data-theme="technical"] .app .home-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+html[data-theme="technical"] .app .home-card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #e8f0f8;
+  color: var(--brand-primary);
+}
+html[data-theme="technical"] .app .home-card-group {
+  color: #8592a0;
+  font-size: 11px;
+  font-weight: 600;
+}
+html[data-theme="technical"] .app .home-card strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+html[data-theme="technical"] .app .home-card-text {
+  padding-right: 26px;
+  color: var(--brand-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+html[data-theme="technical"] .app .home-card-go {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  color: #9aa7b4;
+}
+html[data-theme="technical"]
+  .app
+  .home-card:is(:hover, :focus-visible)
+  .home-card-go {
+  color: var(--brand-primary);
+}
+@media (max-width: 1100px) {
+  html[data-theme="technical"] .app .home-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

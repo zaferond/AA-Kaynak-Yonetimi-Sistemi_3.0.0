@@ -1,4 +1,5 @@
 import { actualViewQuery } from "./actual-view.mjs";
+import { WORKSPACE_TAB_IDS, HOME_TAB } from "../shared/workspace-tabs.ts";
 import { saveEmployeeRecord } from "./employee-account-command.mjs";
 import { isResponsibilityConflictCode } from "../shared/resource-roles.ts";
 import { activityQuery } from "./activity-report.mjs";
@@ -392,6 +393,21 @@ export function createApp(
       // Keep "Beni Hatırla": only remembered sessions outlive 12 hours.
       const remembered = req.session.expiresAt - Date.now() > 12 * 3600000;
       res.json(await issueSession(res, updated, remembered));
+    }),
+  );
+  // The account's opening screen ("Varsayılan sekme"). Ana Sayfa is stored as
+  // empty, so every account opens there until the user picks another.
+  app.post(
+    "/api/auth/preferences",
+    admission.handler(async (req, res) => {
+      const body = z
+        .object({ defaultTab: z.enum(WORKSPACE_TAB_IDS) })
+        .strict()
+        .parse(req.body);
+      const tab = body.defaultTab === HOME_TAB ? "" : body.defaultTab;
+      await store.saveDefaultTab(req.user._id, tab);
+      const { defaultTab: _, ...rest } = req.user;
+      res.json({ user: publicUser(tab ? { ...rest, defaultTab: tab } : rest) });
     }),
   );
   app.post("/api/auth/logout", async (req, res) => {

@@ -1,4 +1,4 @@
-/* Ortak yazı ölçeği. Renkler workspace/military-theme.css içindeki --brand-*
+/* Ortak yazı ölçeği. Renkler workspace/theme-base.css içindeki --brand-*
    değişkenlerindedir. Yeni kurallar sabit px yerine bu değişkenleri
    kullanmalıdır; en küçük metin boyutu --fs-xs (12px) değeridir. */
 :root {

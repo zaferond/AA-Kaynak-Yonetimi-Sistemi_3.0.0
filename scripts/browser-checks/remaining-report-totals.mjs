@@ -54,6 +54,15 @@ export async function checkRemainingReportTotals(f) {
           ],
         },
       },
+      ...[
+        ["2026-03-02", 9],
+        ["2026-03-03", 4.5],
+      ].map(([date, hours]) => ({
+        kind: "personDay",
+        id: `report-surplus-person|${date}|leave`,
+        revision: 0,
+        value: { type: "leave", hours, label: "Yıllık izin" },
+      })),
     ]),
   );
   const { page } = await f.client("root-admin");
@@ -69,6 +78,23 @@ export async function checkRemainingReportTotals(f) {
       await f.check(
         `reports ${type}: net total includes surplus and matches between team and leadership grouping`,
         async () => {
+          // Yıllık İzin row: who takes leave each month, with their days.
+          const leave = table.locator(".leave-count-row");
+          assert.equal(
+            await leave.locator('[data-leave-month="2026-02"]').innerText(),
+            "—",
+          );
+          const badge = leave.locator(
+            '[data-leave-month="2026-03"] .team-member-badge',
+          );
+          assert.equal(await badge.innerText(), "1");
+          await badge.hover();
+          const tip = page.locator(".team-member-tooltip");
+          await tip.getByText("Synthetic surplus · 1,5 gün").waitFor();
+          assert.match(await tip.innerText(), /Yıllık İzin · Mar 2026/);
+          await f.capture(page, `report-leave-row-${type}`);
+          await page.mouse.move(0, 0);
+          await tip.waitFor({ state: "hidden" });
           assert.equal(
             await table.locator('[data-total-month="2026-01"]').innerText(),
             "-25",

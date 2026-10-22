@@ -175,7 +175,7 @@ export default function ProjectTimelineRows({
                 {project.responsibleName?.trim() || "—"}
                 <span aria-hidden="true"> · </span>
                 <span className="project-meta-dates">
-                  {project.start} → {project.end}
+                  {monthLabel(project.start)} → {monthLabel(project.end)}
                 </span>
               </small>
             </div>

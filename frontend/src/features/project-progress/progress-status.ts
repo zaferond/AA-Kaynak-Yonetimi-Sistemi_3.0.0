@@ -47,7 +47,9 @@ export function entryPresentation(status: EntryStatus, locked: boolean) {
         : "";
   return {
     label: ENTRY_LABELS[status] + suffix,
-    status: locked && tracked ? "locked" : status,
+    // A completed entry stays green once the month is locked; only a
+    // missing one shows the locked (red) state.
+    status: locked && status === "waiting" ? "locked" : status,
     help:
       locked && tracked
         ? (status === "entered"

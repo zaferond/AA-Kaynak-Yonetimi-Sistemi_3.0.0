@@ -3,6 +3,7 @@ import { visibleLeaderParents } from "./leadership-hierarchy.ts";
 import type { Data, Resource } from "./model.ts";
 import { actualTeamTotalIndex, createActualTeamIndex } from "./model.ts";
 import { filterOwnRecords } from "./records.ts";
+import { leaveDaysByMonth } from "./actual-units.ts";
 import { isProjectEditor, projectVisibility } from "./project-access.ts";
 export type Role = "admin" | "manager" | "normal";
 export type Credential = {
@@ -28,6 +29,8 @@ export type Account = {
   /** Set after a bootstrap/reset password from .env; only a password change
    * is allowed until it is replaced. */
   mustChangePassword?: boolean;
+  /** Screen opened after sign-in; absent means Ana Sayfa. */
+  defaultTab?: string;
   active: boolean;
   credential?: Credential;
 };
@@ -231,6 +234,14 @@ export function scopeData(
   for (const key of riskKeys) revisions[key] = d.revisions[key];
 
   const personCalendar = filterOwnRecords(d.personCalendar, canSeePersonDay);
+  // Monthly leave totals of the people a reader may see, never the days.
+  const leaveDays = filterOwnRecords(
+    leaveDaysByMonth(d.personCalendar),
+    (key) => {
+      const [resourceId, month] = key.split("|");
+      return canSeeResourceMonth(resourceId, month);
+    },
+  );
   // Hidden projects still count in team capacity: planned values travel as
   // team|month totals, actual team totals under one anonymous project id.
   const hiddenAllocationTotals: Record<string, number> = {};
@@ -309,6 +320,7 @@ export function scopeData(
     actualWorkedHours: actualEntries(d.actualWorkedHours, "workedHours"),
     actualPercentEntries: actualEntries(d.actualPercentEntries, "actual"),
     personCalendar,
+    leaveDays,
     actualTeamTotals,
     revisions,
     risks: (d.risks || []).filter(

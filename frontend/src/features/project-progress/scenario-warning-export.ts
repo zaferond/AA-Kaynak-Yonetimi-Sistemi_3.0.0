@@ -4,6 +4,12 @@ import { WARNING_LIFECYCLE_LABELS } from "../../../../shared/scenario-warning-po
 import { columnName, excelCellText, EXCEL_MAX_ROWS } from "../../xlsx-cells.ts";
 import { createWorkbook, downloadWorkbook } from "../../xlsx-workbook.ts";
 
+/** The newest action taken on a warning, if any. */
+export const lastAction = (w: ScenarioWarning) =>
+  [...w.history]
+    .reverse()
+    .find((event) => event.status === "acted" && event.explanation);
+
 export function scenarioWarningExportRows(
   data: Data,
   warnings: ScenarioWarning[],
@@ -17,12 +23,13 @@ export function scenarioWarningExportRows(
       "2. Uyarı / Aksiyon",
       "Ay",
       "Durum",
-      "Son açıklama",
+      "Aksiyon Açıklaması",
       "İşlemi yapan",
       "İşlem tarihi",
     ],
     ...warnings.map((w) => {
       const last = w.history.at(-1)!;
+      const action = lastAction(w);
       return [
         names.get(w.projectId) || w.projectId,
         w.code || "—",
@@ -30,7 +37,7 @@ export function scenarioWarningExportRows(
         w.warning2,
         w.month,
         WARNING_LIFECYCLE_LABELS[w.status],
-        last.explanation,
+        action?.explanation || "",
         last.byName,
         last.at,
       ];

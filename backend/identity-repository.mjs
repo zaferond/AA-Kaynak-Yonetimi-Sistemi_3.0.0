@@ -18,6 +18,8 @@ const mapUser = (r) =>
     ...(Number(r.must_change_password) === 1
       ? { mustChangePassword: true }
       : {}),
+    // Screen opened after sign-in; empty means Ana Sayfa.
+    ...(r.default_tab ? { defaultTab: r.default_tab } : {}),
     leaders: [],
     planningTeams: [],
     password: { salt: r.password_salt, hash: r.password_hash },
@@ -81,6 +83,7 @@ export async function saveUser(c, u) {
       active: u.active,
       project_editor: u.role === "normal" && u.projectEditor ? 1 : 0,
       must_change_password: u.mustChangePassword ? 1 : 0,
+      default_tab: u.defaultTab || null,
       password_salt: u.password.salt,
       password_hash: u.password.hash,
       revision: u.revision,
@@ -149,3 +152,12 @@ export const cleanupSessions = (c) =>
   c.query("DELETE FROM kp_sessions WHERE expires_at<=@p0", [
     new Date().toISOString(),
   ]);
+
+/** The account's opening screen. A preference only: no revision or session
+ * change, so it never conflicts with an admin's edit of the account. */
+export async function saveDefaultTab(c, id, tab) {
+  await c.query("UPDATE kp_users SET default_tab=@p0 WHERE id=@p1", [
+    tab || null,
+    id,
+  ]);
+}
