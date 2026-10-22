@@ -4,13 +4,15 @@ import { buildCapacityIndex } from "../../metrics";
 import { buildProjectInfoReport } from "../../../../shared/project-info-report.ts";
 import { topicStatus } from "../../project-info-status";
 import { currentPlanningDate } from "../../resource-dates";
+import { topLeader } from "../../../../shared/leadership-hierarchy.ts";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
 import {
   earliestOpening,
   currentBaseline,
   leaderProgress,
-  leaderResourceByMonth,
+  isTopLeader,
+  topLeaderResourceByMonth,
   lateTopicSignal,
   missingEntrySignal,
   monthsAfter,
@@ -51,7 +53,7 @@ export function progressContext(
   const by = (kind: string, entries: Record<string, number>, id: string) => {
     const key = kind + "\u0000" + id;
     if (!cache.has(key))
-      cache.set(key, leaderResourceByMonth(data.teams, entries, id));
+      cache.set(key, topLeaderResourceByMonth(data, entries, id));
     return cache.get(key)!;
   };
   const capacity = new Map<string, ReturnType<typeof buildCapacityIndex>>();
@@ -72,7 +74,9 @@ export function progressContext(
       if (!capacity.has(month))
         capacity.set(month, buildCapacityIndex(data, months));
       const index = capacity.get(month)!;
-      const teams = data.teams.filter((team) => team.lead === leader);
+      const teams = data.teams.filter(
+        (team) => !!team.lead && topLeader(data, team.lead) === leader,
+      );
       return months.map((m) =>
         teams.reduce((sum, team) => {
           const cell = index[team.id + "|" + m];
@@ -190,9 +194,11 @@ export function projectRows(
   const rows: ProjectRow[] = [];
   for (const project of ctx.data.projects) {
     if (projectId && project.id !== projectId) continue;
+    // Sub-leadership records from before the top-level rule are not rated.
     const own = records.filter(
       (record) =>
         record.projectId === project.id &&
+        isTopLeader(ctx.data, record.leader) &&
         (!leader || record.leader === leader),
     );
     if (includeUntracked) {

@@ -91,7 +91,7 @@ export async function checkLeadershipFilterRoots(f) {
         for (const tab of [
           "Kaynak Planlama",
           "Raporlar",
-          "Aktivite Girişi",
+          "Aktivite Giriş",
           "Aktivite Raporu",
         ]) {
           await selectWorkspaceTab(page, tab);

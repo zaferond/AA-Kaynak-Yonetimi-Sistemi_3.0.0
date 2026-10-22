@@ -11,7 +11,7 @@ export async function checkCalendarDrafts(f) {
     original.projects.find((item) => item.id === "p-a"),
   );
   const dialog = () => page.locator(".work-calendar-dialog");
-  const actual = () => selectWorkspaceTab(page, "Aktivite Girişi");
+  const actual = () => selectWorkspaceTab(page, "Aktivite Giriş");
   const open = () =>
     page
       .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
@@ -38,29 +38,46 @@ export async function checkCalendarDrafts(f) {
       ]),
     );
   }
-  async function add(from, to, label, fraction = "1") {
-    await dialog().getByLabel("Başlangıç", { exact: true }).fill(from);
-    await dialog().getByLabel("Bitiş", { exact: true }).fill(to);
-    await dialog()
-      .locator(".work-calendar-fields select")
-      .nth(1)
-      .selectOption(fraction);
-    await dialog().getByLabel("Açıklama", { exact: true }).fill(label);
-    await dialog().getByRole("button", { name: "Ekle", exact: true }).click();
-  }
+  const manual = (from, to, label) => {
+    const days = {};
+    for (let day = from; day <= to;) {
+      days[day] = { type: "company", label, fraction: 1, range: { from, to } };
+      day = new Date(Date.parse(day + "T12:00:00Z") + 86400000)
+        .toISOString()
+        .slice(0, 10);
+    }
+    return days;
+  };
+  // Official holidays are built in; the only shared draft left is removing
+  // older manually entered dates.
+  const remove = (label) =>
+    dialog()
+      .locator(".work-calendar-range-row")
+      .filter({ hasText: label })
+      .getByRole("button", { name: /sil$/ })
+      .click();
   try {
     await actual();
     await f.check(
-      "calendar: shared 503 preserves added dates; pending retry locks controls and prevents closing until one save completes",
+      "calendar: shared 503 preserves removed dates; pending retry locks controls and prevents closing until one save completes",
       async () => {
+        await replaceCalendar({
+          ...calendar,
+          ...manual("2026-05-04", "2026-05-05", "Synthetic retry dates"),
+          ...manual("2026-05-11", "2026-05-11", "Synthetic kept date"),
+        });
+        await page.reload();
+        await actual();
         await open();
-        await add("2026-05-01", "2026-05-02", "Synthetic retry dates", "0.5");
         assert(
-          (await dialog().locator(".work-calendar-list").innerText()).includes(
-            "Synthetic retry dates",
-          ),
+          (
+            await dialog().locator(".work-calendar-official").innerText()
+          ).includes("Emek ve Dayanışma Günü"),
         );
-        assert.equal((await f.state()).workCalendar["2026-05-01"], undefined);
+        await remove("Synthetic retry dates");
+        const list = () => dialog().locator(".work-calendar-body").innerText();
+        assert(!(await list()).includes("Synthetic retry dates"));
+        assert((await f.state()).workCalendar["2026-05-04"]);
         await page.route(
           "**/api/changes",
           (route) =>
@@ -77,12 +94,8 @@ export async function checkCalendarDrafts(f) {
           .getByRole("alert")
           .filter({ hasText: "Synthetic shared calendar failure" })
           .waitFor();
-        assert(
-          (await dialog().locator(".work-calendar-list").innerText()).includes(
-            "Synthetic retry dates",
-          ),
-        );
-        assert.equal((await f.state()).workCalendar["2026-05-01"], undefined);
+        assert(!(await list()).includes("Synthetic retry dates"));
+        assert((await f.state()).workCalendar["2026-05-04"]);
         let release,
           requests = 0;
         const gate = new Promise((resolve) => {
@@ -100,9 +113,7 @@ export async function checkCalendarDrafts(f) {
             .click();
           await f.wait(() => requests === 1, "shared retry held");
           assert(
-            await dialog()
-              .getByLabel("Başlangıç", { exact: true })
-              .isDisabled(),
+            await dialog().getByRole("button", { name: /sil$/ }).isDisabled(),
           );
           assert(
             await dialog()
@@ -129,10 +140,11 @@ export async function checkCalendarDrafts(f) {
           release();
           await dialog().waitFor({ state: "hidden" });
           const saved = await f.state();
-          assert.equal(saved.workCalendar["2026-05-01"].fraction, 0.5);
+          assert.equal(saved.workCalendar["2026-05-04"], undefined);
+          assert.equal(saved.workCalendar["2026-05-05"], undefined);
           assert.equal(
-            saved.workCalendar["2026-05-02"].label,
-            "Synthetic retry dates",
+            saved.workCalendar["2026-05-11"].label,
+            "Synthetic kept date",
           );
         } finally {
           release();
@@ -144,19 +156,24 @@ export async function checkCalendarDrafts(f) {
       },
     );
     await f.check(
-      "calendar: refreshed props do not rebase shared draft; 409 preserves local dates and remote changes; reopen loads latest",
+      "calendar: refreshed props do not rebase shared draft; 409 preserves local removal and remote changes; reopen loads latest",
       async () => {
+        const local = manual(
+          "2026-06-01",
+          "2026-06-01",
+          "Synthetic local date",
+        );
+        await replaceCalendar({ ...calendar, ...local });
+        await page.reload();
+        await actual();
         const revision = (await f.state()).revisions["calendar:shared"] || 0;
         await open();
-        await add("2026-06-01", "2026-06-01", "Synthetic local date");
+        await remove("Synthetic local date");
         await replaceCalendar(
           {
             ...calendar,
-            "2026-06-02": {
-              type: "company",
-              label: "Synthetic remote date",
-              fraction: 1,
-            },
+            ...local,
+            ...manual("2026-06-02", "2026-06-02", "Synthetic remote date"),
           },
           {
             ...project,
@@ -184,9 +201,9 @@ export async function checkCalendarDrafts(f) {
               .textContent()) === "Synthetic calendar snapshot refreshed",
           "refreshed snapshot rendered behind calendar",
         );
-        const local = await dialog().locator(".work-calendar-list").innerText();
-        assert(local.includes("Synthetic local date"));
-        assert(!local.includes("Synthetic remote date"));
+        const body = () => dialog().locator(".work-calendar-body").innerText();
+        assert(!(await body()).includes("Synthetic local date"));
+        assert(!(await body()).includes("Synthetic remote date"));
         const response = page.waitForResponse((result) =>
           result.url().endsWith("/api/changes"),
         );
@@ -200,12 +217,8 @@ export async function checkCalendarDrafts(f) {
           revision,
         );
         await dialog().getByRole("alert").waitFor();
-        assert(
-          (await dialog().locator(".work-calendar-list").innerText()).includes(
-            "Synthetic local date",
-          ),
-        );
-        assert.equal((await f.state()).workCalendar["2026-06-01"], undefined);
+        assert(!(await body()).includes("Synthetic local date"));
+        assert((await f.state()).workCalendar["2026-06-01"]);
         assert.equal(
           (await f.state()).workCalendar["2026-06-02"].label,
           "Synthetic remote date",
@@ -217,11 +230,9 @@ export async function checkCalendarDrafts(f) {
         await page.reload();
         await actual();
         await open();
-        const latest = await dialog()
-          .locator(".work-calendar-list")
-          .innerText();
+        const latest = await body();
         assert(latest.includes("Synthetic remote date"));
-        assert(!latest.includes("Synthetic local date"));
+        assert(latest.includes("Synthetic local date"));
         assert(
           await dialog()
             .getByRole("button", { name: "Takvimi Kaydet", exact: true })

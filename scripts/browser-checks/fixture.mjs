@@ -265,6 +265,12 @@ export async function leaveMainMenu(page) {
   await page.mouse.move(viewport.width - 20, viewport.height - 20);
 }
 
+/** Kaynak Planlama and Aktivite Giriş pick their layout in a "Görünüm" list
+ * ("Proje Bazlı", "Takım Bazlı", "Kişi Bazlı") instead of view tabs. */
+export async function selectWorkspaceView(page, label) {
+  await page.getByLabel("Görünüm", { exact: true }).selectOption({ label });
+}
+
 export async function selectWorkspaceTab(page, name) {
   const menu = page.locator("#workspace-main-menu");
   const mainTab = menu.getByText(name, { exact: true });

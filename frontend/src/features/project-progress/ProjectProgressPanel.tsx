@@ -24,7 +24,6 @@ export default function ProjectProgressPanel({
   data,
   actionsHost,
   density,
-  onDensityChange,
   user,
   saving,
   view,
@@ -33,7 +32,6 @@ export default function ProjectProgressPanel({
   data: Data;
   actionsHost: HTMLElement | null;
   density: WorkspaceDensity;
-  onDensityChange: (value: WorkspaceDensity) => void;
   user: Principal | null;
   saving: boolean;
   view: ProgressView;
@@ -137,7 +135,6 @@ export default function ProjectProgressPanel({
         <ProgressReport
           actionsHost={actionsHost}
           density={density}
-          onDensityChange={onDensityChange}
           ctx={ctx}
           responsibleFilter={responsibleFilter}
           onResetFilters={resetSharedFilters}

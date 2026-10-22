@@ -51,28 +51,28 @@ export default function ReportSummary({
   );
   const cards = [
     {
-      label: "Ortalama aylık eksik",
+      label: "Ortalama Aylık Eksik",
       value: fmt(average),
       unit: "kişi eşdeğeri",
       detail: months.length + " aylık dönem",
       tone: average > 0 ? "warn" : "ok",
     },
     {
-      label: "En yüksek eksik",
+      label: "En Yüksek Eksik",
       value: peak && peak.total > 0 ? fmt(peak.total) : "0",
       unit: "kişi eşdeğeri",
       detail: peak && peak.total > 0 ? monthLabel(peak.month) : "Eksik ay yok",
       tone: peak && peak.total > 0 ? "warn" : "ok",
     },
     {
-      label: "En çok ihtiyaç duyan takım",
+      label: "En Çok Kaynak İhtiyacı Olan Takım",
       value: topTeam ? fmt(topTeam.averageShortage) : "—",
       unit: topTeam ? "kişi eşdeğeri / ay" : "",
       detail: topTeam ? topTeam.team.name : "Kaynak açığı olan takım yok",
       tone: topTeam ? "warn" : "ok",
     },
     {
-      label: "Dönem planlama etkinliği",
+      label: "Dönem Planlama Etkinliği",
       value: effectiveness === null ? "—" : "%" + fmt(effectiveness),
       unit: "",
       detail: "Gerçekleşen / dağıtılan kaynak",

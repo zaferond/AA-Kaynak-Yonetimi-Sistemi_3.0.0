@@ -164,7 +164,7 @@ export async function checkProgressManagement(f) {
         );
         await plannedResource
           .getByRole("rowheader", {
-            name: "Planlanan kaynak (kişi-ay)",
+            name: "Planlanan Kaynak (Kişi/Ay)",
             exact: true,
           })
           .waitFor();
@@ -199,25 +199,12 @@ export async function checkProgressManagement(f) {
             exact: true,
           })
           .waitFor();
-        assert.equal(await matrix.locator("details[open]").count(), 0);
-        await projectA()
-          .getByText("Hesap ve diğer uyarılar", { exact: true })
-          .click();
-        await projectA().getByText("Karşılama", { exact: true }).waitFor();
-        await projectA().getByText("%250", { exact: true }).waitFor();
-        const typography = await projectA()
-          .locator(".scenario-calculation dt, .scenario-calculation dd")
-          .evaluateAll((nodes) =>
-            nodes.map((node) => ({
-              size: getComputedStyle(node).fontSize,
-              font: getComputedStyle(node).fontFamily,
-              fits: node.scrollWidth <= node.clientWidth + 1,
-            })),
-          );
-        assert.equal(new Set(typography.map((x) => x.size)).size, 1);
-        assert.equal(new Set(typography.map((x) => x.font)).size, 1);
-        assert(typography.every((x) => x.fits));
-        await f.capture(page, "scenario-report-details");
+        // The calculation lives in Senaryo Uyarıları ("Hesap ve geçmiş");
+        // the report column only names the decision.
+        assert.equal(
+          await matrix.getByText("Hesap ve diğer uyarılar").count(),
+          0,
+        );
         await page
           .getByRole("combobox", { name: "Ay", exact: true })
           .selectOption("2026-10");
@@ -312,10 +299,10 @@ export async function checkProgressManagement(f) {
           /Kaynak serbest bırakılabilir/,
         );
         assert.match(entries["xl/worksheets/sheet2.xml"], /<v>250<\/v>/);
-        assert.match(entries["xl/worksheets/sheet3.xml"], /Kritik konular/);
+        assert.match(entries["xl/worksheets/sheet3.xml"], /Kritik Konular/);
         assert.match(
           entries["xl/worksheets/sheet3.xml"],
-          /Planlanan kaynak \(kişi-ay\)/,
+          /Planlanan Kaynak \(Kişi\/Ay\)/,
         );
         assert.match(
           entries["xl/worksheets/sheet3.xml"],

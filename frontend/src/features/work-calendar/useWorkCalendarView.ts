@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { WorkCalendar } from "../../actual-units";
+import { officialHolidaysOfYear } from "../../../../shared/official-holidays.ts";
 import type { WorkCalendarDialogProps } from "./types";
 import {
   sharedCalendarRanges,
@@ -22,6 +23,11 @@ export function useWorkCalendarView({
       ),
     [calendar, year],
   );
+  const officialEntries = useMemo(
+    () =>
+      sharedCalendarRanges(Object.fromEntries(officialHolidaysOfYear(year))),
+    [year],
+  );
   const personalEntries = useMemo(
     () =>
       resource
@@ -35,6 +41,6 @@ export function useWorkCalendarView({
         : [],
     [data.personCalendar, resource?.id, calendar, year],
   );
-  return { entries, personalEntries };
+  return { entries, officialEntries, personalEntries };
 }
 export type WorkCalendarView = ReturnType<typeof useWorkCalendarView>;

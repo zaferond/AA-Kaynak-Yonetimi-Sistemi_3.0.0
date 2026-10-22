@@ -134,7 +134,7 @@ export async function checkFilterAppliedToast(f) {
           await page.keyboard.press("Escape");
           assert.equal(await toast().innerText(), message);
         }
-        await selectWorkspaceTab(page, "Aktivite Girişi");
+        await selectWorkspaceTab(page, "Aktivite Giriş");
         await page.getByRole("button", { name: "Kişi", exact: true }).click();
         await page
           .locator('.pickerpanel[data-state="open"]')

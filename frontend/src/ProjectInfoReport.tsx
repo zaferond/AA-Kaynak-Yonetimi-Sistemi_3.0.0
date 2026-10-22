@@ -1,13 +1,16 @@
 import ReportDownloadButton from "./components/ReportDownloadButton";
 import { useMemo, useState } from "react";
 import {
+  CalendarPlus,
   Check,
   ChevronDown,
   ChevronRight,
   Pencil,
   Plus,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { Project } from "./model";
 import {
   buildProjectInfoReport,
@@ -159,13 +162,25 @@ export default function ProjectInfoReport({
 
   return (
     <section className="panel report project-info-report">
-      <div className="panelhead">
-        <div>
-          <p>
-            Proje ve kritik konu bazında seçilen açıklamalar · {topicCount}{" "}
-            detay konu
-          </p>
-        </div>
+      <div className="panelhead project-info-head">
+        {allGroups.length > 0 && (
+          <label className="project-info-collapse-toggle">
+            <Switch
+              size="sm"
+              aria-label="Projeleri Aç / Kapa"
+              checked={!allCollapsed}
+              disabled={!visibleGroups.length}
+              onCheckedChange={(open) =>
+                setCollapsed(
+                  open
+                    ? new Set()
+                    : new Set(visibleGroups.map((project) => project.id)),
+                )
+              }
+            />
+            Projeleri Aç / Kapa
+          </label>
+        )}
         {!!topicCount && (
           <ReportDownloadButton
             label="Excel’e Aktar"
@@ -187,86 +202,97 @@ export default function ProjectInfoReport({
         </p>
       )}
       {allGroups.length > 0 && (
-        <div className="project-info-toolbar">
+        <div className="project-info-filterpanel">
           <div
-            className="project-info-filter"
+            className="planning-filterbar project-info-toolbar"
             role="group"
-            aria-label="Konu durumu"
+            aria-label="Kritik konu filtreleri"
           >
-            {TOPIC_FILTERS.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={filter === value}
-                data-filter={value}
-                onClick={() => setFilter(value)}
+            <div className="filterbar-title">
+              <SlidersHorizontal size={16} aria-hidden="true" />
+              <span>Filtreler</span>
+            </div>
+            <div className="filters">
+              <div
+                className="project-info-project-filter"
+                data-active={projectId ? "true" : undefined}
               >
-                {label} <span>{counts[value]}</span>
-              </button>
-            ))}
-          </div>
-          <div
-            className="project-info-project-filter"
-            data-active={projectId ? "true" : undefined}
-          >
-            <label>
-              Proje
-              <select
-                aria-label="Proje süzgeci"
-                value={projectId}
-                onChange={(event) => {
-                  const id = event.target.value;
-                  setProjectFilter(id);
-                  // A chosen project is always shown expanded.
-                  if (id) toggleProject(id, true);
+                <label className="pick">
+                  <span>Proje</span>
+                  <select
+                    aria-label="Proje süzgeci"
+                    value={projectId}
+                    onChange={(event) => {
+                      const id = event.target.value;
+                      setProjectFilter(id);
+                      // A chosen project is always shown expanded.
+                      if (id) toggleProject(id, true);
+                    }}
+                  >
+                    <option value="">Tüm projeler ({allGroups.length})</option>
+                    {allGroups.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name} ({groupTopicCount(project)})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {projectId && (
+                  <button
+                    type="button"
+                    className="project-info-project-clear"
+                    aria-label="Proje süzgecini kaldır"
+                    title="Tüm projeleri göster"
+                    onClick={() => setProjectFilter("")}
+                  >
+                    <X size={13} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              <div
+                className="project-info-filter"
+                role="group"
+                aria-label="Konu durumu"
+              >
+                {TOPIC_FILTERS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={filter === value}
+                    data-filter={value}
+                    onClick={() => setFilter(value)}
+                  >
+                    {label} <span>{counts[value]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="filteractions">
+              <button
+                type="button"
+                className="button resetfilters"
+                disabled={!projectId && filter === "all" && !weekKeys.size}
+                onClick={() => {
+                  setProjectFilter("");
+                  setFilter("all");
+                  setWeekKeys(new Set());
                 }}
               >
-                <option value="">Tüm projeler ({allGroups.length})</option>
-                {allGroups.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name} ({groupTopicCount(project)})
-                  </option>
-                ))}
-              </select>
-            </label>
-            {projectId && (
-              <button
-                type="button"
-                className="project-info-project-clear"
-                aria-label="Proje süzgecini kaldır"
-                title="Tüm projeleri göster"
-                onClick={() => setProjectFilter("")}
-              >
-                <X size={13} aria-hidden="true" />
+                Filtreleri Sıfırla
               </button>
-            )}
+            </div>
           </div>
-          <button
-            type="button"
-            className="textbutton project-info-collapse-all"
-            disabled={!visibleGroups.length}
-            onClick={() =>
-              setCollapsed(
-                allCollapsed
-                  ? new Set()
-                  : new Set(visibleGroups.map((project) => project.id)),
-              )
-            }
-          >
-            {allCollapsed ? "Tümünü Aç" : "Tümünü Daralt"}
-          </button>
           <div
             className="project-info-weekbar"
             role="group"
             aria-label="Hafta süzgeci"
           >
-            <span className="project-info-weekbar-label">Hafta</span>
             <button
               type="button"
               aria-pressed={weekKeys.size === 0}
               onClick={() => setWeekKeys(new Set())}
             >
-              Tümü
+              Tüm haftalar
             </button>
             {quickWeeks.map(([label, week]) => (
               <button
@@ -293,23 +319,26 @@ export default function ProjectInfoReport({
                 <X size={12} aria-hidden="true" />
               </button>
             ))}
-            <select
-              aria-label="Hafta ekle"
-              value=""
-              onChange={(event) => {
-                if (event.target.value) toggleWeek(event.target.value);
-              }}
-            >
-              <option value="">Hafta ekle…</option>
-              {weeks
-                .filter(({ week }) => !weekKeys.has(week.key))
-                .map(({ week, count }) => (
-                  <option key={week.key} value={week.key}>
-                    {weekLabel(week, thisWeek.year)} · {weekDates(week)} (
-                    {count})
-                  </option>
-                ))}
-            </select>
+            <label className="project-info-week-add">
+              <CalendarPlus size={14} aria-hidden="true" />
+              <select
+                aria-label="Hafta ekle"
+                value=""
+                onChange={(event) => {
+                  if (event.target.value) toggleWeek(event.target.value);
+                }}
+              >
+                <option value="">Hafta ekle</option>
+                {weeks
+                  .filter(({ week }) => !weekKeys.has(week.key))
+                  .map(({ week, count }) => (
+                    <option key={week.key} value={week.key}>
+                      {weekLabel(week, thisWeek.year)} · {weekDates(week)} (
+                      {count})
+                    </option>
+                  ))}
+              </select>
+            </label>
           </div>
         </div>
       )}

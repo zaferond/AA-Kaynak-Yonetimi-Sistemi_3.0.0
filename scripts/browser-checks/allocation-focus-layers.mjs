@@ -7,7 +7,7 @@ export async function checkAllocationFocusLayers(f) {
   try {
     for (const [tab, tableSelector, inputSelector] of [
       [
-        "Aktivite Girişi",
+        "Aktivite Giriş",
         ".person-allocation .allocation-grid",
         ".person-amount input:not(:disabled)",
       ],
@@ -75,7 +75,7 @@ export async function checkAllocationFocusLayers(f) {
           assert((await input.inputValue()).includes("17"));
           await f.capture(
             page,
-            tab === "Aktivite Girişi"
+            tab === "Aktivite Giriş"
               ? "actual-focused-header"
               : "planned-focused-header",
           );

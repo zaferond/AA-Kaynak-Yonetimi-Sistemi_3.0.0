@@ -21,4 +21,11 @@ const fullDateFormat = new Intl.DateTimeFormat("tr-TR", {
 export const fullDateLabel = (date: string) =>
   date ? fullDateFormat.format(new Date(date + "T12:00:00")) : "Belirtilmemiş";
 
+const monthNameFormat = new Intl.DateTimeFormat("tr-TR", { month: "long" });
+/** "2026-09" → "Eylül": the month alone, capitalised, for sentences. */
+export const monthName = (m: string) => {
+  const name = monthNameFormat.format(new Date(m + "-01T12:00:00"));
+  return name.charAt(0).toLocaleUpperCase("tr") + name.slice(1);
+};
+
 export { shortDateFormat };

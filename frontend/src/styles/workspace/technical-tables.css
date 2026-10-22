@@ -338,7 +338,7 @@ html[data-theme="technical"]
   background: var(--tbl-group-background);
   color: var(--tbl-zero-ink);
 }
-/* Projeler, Kaynak Planlama and Aktivite Girişi share the list heading weight. */
+/* Projeler, Kaynak Planlama and Aktivite Giriş share the list heading weight. */
 html[data-theme="technical"] .app .matrix thead th {
   font-weight: 600;
 }
@@ -354,4 +354,156 @@ html[data-theme="technical"]
   background: var(--tbl-group-background);
   color: var(--brand-text);
   font-weight: 600;
+}
+
+/* Kaynak Planlama team rows: active capacity is the neutral base, the
+   allocated share carries the planned-entry blue and only the remainder is
+   green, so the three boxes no longer read alike. Over-allocation keeps its
+   warning and critical colours. */
+html[data-theme="technical"]
+  .app.tab-plan
+  :is(.allocation-grid .team-capacity-value, .capacity-legend-item):not(
+    .over-warning,
+    .over-critical
+  ) {
+  border-color: var(--tbl-frame);
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app.tab-plan
+  :is(
+    .allocation-grid .team-capacity-value,
+    .capacity-legend-item
+  ).team-capacity-kind-1:not(.over-warning, .over-critical) {
+  border-color: var(--table-planned-entry-border);
+  background: var(--table-planned-entry-background);
+  color: var(--table-planned-entry-color);
+}
+html[data-theme="technical"]
+  .app.tab-plan
+  :is(
+    .allocation-grid .team-capacity-value,
+    .capacity-legend-item
+  ).team-capacity-kind-2:not(.over-warning, .over-critical) {
+  border-color: #9fcdb0;
+  background: #eef7f2;
+  color: #087f6a;
+}
+html[data-theme="technical"] .app.tab-plan .capacity-legend-item {
+  border-radius: 3px;
+}
+
+/* Head Count: headers as in every other table; the total column is set off
+   by a ground and a rule, not a dark band. The Excel file keeps fills. */
+html[data-theme="technical"] .app.tab-overview .headcount-table th {
+  border-right-color: var(--tbl-rule);
+  border-bottom: 1px solid var(--tbl-rule-strong);
+  background: var(--tbl-head-background);
+  color: var(--tbl-head-ink) !important;
+  font-weight: 600;
+}
+html[data-theme="technical"] .headcount-table tbody td {
+  border-color: var(--tbl-rule);
+  background: var(--tbl-row-hover);
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .headcount-table
+  [data-headcount-depth]:not([data-headcount-depth="0"])
+  td {
+  background: #fff;
+  font-weight: 400;
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .headcount-table
+  td.headcount-row-total {
+  background: var(--tbl-group-background);
+  color: var(--brand-text);
+  box-shadow: inset 2px 0 var(--tbl-rule-strong);
+  font-weight: 700;
+}
+html[data-theme="technical"]
+  .headcount-table
+  :is(.headcount-grand-total, .headcount-with-postings)
+  td {
+  border-top: 0;
+  background: #fff;
+  color: var(--brand-text);
+  box-shadow: inset 0 2px var(--tbl-total-rule);
+}
+html[data-theme="technical"] .headcount-total-label > span {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: var(--tbl-head-background);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .app.tab-overview
+  .headcount-table
+  tbody
+  td[data-zero] {
+  color: var(--tbl-zero-ink);
+}
+
+/* Kaynak Planlama: an entry is plain bold text. A selection, one cell or
+   many, is shown on the input boxes alone, never on the cells behind them. */
+html[data-theme="technical"]
+  .app.tab-plan
+  .allocation-grid
+  td.has-entry:not(.selectedcell)
+  .cell
+  input:not(:focus) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+/* Kaynak Raporları: the summary row keeps the same 10px from the filter row
+   as from the leadership report below it. */
+html[data-theme="technical"] .app.tab-overview .report-summary {
+  margin-top: 10px;
+}
+
+html[data-theme="technical"] .app.tab-plan .allocation-grid td.selectedcell {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="technical"]
+  .app.tab-plan
+  .allocation-grid
+  td.selectedcell
+  .cell
+  input {
+  border: 2px solid var(--brand-primary);
+  background: #fff;
+  box-shadow: none;
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+/* Kaynak Planlama: the actual-detail toggle matches the project rows' quiet
+   square arrow button; open, it fills with the primary colour. */
+html[data-theme="technical"] .app .actual-expand {
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .app .actual-expand:is(:hover, :focus-visible) {
+  border-color: var(--btn-border-hover);
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .app .actual-expand[aria-expanded="true"] {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
 }

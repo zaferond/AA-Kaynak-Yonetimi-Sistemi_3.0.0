@@ -93,7 +93,7 @@ export async function checkWorkspaceActions(f) {
         );
         assert(xml.includes(f.teamA.name) && !xml.includes(f.teamB.name));
         assert(xml.includes("Liderlik: Tümü · Takım: 1 seçili"));
-        await selectWorkspaceTab(page, "Aktivite Girişi");
+        await selectWorkspaceTab(page, "Aktivite Giriş");
         await choose(page, "Takım", []);
         await choose(page, "Kişi", ["Browser Employee"]);
         xml = await exportSheet(

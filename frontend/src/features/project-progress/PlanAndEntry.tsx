@@ -1,7 +1,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
 import ProgressCard from "./ProgressCard";
@@ -20,7 +20,18 @@ import {
   progressLeaders,
   type ProgressItem,
 } from "./progress-scope";
-import type { ProgressContext } from "./progress-view";
+import { progressChange, type ProgressContext } from "./progress-view";
+import { monthName } from "../../format";
+
+/** Quick "waiting work" boxes under the filters; checked boxes combine. */
+const WAITING = [
+  { key: "planEntry", label: "Hedef Plan Giriş Bekleyen" },
+  { key: "planApproval", label: "Hedef Plan Onay Bekleyen" },
+  { key: "actualEntry", label: "Gerçekleşen Plan Giriş Bekleyen" },
+  // Actual entered for the month; it is evaluated once the month is locked.
+  { key: "evaluation", label: "Ayı Değerlendirme Bekliyor" },
+] as const;
+type Waiting = (typeof WAITING)[number]["key"];
 
 const PLAN_ORDER: Record<PlanStatus, number> = {
   pending: 0,
@@ -60,6 +71,11 @@ export default function PlanAndEntry({
   const [planFilter, setPlanFilter] = useState<"" | PlanStatus>("");
   const [entryFilter, setEntryFilter] = useState<"" | EntryStatus>("");
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  const [waiting, setWaiting] = useState<ReadonlySet<Waiting>>(() => new Set());
+  const [approval, setApproval] = useState<{
+    text: string;
+    error?: boolean;
+  }>();
   const groupId = useId();
   const locked = (ctx.data.progressLocks || []).some((l) => l.id === month);
   const entryOf = (item: ProgressItem) =>
@@ -79,6 +95,41 @@ export default function PlanAndEntry({
         entryOf(item) === status &&
         (!planFilter || planOf(item) === planFilter),
     ).length;
+  const isWaiting = (item: ProgressItem, key: Waiting) =>
+    key === "planEntry"
+      ? ["new", "draft"].includes(planOf(item))
+      : key === "planApproval"
+        ? planOf(item) === "pending"
+        : key === "evaluation"
+          ? !locked && entryOf(item) === "entered"
+          : entryOf(item) === "waiting";
+  const waitingCount = (key: Waiting) =>
+    items.filter((item) => isWaiting(item, key)).length;
+  const isAdmin = user?.role === "admin";
+  async function approveAll() {
+    if (
+      !approvable.length ||
+      !window.confirm(
+        approvable.length +
+          " hedef plan onaylansın mı? Bu işlem toplu yapılır.",
+      )
+    )
+      return;
+    setApproval(undefined);
+    try {
+      await onSave(
+        approvable.map((item) =>
+          progressChange(ctx.data, {
+            ...item.record!,
+            proposal: { ...item.record!.proposal!, status: "approved" },
+          }),
+        ),
+      );
+      setApproval({ text: approvable.length + " hedef plan onaylandı." });
+    } catch (error) {
+      setApproval({ text: (error as Error).message, error: true });
+    }
+  }
   const priority = (item: ProgressItem) => {
     const plan = planOf(item);
     if (plan === "pending") return 0;
@@ -92,7 +143,8 @@ export default function PlanAndEntry({
         .filter(
           (item) =>
             (!planFilter || planOf(item) === planFilter) &&
-            (!entryFilter || entryOf(item) === entryFilter),
+            (!entryFilter || entryOf(item) === entryFilter) &&
+            (!waiting.size || [...waiting].some((key) => isWaiting(item, key))),
         )
         .sort(
           (a, b) =>
@@ -101,6 +153,15 @@ export default function PlanAndEntry({
         ),
     ])
     .filter(([, items]) => items.length > 0);
+  // "Hedef Planların Tümünü Onayla" acts on the selection only: the cards shown under the
+  // checked boxes and filters that await approval (actuals need none).
+  const approvable = waiting.size
+    ? groups.flatMap(([, groupItems]) =>
+        groupItems.filter(
+          (item) => planOf(item) === "pending" && item.record?.proposal,
+        ),
+      )
+    : [];
 
   return (
     <div className="progress-baseline">
@@ -127,6 +188,7 @@ export default function PlanAndEntry({
           setLeader("");
           setPlanFilter("");
           setEntryFilter("");
+          setWaiting(new Set());
           onResetFilters();
         }}
       >
@@ -174,6 +236,60 @@ export default function PlanAndEntry({
           </select>
         </label>
       </ProgressFilters>
+      <div
+        className="progress-waiting-strip"
+        role="group"
+        aria-label="Bekleyen işler"
+      >
+        {WAITING.map(({ key, label }) => (
+          <label key={key} className="progress-waiting-option">
+            <input
+              type="checkbox"
+              checked={waiting.has(key)}
+              onChange={(e) =>
+                setWaiting((previous) => {
+                  const next = new Set(previous);
+                  if (e.target.checked) next.add(key);
+                  else next.delete(key);
+                  return next;
+                })
+              }
+            />
+            {key === "evaluation"
+              ? `${month ? monthName(month) : "Seçili"} ${label}`
+              : label}
+            <span className="progress-waiting-count" aria-label="adet">
+              {waitingCount(key)}
+            </span>
+          </label>
+        ))}
+        {isAdmin && (
+          <button
+            type="button"
+            className="button primary progress-approve-all"
+            disabled={saving || !approvable.length}
+            title={
+              waiting.size
+                ? "Seçili kutulara uyan ve onay bekleyen hedef planları onaylar"
+                : "Önce onaylanacak kutuyu seçin"
+            }
+            onClick={() => void approveAll()}
+          >
+            <CheckCheck size={14} aria-hidden="true" />
+            Hedef Planların Tümünü Onayla
+          </button>
+        )}
+        {approval && (
+          <span
+            role={approval.error ? "alert" : "status"}
+            className={
+              "progress-approve-message" + (approval.error ? " negative" : "")
+            }
+          >
+            {approval.text}
+          </span>
+        )}
+      </div>
       {groups.length ? (
         groups.map(([name, items]) => (
           <section

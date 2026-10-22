@@ -55,6 +55,7 @@ import { fmt, monthLabel } from "./format";
 import { Project } from "./model";
 import { phaseChipStyle } from "./phase-chip";
 import PersonAllocationPanel from "./PersonAllocationPanel";
+import type { ActualUnit } from "./actual-units";
 import ErrorBoundary from "./ErrorBoundary";
 import { mergeNewerActuals } from "./features/actual-allocation/merge-actual-view";
 import ProjectInfoReport from "./ProjectInfoReport";
@@ -89,6 +90,8 @@ export default function Portal() {
     useState<HTMLDivElement | null>(null);
   const [progressView, setProgressView] = useState<ProgressView>("plan");
   const [actualLayout, setActualLayout] = useActualLayout();
+  const [actualUnit, setActualUnit] = useState<ActualUnit>("percent");
+  const [activityUnit, setActivityUnit] = useState<ActualUnit>("percent");
   const [sharedCalendarOpen, setSharedCalendarOpen] = useState(false);
   const [scenarioOpen, setScenarioOpen] = useState(false);
   const [sidebarHost, setSidebarHost] = useState<HTMLDivElement | null>(null);
@@ -180,7 +183,7 @@ export default function Portal() {
     setSearch,
     view,
     setView,
-    density,
+    density: chosenDensity,
     setDensity,
     cells,
     setCells,
@@ -213,6 +216,17 @@ export default function Portal() {
     currentMonth,
     months,
   } = useWorkspaceFilters(openingOptions, tab, setNotice);
+  // Only Projeler lets the user pick a density; the planning, evaluation and
+  // report screens read best compact, activity entry in full detail.
+  const density: typeof chosenDensity = [
+    "plan",
+    "progress",
+    "overview",
+  ].includes(tab)
+    ? "compact"
+    : tab === "actual"
+      ? "detail"
+      : chosenDensity;
   const [onlyDataRows, setOnlyDataRows] = useOnlyDataRows(user?.id);
   const activity = useActivityReport(
     tab === "activity" && !!data,
@@ -637,6 +651,10 @@ export default function Portal() {
             setReportView={setReportView}
             actualLayout={actualLayout}
             setActualLayout={setActualLayout}
+            actualUnit={actualUnit}
+            setActualUnit={setActualUnit}
+            activityUnit={activityUnit}
+            setActivityUnit={setActivityUnit}
             progressView={progressView}
             progressActionsRef={setProgressActionsHost}
             setProgressView={setProgressView}
@@ -721,6 +739,8 @@ export default function Portal() {
                       currentMonth={currentMonth}
                       scenarios={scenarioState.scenarios}
                       setScenarios={scenarioState.setScenarios}
+                      comparedIds={scenarioState.comparedIds}
+                      setComparedIds={scenarioState.setComparedIds}
                       isAdmin={!!isAdmin}
                       userId={user?.id || ""}
                       saving={saving}
@@ -824,6 +844,7 @@ export default function Portal() {
                   user?.resourceId ? (
                     <PersonAllocationPanel
                       layout={actualLayout}
+                      unit={actualUnit}
                       // The refresh that follows the user's own save keeps
                       // cells editable (its values are merged in already);
                       // any other refresh, e.g. after a remote change, locks
@@ -890,6 +911,7 @@ export default function Portal() {
                     teams={teams}
                     months={months}
                     todayDate={todayDate}
+                    unit={activityUnit}
                   />
                 </TabsContent>
               )}
@@ -989,10 +1011,6 @@ export default function Portal() {
                   <ProjectProgressPanel
                     actionsHost={progressActionsHost}
                     density={density}
-                    onDensityChange={(mode) => {
-                      setDensity(mode);
-                      if (mode === "overview") setCount(60);
-                    }}
                     view={progressView}
                     data={data}
                     user={user}
@@ -1020,6 +1038,7 @@ export default function Portal() {
                             activeId={scenarioState.reportScenarioId}
                             onChange={scenarioState.setReportScenarioId}
                             onEdit={() => setScenarioOpen(true)}
+                            onClear={scenarioState.clearReportScenarios}
                           />
                         }
                         summaryData={data}
@@ -1139,6 +1158,8 @@ export default function Portal() {
             currentMonth={currentMonth}
             scenarios={scenarioState.scenarios}
             setScenarios={scenarioState.setScenarios}
+            comparedIds={scenarioState.comparedIds}
+            setComparedIds={scenarioState.setComparedIds}
             isAdmin={!!isAdmin}
             userId={user?.id || ""}
             saving={saving}

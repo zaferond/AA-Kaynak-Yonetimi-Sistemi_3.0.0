@@ -127,10 +127,10 @@ export async function checkWorkspaceMenu(f) {
       },
     );
     await f.check(
-      "aktivite ekranları: üst boşluk projelerle aynı, giriş araçları kişi/proje satırında",
+      "aktivite ekranları: üst boşluk projelerle aynı, giriş araçları başlık satırında",
       async () => {
         const positions = [];
-        for (const name of ["Projeler", "Aktivite Girişi", "Aktivite Raporu"]) {
+        for (const name of ["Projeler", "Aktivite Giriş", "Aktivite Raporu"]) {
           await selectWorkspaceTab(page, name);
           await page.evaluate(() => window.scrollTo(0, 0));
           await f.wait(async () => {
@@ -141,27 +141,22 @@ export async function checkWorkspaceMenu(f) {
           positions.push(
             (await page.locator(".workspace-section-heading").boundingBox()).y,
           );
-          if (name === "Aktivite Girişi") {
-            const tabs = await page
-              .locator(".workspace-section-tabs")
-              .boundingBox();
-            const actions = await page
-              .locator(".workspace-nav-actions")
-              .boundingBox();
-            assert(
-              actions.y >= tabs.y - 2 &&
-                actions.y + actions.height <= tabs.y + tabs.height + 2,
+          if (name === "Aktivite Giriş") {
+            // A single section has no tab row; its tools sit in the heading.
+            assert.equal(
+              await page.locator(".workspace-section-tabs").count(),
+              0,
             );
             assert.equal(
               await page
                 .locator(".workspace-section-heading .workspace-nav-actions")
                 .count(),
-              0,
+              1,
             );
           }
           await f.capture(
             page,
-            name === "Aktivite Girişi"
+            name === "Aktivite Giriş"
               ? "aktivite-giris-ust-alan"
               : name === "Aktivite Raporu"
                 ? "aktivite-raporu-ust-alan"

@@ -20,7 +20,7 @@ import {
   type ProjectProgress,
   type ProgressTargets,
 } from "../../../../shared/project-progress.ts";
-import { monthLabel } from "../../format";
+import { monthLabel, monthName } from "../../format";
 import MonthGrid, { fullMonth, type GridRow } from "./MonthGrid";
 import {
   pctLabel,
@@ -137,9 +137,10 @@ export default function ProgressCard({
       });
     if (baseline) return setForm(null);
     if (!resourceOpening) return setForm(null);
+    // The plan starts in the first month with planned resource, at 0 %.
     setForm({
       openingMonth: resourceOpening,
-      openingPct: "",
+      openingPct: "0",
       targets: {},
       reason: "",
     });
@@ -166,7 +167,7 @@ export default function ProgressCard({
       return {
         ...current,
         openingMonth: resourceOpening,
-        openingPct: current.openingPct.trim() ? text(aligned.openingPct) : "",
+        openingPct: text(aligned.openingPct),
         targets: Object.fromEntries(
           Object.entries(current.targets).filter(
             ([month]) => month > resourceOpening,
@@ -383,7 +384,7 @@ export default function ProgressCard({
         ...(editable
           ? [
               {
-                label: baseline ? "Önerilen yeni hedef %" : "Önerilen hedef %",
+                label: baseline ? "Önerilen Yeni Hedef %" : "Önerilen Hedef %",
                 cell: (m: string) =>
                   proposalCell(m, () =>
                     suggested ? pctLabel(suggested[m]) : "—",
@@ -392,7 +393,7 @@ export default function ProgressCard({
             ]
           : []),
         {
-          label: baseline ? "Yeni hedef %" : "Hedef % (kümülatif)",
+          label: baseline ? "Yeni Hedef %" : "Hedeflenen %",
           editable,
           cell: (m: string) =>
             proposalCell(m, () =>
@@ -420,12 +421,12 @@ export default function ProgressCard({
   const gridRows: GridRow[] = baseline
     ? [
         {
-          label: "Gerçekleşen kaynak (kişi-ay)",
+          label: "Gerçekleşen Kaynak (Kişi/Ay)",
           cell: (m) =>
             past(m) && actualFte?.[m] ? pctLabel(actualFte[m]) : "—",
         },
         {
-          label: form ? "Onaylı hedef %" : "Hedef % (kümülatif)",
+          label: form ? "Onaylı Hedef %" : "Hedeflenen %",
           cell: (m) =>
             m > baseline.openingMonth ? pctLabel(targetAt(baseline, m)) : "—",
         },
@@ -497,26 +498,8 @@ export default function ProgressCard({
             />
           )}
         </div>
-        {form && resourceStart && (
+        {form && resourceStart && (baseline || form.reason) && (
           <div className="progress-card-fields">
-            <label>
-              Başlangıç %
-              <input
-                aria-label={label + " · başlangıç %"}
-                title="Başlangıç ayı başında tamamlanmış olan yüzde"
-                inputMode="decimal"
-                placeholder="%"
-                value={form.openingPct}
-                disabled={!editable}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    openingPct: e.target.value,
-                    adjustedSuggestion: undefined,
-                  })
-                }
-              />
-            </label>
             {(baseline || form.reason) && (
               <label className="wide">
                 Gerekçe
@@ -558,13 +541,12 @@ export default function ProgressCard({
             <>
               {canEditEntry && (
                 <label className="progress-card-noteinput">
-                  Açıklama ({monthLabel(month)})
                   <input
                     aria-label={`${label} · açıklama`}
                     maxLength={PROGRESS_NOTE_MAX}
                     value={note}
                     disabled={saving}
-                    placeholder="Bu ayın kısa açıklaması"
+                    placeholder={`${monthName(month)} ayı için kısa açıklama giriniz…`}
                     onChange={(e) => {
                       setNote(e.target.value);
                       setEntryMessage(undefined);
@@ -574,16 +556,6 @@ export default function ProgressCard({
                     }}
                   />
                 </label>
-              )}
-              {canEditEntry && (
-                <button
-                  type="button"
-                  className="button primary"
-                  disabled={saving || !entryChanged}
-                  onClick={() => void submitEntry()}
-                >
-                  Gerçekleşeni Kaydet
-                </button>
               )}
               {entryMessage && (
                 <span
@@ -606,7 +578,6 @@ export default function ProgressCard({
               type="button"
               className="button"
               disabled={!suggested}
-              title={suggested ? undefined : "Önce başlangıç yüzdesini girin"}
               onClick={() =>
                 form &&
                 suggested &&
@@ -646,7 +617,7 @@ export default function ProgressCard({
                 )
               }
             >
-              Hedef Planını Onaya Gönder
+              Hedef Planı Onaya Gönder
             </button>
             {admin && (
               <button
@@ -710,7 +681,17 @@ export default function ProgressCard({
             disabled={!resourceStart}
             onClick={startRebaseline}
           >
-            Hedef Planını Revize Et
+            Hedef Plan Revize Et
+          </button>
+        )}
+        {canEditEntry && (
+          <button
+            type="button"
+            className="button primary"
+            disabled={saving || !entryChanged}
+            onClick={() => void submitEntry()}
+          >
+            Gerçekleşen % Gönder
           </button>
         )}
         {canEnter &&
@@ -732,7 +713,7 @@ export default function ProgressCard({
               onClick={startEntryRevision}
               title={`${monthLabel(month)} gerçekleşen oranını ve açıklamasını revize et`}
             >
-              Gerçekleşen Oran Revize Et
+              Gerçekleşen % Revize Et
             </button>
           ))}
         {record?.proposal && !pending && baseline && (

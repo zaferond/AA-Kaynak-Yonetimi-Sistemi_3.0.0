@@ -279,6 +279,11 @@ export function usePlannedGrid({
     completePlanEntry();
     setNotice(changed.length + " seçili hücreye kaynak miktarı uygulandı.");
   }
+  // Tab moves the selection with it, so the cell left behind does not stay
+  // highlighted; a cell inside the selection keeps it.
+  function focusPlanCell(key: string) {
+    if (!cellSet.has(key) && planCellWritable(key)) setCells([key]);
+  }
   function openPlanMenu(
     event: React.MouseEvent<HTMLTableCellElement>,
     key: string,
@@ -415,6 +420,7 @@ export function usePlannedGrid({
     firstSelectedPlanCell,
     planCellWritable,
     startPlanDrag,
+    focusPlanCell,
     openPlanMenu,
     copyPlanSelection,
     pastePlanSelection,

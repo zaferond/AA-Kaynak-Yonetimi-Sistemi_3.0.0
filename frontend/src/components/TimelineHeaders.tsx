@@ -8,9 +8,12 @@ export const yearBandClass = (index: number) =>
 export function TimelineYearRow({
   years,
   labelColumns = 1,
+  label = "Yıl",
 }: {
   years: string[];
   labelColumns?: number;
+  /** Caption over the label columns; empty where the year speaks for itself. */
+  label?: string;
 }) {
   const bands: { year: string; count: number }[] = [];
   for (const year of years) {
@@ -20,7 +23,7 @@ export function TimelineYearRow({
   }
   return (
     <TableRow className="yearrow">
-      <TableHead colSpan={labelColumns}>Yıl</TableHead>
+      <TableHead colSpan={labelColumns}>{label}</TableHead>
       {bands.map((band, index) => (
         <TableHead
           key={band.year}

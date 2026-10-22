@@ -9,7 +9,6 @@ import { personMonthBalance } from "./person-month-balance";
 export default function ActualAllocationControls({
   data,
   unit,
-  onUnitChange,
   selectedHoursPerson,
   selectedHoursMonth,
   actualMonths,
@@ -18,7 +17,6 @@ export default function ActualAllocationControls({
 }: {
   data: Data;
   unit: ActualUnit;
-  onUnitChange: (unit: ActualUnit) => void;
   selectedHoursPerson?: Resource;
   selectedHoursMonth?: string;
   actualMonths: ActualAllocationView["actualMonths"];
@@ -50,22 +48,6 @@ export default function ActualAllocationControls({
     <div className="panelhead">
       <div className="actual-unit-control">
         <div className="actual-control-fields">
-          <label
-            className="actual-control-item actual-unit-item"
-            htmlFor="actual-entry-unit"
-          >
-            <span>Kaynak Dağılım Birimi</span>
-            <select
-              id="actual-entry-unit"
-              value={unit}
-              onChange={(event) =>
-                onUnitChange(event.target.value as ActualUnit)
-              }
-            >
-              <option value="percent">Yüzde (%)</option>
-              <option value="hours">Saat</option>
-            </select>
-          </label>
           {selectedHoursPerson && selectedHoursMonth ? (
             <>
               <div className="actual-control-item actual-context-item actual-person-item">
@@ -178,7 +160,7 @@ export default function ActualAllocationControls({
           ) : (
             // One prompt instead of four "Hücre Seçiniz" placeholders.
             <p className="actual-control-item actual-context-hint">
-              Bir Hücre Seçin
+              Bir Hücre Seçiniz
             </p>
           )}
         </div>

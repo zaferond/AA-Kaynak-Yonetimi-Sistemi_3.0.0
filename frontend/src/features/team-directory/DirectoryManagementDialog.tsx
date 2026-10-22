@@ -135,7 +135,7 @@ export default function DirectoryManagementDialog({
             />
             <button
               type="button"
-              className="button primary directory-new-button"
+              className="button directory-new-button"
               disabled={busy}
               onClick={() => editor.choose()}
             >
@@ -262,7 +262,7 @@ export default function DirectoryManagementDialog({
                     {!isNew && (
                       <button
                         type="button"
-                        className="button directory-remove"
+                        className="button danger directory-remove"
                         onClick={() => void editor.remove()}
                       >
                         <Trash2 size={15} />{" "}

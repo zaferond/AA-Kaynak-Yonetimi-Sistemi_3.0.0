@@ -1,4 +1,4 @@
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Pencil, Trash2 } from "lucide-react";
 import {
   SCENARIO_STATUS_LABELS,
   type ShiftScenario,
@@ -11,6 +11,8 @@ type Props = {
   activeId: string | null;
   onChange: (id: string | null) => void;
   onEdit: () => void;
+  /** Takes the scenarios off the reports; saved records stay. */
+  onClear: () => void;
 };
 
 /** Which plan the resource reports are drawn for: the current one or a
@@ -21,6 +23,7 @@ export default function ScenarioReportBar({
   activeId,
   onChange,
   onEdit,
+  onClear,
 }: Props) {
   if (!scenarios.length) return null;
   const active = scenarios.find((s) => s.id === activeId);
@@ -73,11 +76,30 @@ export default function ScenarioReportBar({
       <span className="scenario-report-note">
         {active
           ? `Senaryo görünümü: ${describe(active)}. Aşağıdaki raporlar bu senaryoya göredir (üstteki özet kartları mevcut durum); kayıtlar değişmedi, çerçeveli hücreler mevcut duruma göre değişenlerdir.`
-          : "Erteleme senaryosu seçerek aşağıdaki raporları yeni durumla görebilirsiniz."}
+          : "Bir senaryo seçerek aşağıdaki raporları yeni takvimle görebilirsiniz."}
       </span>
-      <button type="button" className="textbutton" onClick={onEdit}>
-        Senaryoları Düzenle
-      </button>
+      <div className="scenario-report-actions">
+        <button type="button" className="button" onClick={onEdit}>
+          <Pencil size={14} aria-hidden="true" />
+          Senaryo Düzenle
+        </button>
+        <button
+          type="button"
+          className="button danger"
+          title="Senaryoları raporlardan kaldırır; kayıtlı senaryolar Proje Takvimi Güncelle ekranında kalır."
+          onClick={() => {
+            if (
+              confirm(
+                "Senaryolar raporlardan kaldırılsın mı? Kayıtlı senaryolar silinmez; Proje Takvimi Güncelle ekranından yeniden açılabilir.",
+              )
+            )
+              onClear();
+          }}
+        >
+          <Trash2 size={14} aria-hidden="true" />
+          Senaryoları Sil
+        </button>
+      </div>
     </div>
   );
 }

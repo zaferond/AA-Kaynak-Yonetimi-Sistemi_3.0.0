@@ -298,7 +298,8 @@ test("personal ranges exclude return day, weekends and full holidays and cap hal
 
 test("personal ranges split calendar months and years and include leap day without timezone drift", () => {
   for (const [from, to, expected] of [
-    ["2026-12-31", "2027-01-05", ["2026-12-31", "2027-01-01", "2027-01-04"]],
+    // 1 January is an official holiday and gets no personal entry.
+    ["2026-12-31", "2027-01-05", ["2026-12-31", "2027-01-04"]],
     ["2024-02-28", "2024-03-02", ["2024-02-28", "2024-02-29", "2024-03-01"]],
   ]) {
     const data = fixture();

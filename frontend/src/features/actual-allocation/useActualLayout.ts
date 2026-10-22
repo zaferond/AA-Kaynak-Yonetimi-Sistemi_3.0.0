@@ -4,11 +4,10 @@ import type { ActualLayout } from "./useActualAllocationView";
 const LAYOUT_KEY = "aa.actualLayout";
 function initialLayout(): ActualLayout {
   try {
-    return localStorage.getItem(LAYOUT_KEY) === "project"
-      ? "project"
-      : "person";
+    // Proje Bazlı unless the user chose Kişi Bazlı before.
+    return localStorage.getItem(LAYOUT_KEY) === "person" ? "person" : "project";
   } catch {
-    return "person";
+    return "project";
   }
 }
 export function useActualLayout() {

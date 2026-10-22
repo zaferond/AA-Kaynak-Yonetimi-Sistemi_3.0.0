@@ -87,11 +87,12 @@ export async function checkHeadcountReports(f) {
         name: "Kaynak raporu görünümü",
         exact: true,
       });
-      const switchBox = await tabs.boundingBox(),
-        density = await page
-          .getByLabel("Takvim yoğunluğu", { exact: true })
-          .boundingBox();
-      assert(switchBox.x < density.x);
+      // Reports are always compact: neither view offers a density choice.
+      assert(await tabs.isVisible());
+      assert.equal(
+        await page.getByLabel("Takvim yoğunluğu", { exact: true }).count(),
+        0,
+      );
       await tab("Head Count").click();
       assert.equal(await page.locator(".headcount-table").count(), 2);
       assert.equal(await page.locator(".leader-report").count(), 0);

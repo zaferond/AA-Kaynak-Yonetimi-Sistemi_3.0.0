@@ -1,5 +1,6 @@
 import { selectWorkspaceTab } from "./fixture.mjs";
 import assert from "node:assert/strict";
+import { applyChanges } from "../../backend/operations.mjs";
 import {
   calendarHoursInMonth,
   personCalendarHoursInMonth,
@@ -7,7 +8,7 @@ import {
 
 // The tab lives in the closed main menu; the fixture opens it first.
 const actualTab = (page) => ({
-  click: () => selectWorkspaceTab(page, "Aktivite Girişi"),
+  click: () => selectWorkspaceTab(page, "Aktivite Giriş"),
 });
 const dialog = (page) => page.getByRole("dialog");
 async function personalMonth(f) {
@@ -28,59 +29,69 @@ export async function checkCalendar(f) {
   const { page } = await f.client("root-admin");
   try {
     await actualTab(page).click();
+    const seedShared = (days) =>
+      f.store.mutate(f.actor, (data, actor) =>
+        applyChanges(data, actor, [
+          {
+            kind: "calendar",
+            id: "shared",
+            value: { ...data.workCalendar, ...days },
+            revision: data.revisions["calendar:shared"] || 0,
+          },
+        ]),
+      );
+    const openShared = async () => {
+      await page
+        .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
+        .click();
+      await dialog(page).locator(".work-calendar-official").waitFor();
+    };
     await f.check(
-      "calendar: shared full/half-day holidays preview then save; weekends are not subtracted twice",
+      "calendar: official holidays are built in without manual entry; older shared dates count once and weekends are not subtracted twice",
       async () => {
-        await page
-          .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
-          .click();
+        await openShared();
         assert.equal(
           await dialog(page).locator(".work-calendar-summary").count(),
           0,
         );
         assert.equal(
-          calendarHoursInMonth("2026-01", (await f.state()).workCalendar),
-          198,
+          await dialog(page).getByLabel("Başlangıç", { exact: true }).count(),
+          0,
         );
-        async function add(date, fraction, label) {
-          await dialog(page)
-            .getByLabel("Başlangıç", { exact: true })
-            .fill(date);
-          await dialog(page).getByLabel("Bitiş", { exact: true }).fill(date);
-          await dialog(page)
-            .locator(".work-calendar-fields select")
-            .nth(1)
-            .selectOption(fraction);
-          await dialog(page)
-            .getByLabel("Açıklama", { exact: true })
-            .fill(label);
-          await dialog(page)
-            .getByRole("button", { name: "Ekle", exact: true })
-            .click();
-        }
-        await add("2026-01-07", "1", "Shared full day");
-        await add("2026-01-08", "0.5", "Shared half day");
-        await add("2026-01-10", "1", "Weekend marker");
         assert.equal(
-          await dialog(page).locator(".work-calendar-range-row").count(),
-          3,
+          await dialog(page).getByRole("button", { name: "Ekle" }).count(),
+          0,
         );
-        assert.equal((await f.state()).workCalendar["2026-01-07"], undefined);
+        const official = await dialog(page)
+          .locator(".work-calendar-official")
+          .innerText();
+        for (const label of ["Yılbaşı", "Ramazan Bayramı", "Kurban Bayramı"])
+          assert(official.includes(label), label);
+        // 22 weekdays less the built-in 1 January holiday.
+        assert.equal(
+          calendarHoursInMonth("2026-01", (await f.state()).workCalendar),
+          189,
+        );
         await dialog(page)
-          .getByRole("button", { name: "Takvimi Kaydet", exact: true })
+          .getByRole("button", { name: "Kapat", exact: true })
           .click();
-        await dialog(page).waitFor({ state: "hidden" });
+        const day = (label, fraction = 1) => ({
+          type: "company",
+          label,
+          fraction,
+        });
+        await seedShared({
+          "2026-01-07": day("Shared full day"),
+          "2026-01-08": day("Shared half day", 0.5),
+          "2026-01-10": day("Weekend marker"),
+        });
+        await page.reload();
+        await actualTab(page).click();
         assert.equal(
           calendarHoursInMonth("2026-01", (await f.state()).workCalendar),
-          184.5,
+          175.5,
         );
-        assert.equal(
-          (await f.state()).workCalendar["2026-01-08"].fraction,
-          0.5,
-        );
-        await page
-          .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
-          .click();
+        await openShared();
         await dialog(page)
           .getByRole("button", {
             name: "2026-01-07 – 2026-01-07 çalışma dışı tarih aralığını sil",
@@ -94,66 +105,37 @@ export async function checkCalendar(f) {
       },
     );
     await f.check(
-      "calendar: shared range is one row; edit and delete affect every date and persist",
+      "calendar: older shared range is one row; delete affects every date and persists",
       async () => {
-        await page
-          .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
-          .click();
-        await dialog(page)
-          .getByLabel("Başlangıç", { exact: true })
-          .fill("2026-01-12");
-        await dialog(page)
-          .getByLabel("Bitiş", { exact: true })
-          .fill("2026-01-14");
-        await dialog(page)
-          .getByLabel("Açıklama", { exact: true })
-          .fill("Shared grouped range");
-        await dialog(page)
-          .getByRole("button", { name: "Ekle", exact: true })
-          .click();
-        let row = dialog(page)
+        const range = { from: "2026-01-13", to: "2026-01-15" };
+        await seedShared(
+          Object.fromEntries(
+            ["13", "14", "15"].map((d) => [
+              "2026-01-" + d,
+              {
+                type: "company",
+                label: "Shared grouped range",
+                fraction: 0.5,
+                range,
+              },
+            ]),
+          ),
+        );
+        await page.reload();
+        await actualTab(page).click();
+        await openShared();
+        const row = dialog(page)
           .locator(".work-calendar-range-row")
           .filter({ hasText: "Shared grouped range" });
         assert.equal(await row.count(), 1);
-        await row.getByRole("button", { name: /düzenle$/ }).click();
-        await dialog(page)
-          .getByLabel("Başlangıç", { exact: true })
-          .fill("2026-01-13");
-        await dialog(page)
-          .getByLabel("Bitiş", { exact: true })
-          .fill("2026-01-15");
-        await dialog(page)
-          .getByLabel("Süre", { exact: true })
-          .selectOption("0.5");
-        await dialog(page)
-          .getByRole("button", { name: "Güncelle", exact: true })
-          .click();
         assert((await row.innerText()).includes("13.01.2026 → 15.01.2026"));
-        await dialog(page)
-          .getByRole("button", { name: "Takvimi Kaydet", exact: true })
-          .click();
-        await dialog(page).waitFor({ state: "hidden" });
-        let state = await f.state();
-        assert.equal(state.workCalendar["2026-01-12"], undefined);
-        assert.equal(state.workCalendar["2026-01-15"].fraction, 0.5);
-        assert.deepEqual(state.workCalendar["2026-01-14"].range, {
-          from: "2026-01-13",
-          to: "2026-01-15",
-        });
-        await page
-          .getByRole("button", { name: "Çalışma Takvimi'ni aç", exact: true })
-          .click();
-        row = dialog(page)
-          .locator(".work-calendar-range-row")
-          .filter({ hasText: "Shared grouped range" });
-        assert.equal(await row.count(), 1);
         await f.capture(page, "shared-calendar-grouped-range");
         await row.getByRole("button", { name: /sil$/ }).click();
         await dialog(page)
           .getByRole("button", { name: "Takvimi Kaydet", exact: true })
           .click();
         await dialog(page).waitFor({ state: "hidden" });
-        state = await f.state();
+        const state = await f.state();
         for (const day of ["13", "14", "15"])
           assert.equal(state.workCalendar["2026-01-" + day], undefined);
         assert.equal(state.workCalendar["2026-01-08"].fraction, 0.5);
@@ -205,7 +187,7 @@ export async function checkCalendar(f) {
           await dialog(p).locator('[data-slot="dialog-description"]').count(),
           0,
         );
-        assert.equal(await personalAvailableHours(f), 184.5);
+        assert.equal(await personalAvailableHours(f), 175.5);
       },
     );
     await f.check(
@@ -268,7 +250,7 @@ export async function checkCalendar(f) {
         const month = await personalMonth(f);
         assert.equal(month.leaveHours, 4);
         assert.equal(month.trainingHours, 2);
-        assert.equal(await personalAvailableHours(f), 180.5);
+        assert.equal(await personalAvailableHours(f), 171.5);
         await dialog(p)
           .getByLabel(/(?:Ayrılış|Başlangıç) Tarihi/)
           .fill("2026-01-05");
@@ -287,7 +269,7 @@ export async function checkCalendar(f) {
           (await f.state()).personCalendar["r-own|2026-01-05|training"].hours,
           2,
         );
-        assert.equal(await personalAvailableHours(f), 180.5);
+        assert.equal(await personalAvailableHours(f), 171.5);
       },
     );
     await f.check(
@@ -429,7 +411,7 @@ export async function checkCalendar(f) {
           undefined,
         );
         await f.wait(
-          async () => (await personalAvailableHours(f)) === 153.5,
+          async () => (await personalAvailableHours(f)) === 144.5,
           "range monthly hours calculated",
         );
         await f.capture(p, "personal-calendar-range");
@@ -469,7 +451,7 @@ export async function checkCalendar(f) {
           "range edit settled",
         );
         await f.wait(
-          async () => (await personalAvailableHours(f)) === 171.5,
+          async () => (await personalAvailableHours(f)) === 162.5,
           "edited range monthly hours calculated",
         );
         await f.capture(p, "personal-calendar-grouped-range");
@@ -493,7 +475,7 @@ export async function checkCalendar(f) {
           "range removal settled",
         );
         await f.wait(
-          async () => (await personalAvailableHours(f)) === 180.5,
+          async () => (await personalAvailableHours(f)) === 171.5,
           "removed range monthly hours calculated",
         );
         await dialog(p)
@@ -513,13 +495,13 @@ export async function checkCalendar(f) {
           name: "Browser Employee / 2026-01 çalışılan saat",
           exact: true,
         });
-        assert.equal(await hours.inputValue(), "180,5");
+        assert.equal(await hours.inputValue(), "171,5");
         const total = p
           .locator(
             '.actual-cell-load[data-detail="Browser Employee · 2026-01 · projeler ve 2 saat eğitim"]',
           )
           .first();
-        assert.equal(await total.getAttribute("data-value"), "%1,11");
+        assert.equal(await total.getAttribute("data-value"), "%1,17");
         await amount.fill("100");
         await amount.press("Enter");
         await p
@@ -540,12 +522,12 @@ export async function checkCalendar(f) {
         assert(
           Math.abs(
             (await f.state()).actualAllocations["r-own|p-a|2026-01"] * 180 -
-              90.25,
+              85.75,
           ) < 1e-7,
         );
         await amount.click();
         await f.wait(
-          async () => (await total.getAttribute("data-value")) === "%51,11",
+          async () => (await total.getAttribute("data-value")) === "%51,17",
           "saved actual percent and training total rendered",
         );
         await hours.fill("80");

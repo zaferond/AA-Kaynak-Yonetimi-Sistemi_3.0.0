@@ -166,11 +166,10 @@ export async function checkResourceReports(f) {
             .boundingBox();
           const row = await actions.boundingBox();
           if (size.width === 1800) {
-            const density = await page.locator(".densitycontrol").boundingBox();
+            assert.equal(await page.locator(".densitycontrol").count(), 0);
             const exportButton = await page
               .getByRole("button", { name: "Kaynak Raporu İndir", exact: true })
               .boundingBox();
-            assert(option.x >= density.x + density.width);
             assert(option.x + option.width <= exportButton.x);
           }
           assert(option.x >= row.x - 1);

@@ -1,14 +1,8 @@
 import ProjectResponsible from "../../ProjectResponsible";
-import type { CSSProperties, Dispatch, SetStateAction } from "react";
-import { fullDateLabel } from "../../format";
-import {
-  milestoneRanges,
-  rangeNotes,
-  visibleMilestoneBarStyle,
-} from "../../milestone-ranges";
+import type { Dispatch, SetStateAction } from "react";
+import { visibleMilestoneBarStyle } from "../../milestone-ranges";
 import MilestoneDateEditor from "../../MilestoneDateEditor";
-import MilestoneDiamond from "../../MilestoneDiamond";
-import { phasePalette, type Data } from "../../model";
+import type { Data } from "../../model";
 import type { EditorFieldProps } from "./editor-field-props";
 type Props = EditorFieldProps<"milestone"> & {
   data: Data | null;
@@ -96,74 +90,6 @@ export default function MilestoneEditorFields({
           ))}
         </div>
       </fieldset>
-      <div className="timeline-live-preview">
-        <span>Takvim önizlemesi</span>
-        <div className="milestone-preview-list">
-          {editor.draftEmpty && (
-            <p className="milestone-preview-empty">
-              Kritik detay konu eklenmedi. Başlığı bu haliyle kaydedebilirsiniz.
-            </p>
-          )}
-          {(editor.draftEmpty ? [] : milestoneRanges(editor.value)).map(
-            (range, index) => {
-              const color =
-                phasePalette.find((c) => c.id === range.color) ||
-                phasePalette[3];
-              return (
-                <div key={index}>
-                  <small>
-                    {index + 1}.{" "}
-                    {range.displayKind === "milestone"
-                      ? "Milestone"
-                      : "Tarih Aralığı"}
-                  </small>
-                  {range.displayKind === "milestone" ? (
-                    <div className="milestone-point-preview">
-                      <MilestoneDiamond
-                        color={color.border}
-                        style={range.diamondStyle}
-                      />
-                      <strong>
-                        {rangeNotes(range)[0]?.text || editor.value.name}
-                      </strong>
-                      <small>{fullDateLabel(range.start)}</small>
-                    </div>
-                  ) : (
-                    <div
-                      className={
-                        "timeline-milestone-preview " +
-                        visibleMilestoneBarStyle(editor.value.barStyle)
-                      }
-                      style={
-                        {
-                          "--preview-color": color.border,
-                          "--preview-soft": color.bg,
-                          "--preview-ink": color.ink,
-                        } as CSSProperties
-                      }
-                    >
-                      <ul className="milestone-preview-notes">
-                        {(rangeNotes(range).filter((note) => note.text.trim())
-                          .length
-                          ? rangeNotes(range)
-                              .filter((note) => note.text.trim())
-                              .map((note) => note.text)
-                          : [editor.value.name || "Kritik Konu"]
-                        ).map((text, noteIndex) => (
-                          <li key={noteIndex}>{text}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              );
-            },
-          )}
-        </div>
-        <small>
-          Her açıklama ve renk kendi tarih aralığının barında gösterilir.
-        </small>
-      </div>
     </>
   );
 }

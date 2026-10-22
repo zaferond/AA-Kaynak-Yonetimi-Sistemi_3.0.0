@@ -21,7 +21,7 @@ export default function WorkCalendarDialog(props: WorkCalendarDialogProps) {
   const editor = useWorkCalendarEditor(props);
   const { year, setYear, draft, dirty, busy, error, save, requestOpenChange } =
     editor;
-  const { entries, personalEntries } = useWorkCalendarView({
+  const { entries, officialEntries, personalEntries } = useWorkCalendarView({
     data,
     resource,
     year,
@@ -59,8 +59,9 @@ export default function WorkCalendarDialog(props: WorkCalendarDialogProps) {
               ›
             </button>
             <span>
-              {mode === "shared" ? entries.length : personalEntries.length}{" "}
-              kayıt
+              {mode === "shared"
+                ? officialEntries.length + " resmi tatil"
+                : personalEntries.length + " kayıt"}
             </span>
           </div>
           {mode === "personal" && resource && (
@@ -81,17 +82,11 @@ export default function WorkCalendarDialog(props: WorkCalendarDialogProps) {
           )}
           {mode === "shared" && (
             <SharedCalendarSection
-              form={editor.sharedForm}
-              update={editor.updateShared}
+              official={officialEntries}
               entries={entries}
               canEdit={canEdit}
               busy={busy}
-              setSharedStart={editor.setSharedStart}
-              addDates={editor.addDates}
               removeDate={editor.removeDate}
-              editing={!!editor.editingShared}
-              editShared={editor.editShared}
-              cancelEdit={editor.cancelSharedEdit}
             />
           )}
         </div>
@@ -109,16 +104,18 @@ export default function WorkCalendarDialog(props: WorkCalendarDialogProps) {
           >
             Kapat
           </button>
-          {mode === "shared" && canEdit && (
-            <button
-              type="button"
-              className="button primary"
-              disabled={busy || !dirty || !!editor.editingShared}
-              onClick={() => void save()}
-            >
-              {busy ? "Kaydediliyor…" : "Takvimi Kaydet"}
-            </button>
-          )}
+          {mode === "shared" &&
+            canEdit &&
+            entries.length + Number(dirty) > 0 && (
+              <button
+                type="button"
+                className="button primary"
+                disabled={busy || !dirty || !!editor.editingShared}
+                onClick={() => void save()}
+              >
+                {busy ? "Kaydediliyor…" : "Takvimi Kaydet"}
+              </button>
+            )}
         </div>
       </DialogContent>
     </Dialog>

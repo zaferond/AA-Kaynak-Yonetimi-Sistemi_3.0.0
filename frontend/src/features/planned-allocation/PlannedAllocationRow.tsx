@@ -6,7 +6,6 @@ import { fmt, monthLabel } from "../../format";
 import Cell from "../../components/AllocationCell";
 import ProjectResponsible from "../../ProjectResponsible";
 import PlannedPhaseButton from "./PlannedPhaseButton";
-import { planDensity, planDensityTitle } from "./plan-density";
 import {
   actualRowsVisible,
   PlannedActualToggle,
@@ -88,10 +87,11 @@ export default function PlannedAllocationRow({
   cellSet: ReadonlySet<string>;
   managerName: string;
 }) {
-  const { view, months, data, cells, grid, onSaveAllocation, metric } = props;
+  const { view, months, data, cells, grid, onSaveAllocation } = props;
   const {
     planCellWritable,
     startPlanDrag,
+    focusPlanCell,
     openPlanMenu,
     firstSelectedPlanCell,
     fillSelectedPlanCells,
@@ -130,19 +130,19 @@ export default function PlannedAllocationRow({
           const k = t.id + "|" + p.id + "|" + m,
             disabled = m < p.start || m > p.end,
             editable = planCellWritable(k),
-            value = data?.allocations[k] || 0,
-            // Shade an entry by how much of the unit's capacity it uses.
-            capacity = value > 0 ? metric([t.id], m).current : 0;
+            value = data?.allocations[k] || 0;
           return (
             <TableCell
               key={m}
               data-plan-cell={k}
               data-current-month={m === props.currentMonth || undefined}
-              data-plan-density={
-                planDensity(value, capacity).level || undefined
-              }
-              title={planDensityTitle(value, capacity)}
               onPointerDown={(e) => startPlanDrag(e, k)}
+              // Tab lands here (its keyup fires on the new cell); programmatic
+              // focus after a refresh must not bring a cleared selection back.
+              onKeyUp={(e) => {
+                if (e.key === "Tab" && e.target instanceof HTMLInputElement)
+                  focusPlanCell(k);
+              }}
               onContextMenu={(e) => openPlanMenu(e, k)}
               className={
                 (view === "team" ? "allocation-with-work " : "") +

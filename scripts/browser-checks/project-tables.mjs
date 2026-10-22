@@ -185,7 +185,7 @@ export async function checkProjectTables(f) {
     await f.check(
       "actual: project headings replace each other while labels remain fixed horizontally",
       async () => {
-        await selectWorkspaceTab(page, "Aktivite Girişi");
+        await selectWorkspaceTab(page, "Aktivite Giriş");
         // One row per person keeps this synthetic table short; a lower
         // viewport still lets the next project heading reach the top.
         await page

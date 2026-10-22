@@ -9,6 +9,7 @@ import {
 import { createActualMonthIndex } from "../shared/actual-months.ts";
 import { assertActualMonthlyLimits } from "../shared/actual-limits.ts";
 import {
+  calendarHoursInMonth,
   effectivePersonHoursInMonth,
   trainingHoursInMonth,
   workdaysInMonth,
@@ -332,7 +333,7 @@ test("month index matches existing calendar rules across automatic/manual hours 
     );
     assert.equal(
       index.get("other", current).autoHours,
-      workdaysInMonth(current) * 9 - (current === month ? 13.5 : 0),
+      calendarHoursInMonth(current) - (current === month ? 13.5 : 0),
     );
   }
   assert.equal(index.get("r", month).trainingHours, 4.5);

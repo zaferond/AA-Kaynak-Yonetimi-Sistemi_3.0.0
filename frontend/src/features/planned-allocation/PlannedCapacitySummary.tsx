@@ -38,7 +38,9 @@ export default function PlannedCapacitySummary(
     >
       <summary>
         <span className="capacitystrip-action">
-          {showCapacity ? "Detay Raporu Kapat" : "Detay Raporu Aç"}
+          {showCapacity
+            ? "Kalan Kaynak Raporunu Kapat"
+            : "Kalan Kaynak Raporunu Aç"}
           <ChevronDown size={17} aria-hidden="true" />
         </span>
       </summary>

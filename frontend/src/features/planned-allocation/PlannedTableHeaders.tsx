@@ -23,7 +23,7 @@ export default function PlannedTableHeaders({
         ))}
       </colgroup>
       <TableHeader>
-        <TimelineYearRow years={years} />
+        <TimelineYearRow years={years} label="" />
         <TableRow>
           <TableHead>{label}</TableHead>
           {months.map((month) => (

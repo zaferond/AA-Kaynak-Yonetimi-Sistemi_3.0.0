@@ -93,7 +93,7 @@ export default function MonthGrid({
             })}
           </tr>
           <tr className="readonly progress-grid-topics">
-            <th scope="row">Kritik konular</th>
+            <th scope="row">Kritik Konular</th>
             <ProgressTopicCells
               project={project}
               months={months}
@@ -102,7 +102,7 @@ export default function MonthGrid({
             />
           </tr>
           <tr className="readonly">
-            <th scope="row">Planlanan kaynak (kişi-ay)</th>
+            <th scope="row">Planlanan Kaynak (Kişi/Ay)</th>
             {months.map((m) => (
               <td key={m} {...mark(m)}>
                 {planned?.[m] ? pctLabel(planned[m]) : "—"}

@@ -378,7 +378,7 @@ export async function checkAccess(f) {
         );
         await edit.getByRole("button", { name: "Vazgeç", exact: true }).click();
         const manager = await f.client("new-manager");
-        await selectWorkspaceTab(manager.page, "Aktivite Girişi");
+        await selectWorkspaceTab(manager.page, "Aktivite Giriş");
         await f.capture(manager.page, "access-manager-own-actual");
         await manager.page
           .locator(".person-allocation tbody tr")

@@ -51,5 +51,8 @@
   "workspace/technical-buttons.css",
   "workspace/technical-evaluation.css",
   "workspace/technical-forms.css",
-  "workspace/technical-projects.css"
+  "workspace/technical-projects.css",
+  "workspace/technical-scenario.css",
+  "workspace/technical-topic-editor.css",
+  "workspace/technical-directory.css"
 ]

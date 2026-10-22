@@ -98,31 +98,18 @@ export function buildScenarioWorkbook(
   const period = `${monthLabel(months[0])} – ${monthLabel(months.at(-1)!)}`;
   const summary = sheet(
     "Özet",
-    `Erteleme senaryosu karşılaştırması · ${period} · ${teams.length} takım`,
+    `Proje takvimi güncelleme karşılaştırması · ${period} · ${teams.length} takım`,
     [
-      ["", ...columns.map((c) => c.name)],
+      [
+        "",
+        ...columns.map((c) =>
+          c.key === "base" ? "Mevcut Bitiş Tarihi" : c.name,
+        ),
+      ],
       ...projects.map((p) => [
         p.name + " bitişi",
         ...columns.map((c) => monthLabel(c.projectEnds[p.id] || p.end)),
       ]),
-      [
-        "Toplam kaynak açığı (kişi-ay)",
-        ...columns.map((c) => c.summary.shortage),
-      ],
-      ["Açık olan ay sayısı", ...columns.map((c) => c.summary.shortageMonths)],
-      [
-        "En yüksek aylık açık",
-        ...columns.map((c) =>
-          c.summary.peak
-            ? `${c.summary.peak.value.toLocaleString("tr-TR")} · ${monthLabel(c.summary.peak.month)}`
-            : "Açık yok",
-        ),
-      ],
-      [
-        "Kaydırılan planlanan kayıt",
-        "—",
-        ...columns.slice(1).map((c) => c.moved),
-      ],
     ],
     [40, ...columns.map(() => 22)],
   );
@@ -174,7 +161,7 @@ export function buildScenarioWorkbook(
   return createWorkbook({
     sheets: [summary, ...detail],
     styles,
-    properties: { title: "Erteleme Senaryosu", creator: SYSTEM_NAME },
+    properties: { title: "Proje Takvimi Güncelle", creator: SYSTEM_NAME },
   });
 }
 
@@ -184,6 +171,6 @@ export function downloadScenarioWorkbook(
 ) {
   downloadWorkbook(
     buildScenarioWorkbook(data, comparison),
-    "erteleme-senaryosu.xlsx",
+    "proje-takvimi-guncelle.xlsx",
   );
 }

@@ -60,7 +60,7 @@ export default function TeamDirectory({
               </button>
               <button
                 type="button"
-                className="button primary"
+                className="button"
                 onClick={() => editor.open("team")}
               >
                 <Users size={15} /> Takımları Yönet

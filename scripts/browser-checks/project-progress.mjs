@@ -121,7 +121,7 @@ export async function checkProjectProgress(f) {
           await card.getByLabel(`${name} · başlangıç ayı`).count(),
           0,
         );
-        await card.getByLabel(`${name} · başlangıç %`).waitFor();
+        await target("Kas 2026").waitFor();
         assert.equal(
           await card.getByText(/ilk kaynak planlanan ay/).count(),
           0,
@@ -135,11 +135,12 @@ export async function checkProjectProgress(f) {
           0,
         );
         assert.equal(await card.locator(".progress-grid .opening").count(), 0);
-        // Targets start empty; the suggestion needs the opening value first.
+        // Targets start empty; the plan opens at 0 % in the first planned
+        // month, so the suggestion is available without an opening value.
         assert.equal(await target("Kas 2026").inputValue(), "");
+        assert.equal(await card.getByLabel(`${name} · başlangıç %`).count(), 0);
         const apply = card.getByRole("button", { name: "Önerileni Uygula" });
-        assert(await apply.isDisabled());
-        await card.getByLabel(`${name} · başlangıç %`).fill("0");
+        assert(await apply.isEnabled());
         const groupToggle = group.getByRole("button", {
           name: f.teamA.lead + " projeleri",
           exact: true,
@@ -149,10 +150,7 @@ export async function checkProjectProgress(f) {
         assert.equal(await card.isVisible(), false);
         await groupToggle.click();
         assert.equal(await groupToggle.getAttribute("aria-expanded"), "true");
-        assert.equal(
-          await card.getByLabel(`${name} · başlangıç %`).inputValue(),
-          "0",
-        );
+        assert.equal(await card.getByLabel(`${name} · başlangıç %`).count(), 0);
         await page
           .getByRole("switch", { name: "Liderlikleri Aç / Kapa", exact: true })
           .uncheck();
@@ -163,10 +161,7 @@ export async function checkProjectProgress(f) {
           .getByRole("switch", { name: "Liderlikleri Aç / Kapa", exact: true })
           .check();
         assert.equal(await otherCard.isVisible(), true);
-        assert.equal(
-          await card.getByLabel(`${name} · başlangıç %`).inputValue(),
-          "0",
-        );
+        assert.equal(await card.getByLabel(`${name} · başlangıç %`).count(), 0);
         await apply.click();
         // Opening 0 %, the remainder follows the planned resource (1 + 1).
         assert.equal(await target("Kas 2026").inputValue(), "66,7");
@@ -178,7 +173,7 @@ export async function checkProjectProgress(f) {
         assert.equal(await target("Kas 2026").inputValue(), "90");
         assert.equal(await target("Ara 2026").inputValue(), "100");
         const recommendation = card.getByRole("row", {
-          name: /^Önerilen hedef %/,
+          name: /^Önerilen Hedef %/,
         });
         await recommendation.getByText("90", { exact: true }).waitFor();
         await apply.click();
@@ -198,13 +193,12 @@ export async function checkProjectProgress(f) {
         );
         await page.reload();
         await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
-        await card.getByLabel(`${name} · başlangıç %`).waitFor();
+        await target("Kas 2026").waitFor();
         assert.equal(
           await card.locator(".progress-grid thead th").nth(1).textContent(),
           "Oca 26",
         );
         assert.equal(await target("Eki 2026").count(), 0);
-        await card.getByLabel(`${name} · başlangıç %`).fill("0");
         await apply.click();
         assert.equal(await target("Kas 2026").inputValue(), "50");
         // Done early: 100 % in November clears December, and the curve can
@@ -213,7 +207,7 @@ export async function checkProjectProgress(f) {
         assert.equal(await target("Ara 2026").inputValue(), "");
         assert(
           await card
-            .getByRole("button", { name: "Hedef Planını Onaya Gönder" })
+            .getByRole("button", { name: "Hedef Planı Onaya Gönder" })
             .isEnabled(),
         );
         await apply.click();
@@ -224,7 +218,7 @@ export async function checkProjectProgress(f) {
         await target("Ara 2026").fill("40");
         await card.getByText(/önceki hedeften küçük olamaz/).waitFor();
         const submit = card.getByRole("button", {
-          name: "Hedef Planını Onaya Gönder",
+          name: "Hedef Planı Onaya Gönder",
         });
         assert(await submit.isDisabled());
         await target("Ara 2026").fill("100");
@@ -252,7 +246,6 @@ export async function checkProjectProgress(f) {
             .count(),
           0,
         );
-        await otherCard.getByLabel(`${otherName} · başlangıç %`).fill("0");
         await otherCard.getByRole("button", { name: "Taslağı Kaydet" }).click();
         await otherCard.getByText("Hedef planı taslağı kaydedildi.").waitFor();
       },
@@ -282,8 +275,34 @@ export async function checkProjectProgress(f) {
           name,
         );
         const card = group.getByRole("region", { name, exact: true });
-        await card.getByRole("button", { name: "Hedef Planı Onayla" }).click();
-        await card.getByText("Hedef planı onaylandı.").waitFor();
+        // The waiting boxes count it; "Hedef Planların Tümünü Onayla" approves in one batch.
+        const strip = page.getByRole("group", {
+          name: "Bekleyen işler",
+          exact: true,
+        });
+        const approvalBox = strip.locator("label").filter({
+          hasText: "Hedef Plan Onay Bekleyen",
+        });
+        assert.equal(
+          (
+            await approvalBox.locator(".progress-waiting-count").textContent()
+          ).trim(),
+          "1",
+        );
+        // Nothing is selected yet, so nothing can be approved in bulk.
+        assert(
+          await strip
+            .getByRole("button", { name: "Hedef Planların Tümünü Onayla" })
+            .isDisabled(),
+        );
+        await approvalBox.locator("input").check();
+        assert.equal(await page.locator(".progress-card").count(), 1);
+        page.once("dialog", (dialog) => dialog.accept());
+        await strip
+          .getByRole("button", { name: "Hedef Planların Tümünü Onayla" })
+          .click();
+        await strip.getByText("1 hedef plan onaylandı.").waitFor();
+        await approvalBox.locator("input").uncheck();
         const record = (await f.state()).projectProgress.find(
           (r) => r.projectId === "p-a" && r.leader === f.teamA.lead,
         );
@@ -407,7 +426,7 @@ export async function checkProjectProgress(f) {
           .getByLabel(`${otherName} · açıklama`)
           .fill("Eylül sonu tamamlanma durumu");
         await otherCard
-          .getByRole("button", { name: "Gerçekleşeni Kaydet", exact: true })
+          .getByRole("button", { name: "Gerçekleşen % Gönder", exact: true })
           .click();
         await f.wait(
           async () =>
@@ -416,6 +435,19 @@ export async function checkProjectProgress(f) {
           "September actual saved",
         );
         await entryFilter.selectOption("entered");
+        // Entered for September and not locked yet: awaiting evaluation.
+        const evaluationBox = page
+          .getByRole("group", { name: "Bekleyen işler", exact: true })
+          .locator("label")
+          .filter({ hasText: "Eylül Ayı Değerlendirme Bekliyor" });
+        const evaluationCount = async () =>
+          (
+            await evaluationBox.locator(".progress-waiting-count").textContent()
+          ).trim();
+        assert.notEqual(await evaluationCount(), "0");
+        await evaluationBox.locator("input").check();
+        await otherCard.waitFor();
+        await evaluationBox.locator("input").uncheck();
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eyl 2026): Tamamlandı - Değişikliğe Açık",
@@ -429,11 +461,11 @@ export async function checkProjectProgress(f) {
         );
         const noteField = otherCard.getByLabel(`${otherName} · açıklama`);
         const reviseActual = otherCard.getByRole("button", {
-          name: "Gerçekleşen Oran Revize Et",
+          name: "Gerçekleşen % Revize Et",
           exact: true,
         });
         const saveActual = otherCard.getByRole("button", {
-          name: "Gerçekleşeni Kaydet",
+          name: "Gerçekleşen % Gönder",
           exact: true,
         });
         const cancelActual = otherCard.getByRole("button", {
@@ -452,7 +484,7 @@ export async function checkProjectProgress(f) {
         );
         await otherCard
           .getByRole("rowheader", {
-            name: "Gerçekleşen kaynak (kişi-ay)",
+            name: "Gerçekleşen Kaynak (Kişi/Ay)",
             exact: true,
           })
           .waitFor();
@@ -464,7 +496,7 @@ export async function checkProjectProgress(f) {
           await reviseActual.evaluate((button) =>
             button.previousElementSibling?.textContent.trim(),
           ),
-          "Hedef Planını Revize Et",
+          "Hedef Plan Revize Et",
         );
         await f.capture(page, "progress-saved-actual-readonly");
         await reviseActual.click();
@@ -576,19 +608,21 @@ export async function checkProjectProgress(f) {
           .click();
         await page
           .getByRole("button", {
-            name: "Eyl 2026 Ayını Değişikliğe Kapat",
+            name: "Eylül Ayını Kilitle",
             exact: true,
           })
           .click();
         await page
           .getByRole("button", {
-            name: "Eyl 2026 Ayını Değişikliğe Aç",
+            name: "Eylül Ayının Kilidini Aç",
             exact: true,
           })
           .waitFor();
         await page
           .getByRole("tab", { name: "Hedef Plan / Gerçekleşen Plan Giriş" })
           .click();
+        // Locked months are evaluated: nothing waits any more.
+        assert.equal(await evaluationCount(), "0");
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eyl 2026): Tamamlandı - Değişikliğe Kapalı",
@@ -622,14 +656,14 @@ export async function checkProjectProgress(f) {
         assert.equal(await noteField.count(), 0);
         assert.equal(
           await otherCard
-            .getByRole("button", { name: "Gerçekleşeni Kaydet", exact: true })
+            .getByRole("button", { name: "Gerçekleşen % Gönder", exact: true })
             .count(),
           0,
         );
         assert.equal(await reviseActual.count(), 0);
         assert.equal(await cancelActual.count(), 0);
         await otherCard
-          .getByRole("button", { name: "Hedef Planını Revize Et", exact: true })
+          .getByRole("button", { name: "Hedef Plan Revize Et", exact: true })
           .click();
         await otherCard
           .getByLabel(`${otherName} · revizyon gerekçesi`)
@@ -656,7 +690,7 @@ export async function checkProjectProgress(f) {
         await planFilter.selectOption("");
         await otherCard
           .getByRole("button", {
-            name: "Hedef Planını Onaya Gönder",
+            name: "Hedef Planı Onaya Gönder",
             exact: true,
           })
           .click();
@@ -706,13 +740,13 @@ export async function checkProjectProgress(f) {
           .click();
         await page
           .getByRole("button", {
-            name: "Eyl 2026 Ayını Değişikliğe Aç",
+            name: "Eylül Ayının Kilidini Aç",
             exact: true,
           })
           .click();
         await page
           .getByRole("button", {
-            name: "Eyl 2026 Ayını Değişikliğe Kapat",
+            name: "Eylül Ayını Kilitle",
             exact: true,
           })
           .waitFor();
@@ -753,13 +787,13 @@ export async function checkProjectProgress(f) {
           .click();
         await page
           .getByRole("button", {
-            name: "Eki 2026 Ayını Değişikliğe Kapat",
+            name: "Ekim Ayını Kilitle",
             exact: true,
           })
           .click();
         await page
           .getByRole("button", {
-            name: "Eki 2026 Ayını Değişikliğe Aç",
+            name: "Ekim Ayının Kilidini Aç",
             exact: true,
           })
           .waitFor();
@@ -789,13 +823,13 @@ export async function checkProjectProgress(f) {
           .click();
         await page
           .getByRole("button", {
-            name: "Eki 2026 Ayını Değişikliğe Aç",
+            name: "Ekim Ayının Kilidini Aç",
             exact: true,
           })
           .click();
         await page
           .getByRole("button", {
-            name: "Eki 2026 Ayını Değişikliğe Kapat",
+            name: "Ekim Ayını Kilitle",
             exact: true,
           })
           .waitFor();

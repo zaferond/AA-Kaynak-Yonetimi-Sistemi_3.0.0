@@ -1,4 +1,4 @@
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectWorkspaceView } from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 
@@ -32,8 +32,8 @@ export async function checkPlannedTeamFreeze(f) {
           (await page.locator(".capacitystrip").getAttribute("open")) === null
         )
           await page.locator(".capacitystrip > summary").click();
-        for (const view of ["Proje → Takımlar", "Takım → Projeler"]) {
-          await page.getByRole("tab", { name: view, exact: true }).click();
+        for (const view of ["Proje Bazlı", "Takım Bazlı"]) {
+          await selectWorkspaceView(page, view);
           for (const selector of [
             ".capacitystrip > [data-slot=table-container]",
             ".workspace-dock > [data-slot=table-container]",
@@ -98,9 +98,7 @@ export async function checkPlannedTeamFreeze(f) {
         }
       },
     );
-    await page
-      .getByRole("tab", { name: "Takım → Projeler", exact: true })
-      .click();
+    await selectWorkspaceView(page, "Takım Bazlı");
     const table = page.locator(
       ".workspace-dock > [data-slot=table-container] > .allocation-grid",
     );

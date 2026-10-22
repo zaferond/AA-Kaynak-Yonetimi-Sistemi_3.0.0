@@ -9,13 +9,19 @@ import {
 } from "../../../../shared/schedule-shift.ts";
 
 export type SavedScenarioAction =
-  "compare" | "approve" | "withdraw" | "apply" | "revert" | "delete";
+  | "compare"
+  | "uncompare"
+  | "approve"
+  | "withdraw"
+  | "apply"
+  | "revert"
+  | "delete";
 
 type Props = {
   data: Data;
   scenarios: SavedScenario[];
-  /** Scenarios already open as cards in the comparison. */
-  openIds: string[];
+  /** Saved scenarios shown in the comparison. */
+  comparedIds: string[];
   isAdmin: boolean;
   userId: string;
   busy: boolean;
@@ -39,7 +45,7 @@ const HISTORY: ScenarioStatus[] = ["reverted", "closed"];
 export default function SavedScenarioList({
   data,
   scenarios,
-  openIds,
+  comparedIds,
   isAdmin,
   userId,
   busy,
@@ -48,7 +54,6 @@ export default function SavedScenarioList({
 }: Props) {
   const [open, setOpen] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
-  if (!scenarios.length) return null;
   const projectName = (id: string) =>
     data.projects.find((p) => p.id === id)?.name || "Silinmiş proje";
   const counts = ORDER.map((status) => ({
@@ -130,7 +135,7 @@ export default function SavedScenarioList({
               (isAdmin ||
                 (s.createdBy === userId &&
                   (s.status === "draft" || s.status === "closed")));
-            const inComparison = openIds.includes(s.id);
+            const inComparison = comparedIds.includes(s.id);
             return (
               <li key={s.id} data-scenario-status={s.status}>
                 <div className="saved-scenario-main">
@@ -160,13 +165,9 @@ export default function SavedScenarioList({
                 </div>
                 <div className="saved-scenario-actions">
                   {(s.status === "draft" || s.status === "approved") &&
-                    (inComparison ? (
-                      <span className="saved-scenario-open">
-                        Karşılaştırmada
-                      </span>
-                    ) : (
-                      button("Karşılaştır", "compare", s)
-                    ))}
+                    (inComparison
+                      ? button("Karşılaştırmadan Çıkar", "uncompare", s)
+                      : button("Karşılaştır", "compare", s))}
                   {isAdmin &&
                     s.status === "draft" &&
                     button("Onayla", "approve", s, "primary")}
@@ -186,8 +187,9 @@ export default function SavedScenarioList({
           })}
           {!rows.length && (
             <li className="saved-scenarios-empty">
-              Açık senaryo yok. Kapatılan ve geri alınanlar için “Geçmişi
-              göster”i işaretleyin.
+              {scenarios.length
+                ? "Açık senaryo yok. Kapatılan ve geri alınanlar için “Geçmişi göster”i işaretleyin."
+                : "Henüz kayıtlı senaryo yok. Senaryo Ekleme bölümünde tanımlayıp “Ekle”ye basın."}
             </li>
           )}
         </ul>

@@ -29,7 +29,8 @@ export default function WorkspaceSectionHeader({
     <header className="workspace-section-header">
       <div className="workspace-section-heading">
         <h2>{title}</h2>
-        {actionsPlacement === "heading" && actions}
+        {/* Without view tabs the page actions join the heading. */}
+        {(actionsPlacement === "heading" || tabs.length < 2) && actions}
       </div>
       {tabs.length > 1 && (
         <div

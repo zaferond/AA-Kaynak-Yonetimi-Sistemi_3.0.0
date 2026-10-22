@@ -239,7 +239,9 @@ test("HTTP restore keeps revision conflict protection across deleted entries and
       fixture().projects[0],
       { ...fixture().projects[0], id: "q" },
     ];
-    invalid.actualAllocations = { "r|p|2026-01": 0.6, "r|q|2026-01": 0.6 };
+    // 60% of 171 effective hours: 180 manual less the 1 January holiday.
+    const share = (0.6 * 171) / 180;
+    invalid.actualAllocations = { "r|p|2026-01": share, "r|q|2026-01": share };
     invalid.actualPercentEntries = { "r|p|2026-01": 60, "r|q|2026-01": 60 };
     invalid.actualWorkedHours = { [hoursKey]: 180 };
     const rejected = await request(

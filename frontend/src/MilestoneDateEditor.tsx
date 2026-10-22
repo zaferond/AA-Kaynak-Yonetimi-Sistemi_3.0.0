@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import MilestoneDiamond from "./MilestoneDiamond";
 import type { CSSProperties } from "react";
 import { phasePalette } from "./model";
@@ -101,12 +101,6 @@ export default function MilestoneDateEditor({
   return (
     <fieldset className="milestone-ranges">
       <legend>Kritik Detay Konular</legend>
-      <p className="milestone-date-hint">
-        Her not için tarih aralığı veya tek tarihli Milestone seçebilirsiniz.
-        Detay açıklama tarihleri üstteki tarih aralığını otomatik belirler.
-        Üstteki tarih aralığı salt okunurdur; değişiklikleri detay notların
-        tarihlerinden yapabilirsiniz.
-      </p>
       {isEmpty && (
         <p className="milestone-range-empty">
           Henüz kritik detay konu eklenmedi. İlk konuyu aşağıdaki düğmeyle
@@ -118,7 +112,13 @@ export default function MilestoneDateEditor({
           const notes = rangeNotes(range);
           const point = range.displayKind === "milestone";
           return (
-            <div className="milestone-range-row" key={index}>
+            <div
+              className="milestone-range-row"
+              key={index}
+              // A range's dates follow its notes, so they are not edited here.
+              data-range-start={point ? undefined : range.start}
+              data-range-end={point ? undefined : range.end}
+            >
               <span className="milestone-range-number">{index + 1}</span>
               <div className="milestone-range-kind">
                 <span>Gösterim</span>
@@ -154,9 +154,8 @@ export default function MilestoneDateEditor({
                   </button>
                 </div>
               </div>
-              <div className="milestone-range-dates">
-                <strong>Açıklama</strong>
-                {point ? (
+              {point && (
+                <div className="milestone-range-dates">
                   <div className="milestone-range-date-card milestone-point-date-card">
                     <label>
                       Milestone Tarihi
@@ -175,41 +174,8 @@ export default function MilestoneDateEditor({
                       />
                     </label>
                   </div>
-                ) : (
-                  <div className="milestone-range-date-card">
-                    <label>
-                      Başlangıç Tarihi
-                      <input
-                        type="date"
-                        min={min}
-                        max={max}
-                        value={range.start}
-                        readOnly
-                        aria-label={`${index + 1}. üst açıklama başlangıç tarihi`}
-                        title="Detay notların başlangıç tarihlerinden hesaplanır."
-                      />
-                    </label>
-                    <span
-                      className="milestone-range-date-arrow"
-                      aria-hidden="true"
-                    >
-                      <ArrowRight size={16} />
-                    </span>
-                    <label>
-                      Bitiş Tarihi
-                      <input
-                        type="date"
-                        min={range.start || min}
-                        max={max}
-                        value={range.end}
-                        readOnly
-                        aria-label={`${index + 1}. üst açıklama bitiş tarihi`}
-                        title="Detay notların bitiş tarihlerinden hesaplanır."
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
               {point ? (
                 <div className="milestone-range-notes">
                   <label>

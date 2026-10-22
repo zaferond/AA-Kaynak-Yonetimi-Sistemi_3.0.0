@@ -7,6 +7,7 @@ type PlanningGrid = Pick<
   ReturnType<typeof usePlannedGrid>,
   | "planCellWritable"
   | "startPlanDrag"
+  | "focusPlanCell"
   | "openPlanMenu"
   | "firstSelectedPlanCell"
   | "fillSelectedPlanCells"

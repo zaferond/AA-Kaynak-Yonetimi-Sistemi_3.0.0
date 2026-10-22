@@ -1,0 +1,175 @@
+/* Technical theme for Organizasyon Yapısı: the two manager buttons are peer
+   actions, and the leadership/team dialogs use the same labels, fields,
+   ruled lists and neutral chips as the rest of the system. */
+html[data-theme="technical"] .directory-management-actions {
+  display: flex;
+  gap: 6px;
+}
+html[data-theme="technical"] .directory-management-actions .button svg {
+  color: var(--brand-primary);
+}
+
+html[data-theme="technical"] .directory-dialog [data-slot="dialog-title"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-text);
+  font-size: var(--fs-lg, 17px);
+  font-weight: 600;
+}
+html[data-theme="technical"] .directory-dialog [data-slot="dialog-title"] svg {
+  color: var(--brand-primary);
+}
+html[data-theme="technical"]
+  .directory-dialog
+  [data-slot="dialog-description"] {
+  color: var(--brand-muted);
+}
+
+/* Record list: a quiet column with a neutral counter. */
+html[data-theme="technical"] .directory-dialog .directory-manager-list {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: var(--tbl-head-bg, #f4f6f9);
+}
+html[data-theme="technical"] .directory-dialog .directory-manager-list-header {
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-list-header
+  span {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme="technical"] .directory-dialog .directory-manager-list input {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"] .directory-dialog .directory-new-button {
+  justify-content: center;
+  border-style: dashed;
+  background: #fff;
+  color: var(--brand-primary);
+}
+html[data-theme="technical"] .directory-dialog .directory-new-button:hover {
+  border-style: solid;
+  background: var(--btn-hover);
+}
+
+/* Details: plain field labels and a read-only manager field. */
+html[data-theme="technical"] .directory-dialog .directory-manager-details {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-details
+  legend {
+  color: var(--brand-text);
+  font-size: var(--fs-md, 15px);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-details
+  label {
+  color: var(--tbl-head-ink);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-details
+  :is(input, select) {
+  min-height: 34px;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-details
+  input.directory-derived-manager[readonly] {
+  border-color: var(--tbl-frame);
+  background: var(--tbl-head-bg, #f4f6f9);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .directory-dialog .directory-manager-details small,
+html[data-theme="technical"]
+  .directory-dialog
+  :is(.directory-teams, .directory-employees)
+  > p {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .directory-dialog .directory-manager-placeholder {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-manager-placeholder
+  :is(svg, strong) {
+  color: var(--brand-text);
+}
+
+/* Linked teams, leaderships and employees: one ruled white list. */
+html[data-theme="technical"]
+  .directory-dialog
+  :is(.directory-teams-heading, .directory-employees-heading)
+  strong {
+  color: var(--brand-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  :is(.directory-teams-heading, .directory-employees-heading)
+  span {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .directory-dialog
+  :is(.directory-teams, .directory-employees)
+  ul {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  :is(.directory-teams, .directory-employees)
+  li {
+  border: 0;
+  border-bottom: 1px solid var(--tbl-rule);
+  border-radius: 0;
+  background: #fff;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  .directory-teams
+  li[data-directory-kind="leader"] {
+  box-shadow: inset 3px 0 var(--brand-primary);
+}
+html[data-theme="technical"] .directory-dialog .directory-linked-type {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 3px;
+  background: var(--tbl-head-bg, #f4f6f9);
+  color: var(--brand-muted);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .directory-dialog
+  :is(
+    .directory-teams,
+    .directory-employees,
+    .directory-manager-form-actions,
+    .directory-manager-footer
+  ) {
+  border-color: var(--tbl-frame);
+}

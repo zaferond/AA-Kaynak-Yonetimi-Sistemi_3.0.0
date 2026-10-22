@@ -2,6 +2,7 @@ import type { Principal } from "../../access";
 import type { Project } from "../../model";
 import type { ProjectProgress } from "../../../../shared/project-progress.ts";
 import type { ProgressContext } from "./progress-view";
+import { isTopLeader } from "../../../../shared/project-progress.ts";
 
 export type ProgressItem = {
   project: Project;
@@ -10,13 +11,18 @@ export type ProgressItem = {
 };
 
 /**
- * Leaderships the user works for: an admin sees all of them, a leader those
- * granted in "Kaynak Planlama Yetkisi" (the same list the server checks).
+ * Top leaderships the user works for: target plan cards go to the top unit
+ * only, as in the leadership report. An admin sees all of them, a leader
+ * those granted in "Kaynak Planlama Yetkisi" (the same list the server checks).
  */
 export function progressLeaders(ctx: ProgressContext, user: Principal | null) {
-  if (user?.role === "admin") return ctx.data.leaders || [];
-  if (user?.role === "manager") return user.leaders;
-  return [];
+  const names =
+    user?.role === "admin"
+      ? ctx.data.leaders || []
+      : user?.role === "manager"
+        ? user.leaders
+        : [];
+  return names.filter((name) => isTopLeader(ctx.data, name));
 }
 
 /**

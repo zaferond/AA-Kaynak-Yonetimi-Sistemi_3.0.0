@@ -214,7 +214,7 @@ export async function checkEntityEditors(f) {
           ]),
         );
         c = await f.client("employee");
-        await selectWorkspaceTab(c.page, "Aktivite Girişi");
+        await selectWorkspaceTab(c.page, "Aktivite Giriş");
         await c.page
           .getByRole("textbox", {
             name: "Browser Employee / Browser Project A / 2026-01 / %",

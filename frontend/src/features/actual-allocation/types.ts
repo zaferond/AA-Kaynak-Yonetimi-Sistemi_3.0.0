@@ -3,6 +3,8 @@ import type { ActualEntry } from "../actual-allocation-commands";
 
 export type PersonAllocationPanelProps = {
   layout: import("./useActualAllocationView").ActualLayout;
+  /** Entry unit, chosen in the page heading next to "Görünüm". */
+  unit: import("../../actual-units").ActualUnit;
   data: Data;
   loading?: boolean;
   user: import("../../access").Principal;

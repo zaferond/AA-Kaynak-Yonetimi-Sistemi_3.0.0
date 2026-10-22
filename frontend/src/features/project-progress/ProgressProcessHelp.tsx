@@ -49,10 +49,10 @@ export default function ProgressProcessHelp() {
         “Tamamlandı”, seçili ayın gerçekleşen girişinin kaydedildiğini belirtir.
         Kaydettikten sonra gerçekleşen oranı salt okunur gösterilir, açıklama
         alanı gizlenir. Kayıtlı açıklama korunur. Ay değişikliğe açıkken
-        “Gerçekleşen Oran Revize Et” düğmesiyle ikisini de düzenleyip
-        “Gerçekleşeni Kaydet” ile yeniden kaydedebilirsiniz. “Gerçekleşen
-        Revizyonunu İptal Et” son kaydedilen değerleri geri getirir. Ay
-        kilitlendiğinde revizyon yapılamaz.
+        “Gerçekleşen % Revize Et” düğmesiyle ikisini de düzenleyip “Gerçekleşen
+        % Gönder” ile yeniden kaydedebilirsiniz. “Gerçekleşen Revizyonunu İptal
+        Et” son kaydedilen değerleri geri getirir. Ay kilitlendiğinde revizyon
+        yapılamaz.
       </p>
       <div className="progress-process-columns">
         <div>

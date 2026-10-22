@@ -35,7 +35,8 @@ test("shared holidays and personal hourly absences reduce only available weekday
     204,
   );
   assert.equal(personHoursInMonth("2026-09", "b", shared, personal), 184.5);
-  assert.equal(calendarHoursInMonth("2028-02"), 189);
+  // 21 weekdays less the official 28 Feb Ramazan Bayramı and its half-day arife.
+  assert.equal(calendarHoursInMonth("2028-02"), 175.5);
 });
 
 test("default monthly capacity is four 45-hour weeks", () => {

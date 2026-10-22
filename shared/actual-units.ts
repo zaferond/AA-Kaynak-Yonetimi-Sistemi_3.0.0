@@ -1,3 +1,4 @@
+import { OFFICIAL_HOLIDAYS } from "./official-holidays.ts";
 export type ActualUnit = "percent" | "days" | "hours";
 export const HOURS_PER_WORKDAY = 9;
 export const DEFAULT_MONTHLY_HOURS = 180;
@@ -63,7 +64,10 @@ export function workingHoursOnDate(
 ): number {
   const weekday = new Date(date + "T12:00:00Z").getUTCDay();
   if (weekday === 0 || weekday === 6) return 0;
-  return HOURS_PER_WORKDAY * (1 - (calendar[date]?.fraction || 0));
+  // Built-in official holidays apply unless the shared calendar marks the
+  // date itself.
+  const marked = calendar[date] ?? OFFICIAL_HOLIDAYS[date];
+  return HOURS_PER_WORKDAY * (1 - (marked?.fraction || 0));
 }
 
 /** Weekends never contribute hours; marked weekdays subtract full or half days. */

@@ -1,5 +1,9 @@
 import { fail } from "./auth.mjs";
 import { scheduleScenarioSchema } from "../shared/snapshot-schema.ts";
+import {
+  duplicateScenario,
+  DUPLICATE_SCENARIO_MESSAGE,
+} from "../shared/schedule-shift.ts";
 
 // Allowed status moves; content edits only while a scenario is a draft.
 const transitions = {
@@ -62,6 +66,8 @@ export function stageScenarioChange(
   const from = existing?.status || "draft";
   if (!existing && next.status !== "draft")
     fail(400, "Yeni senaryo taslak olarak kaydedilir.");
+  if (!existing && duplicateScenario(next, d.scheduleScenarios))
+    fail(409, DUPLICATE_SCENARIO_MESSAGE);
   if (!transitions[from].includes(next.status))
     fail(409, "Senaryo bu duruma geçirilemez.");
   if (next.status !== from && !admin)

@@ -12,7 +12,7 @@ export async function checkActualSaveFocus(f) {
       exact: true,
     });
   try {
-    await selectWorkspaceTab(page, "Aktivite Girişi");
+    await selectWorkspaceTab(page, "Aktivite Giriş");
     await f.check(
       "actual: Tab after a save keeps focus on the next cell and the saved value stays",
       async () => {

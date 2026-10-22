@@ -129,7 +129,7 @@ export async function checkActivityReport(f) {
       .fill("2026-01");
     await page.locator(".planning-filterbar .period select").selectOption("12");
     await f.check(
-      "activity report: tab placement, planned filters and compact left-aligned unit control",
+      "activity report: tab placement, planned filters and Görünüm at the right above the filters",
       async () => {
         // The closed main menu still lists the tabs.
         const tabs = await page
@@ -137,7 +137,7 @@ export async function checkActivityReport(f) {
           .getByRole("tab", { includeHidden: true })
           .allTextContents();
         assert.equal(
-          tabs[tabs.findIndex((t) => t === "Aktivite Girişi") + 1],
+          tabs[tabs.findIndex((t) => t === "Aktivite Giriş") + 1],
           "Aktivite Raporu",
         );
         for (const label of ["Liderlik", "Takım", "Proje"])
@@ -152,12 +152,16 @@ export async function checkActivityReport(f) {
           0,
         );
         assert.equal(await page.locator(".reports-filter-summary").count(), 0);
-        const toolbar = page.locator(".activity-toolbar");
-        assert.equal(await toolbar.locator(":scope > div").count(), 0);
-        const row = await toolbar.boundingBox();
-        const unit = await toolbar.locator("label").boundingBox();
-        assert(unit.x - row.x < 15);
-        assert.match(await toolbar.innerText(), /Görünüm/);
+        // The unit sits as "Görünüm" at the right of the heading, above the
+        // filter row.
+        assert.equal(await page.locator(".activity-toolbar").count(), 0);
+        const unit = await page
+          .locator(".workspace-nav-actions")
+          .getByLabel("Aktivite raporu birimi")
+          .boundingBox();
+        const filters = await page.locator(".planning-filterbar").boundingBox();
+        assert(unit.y + unit.height <= filters.y);
+        assert(unit.x + unit.width > filters.x + filters.width - 40);
       },
     );
     await f.check(
@@ -207,7 +211,8 @@ export async function checkActivityReport(f) {
       async () => {
         assert.equal(
           await cell(ids[0], "2026-01").locator("strong").innerText(),
-          "%76,19",
+          // 144 hours of 180 available: 22 weekdays less 1 January and the leave day.
+          "%80",
         );
         await page.getByLabel("Aktivite raporu birimi").selectOption("hours");
         assert.equal(

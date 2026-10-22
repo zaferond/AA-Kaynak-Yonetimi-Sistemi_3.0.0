@@ -61,7 +61,7 @@ export async function measureTabTransitions(page, cycles = 2) {
       ".workspace-dock > [data-slot=table-container] > .allocation-grid",
     ],
     ["Projeler", ".projectmatrix"],
-    ["Aktivite Girişi", ".person-allocation .allocation-grid"],
+    ["Aktivite Giriş", ".person-allocation .allocation-grid"],
     ["Aktivite Raporu", ".activity-matrix"],
     ["Haftalık Kritik Konular", ".project-info-report"],
     ["Raporlar", ".remaining-report"],
@@ -154,7 +154,7 @@ export async function checkTabTransitions(f) {
       async () => {
         const results = await measureTabTransitions(page);
         for (const result of results)
-          if (["Kaynak Planlama", "Aktivite Girişi"].includes(result.tab)) {
+          if (["Kaynak Planlama", "Aktivite Giriş"].includes(result.tab)) {
             assert(
               result.inputs > 0 && result.inputs < 1000,
               JSON.stringify(result),
@@ -209,7 +209,7 @@ export async function checkTabTransitions(f) {
       "windowed actuals: failed draft stays mounted while scrolling; every row is reachable in one table without pages",
       async () => {
         await page.goto(f.origin);
-        await selectWorkspaceTab(page, "Aktivite Girişi");
+        await selectWorkspaceTab(page, "Aktivite Giriş");
         const table = page.locator(".person-allocation .allocation-grid");
         const input = table
           .locator(".person-amount input:not(:disabled)")

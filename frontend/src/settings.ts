@@ -8,7 +8,7 @@ export const TAB_LABELS = {
   projects: "Projeler",
   risk: "Risk Yönetimi",
   resources: "Organizasyon & Çalışan & Yetki",
-  actual: "Aktivite Girişi",
+  actual: "Aktivite Giriş",
   activity: "Aktivite Raporu",
   critical: "Haftalık Kritik Konular",
   overview: "Raporlar",

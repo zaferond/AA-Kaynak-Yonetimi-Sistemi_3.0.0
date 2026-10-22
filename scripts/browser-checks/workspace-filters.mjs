@@ -3,6 +3,7 @@ import {
   selectWorkspaceTab,
   openUserMenu,
   revealTableItem,
+  selectWorkspaceView,
 } from "./fixture.mjs";
 import { applyChanges } from "../../backend/operations.mjs";
 import { buildCapacityIndex } from "../../shared/metrics.ts";
@@ -117,12 +118,8 @@ export async function checkWorkspaceFilters(f) {
         await cell.waitFor();
         assert.equal(await startInput(page).inputValue(), "2026-03");
         assert.equal(await periodInput(page).inputValue(), "24");
-        assert.equal(
-          await page
-            .getByLabel("Takvim yoğunluğu", { exact: true })
-            .inputValue(),
-          "compact",
-        );
+        // Kaynak Planlama is always compact, whatever the URL says.
+        assert.equal(await page.locator(".app.dense-compact").count(), 1);
         assert.equal(
           await page.locator('[data-plan-cell^="' + f.teamB.id + '|"]').count(),
           0,
@@ -135,9 +132,7 @@ export async function checkWorkspaceFilters(f) {
           "period clears selection",
         );
         await entry.click();
-        await page
-          .getByRole("tab", { name: "Proje → Takımlar", exact: true })
-          .click();
+        await selectWorkspaceView(page, "Proje Bazlı");
         await f.wait(
           async () => (await selectedCells(page).count()) === 0,
           "view clears selection",
@@ -154,12 +149,7 @@ export async function checkWorkspaceFilters(f) {
         );
         assert.equal(await startInput(page).inputValue(), "2026-01");
         assert.equal(await periodInput(page).inputValue(), "12");
-        assert.equal(
-          await page
-            .getByLabel("Takvim yoğunluğu", { exact: true })
-            .inputValue(),
-          "detail",
-        );
+        assert.equal(await page.locator(".app.dense-compact").count(), 1);
         const reset = new URL(page.url()).searchParams;
         for (const key of ["lead", "team", "project"])
           assert.deepEqual(reset.getAll(key), []);
@@ -198,9 +188,7 @@ export async function checkWorkspaceFilters(f) {
             .getAttribute("data-project-heading"),
           "p-b",
         );
-        await page
-          .getByRole("tab", { name: "Takım → Projeler", exact: true })
-          .click();
+        await selectWorkspaceView(page, "Takım Bazlı");
         assert.equal(
           await page
             .locator("table.planning-grid")

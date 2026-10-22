@@ -1,0 +1,223 @@
+/* Technical theme for Proje Takvimi Güncelle. Each scenario is one full-width
+   row: its name and actions on the left, the shifted projects on the right.
+   The comparison grows with its content; only the month tables scroll
+   sideways, so no table is cut at the bottom. */
+html[data-theme="technical"]
+  :is(.app .schedule-scenario-page, .schedule-scenario-dialog)
+  .schedule-scenario-cards {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+html[data-theme="technical"] .schedule-scenario-card {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--tbl-frame);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 6px;
+  background: #fff;
+}
+/* Proje · Ay · Başlangıç Ayı · Senaryo · actions on one line; extra
+   projects repeat the first three fields under it. */
+html[data-theme="technical"] .schedule-shift-row {
+  /* Fixed tracks keep every project line aligned under the first one. */
+  grid-template-columns: minmax(200px, 1fr) 110px 190px 230px 250px;
+  align-items: center;
+  gap: 6px 16px;
+}
+html[data-theme="technical"] .schedule-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+html[data-theme="technical"] .schedule-field > span {
+  flex: none;
+  color: var(--tbl-head-ink);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+html[data-theme="technical"] .schedule-shift-row :is(select, input) {
+  flex: 1;
+  height: 32px;
+  min-height: 32px;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"] .schedule-field-name input {
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-card-buttons {
+  display: flex;
+  gap: 6px;
+}
+html[data-theme="technical"] .schedule-card-buttons .button {
+  min-height: 32px;
+  padding: 0 10px;
+}
+html[data-theme="technical"] .schedule-shift-remove {
+  justify-self: start;
+}
+html[data-theme="technical"] .schedule-scenario-card .icon-button {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-card
+  .icon-button:hover:not(:disabled) {
+  border-color: var(--btn-border-hover);
+  background: var(--btn-hover);
+  color: var(--brand-text);
+}
+/* "+ Proje Ekle" first, then the timeline option and the saved status. */
+html[data-theme="technical"] .schedule-card-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  font-size: var(--fs-xs);
+}
+html[data-theme="technical"] .schedule-card-options .textbutton {
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-timeline-option {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .schedule-card-status {
+  margin-left: auto;
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .schedule-scenario-card > .negative {
+  margin: 0;
+}
+@media (max-width: 1100px) {
+  html[data-theme="technical"] .schedule-shift-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+html[data-theme="technical"] .schedule-scenario-add {
+  min-height: 40px;
+  border-color: var(--btn-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--brand-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-scenario-add:hover {
+  border-color: var(--btn-border-hover);
+  background: var(--btn-hover);
+}
+html[data-theme="technical"] .schedule-scenario-empty {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* Comparison: no inner vertical scroll. */
+html[data-theme="technical"] .app .schedule-scenario-page .schedule-comparison {
+  overflow: visible;
+}
+html[data-theme="technical"] .schedule-impact-wrap {
+  overflow-x: auto;
+  overflow-y: visible;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"] .schedule-impact-block h4 {
+  margin: 8px 0 6px;
+  color: var(--brand-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  :is(.schedule-summary-table, .schedule-impact-table)
+  tbody
+  th {
+  background: #fff;
+  /* The shared header colour in military-theme.css is important. */
+  color: var(--brand-text) !important;
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-summary-table {
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+}
+/* Better and worse are told by the figure's colour alone, on the table's
+   own white ground: green improves, red worsens. */
+html[data-theme="technical"]
+  :is(.schedule-summary-table, .schedule-impact-table)
+  td:is(.is-better, .is-worse) {
+  background: #fff;
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  :is(.schedule-summary-table, .schedule-impact-table)
+  td.is-better {
+  color: #087f4a;
+}
+html[data-theme="technical"]
+  :is(.schedule-summary-table, .schedule-impact-table)
+  td.is-worse {
+  color: #c62828;
+}
+html[data-theme="technical"] .schedule-impact-legend i {
+  width: 8px;
+  height: 8px;
+  margin-bottom: 0;
+  border: 0;
+  border-radius: 50%;
+}
+html[data-theme="technical"] .schedule-impact-legend i.is-better {
+  background: #087f4a;
+}
+html[data-theme="technical"] .schedule-impact-legend i.is-worse {
+  background: #c62828;
+}
+html[data-theme="technical"]
+  .schedule-scenario-dialog
+  .schedule-impact-table
+  .schedule-impact-total
+  :is(th, td) {
+  box-shadow: inset 0 2px var(--tbl-total-rule);
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-scenario-actions {
+  border-top-color: var(--tbl-rule);
+}
+
+/* Raporlar: the scenario bar's two actions sit at its right end. */
+html[data-theme="technical"] .app .scenario-report-bar {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+}
+html[data-theme="technical"] .app .scenario-report-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* "Senaryo Ekleme" above the cards reads like the "Kayıtlı Senaryolar"
+   heading below them. */
+html[data-theme="technical"] .schedule-section-title {
+  margin: 0;
+  color: var(--brand-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .schedule-scenario-card
+  > .schedule-card-duplicate {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+html[data-theme="technical"] .schedule-impact-empty {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+}

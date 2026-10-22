@@ -839,11 +839,12 @@
   background: #fbe9e7;
   color: var(--progress-red);
 }
+/* The month's note spans the row; its month is named in the placeholder. */
 .project-progress .progress-card-noteinput {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 360px;
+  flex: 1 1 100%;
   color: var(--brand-muted, #60715e);
   font-size: var(--fs-xs);
   font-weight: 650;
@@ -1040,7 +1041,8 @@
 .project-progress .progress-monthly-matrix .progress-matrix-assessment,
 .project-progress .progress-monthly-matrix .progress-matrix-name {
   position: sticky;
-  left: 220px;
+  /* Right after the 150px evaluation column. */
+  left: 150px;
   z-index: 2;
   background: #f1f5eb;
   white-space: normal;

@@ -340,7 +340,7 @@ export function actualAllocationWorkbook(
   );
   return workbook({
     name: "Gerçekleşen Dağılım",
-    title: "AA Mühendislik | Aktivite Girişi",
+    title: "AA Mühendislik | Aktivite Giriş",
     unit: "Aylık kaynak yüzdesi",
     headers: ["Liderlik", "Takım(lar)", "Proje", "Çalışan"],
     months,

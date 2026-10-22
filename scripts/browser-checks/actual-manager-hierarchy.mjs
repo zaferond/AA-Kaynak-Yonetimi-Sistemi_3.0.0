@@ -97,7 +97,7 @@ export async function checkActualManagerHierarchy(f) {
       exact: true,
     });
   try {
-    await selectWorkspaceTab(page, "Aktivite Girişi");
+    await selectWorkspaceTab(page, "Aktivite Giriş");
     await page.locator("#actual-entry-unit").selectOption("hours");
     for (const url of ["/api/data", "/api/actual-view?start=2026-01&count=1"]) {
       const response = await context.request.get(f.origin + url);
@@ -163,7 +163,7 @@ export async function checkActualManagerHierarchy(f) {
           "descendant existing hours updated",
         );
         await page.reload();
-        await selectWorkspaceTab(page, "Aktivite Girişi");
+        await selectWorkspaceTab(page, "Aktivite Giriş");
         await page.locator("#actual-entry-unit").selectOption("hours");
         await f.wait(
           async () => (await amount("QA Grand Member").inputValue()) === "18",
@@ -232,7 +232,7 @@ export async function checkActualManagerHierarchy(f) {
         assert.deepEqual(after.personCalendar, before.personCalendar);
         const admin = await f.client("root-admin");
         try {
-          await selectWorkspaceTab(admin.page, "Aktivite Girişi");
+          await selectWorkspaceTab(admin.page, "Aktivite Giriş");
           assert(
             (await admin.page
               .getByRole("button", {

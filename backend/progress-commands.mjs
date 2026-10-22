@@ -9,7 +9,8 @@ import {
   resourcePlanStart,
   previousMonth,
   alignPlanStart,
-  leaderResourceByMonth,
+  isTopLeader,
+  topLeaderResourceByMonth,
 } from "../shared/project-progress.ts";
 import { currentPlanningDate } from "../shared/resource-dates.ts";
 
@@ -77,6 +78,8 @@ export function stageProgressChange(
   } else {
     if (!(d.leaders || []).includes(next.leader))
       fail(404, "Liderlik bulunamadı.");
+    if (!isTopLeader(d, next.leader))
+      fail(400, "Hedef plan yalnız en üst liderlik için girilir.");
     if (next.baselines.length || Object.keys(next.actuals).length)
       fail(400, "Yeni ilerleme kaydı temel plan önerisiyle başlar.");
   }
@@ -90,7 +93,7 @@ export function stageProgressChange(
   const before = existing?.proposal;
   const start = resourcePlanStart(
     project,
-    leaderResourceByMonth(d.teams, d.allocations || {}, project.id).get(
+    topLeaderResourceByMonth(d, d.allocations || {}, project.id).get(
       next.leader,
     ),
   );
@@ -130,7 +133,7 @@ export function stageProgressChange(
         approvedAt: at,
         resourceReference: {
           resourceTotal: Object.entries(
-            leaderResourceByMonth(d.teams, d.allocations || {}, project.id).get(
+            topLeaderResourceByMonth(d, d.allocations || {}, project.id).get(
               next.leader,
             ) || {},
           ).reduce(

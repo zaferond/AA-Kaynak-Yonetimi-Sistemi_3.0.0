@@ -1,5 +1,9 @@
 // Frozen pre-optimization personMonthHours calculation from b977f1a.
 // Test-only oracle. Do not use in production or silently update with the implementation.
+// Rule change (2026-10-22): built-in official holidays apply to dates the
+// shared calendar does not mark; that is the only update to this oracle.
+import { OFFICIAL_HOLIDAYS } from "../shared/official-holidays.ts";
+
 export function referencePersonMonthHours(
   month,
   resourceId,
@@ -19,7 +23,8 @@ export function referencePersonMonthHours(
     const available =
       weekday === 0 || weekday === 6
         ? 0
-        : 9 * (1 - (calendar[date]?.fraction || 0));
+        : 9 *
+          (1 - ((calendar[date] ?? OFFICIAL_HOLIDAYS[date])?.fraction || 0));
     baseHours += available;
     const key = resourceId + "|" + date;
     const entries = [

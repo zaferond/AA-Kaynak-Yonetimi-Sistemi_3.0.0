@@ -79,12 +79,12 @@ export async function checkMilestoneParentDates(f) {
       name: "Başlık Düzenle",
       exact: true,
     });
-    const start = dialog.getByLabel("1. üst açıklama başlangıç tarihi", {
-      exact: true,
-    });
-    const end = dialog.getByLabel("1. üst açıklama bitiş tarihi", {
-      exact: true,
-    });
+    // The parent range is not shown: the row carries it, derived from notes.
+    const range = dialog.locator(".milestone-range-row").first();
+    const start = {
+      inputValue: () => range.getAttribute("data-range-start"),
+    };
+    const end = { inputValue: () => range.getAttribute("data-range-end") };
     const noteStart = dialog.getByLabel("1.1 açıklama başlangıç tarihi", {
       exact: true,
     });
@@ -92,14 +92,12 @@ export async function checkMilestoneParentDates(f) {
       exact: true,
     });
     await f.check(
-      "projects: parent date range is read-only and follows earliest/latest detail dates in both directions",
+      "projects: parent date range is hidden and follows earliest/latest detail dates in both directions",
       async () => {
-        for (const input of [start, end]) {
-          assert.equal(await input.evaluate((el) => el.readOnly), true);
-          const before = await input.inputValue();
-          await input.press("ArrowUp");
-          assert.equal(await input.inputValue(), before);
-        }
+        assert.equal(
+          await dialog.getByLabel("1. üst açıklama başlangıç tarihi").count(),
+          0,
+        );
         await noteStart.fill("2026-03-03");
         assert.equal(await start.inputValue(), "2026-03-03");
         await noteEnd.fill("2026-03-25");

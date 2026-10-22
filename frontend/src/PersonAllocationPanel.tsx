@@ -38,8 +38,8 @@ export default function PersonAllocationPanel(
     ownResourceId,
     onSaved,
     layout,
+    unit,
   } = props;
-  const [unit, setUnit] = useState<ActualUnit>("percent");
   const [phaseDetail, setPhaseDetail] = useState<ActualPhaseDetail | null>(
     null,
   );
@@ -147,7 +147,6 @@ export default function PersonAllocationPanel(
       <ActualAllocationControls
         data={data}
         unit={unit}
-        onUnitChange={setUnit}
         selectedHoursPerson={selectedHoursPerson}
         selectedHoursMonth={selectedHoursMonth}
         actualMonths={actualMonths}

@@ -316,7 +316,7 @@ export async function checkTransportRecovery(report) {
       ]),
     );
     const actual = await f.client("employee");
-    await selectWorkspaceTab(actual.page, "Aktivite Girişi");
+    await selectWorkspaceTab(actual.page, "Aktivite Giriş");
     const actualInput = actual.page.getByRole("textbox", {
       name: "Browser Employee / Browser Project A / 2026-01 / %",
       exact: true,
@@ -400,7 +400,7 @@ export async function checkTransportRecovery(report) {
       },
     );
     await actual.page.reload();
-    await selectWorkspaceTab(actual.page, "Aktivite Girişi");
+    await selectWorkspaceTab(actual.page, "Aktivite Giriş");
     await actualInput.click();
     const hoursInput = actual.page.getByRole("textbox", {
       name: "Browser Employee / 2026-01 çalışılan saat",

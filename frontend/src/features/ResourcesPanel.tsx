@@ -23,7 +23,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { Info, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowUpFromLine, Info, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -122,8 +122,16 @@ export default function ResourcesPanel({
               notify(value.trim() ? employeeSearchField(data, value) : "reset");
             }}
           />
-          <button className="button" onClick={() => setShowImport((v) => !v)}>
-            Excel İçe Aktar
+          {/* The upload counterpart of the download buttons: an up arrow. */}
+          <button
+            type="button"
+            className="button report-download-button"
+            aria-label="Excel İçe Aktar"
+            title="Excel İçe Aktar"
+            aria-expanded={showImport}
+            onClick={() => setShowImport((v) => !v)}
+          >
+            <ArrowUpFromLine size={17} aria-hidden="true" />
           </button>
           <button className="button" disabled={busy} onClick={access.onAudit}>
             Değişiklik Geçmişi

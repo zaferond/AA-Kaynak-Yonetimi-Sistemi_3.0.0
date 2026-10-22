@@ -1,9 +1,10 @@
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectWorkspaceView } from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 
-// "Kişi → Proje" (the default actual layout): a person row with month totals,
-// then all visible projects, including empty rows for new entries.
+// "Kişi Bazlı" layout: a person row with month totals, then all visible
+// projects, including empty rows for new entries. The screen opens in
+// "Proje Bazlı"; the person layout is one choice away.
 export async function checkActualPersonLayout(f) {
   await f.store.mutate(f.actor, (data, actor) =>
     applyChanges(data, actor, [
@@ -24,16 +25,15 @@ export async function checkActualPersonLayout(f) {
       exact: true,
     });
   try {
-    await selectWorkspaceTab(page, "Aktivite Girişi");
+    await selectWorkspaceTab(page, "Aktivite Giriş");
     await f.check(
-      "actual person layout: default view opens all visible projects under each person",
+      "actual person layout: opens in Proje Bazlı; Kişi Bazlı lists all visible projects under each person",
       async () => {
         assert.equal(
-          await page
-            .getByRole("tab", { name: "Kişi → Proje", exact: true })
-            .getAttribute("aria-selected"),
-          "true",
+          await page.getByLabel("Görünüm", { exact: true }).inputValue(),
+          "project",
         );
+        await selectWorkspaceView(page, "Kişi Bazlı");
         await page.getByLabel("Kişi ara").fill("browser employee");
         await heading().waitFor();
         assert.equal(await projectRow("p-a").count(), 1);
@@ -87,18 +87,17 @@ export async function checkActualPersonLayout(f) {
     await f.check(
       "actual person layout: the chosen layout is remembered after a reload",
       async () => {
-        await page
-          .getByRole("tab", { name: "Proje → Kişi", exact: true })
-          .click();
-        await page.locator('[data-project-group="p-a"]').first().waitFor();
+        // Kişi Bazlı is not the default, so it proves the choice is kept.
+        await selectWorkspaceView(page, "Kişi Bazlı");
         await page.reload();
-        await selectWorkspaceTab(page, "Aktivite Girişi");
-        await page.locator('[data-project-group="p-a"]').first().waitFor();
+        await selectWorkspaceTab(page, "Aktivite Giriş");
+        await page
+          .locator('[data-project-group="person:r-own"]')
+          .first()
+          .waitFor();
         assert.equal(
-          await page
-            .getByRole("tab", { name: "Proje → Kişi", exact: true })
-            .getAttribute("aria-selected"),
-          "true",
+          await page.getByLabel("Görünüm", { exact: true }).inputValue(),
+          "person",
         );
       },
     );

@@ -4,6 +4,7 @@ import {
   scenarioWarningSchema,
 } from "../shared/scenario-warning-schema.ts";
 import { leaderResourceByMonth } from "../shared/project-progress.ts";
+import { topLeader } from "../shared/leadership-hierarchy.ts";
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const automaticEvent = (status, explanation, at) => ({
@@ -85,7 +86,10 @@ export function synchronizeScenarioWarnings(data, now = new Date()) {
   const sources = new Map(
     data.projects.map((p) => [p.id, { planned: new Map(), records: [] }]),
   );
-  const teamLeaders = new Map(data.teams.map((t) => [t.id, t.lead]));
+  // Sub-leadership resource rolls up into its top leadership.
+  const teamLeaders = new Map(
+    data.teams.map((t) => [t.id, t.lead && topLeader(data, t.lead)]),
+  );
   for (const [key, amount] of Object.entries(data.allocations || {})) {
     const [team, project, month] = key.split("|"),
       leader = teamLeaders.get(team),

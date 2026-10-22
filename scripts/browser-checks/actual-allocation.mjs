@@ -23,16 +23,16 @@ export async function checkActualAllocation(f) {
       "actual input settled: " + value,
     );
   try {
-    await selectWorkspaceTab(page, "Aktivite Girişi");
+    await selectWorkspaceTab(page, "Aktivite Giriş");
     await f.check(
       "actual: cell/total selection, outside click and Escape; units and manual/automatic hours remain consistent",
       async () => {
         assert.equal(await hours().count(), 0);
         await amount().click();
-        assert.equal(await hours().inputValue(), "198");
+        assert.equal(await hours().inputValue(), "189");
         await page
           .getByRole("heading", {
-            name: "Aktivite Girişi",
+            name: "Aktivite Giriş",
             exact: true,
           })
           .click();
@@ -48,7 +48,7 @@ export async function checkActualAllocation(f) {
           )
           .first()
           .click();
-        assert.equal(await hours().inputValue(), "198");
+        assert.equal(await hours().inputValue(), "189");
         await page.locator("#actual-entry-unit").selectOption("hours");
         const hourAmount = page.getByRole("textbox", {
           name: "Browser Employee / Browser Project A / 2026-01 / saat",
@@ -70,12 +70,13 @@ export async function checkActualAllocation(f) {
           ["percent", "hours"],
         );
         await page.locator("#actual-entry-unit").selectOption("percent");
-        await waitText(amount(), "%9,09");
+        await waitText(amount(), "%9,52");
         await amount().click();
         await hours().fill("216");
         await hours().press("Enter");
         await f.wait(
-          async () => (await f.state()).actualWorkedHours[hoursKey] === 216,
+          // Net 216 hours are stored with the 9-hour 1 January holiday.
+          async () => (await f.state()).actualWorkedHours[hoursKey] === 225,
           "manual hours saved",
         );
         await waitText(amount(), "%8,33");
@@ -87,8 +88,8 @@ export async function checkActualAllocation(f) {
             (await f.state()).actualWorkedHours[hoursKey] === undefined,
           "automatic hours restored",
         );
-        await waitText(hours(), "198");
-        await waitText(amount(), "%9,09");
+        await waitText(hours(), "189");
+        await waitText(amount(), "%9,52");
       },
     );
     await f.check(
@@ -207,7 +208,7 @@ export async function checkActualAllocation(f) {
           await hours().click();
           await hours().press("Enter");
           await f.wait(
-            async () => (await f.state()).actualWorkedHours[hoursKey] === 200,
+            async () => (await f.state()).actualWorkedHours[hoursKey] === 209,
             "hours retry saved",
           );
           await waitText(hours(), "200");
@@ -218,7 +219,7 @@ export async function checkActualAllocation(f) {
               (await f.state()).actualWorkedHours[hoursKey] === undefined,
             "retry hours reset",
           );
-          await waitText(hours(), "198");
+          await waitText(hours(), "189");
         } finally {
           await page.unroute("**/api/changes", route);
         }

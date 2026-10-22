@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectWorkspaceView } from "./fixture.mjs";
 import { applyChanges } from "../../backend/operations.mjs";
 
 // Count expensive DOM work rather than asserting machine-dependent frame times.
@@ -92,7 +92,7 @@ export async function checkHorizontalScroll(f) {
     ],
     ["Projeler", ".workspace-dock > [data-slot=table-container]", "projects"],
     [
-      "Aktivite Girişi",
+      "Aktivite Giriş",
       ".person-allocation > [data-slot=table-container]",
       "actual",
     ],
@@ -163,9 +163,7 @@ export async function checkHorizontalScroll(f) {
           .locator(".planning-filterbar .period select")
           .selectOption("60");
         await sample(configurations[0][1], "five-year-plan");
-        await page
-          .getByRole("tab", { name: "Takım → Projeler", exact: true })
-          .click();
+        await selectWorkspaceView(page, "Takım Bazlı");
         await sample(configurations[0][1], "team-projects");
       },
     );
@@ -211,6 +209,15 @@ export async function checkHorizontalScroll(f) {
           e.style.width = "1000px";
           e.style.maxWidth = "1000px";
         });
+        // Widening can clamp the partner, which syncs once; let it settle.
+        await f.wait(
+          async () =>
+            Math.abs(
+              (await first.evaluate((e) => e.scrollLeft)) -
+                (await second.evaluate((e) => e.scrollLeft)),
+            ) < 1,
+          "partners settle after resize",
+        );
         await first.evaluate((e) => {
           e.scrollLeft = e.scrollWidth;
         });

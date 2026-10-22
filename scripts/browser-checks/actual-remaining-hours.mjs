@@ -42,19 +42,27 @@ export async function checkActualRemainingHours(f) {
   );
   const { page } = await f.client("employee");
   try {
-    await selectWorkspaceTab(page, "Aktivite Girişi");
+    await selectWorkspaceTab(page, "Aktivite Giriş");
     await f.check(
-      "actual controls: unit is first and the empty prompt is compact",
+      "actual controls: unit sits left of Görünüm in the heading and the empty prompt is compact",
       async () => {
+        const actions = page.locator(".workspace-nav-actions");
+        const unit = await actions
+          .getByLabel("Kaynak Dağılım Birimi", { exact: true })
+          .boundingBox();
+        const view = await actions
+          .getByLabel("Görünüm", { exact: true })
+          .boundingBox();
+        assert(unit.x + unit.width <= view.x);
         assert.equal(
           await page
-            .locator(".actual-control-fields > :first-child")
-            .getAttribute("class"),
-          "actual-control-item actual-unit-item",
+            .locator(".actual-control-fields #actual-entry-unit")
+            .count(),
+          0,
         );
         assert.equal(
           (await page.locator(".actual-context-hint").textContent()).trim(),
-          "Bir Hücre Seçin",
+          "Bir Hücre Seçiniz",
         );
       },
     );
@@ -74,10 +82,10 @@ export async function checkActualRemainingHours(f) {
             "Kalan Aylık Çalışma Saati",
           ),
         );
-        assert.equal(await value(), "155");
+        assert.equal(await value(), "146");
         assert(
           (await january.getAttribute("title")).includes(
-            "184,5 saat aylık çalışma − 27 saat proje dağılımı − 2,5 saat eğitim = 155 saat kalan",
+            "175,5 saat aylık çalışma − 27 saat proje dağılımı − 2,5 saat eğitim = 146 saat kalan",
           ),
         );
         // Hiding a project must never make those allocated hours available again.
@@ -90,16 +98,16 @@ export async function checkActualRemainingHours(f) {
           .getByRole("checkbox", { name: "Browser Project A", exact: true })
           .check();
         await page.keyboard.press("Escape");
-        assert.equal(await value(), "155");
+        assert.equal(await value(), "146");
         await page.locator("#actual-entry-unit").selectOption("percent");
         assert(
           (await january.getAttribute("aria-label")).startsWith(
             "Dağıtılan Kaynak %'si",
           ),
         );
-        assert.equal(await value(), "%15,99");
+        assert.equal(await value(), "%16,81");
         await page.locator("#actual-entry-unit").selectOption("hours");
-        assert.equal(await value(), "155");
+        assert.equal(await value(), "146");
       },
     );
     await f.check(
@@ -110,9 +118,8 @@ export async function checkActualRemainingHours(f) {
           exact: true,
         });
         await amount.click();
-        const unit = await page.locator(".actual-unit-item").boundingBox();
+        const unit = await page.locator(".actual-person-item").boundingBox();
         for (const selector of [
-          ".actual-person-item",
           ".actual-month-item",
           ".actual-hours-item",
           ".actual-remaining-item",

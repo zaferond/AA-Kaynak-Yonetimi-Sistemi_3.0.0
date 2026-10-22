@@ -109,6 +109,8 @@ export default function PortalEditorDialog({
           (editor?.kind === "projectPhase" || editor?.kind === "milestone"
             ? " timeline-editor"
             : "") +
+          // Topics open as a side sheet over the right half of the screen.
+          (editor?.kind === "milestone" ? " topic-sheet" : "") +
           (editor?.kind === "bulkResources" ? " bulk-resource-editor" : "") +
           (editor?.kind === "resource" ? " employee-access-editor" : "")
         }

@@ -4,7 +4,7 @@ import { selectWorkspaceTab } from "./fixture.mjs";
 
 async function openScenario(page) {
   await selectWorkspaceTab(page, "Projeler");
-  await page.getByRole("tab", { name: /^Erteleme Senaryosu/ }).click();
+  await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
 }
 
 export async function checkScheduleScenario(f) {
@@ -75,7 +75,7 @@ export async function checkScheduleScenario(f) {
           );
         const row = (label) => rows.find((r) => r[0].startsWith(label));
         assert.deepEqual(rows[0].slice(1), [
-          "Mevcut",
+          "Mevcut Bitiş Tarihi",
           "Senaryo A",
           "Senaryo B",
         ]);
@@ -84,18 +84,13 @@ export async function checkScheduleScenario(f) {
           "Haz 2027",
           "Ağu 2027",
         ]);
-        // Delaying A collides with B in Apr – Jun 2027: 3 person-months short.
-        assert.deepEqual(row("Toplam kaynak açığı").slice(1), ["0", "3", "3"]);
-        assert.deepEqual(row("Kaydırılan planlanan kayıt").slice(1), [
-          "—",
-          "6",
-          "6",
-        ]);
+        // Only the end dates remain; the shortage shows in the tables below.
+        assert.equal(rows.length, 2);
         // Leadership rows (as in Liderlik Bazında Eksik Raporu) sit above teams.
         const blocks = dialog.locator(".schedule-impact-block");
         assert.equal(
           await blocks.first().locator("h4").textContent(),
-          "Liderlik bazında",
+          "Liderlik Bazında Senaryo Karşılaştırma",
         );
         assert((await blocks.first().locator("tbody tr").count()) >= 2);
         assert.match(
@@ -118,7 +113,10 @@ export async function checkScheduleScenario(f) {
           page.waitForEvent("download"),
           dialog.getByRole("button", { name: "Excel'e Aktar" }).click(),
         ]);
-        assert.equal(download.suggestedFilename(), "erteleme-senaryosu.xlsx");
+        assert.equal(
+          download.suggestedFilename(),
+          "proje-takvimi-guncelle.xlsx",
+        );
         assert.deepEqual((await f.state()).allocations, before.allocations);
         assert.deepEqual((await f.state()).projects, before.projects);
       },
@@ -155,7 +153,7 @@ export async function checkScheduleScenario(f) {
         await bar.getByRole("button", { name: "Mevcut", exact: true }).click();
         assert.equal(await page.locator("td[data-scenario-change]").count(), 0);
         assert.deepEqual((await f.state()).allocations, before.allocations);
-        await bar.getByRole("button", { name: "Senaryoları Düzenle" }).click();
+        await bar.getByRole("button", { name: "Senaryo Düzenle" }).click();
         await page
           .locator(".schedule-scenario-dialog, .schedule-scenario-page")
           .waitFor();
@@ -178,6 +176,65 @@ export async function checkScheduleScenario(f) {
           .waitFor();
       },
     );
+    await f.check(
+      "scenario: an added scenario stays compared after a refresh and the same one cannot be added twice",
+      async () => {
+        const dialog = page.locator(
+          ".schedule-scenario-dialog, .schedule-scenario-page",
+        );
+        const card = dialog.locator(".schedule-scenario-card").first();
+        await card.getByLabel("Kaydırılacak ay", { exact: true }).fill("3");
+        await card
+          .getByRole("button", { name: "Senaryo A senaryosunu ekle" })
+          .click();
+        await dialog
+          .locator(".scenario-message")
+          .filter({ hasText: "“Senaryo A” eklendi." })
+          .waitFor();
+        // The same shifts under a new name, then the saved name: "Ekle" is off.
+        const next = dialog.locator(".schedule-scenario-card").first();
+        await next.getByLabel("Proje", { exact: true }).selectOption(pa.id);
+        await next.getByLabel("Kaydırılacak ay", { exact: true }).fill("3");
+        const add = next.getByRole("button", { name: /senaryosunu ekle$/ });
+        assert(await add.isDisabled());
+        await next
+          .getByRole("alert")
+          .filter({ hasText: "Aynı senaryoyu tanımlayamazsınız!" })
+          .waitFor();
+        await next.getByLabel("Kaydırılacak ay", { exact: true }).fill("4");
+        await next.getByLabel("Senaryo adı").fill("senaryo a");
+        assert(await add.isDisabled());
+        await page.reload();
+        await openScenario(page);
+        await dialog.locator(".schedule-summary-table").waitFor();
+        const head = await dialog
+          .locator(".schedule-summary-table tr")
+          .first()
+          .innerText();
+        assert.match(head, /Senaryo A/);
+        assert.equal(
+          await dialog
+            .locator(".schedule-scenario-card")
+            .first()
+            .getByLabel("Senaryo adı")
+            .inputValue(),
+          "senaryo a",
+        );
+        const row = dialog
+          .locator(".saved-scenarios li")
+          .filter({ hasText: "Senaryo A" });
+        await row
+          .getByRole("button", { name: "Karşılaştırmadan Çıkar" })
+          .waitFor();
+        page.once("dialog", (d) => d.accept());
+        await row.getByRole("button", { name: "Sil" }).click();
+        await dialog
+          .locator(".scenario-message")
+          .filter({ hasText: "silindi" })
+          .waitFor();
+        assert.deepEqual((await f.state()).scheduleScenarios || [], []);
+      },
+    );
   } finally {
     await page.close();
   }
@@ -189,7 +246,7 @@ export async function checkScheduleScenario(f) {
         await selectWorkspaceTab(employee.page, "Projeler");
         assert.equal(
           await employee.page
-            .getByRole("tab", { name: "Erteleme Senaryosu", exact: true })
+            .getByRole("tab", { name: "Proje Takvimi Güncelle", exact: true })
             .count(),
           0,
         );
@@ -245,7 +302,7 @@ export async function checkScheduleScenarioApproval(f) {
           .getByLabel("Proje", { exact: true })
           .first()
           .selectOption(project.id);
-        await dialog.getByLabel("Senaryo A senaryosunu kaydet").click();
+        await dialog.getByLabel("Senaryo A senaryosunu ekle").click();
         await dialog.locator(".scenario-message").waitFor();
         assert.equal((await f.state()).scheduleScenarios[0].status, "draft");
         assert.equal(
@@ -296,7 +353,7 @@ export async function checkScheduleScenarioApproval(f) {
           .getByLabel("Proje", { exact: true })
           .selectOption(project.id);
         await card.getByLabel("Kaydırılacak ay", { exact: true }).fill("5");
-        await card.getByLabel("Senaryo B senaryosunu kaydet").click();
+        await card.getByLabel("Senaryo B senaryosunu ekle").click();
         await dialog
           .locator(".scenario-message")
           .filter({ hasText: "Senaryo B" })

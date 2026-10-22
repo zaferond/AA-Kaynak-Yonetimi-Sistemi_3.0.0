@@ -2,6 +2,7 @@ import { planningUnitHierarchy } from "../../../../shared/leadership-planning";
 import type { Data } from "../../model";
 import { ownValue } from "../../../../shared/records";
 import type { Team } from "../../model";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import MemberBadge from "../../components/MemberBadge";
 import type { PlannedAllocationProps } from "./types";
 type ActualRows = Pick<
@@ -37,7 +38,12 @@ export function PlannedActualToggle({
         )
       }
     >
-      {visible ? "−" : "+"}
+      {/* The same down/up arrow as the project rows. */}
+      {visible ? (
+        <ChevronUp size={14} aria-hidden="true" />
+      ) : (
+        <ChevronDown size={14} aria-hidden="true" />
+      )}
     </button>
   );
 }

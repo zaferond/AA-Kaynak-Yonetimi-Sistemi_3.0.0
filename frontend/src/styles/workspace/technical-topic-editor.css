@@ -1,0 +1,183 @@
+/* Technical theme for the critical topic editor (Başlık Ekle / Düzenle).
+   It opens as a side sheet over the right half of the window, so the
+   timeline stays in view. Sizes divide by --app-page-scale because the
+   page is drawn zoomed. Topic rows are plain ruled blocks; the bar style
+   samples use the tint + edge rule of the timeline bars. */
+html[data-theme="technical"]
+  .editor.timeline-editor.topic-sheet[data-slot="dialog-content"] {
+  top: 0;
+  right: 0;
+  left: auto;
+  translate: none;
+  width: max(
+    min(560px, 100vw),
+    calc(50vw / var(--app-page-scale, 1))
+  ) !important;
+  /* editors.css caps timeline editors at 640px with !important. */
+  max-width: calc(100vw / var(--app-page-scale, 1)) !important;
+  height: calc(100dvh / var(--app-page-scale, 1));
+  max-height: none;
+  border: 0;
+  border-left: 1px solid var(--tbl-frame);
+  border-radius: 0;
+  box-shadow: -18px 0 40px #18212c24;
+  animation: topic-sheet-in 200ms ease-out;
+  /* Header on top, the form takes the rest; short forms do not float. */
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  overflow: hidden;
+}
+html[data-theme="technical"]
+  .editor.timeline-editor.topic-sheet
+  .timeline-editor-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+html[data-theme="technical"]
+  .editor.timeline-editor.topic-sheet
+  .timeline-editor-form
+  > * {
+  flex: none;
+}
+html[data-theme="technical"]
+  .editor.timeline-editor.topic-sheet
+  .timeline-editor-actions {
+  margin-top: auto;
+}
+html[data-theme="technical"]
+  .editor.timeline-editor.topic-sheet[data-slot="dialog-content"][data-state="closed"] {
+  animation: topic-sheet-out 150ms ease-in forwards;
+}
+@keyframes topic-sheet-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+@keyframes topic-sheet-out {
+  to {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="technical"]
+    .editor.timeline-editor.topic-sheet[data-slot="dialog-content"] {
+    animation: none;
+  }
+}
+
+/* Header: a plain title block. */
+html[data-theme="technical"] .timeline-editor [data-slot="dialog-header"] {
+  padding: 18px 24px 14px;
+  border-top: 0;
+  border-bottom: 1px solid var(--tbl-frame);
+  background: #fff;
+}
+html[data-theme="technical"] .timeline-editor [data-slot="dialog-title"] {
+  color: var(--brand-text);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+html[data-theme="technical"] .timeline-editor [data-slot="dialog-description"] {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .editor .timeline-editor-form {
+  gap: 16px;
+  padding: 18px 24px 0;
+}
+html[data-theme="technical"] .timeline-editor-form > .phasecontext {
+  border-color: var(--tbl-frame);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 6px;
+  background: var(--tbl-row-hover);
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .timeline-editor-form > .phasecontext > span {
+  border-color: var(--tbl-frame);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Topic rows: one ruled block each, no alternating tints. */
+html[data-theme="technical"] .milestone-range-row,
+html[data-theme="technical"] .milestone-range-row:nth-child(even) {
+  border: 1px solid var(--tbl-frame);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: none;
+}
+html[data-theme="technical"] .milestone-range-row label {
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .timeline-editor-form
+  .milestone-range-row
+  :is(input:not([type="checkbox"]), textarea) {
+  border: 1px solid var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .milestone-note-row {
+  border-color: var(--tbl-rule);
+  border-radius: 3px;
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  .timeline-editor-form
+  :is(.milestone-bar-options, .milestone-colors)
+  button {
+  border-color: var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .timeline-editor-form
+  :is(.milestone-bar-options, .milestone-colors)
+  button.selected {
+  border-color: var(--brand-primary);
+  background: var(--tbl-selected);
+  box-shadow: inset 0 0 0 1px var(--brand-primary);
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .timeline-editor-form
+  .milestone-bar-options
+  button {
+  min-height: 40px;
+}
+
+/* Bar style samples follow the timeline bars: tint + solid edge, or a
+   white bar with a coloured frame. */
+html[data-theme="technical"] .milestone-bar-options .sample {
+  height: 14px;
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 45%, #fff);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--brand-primary) 14%, #fff);
+}
+html[data-theme="technical"] .milestone-bar-options .sample.outline {
+  background: #fff;
+}
+
+/* Actions stay at the bottom of the sheet. */
+html[data-theme="technical"] .timeline-editor-form .timeline-editor-actions {
+  margin: 2px -24px 0;
+  padding: 12px 24px;
+  border-top-color: var(--tbl-frame);
+  box-shadow: none;
+}
+html[data-theme="technical"]
+  .timeline-editor-actions
+  .button.button.button.primary {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+}

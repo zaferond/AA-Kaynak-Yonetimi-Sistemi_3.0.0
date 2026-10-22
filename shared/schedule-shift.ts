@@ -244,6 +244,38 @@ export const SCENARIO_STATUS_LABELS: Record<ScenarioStatus, string> = {
   closed: "Kapatıldı",
 };
 
+export const DUPLICATE_SCENARIO_MESSAGE = "Aynı senaryoyu tanımlayamazsınız!";
+const scenarioName = (name: string) => name.trim().toLocaleLowerCase("tr");
+const scenarioContent = (s: ShiftScenario) =>
+  JSON.stringify([
+    s.includeTimeline,
+    s.shifts
+      .filter((shift) => shift.projectId && shift.months)
+      .map((shift) => [shift.projectId, shift.months, shift.fromMonth])
+      .sort(),
+  ]);
+/** A new scenario may not repeat a saved one: no saved scenario of any
+ * status may carry its name, and no open one (draft or approved) the same
+ * shifts. Returns the scenario it repeats. */
+export function duplicateScenario(
+  candidate: ShiftScenario,
+  others: readonly SavedScenario[],
+) {
+  const name = scenarioName(candidate.name);
+  // A card without a project yet repeats nothing but a name.
+  const content = candidate.shifts.some((s) => s.projectId && s.months)
+    ? scenarioContent(candidate)
+    : null;
+  return others.find(
+    (other) =>
+      other.id !== candidate.id &&
+      ((!!name && scenarioName(other.name) === name) ||
+        (content !== null &&
+          (other.status === "draft" || other.status === "approved") &&
+          scenarioContent(other) === content)),
+  );
+}
+
 type PlanChange =
   | { kind: "project"; id: string; value: Project; revision: number }
   | {

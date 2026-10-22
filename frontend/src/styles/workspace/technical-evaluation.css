@@ -522,3 +522,247 @@ html[data-theme="technical"]
   background: var(--brand-primary);
   color: #fff;
 }
+
+/* Haftalık Kritik Konular page head: the open/close switch sits left of the
+   Excel export, nothing else. */
+html[data-theme="technical"] .app.tab-critical .project-info-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 16px;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+/* Filters: one framed panel; the filter row as on the other screens and
+   the week choice under a light rule. */
+html[data-theme="technical"] .app.tab-critical .project-info-filterpanel {
+  /* A small gap below the panel's white heading row. */
+  margin: 10px 16px 12px;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-filterpanel
+  > .project-info-toolbar {
+  margin: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--tbl-rule);
+  border-radius: 0;
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-toolbar .filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-project-filter
+  select {
+  min-width: 280px;
+  max-width: 420px;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-project-filter[data-active]
+  select {
+  border-color: var(--brand-primary);
+  background: var(--tbl-selected);
+  color: var(--brand-text);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-project-clear {
+  width: 28px;
+  height: 28px;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-filter {
+  height: 28px;
+  border-color: var(--btn-border);
+  border-radius: 3px;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-filter button {
+  border-right-color: var(--tbl-rule);
+  color: var(--brand-text);
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-filter
+  button:hover:not([aria-pressed="true"]) {
+  background: var(--btn-hover);
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-filter
+  button[aria-pressed="true"] {
+  background: var(--brand-primary);
+  color: #fff;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-filter
+  button
+  span {
+  border-radius: 2px;
+  background: var(--tbl-group-background);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-weekbar {
+  padding: 8px 12px;
+}
+/* "Hafta ekle" reads as a button that opens the week list. */
+html[data-theme="technical"] .app.tab-critical .project-info-week-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 4px 0 8px;
+  border: 1px dashed var(--btn-border-hover);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-text);
+  cursor: pointer;
+}
+html[data-theme="technical"] .app.tab-critical .project-info-week-add:hover {
+  border-style: solid;
+  background: var(--btn-hover);
+}
+html[data-theme="technical"] .app.tab-critical .project-info-week-add select {
+  width: auto;
+  min-width: 0;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-filter
+  button[aria-pressed="true"]
+  span {
+  background: #ffffff2e;
+  color: #fff;
+}
+/* The project label sits left of its list, as in the other filter bars. */
+html[data-theme="technical"]
+  .app.tab-critical
+  .project-info-project-filter
+  label.pick {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--tbl-head-ink);
+  font-weight: 600;
+}
+
+/* Hedef Plan / Gerçekleşen Plan Giriş: the filter row sits inside the white
+   panel with a little air above; the waiting-work boxes follow under it. */
+html[data-theme="technical"] .app.tab-progress .progress-baseline {
+  padding-top: 6px;
+}
+html[data-theme="technical"] .app.tab-progress .progress-waiting-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -6px;
+}
+html[data-theme="technical"] .app.tab-progress .progress-waiting-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 6px 0 10px;
+  border: 1px solid var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-option:has(input:checked) {
+  border-color: var(--brand-primary);
+  background: color-mix(in srgb, var(--brand-primary) 8%, #fff);
+}
+html[data-theme="technical"] .app.tab-progress .progress-waiting-option input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--brand-primary);
+}
+html[data-theme="technical"] .app.tab-progress .progress-waiting-count {
+  min-width: 24px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: var(--tbl-head-bg, #eef2f6);
+  color: var(--brand-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  text-align: center;
+}
+html[data-theme="technical"] .app.tab-progress .progress-approve-all {
+  min-height: 32px;
+}
+html[data-theme="technical"] .app.tab-progress .progress-approve-message {
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+}
+
+/* Month lock: an open month shows green with an open padlock, a locked
+   month amber with a closed one, so the state is seen at a glance. */
+html[data-theme="technical"]
+  .app
+  .button.button.button.progress-lock-button[data-locked="false"] {
+  border-color: #7cc09a;
+  background: #eaf6ef;
+  color: #0b6b3a;
+}
+html[data-theme="technical"]
+  .app
+  .button.button.button.progress-lock-button[data-locked="false"]:is(
+    :hover,
+    :focus-visible
+  ):not(:disabled) {
+  border-color: #2e8b57;
+  background: #d7efe1;
+  color: #07532c;
+}
+html[data-theme="technical"]
+  .app
+  .button.button.button.progress-lock-button[data-locked="true"] {
+  border-color: #d9a53f;
+  background: #fdf3df;
+  color: #7a4b00;
+}
+html[data-theme="technical"]
+  .app
+  .button.button.button.progress-lock-button[data-locked="true"]:is(
+    :hover,
+    :focus-visible
+  ):not(:disabled) {
+  border-color: #b7791f;
+  background: #fae7c2;
+  color: #5f3a00;
+}

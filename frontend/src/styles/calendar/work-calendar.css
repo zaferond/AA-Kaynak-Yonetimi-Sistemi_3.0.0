@@ -458,3 +458,23 @@
   min-height: 96px;
   border-radius: 6px;
 }
+/* Built-in official holidays: read-only list, wider date column for ranges. */
+.work-calendar-dialog-shared .work-calendar-list + .work-calendar-list {
+  margin-top: 12px;
+}
+.work-calendar-dialog-shared .work-calendar-list li {
+  grid-template-columns: 190px minmax(0, 1fr) auto;
+}
+.work-calendar-official ul {
+  height: auto;
+}
+.work-calendar-dialog .work-calendar-list > p.work-calendar-note {
+  min-height: 0;
+  margin: -4px 0 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: var(--brand-muted, #5b6b7b);
+  font-size: var(--fs-xs, 12px);
+}

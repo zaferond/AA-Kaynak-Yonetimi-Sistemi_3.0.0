@@ -191,14 +191,6 @@ html[data-theme] .app .workspace-section-tabs [role="tab"]:focus-visible {
 }
 
 /* Progress report controls live beside its view tabs, like project tools. */
-.app .progress-report-actions .progress-period-closed {
-  color: var(--brand-muted);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  line-height: 1.35;
-  max-width: 245px;
-  white-space: normal;
-}
 .app .progress-report-actions .progress-leadership-options {
   min-height: 30px;
 }

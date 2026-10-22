@@ -8,12 +8,11 @@ import { Lock, LockOpen } from "lucide-react";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
 import { createPortal } from "react-dom";
-import WorkspaceDensityControl from "../workspace/WorkspaceDensityControl";
 import type { WorkspaceDensity } from "../WorkspaceNavigation";
 import type { Principal } from "../../access";
 import ProjectResponsible from "../../ProjectResponsible";
 import type { Change } from "../../../../shared/commands";
-import { monthLabel, fmt } from "../../format";
+import { monthLabel, monthName, fmt } from "../../format";
 import { downloadProgressReport } from "./progress-export";
 import {
   projectRows,
@@ -110,7 +109,6 @@ export default function ProgressReport({
   ctx,
   actionsHost,
   density,
-  onDensityChange,
   responsibleFilter,
   onResetFilters,
   user,
@@ -122,7 +120,6 @@ export default function ProgressReport({
   ctx: ProgressContext;
   actionsHost: HTMLElement | null;
   density: WorkspaceDensity;
-  onDensityChange: (value: WorkspaceDensity) => void;
   responsibleFilter: ReactNode;
   onResetFilters: () => void;
   user: Principal | null;
@@ -255,19 +252,22 @@ export default function ProgressReport({
       {actionsHost &&
         createPortal(
           <>
-            {lock && (
-              <span className="progress-period-closed" role="status">
-                Hedef Plan Giriş Dönemi Kapandı (
-                {new Intl.DateTimeFormat("tr-TR", { month: "long" }).format(
-                  new Date(month + "-01T12:00:00"),
-                )}
-                )
-              </span>
+            {admin && (
+              <button
+                type="button"
+                className="button progress-lock-button"
+                // A locked month shows in the button's own colour.
+                data-locked={lock ? "true" : "false"}
+                aria-pressed={!!lock}
+                disabled={saving}
+                onClick={() => void toggleLock()}
+              >
+                {lock ? <Lock size={14} /> : <LockOpen size={14} />}
+                {lock
+                  ? `${monthName(month)} Ayının Kilidini Aç`
+                  : `${monthName(month)} Ayını Kilitle`}
+              </button>
             )}
-            <WorkspaceDensityControl
-              value={density}
-              onChange={onDensityChange}
-            />
             <ProgressLeadershipToggle
               checked={visible.some((project) =>
                 expanded.has(project.row.project.id),
@@ -344,21 +344,6 @@ export default function ProgressReport({
           </select>
         </label>
       </ProgressFilters>
-      {admin && (
-        <div className="progress-toolbar">
-          {admin && (
-            <button
-              type="button"
-              className="button progress-lock-button"
-              disabled={saving}
-              onClick={() => void toggleLock()}
-            >
-              {lock ? <LockOpen size={14} /> : <Lock size={14} />}
-              {monthLabel(month)} Ayını Değişikliğe {lock ? "Aç" : "Kapat"}
-            </button>
-          )}
-        </div>
-      )}
       {error && (
         <p role="alert" className="progress-error">
           {error}
@@ -459,6 +444,7 @@ export default function ProgressReport({
             density === "overview" ? 24 : density === "compact" ? 68 : 150
           }
           month={month}
+          lastLockedMonth={lastLockedMonth}
           expanded={expanded}
           setExpanded={setExpanded}
           detail={detail}

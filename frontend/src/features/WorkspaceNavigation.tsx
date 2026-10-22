@@ -21,7 +21,9 @@ import WorkspaceSectionHeader, {
 } from "./workspace/WorkspaceSectionHeader";
 import ReportDownloadButton from "../components/ReportDownloadButton";
 import WorkspaceDensityControl from "./workspace/WorkspaceDensityControl";
+import WorkspaceViewControl from "./workspace/WorkspaceViewControl";
 import type { ActualLayout } from "./actual-allocation/useActualAllocationView";
+import type { ActualUnit } from "../actual-units";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
 export type WorkspaceDensity = "detail" | "compact" | "overview";
 export type ReportView = "resources" | "headcount";
@@ -52,6 +54,10 @@ type Props = {
   setReportView: (view: ReportView) => void;
   actualLayout: ActualLayout;
   setActualLayout: (view: ActualLayout) => void;
+  actualUnit: ActualUnit;
+  setActualUnit: (unit: ActualUnit) => void;
+  activityUnit: ActualUnit;
+  setActivityUnit: (unit: ActualUnit) => void;
   progressView: ProgressView;
   progressActionsRef: (node: HTMLDivElement | null) => void;
   setProgressView: (view: ProgressView) => void;
@@ -84,6 +90,10 @@ export default function WorkspaceNavigation({
   setReportView,
   actualLayout,
   setActualLayout,
+  actualUnit,
+  setActualUnit,
+  activityUnit,
+  setActivityUnit,
   progressView,
   progressActionsRef,
   setProgressView,
@@ -161,22 +171,58 @@ export default function WorkspaceNavigation({
     sectionValue = tab;
   let changeSection: (value: string) => void = () => {};
   let sectionLabel = "Ekran görünümleri";
-  if (tab === "actual") {
-    sectionTabs = [
-      { value: "person", label: "Kişi → Proje" },
-      { value: "project", label: "Proje → Kişi" },
-    ];
-    sectionValue = actualLayout;
-    changeSection = (value) => setActualLayout(value as ActualLayout);
-    sectionLabel = "Gerçekleşen görünümü";
-  } else if (tab === "projects") {
+  // Kaynak Planlama and Aktivite Giriş choose their layout in a "Görünüm"
+  // list next to the page actions instead of view tabs.
+  const viewChoice =
+    tab === "plan" ? (
+      <WorkspaceViewControl
+        value={view}
+        options={[
+          { value: "project", label: "Proje Bazlı" },
+          { value: "team", label: "Takım Bazlı" },
+        ]}
+        onChange={setView}
+      />
+    ) : tab === "actual" ? (
+      <>
+        <WorkspaceViewControl
+          label="Kaynak Dağılım Birimi"
+          id="actual-entry-unit"
+          value={actualUnit}
+          options={[
+            { value: "percent", label: "Yüzde (%)" },
+            { value: "hours", label: "Saat" },
+          ]}
+          onChange={(value) => setActualUnit(value as ActualUnit)}
+        />
+        <WorkspaceViewControl
+          value={actualLayout}
+          options={[
+            { value: "project", label: "Proje Bazlı" },
+            { value: "person", label: "Kişi Bazlı" },
+          ]}
+          onChange={(value) => setActualLayout(value as ActualLayout)}
+        />
+      </>
+    ) : tab === "activity" ? (
+      <WorkspaceViewControl
+        ariaLabel="Aktivite raporu birimi"
+        value={activityUnit}
+        options={[
+          { value: "percent", label: "Yüzde (%)" },
+          { value: "hours", label: "Saat" },
+        ]}
+        onChange={(value) => setActivityUnit(value as ActualUnit)}
+      />
+    ) : null;
+  if (tab === "projects") {
     sectionTabs = [
       { value: "projects", label: "Projeler" },
       ...(isAdmin || isManager
         ? [
             {
               value: "scenario",
-              label: "Erteleme Senaryosu",
+              label: "Proje Takvimi Güncelle",
               badge: isAdmin ? pendingScenarios : 0,
             },
           ]
@@ -199,14 +245,6 @@ export default function WorkspaceNavigation({
     sectionValue = progressView;
     changeSection = (value) => setProgressView(value as ProgressView);
     sectionLabel = "İlerleme görünümü";
-  } else if (tab === "plan") {
-    sectionTabs = [
-      { value: "team", label: "Takım → Projeler" },
-      { value: "project", label: "Proje → Takımlar" },
-    ];
-    sectionValue = view;
-    changeSection = setView;
-    sectionLabel = "Dağılım görünümü";
   } else if (tab === "overview") {
     sectionTabs = [
       { value: "resources", label: "Kaynak Raporları" },
@@ -329,26 +367,21 @@ export default function WorkspaceNavigation({
               ref={progressActionsRef}
             />
           ) : (
-            ![
-              "access",
-              "teams",
-              "critical",
-              "risk",
-              "activity",
-              "progress",
-            ].includes(tab) &&
+            !["access", "teams", "critical", "risk", "progress"].includes(
+              tab,
+            ) &&
             !(tab === "projects" && projectView === "scenario") && (
               <div className="workspace-nav-actions">
-                {["plan", "actual", "projects", "overview"].includes(tab) &&
-                  !(tab === "overview" && reportView === "headcount") && (
-                    <WorkspaceDensityControl
-                      value={density}
-                      onChange={(mode) => {
-                        setDensity(mode);
-                        if (mode === "overview") setCount(60);
-                      }}
-                    />
-                  )}
+                {viewChoice}
+                {tab === "projects" && (
+                  <WorkspaceDensityControl
+                    value={density}
+                    onChange={(mode) => {
+                      setDensity(mode);
+                      if (mode === "overview") setCount(60);
+                    }}
+                  />
+                )}
                 {tab === "overview" &&
                   reportView === "resources" &&
                   reportPostingControl}
@@ -373,7 +406,8 @@ export default function WorkspaceNavigation({
                     Çalışma Takvimi
                   </button>
                 )}
-                {tab !== "resources" && (
+                {/* Aktivite Raporu has no Excel export yet. */}
+                {!["resources", "activity"].includes(tab) && (
                   <ReportDownloadButton
                     label={
                       tab === "projects"

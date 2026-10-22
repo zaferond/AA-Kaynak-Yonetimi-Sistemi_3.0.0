@@ -1,6 +1,7 @@
 import type { Data, Project } from "./model.ts";
 import {
-  leaderResourceByMonth,
+  isTopLeader,
+  topLeaderResourceByMonth,
   monthsAfter,
   previousMonth,
   targetAt,
@@ -200,10 +201,12 @@ export function assessProjectWarning(
   if (!month) return result;
   const planned =
     source?.planned ||
-    leaderResourceByMonth(data.teams, data.allocations || {}, project.id);
-  const records =
+    topLeaderResourceByMonth(data, data.allocations || {}, project.id);
+  // Only the top leaderships carry the plan (as in the leadership report).
+  const records = (
     source?.records ||
-    (data.projectProgress || []).filter((r) => r.projectId === project.id);
+    (data.projectProgress || []).filter((r) => r.projectId === project.id)
+  ).filter((r) => isTopLeader(data, r.leader));
   const leaders = new Set([
     ...records.map((r) => r.leader),
     ...[...planned]

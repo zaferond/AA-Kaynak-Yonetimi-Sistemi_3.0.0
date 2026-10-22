@@ -110,7 +110,7 @@ test("monthly planned resource sums leadership amounts without needing approved 
     "2026-09",
     ["2026-09", "2026-10"],
   );
-  assert.match(sheets[1].xml, /Planlanan kaynak \(kişi-ay\)/);
+  assert.match(sheets[1].xml, /Planlanan Kaynak \(Kişi\/Ay\)/);
   assert.match(sheets[1].xml, /<c r="J3" s="8"><v>2<\/v><\/c>/);
   assert.match(sheets[1].xml, /<c r="J5" s="8"><v>1.25<\/v><\/c>/);
   assert.match(sheets[1].xml, /<c r="J7" s="8"><v>0.75<\/v><\/c>/);
@@ -336,7 +336,7 @@ test("all-zero comparison weights are explicit and exports retain missing data a
   assert.match(sheets[0].xml, /Proje &amp; &lt;A&gt;/);
   assert.match(sheets[0].xml, /Gerçekleşen verisi eksik/);
   assert.match(sheets[1].xml, /Gelecek dönem/);
-  assert.match(sheets[1].xml, /Kritik konular/);
+  assert.match(sheets[1].xml, /Kritik Konular/);
   assert.match(sheets[1].xml, /Kabul &amp; kontrol/);
   assert.equal(managementExportRows([managed])[0].actual, null);
   assert(

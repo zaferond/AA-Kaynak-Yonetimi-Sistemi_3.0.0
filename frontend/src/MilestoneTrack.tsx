@@ -176,7 +176,23 @@ export default function MilestoneTrack({
     measure();
     return () => observer.disconnect();
   }, [bars, weeklyLayout, notePreview?.days]);
+  // Ranges sharing the same dates draw as one bar listing their notes one
+  // under another; the first range of the group carries the bar.
+  const sameDates = new Map<string, number[]>();
+  if (!weeklyLayout)
+    bars.forEach((bar, index) => {
+      if (bar.range.displayKind === "milestone") return;
+      const key = bar.range.start + "|" + bar.range.end;
+      sameDates.set(key, [...(sameDates.get(key) || []), index]);
+    });
+  const groupOf = new Map<number, number[]>();
+  const grouped = new Set<number>();
+  for (const members of sameDates.values()) {
+    groupOf.set(members[0], members);
+    members.slice(1).forEach((index) => grouped.add(index));
+  }
   const items: TimelineItem[] = bars.flatMap((bar, index) => {
+    if (grouped.has(index)) return [];
     const id = "range:" + index;
     const left = (bar.left * trackWidth) / 100;
     if (bar.range.displayKind === "milestone") {
@@ -215,6 +231,9 @@ export default function MilestoneTrack({
       }
     >
       {bars.map((bar, index) => {
+        if (grouped.has(index)) return null;
+        const members = groupOf.get(index) || [index];
+        const shared = members.length > 1;
         const rangeIndex = ranges.indexOf(bar.range);
         const changed =
           preview?.rangeIndex === rangeIndex && preview.days && !preview.message
@@ -239,23 +258,24 @@ export default function MilestoneTrack({
               periods,
             )[0] || bar
           : bar;
-        const notes = rangeNotes(displayed.range).filter((note) =>
-          note.text.trim(),
-        );
-        const entries = notes.length
-          ? notes.map((note) => ({
-              text: note.text,
-              completed: !!note.completed,
-              ...noteDates(note, displayed.range),
-            }))
-          : [
-              {
-                text: milestone.name,
-                completed: false,
-                start: displayed.range.start,
-                end: displayed.range.end,
-              },
-            ];
+        const entries = members.flatMap((member) => {
+          const range = member === index ? displayed.range : bars[member].range;
+          const notes = rangeNotes(range).filter((note) => note.text.trim());
+          return notes.length
+            ? notes.map((note) => ({
+                text: note.text,
+                completed: !!note.completed,
+                ...noteDates(note, range),
+              }))
+            : [
+                {
+                  text: milestone.name,
+                  completed: false,
+                  start: range.start,
+                  end: range.end,
+                },
+              ];
+        });
         const details = entries.map(
           (entry) =>
             "• " +
@@ -370,7 +390,7 @@ export default function MilestoneTrack({
                 : "")
             }
             style={barStyle}
-            title={`${milestone.name} · ${dateLabel(displayed.range.start)} – ${dateLabel(displayed.range.end)}\n${details.join("\n")}${isAdmin ? "\nTıklayın: düzenle · Basılı tutup sürükleyin: taşı · Uçlardan sürükleyin: daralt / genişlet" : ""}`}
+            title={`${milestone.name} · ${dateLabel(displayed.range.start)} – ${dateLabel(displayed.range.end)}\n${details.join("\n")}${isAdmin ? (shared ? "\nTıklayın: düzenle" : "\nTıklayın: düzenle · Basılı tutup sürükleyin: taşı · Uçlardan sürükleyin: daralt / genişlet") : ""}`}
             aria-label={details.join(", ")}
             onClick={() => {
               if (isInteracting() || suppressClickRef.current) {
@@ -379,7 +399,10 @@ export default function MilestoneTrack({
               }
               if (isAdmin && !saving) onEditMilestone(milestone);
             }}
-            onPointerDown={(event) => beginDrag(event, rangeIndex, "move")}
+            onPointerDown={(event) => {
+              // Dragging one range of a shared bar would split the group.
+              if (!shared) beginDrag(event, rangeIndex, "move");
+            }}
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
             onPointerCancel={cancelDrag}
@@ -408,12 +431,8 @@ export default function MilestoneTrack({
                 </li>
               ))}
             </ul>
-            {entries.length > 1 && (
-              <span className="gantt-note-more" aria-hidden="true">
-                +{entries.length - 1}
-              </span>
-            )}
             {isAdmin &&
+              !shared &&
               (["start", "end"] as const).map((edge) => (
                 <span
                   key={edge}

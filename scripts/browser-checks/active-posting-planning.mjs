@@ -64,14 +64,14 @@ export async function checkActivePostingPlanning(f) {
             exact: true,
           })
           .boundingBox();
-        // The switch shares the upper tab row with the density and export controls.
+        // The switch shares the upper tab row with the export control; the
+        // report has no density choice (it is always compact).
         assert(options.y >= summary.y - 1);
         assert(options.y + options.height <= summary.y + summary.height + 1);
-        const density = await page.locator(".densitycontrol").boundingBox();
+        assert.equal(await page.locator(".densitycontrol").count(), 0);
         const exportButton = await page
           .getByRole("button", { name: "Kaynak Raporu İndir", exact: true })
           .boundingBox();
-        assert(options.x >= density.x + density.width);
         assert(options.x + options.width <= exportButton.x);
         assert(options.y + options.height <= heading.y);
         assert(options.height <= 48);

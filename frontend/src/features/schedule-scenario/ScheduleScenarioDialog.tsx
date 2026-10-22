@@ -5,7 +5,7 @@ import {
   type SetStateAction,
   type ReactNode,
 } from "react";
-import { ChartColumn, Copy, Plus, Save, Trash2, X } from "lucide-react";
+import { ChartColumn, Copy, Plus, Trash2, X } from "lucide-react";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import {
   Dialog,
@@ -17,7 +17,8 @@ import {
 import type { Data } from "../../model";
 import { fmt, monthLabel } from "../../format";
 import {
-  SCENARIO_STATUS_LABELS,
+  DUPLICATE_SCENARIO_MESSAGE,
+  duplicateScenario,
   scenarioApplyPlan,
   scenarioRevertPlan,
   type SavedScenario,
@@ -45,6 +46,9 @@ type Props = {
   currentMonth: string;
   scenarios: ShiftScenario[];
   setScenarios: Dispatch<SetStateAction<ShiftScenario[]>>;
+  /** Saved scenarios shown in the comparison, kept for the session. */
+  comparedIds: string[];
+  setComparedIds: Dispatch<SetStateAction<string[]>>;
   /** Draw the resource reports for this scenario. */
   onShowInReports: (scenarioId: string) => void;
   isAdmin: boolean;
@@ -64,6 +68,8 @@ export default function ScheduleScenarioDialog({
   currentMonth,
   scenarios,
   setScenarios,
+  comparedIds,
+  setComparedIds,
   onShowInReports,
   isAdmin,
   userId,
@@ -73,7 +79,23 @@ export default function ScheduleScenarioDialog({
   const [focus, setFocus] = useState(0);
   const [message, setMessage] = useState<{ text: string; error?: boolean }>();
   const saved = data.scheduleScenarios || [];
-  const savedOf = (id: string) => saved.find((item) => item.id === id);
+  // The comparison: saved scenarios picked for it (they survive a refresh),
+  // then the cards still being defined.
+  const compared = comparedIds
+    .map((id) => saved.find((s) => s.id === id))
+    .filter(
+      (s): s is SavedScenario =>
+        !!s && (s.status === "draft" || s.status === "approved"),
+    );
+  const comparisonList: ShiftScenario[] = [
+    ...compared.map(({ id, name, includeTimeline, shifts }) => ({
+      id,
+      name,
+      includeTimeline,
+      shifts,
+    })),
+    ...scenarios,
+  ];
   const scenarioChange = (value: SavedScenario): Change => ({
     kind: "scenario",
     id: value.id,
@@ -92,56 +114,67 @@ export default function ScheduleScenarioDialog({
   }
   // Cards of transferred or closed scenarios would compare against a plan
   // that already holds the shift; take them off the comparison.
-  const dropCards = (ids: string[]) =>
+  const dropCards = (ids: string[]) => {
+    setComparedIds((all) => all.filter((id) => !ids.includes(id)));
     setScenarios((all) => {
       const rest = all.filter((s) => !ids.includes(s.id));
       return rest.length
         ? rest
         : [newScenario(nextScenarioName(saved), currentMonth, 3)];
     });
+  };
   const overlaps = (a: ShiftScenario, b: ShiftScenario) =>
     a.shifts.some((s) => b.shifts.some((t) => t.projectId === s.projectId));
-  function saveCard(scenario: ShiftScenario) {
+  /** "Ekle": the card becomes a saved draft in Kayıtlı Senaryolar and stays
+   * in the comparison; a fresh card takes its place. */
+  function addCard(scenario: ShiftScenario) {
     const shifts = scenario.shifts.filter((s) => s.projectId && s.months);
     if (!shifts.length || !scenario.name.trim()) {
       setMessage({
-        text: "Kaydetmek için senaryo adı ve en az bir proje ile ay sayısı girin.",
+        text: "Eklemek için senaryo adı ve en az bir proje ile ay sayısı girin.",
         error: true,
       });
       return;
     }
-    const existing = savedOf(scenario.id);
     const value: SavedScenario = {
-      ...(existing || {
-        status: "draft",
-        createdBy: userId,
-        createdByName: "",
-        createdAt: new Date().toISOString(),
-      }),
+      status: "draft",
+      createdBy: userId,
+      createdByName: "",
+      createdAt: new Date().toISOString(),
       id: scenario.id,
       name: scenario.name.trim(),
       includeTimeline: scenario.includeTimeline,
       shifts,
     };
-    void run([scenarioChange(value)], `“${value.name}” kaydedildi.`);
+    if (duplicateScenario(value, saved))
+      return setMessage({ text: DUPLICATE_SCENARIO_MESSAGE, error: true });
+    void run([scenarioChange(value)], `“${value.name}” eklendi.`, () => {
+      setComparedIds((all) =>
+        [...all.filter((id) => id !== value.id), value.id].slice(
+          -MAX_SCENARIOS,
+        ),
+      );
+      setScenarios((all) => {
+        const rest = all.filter((s) => s.id !== value.id);
+        return rest.length
+          ? rest
+          : [newScenario(nextScenarioName([...saved, value]), currentMonth, 3)];
+      });
+    });
   }
   function act(action: SavedScenarioAction, item: SavedScenario) {
     if (action === "compare") {
-      const index = scenarios.findIndex((s) => s.id === item.id);
-      if (index >= 0) return setFocus(index);
-      const card: ShiftScenario = {
-        id: item.id,
-        name: item.name,
-        includeTimeline: item.includeTimeline,
-        shifts: item.shifts,
-      };
-      setScenarios((all) =>
-        all.length < MAX_SCENARIOS
-          ? [...all, card]
-          : [...all.slice(0, -1), card],
+      setComparedIds((all) =>
+        all.includes(item.id)
+          ? all
+          : all.length < MAX_SCENARIOS
+            ? [...all, item.id]
+            : [...all.slice(0, -1), item.id],
       );
       return;
     }
+    if (action === "uncompare")
+      return setComparedIds((all) => all.filter((id) => id !== item.id));
     if (action === "approve" || action === "withdraw")
       return void run(
         [
@@ -235,33 +268,62 @@ export default function ScheduleScenarioDialog({
     }
   }
   const comparison = useMemo(
-    () => compareScenarios(data, scenarios, currentMonth),
-    [data, scenarios, currentMonth],
+    () => compareScenarios(data, comparisonList, currentMonth),
+    // comparisonList is rebuilt every render from these inputs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, scenarios, comparedIds, currentMonth],
   );
   const update = (index: number, next: ShiftScenario) =>
     setScenarios((all) => all.map((s, i) => (i === index ? next : s)));
-  const shown = Math.min(focus, scenarios.length - 1);
+  const shown = Math.min(focus, comparisonList.length - 1);
   const reportTarget =
     comparison.columns[shown + 1]?.key || comparison.columns[1]?.key;
 
   return (
     <ScenarioContainer embedded={embedded} open={open} onClose={onClose}>
       <div className="schedule-scenario-body">
-        <section className="schedule-scenario-cards" aria-label="Senaryolar">
+        <section
+          className="schedule-scenario-cards"
+          aria-labelledby="schedule-scenario-add-title"
+        >
+          <h3
+            id="schedule-scenario-add-title"
+            className="schedule-section-title"
+          >
+            Senaryo Ekleme
+          </h3>
           {scenarios.map((scenario, index) => (
             <ScenarioCard
               key={scenario.id}
               data={data}
               scenario={scenario}
-              problems={comparison.results[index]?.problems || []}
-              saved={savedOf(scenario.id)}
+              problems={
+                comparison.results[compared.length + index]?.problems || []
+              }
+              duplicate={
+                !!duplicateScenario(
+                  { ...scenario, name: scenario.name.trim() },
+                  [
+                    ...saved,
+                    // Another card being defined counts as well.
+                    ...scenarios
+                      .filter((_, i) => i < index)
+                      .map((card) => ({ ...card, status: "draft" as const })),
+                  ] as SavedScenario[],
+                )
+              }
               saving={saving}
-              onSave={() => saveCard(scenario)}
-              canRemove={scenarios.length > 1}
+              onAdd={() => addCard(scenario)}
               canCopy={scenarios.length < MAX_SCENARIOS}
               onChange={(next) => update(index, next)}
               onRemove={() =>
-                setScenarios((all) => all.filter((_, i) => i !== index))
+                setScenarios((all) => {
+                  const rest = all.filter((_, i) => i !== index);
+                  // Removing the last card leaves an empty one to start over.
+                  return rest.length
+                    ? rest
+                    : [newScenario(nextScenarioName(saved), currentMonth, 3)];
+                })
               }
               onCopy={() =>
                 setScenarios((all) => [
@@ -301,7 +363,7 @@ export default function ScheduleScenarioDialog({
         </section>
         <SavedScenarioList
           data={data}
-          openIds={scenarios.map((s) => s.id)}
+          comparedIds={compared.map((s) => s.id)}
           scenarios={saved}
           isAdmin={isAdmin}
           userId={userId}
@@ -343,10 +405,7 @@ export default function ScheduleScenarioDialog({
             {message.text}
           </small>
         ) : (
-          <small>
-            Kaydedilen senaryoyu admin onaylar ve takvime aktarır; geri
-            alınabilir.
-          </small>
+          <span />
         )}
         <ReportDownloadButton
           label="Excel'e Aktar"
@@ -363,9 +422,11 @@ export default function ScheduleScenarioDialog({
           <ChartColumn size={16} aria-hidden="true" />
           Raporlarda Göster
         </button>
-        <button type="button" className="button primary" onClick={onClose}>
-          {embedded ? "Projelere Dön" : "Kapat"}
-        </button>
+        {!embedded && (
+          <button type="button" className="button primary" onClick={onClose}>
+            Kapat
+          </button>
+        )}
       </div>
     </ScenarioContainer>
   );
@@ -382,15 +443,12 @@ function ScenarioContainer({
   onClose: () => void;
   children: ReactNode;
 }) {
-  const description =
-    "Projeleri ileri veya geri kaydırıp etkisini görün. Karşılaştırma planı değiştirmez; takvime aktarma işlemi admin onayıyla ayrıca yapılır.";
   if (embedded)
     return (
       <section
         className="panel schedule-scenario-dialog schedule-scenario-page"
-        aria-label="Erteleme Senaryosu"
+        aria-label="Proje Takvimi Güncelle"
       >
-        <p className="schedule-scenario-intro">{description}</p>
         {children}
       </section>
     );
@@ -398,8 +456,10 @@ function ScenarioContainer({
     <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
       <DialogContent className="editor schedule-scenario-dialog">
         <DialogHeader>
-          <DialogTitle>Erteleme Senaryosu</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>Proje Takvimi Güncelle</DialogTitle>
+          <DialogDescription className="sr-only">
+            Projeleri ileri veya geri kaydırıp kaynak etkisini karşılaştırın.
+          </DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>
@@ -411,29 +471,26 @@ function ScenarioCard({
   data,
   scenario,
   problems,
-  canRemove,
   canCopy,
   onChange,
   onRemove,
   onCopy,
-  saved,
+  duplicate,
   saving,
-  onSave,
+  onAdd,
 }: {
   data: Data;
   scenario: ShiftScenario;
   problems: string[];
-  canRemove: boolean;
   canCopy: boolean;
   onChange: (next: ShiftScenario) => void;
   onRemove: () => void;
   onCopy: () => void;
-  saved?: SavedScenario;
+  /** It repeats a saved scenario's name or shifts: "Ekle" stays off. */
+  duplicate: boolean;
   saving: boolean;
-  onSave: () => void;
+  onAdd: () => void;
 }) {
-  // Approved or transferred scenarios are a record of the decision.
-  const locked = !!saved && saved.status !== "draft";
   const setShift = (
     index: number,
     patch: Partial<ShiftScenario["shifts"][0]>,
@@ -444,67 +501,19 @@ function ScenarioCard({
         i === index ? { ...s, ...patch } : s,
       ),
     });
+  const removeShift = (index: number) =>
+    onChange({
+      ...scenario,
+      shifts: scenario.shifts.filter((_, i) => i !== index),
+    });
+  // One line per shifted project: project, months, start month; the first
+  // line also carries the scenario name and its actions.
   return (
     <article className="schedule-scenario-card" aria-label={scenario.name}>
-      <header>
-        <input
-          aria-label="Senaryo adı"
-          value={scenario.name}
-          maxLength={40}
-          disabled={locked}
-          onChange={(e) => onChange({ ...scenario, name: e.target.value })}
-        />
-        <button
-          type="button"
-          className="icon-button"
-          title={
-            locked ? "Onaylanmış senaryo değiştirilemez" : "Senaryoyu kaydet"
-          }
-          aria-label={scenario.name + " senaryosunu kaydet"}
-          disabled={locked || saving}
-          onClick={onSave}
-        >
-          <Save size={14} aria-hidden="true" />
-        </button>
-        {canCopy && (
-          <button
-            type="button"
-            className="icon-button"
-            title="Senaryoyu çoğalt (+2 ay)"
-            aria-label={scenario.name + " senaryosunu çoğalt"}
-            onClick={onCopy}
-          >
-            <Copy size={14} aria-hidden="true" />
-          </button>
-        )}
-        {canRemove && (
-          <button
-            type="button"
-            className="icon-button"
-            title="Senaryoyu kaldır"
-            aria-label={scenario.name + " senaryosunu kaldır"}
-            onClick={onRemove}
-          >
-            <Trash2 size={14} aria-hidden="true" />
-          </button>
-        )}
-      </header>
-      {saved && (
-        <p className="schedule-card-status" data-scenario-status={saved.status}>
-          {SCENARIO_STATUS_LABELS[saved.status]}
-          {locked
-            ? " · değiştirilemez; çoğaltarak yeni taslak açabilirsiniz"
-            : " · kayıtlı"}
-        </p>
-      )}
-      <fieldset className="schedule-card-fields" disabled={locked}>
-        <div className="schedule-shift-head" aria-hidden="true">
-          <span>Proje</span>
-          <span>Ay</span>
-          <span>Başlangıç ayı</span>
-        </div>
-        {scenario.shifts.map((shift, index) => (
-          <div className="schedule-shift-row" key={index}>
+      {scenario.shifts.map((shift, index) => (
+        <div className="schedule-shift-row" key={index}>
+          <label className="schedule-field schedule-field-project">
+            <span>Proje</span>
             <select
               aria-label="Proje"
               value={shift.projectId}
@@ -517,6 +526,9 @@ function ScenarioCard({
                 </option>
               ))}
             </select>
+          </label>
+          <label className="schedule-field schedule-field-months">
+            <span>Ay</span>
             <input
               type="number"
               aria-label="Kaydırılacak ay"
@@ -534,6 +546,9 @@ function ScenarioCard({
                 })
               }
             />
+          </label>
+          <label className="schedule-field schedule-field-from">
+            <span>Başlangıç Ayı</span>
             <input
               type="month"
               aria-label="Kaydırmanın başladığı ay"
@@ -542,23 +557,74 @@ function ScenarioCard({
                 e.target.value && setShift(index, { fromMonth: e.target.value })
               }
             />
+          </label>
+          {index === 0 ? (
+            <>
+              <label className="schedule-field schedule-field-name">
+                <span>Senaryo</span>
+                <input
+                  aria-label="Senaryo adı"
+                  value={scenario.name}
+                  maxLength={40}
+                  onChange={(e) =>
+                    onChange({ ...scenario, name: e.target.value })
+                  }
+                />
+              </label>
+              <div className="schedule-card-buttons">
+                <button
+                  type="button"
+                  className="button primary"
+                  title={
+                    duplicate
+                      ? DUPLICATE_SCENARIO_MESSAGE
+                      : "Senaryoyu Kayıtlı Senaryolar'a ekle"
+                  }
+                  aria-label={scenario.name + " senaryosunu ekle"}
+                  disabled={duplicate || saving}
+                  onClick={onAdd}
+                >
+                  <Plus size={14} aria-hidden="true" />
+                  Ekle
+                </button>
+                {canCopy && (
+                  <button
+                    type="button"
+                    className="button"
+                    title="Senaryoyu çoğalt (+2 ay)"
+                    aria-label={scenario.name + " senaryosunu çoğalt"}
+                    onClick={onCopy}
+                  >
+                    <Copy size={14} aria-hidden="true" />
+                    Kopyala
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="button danger"
+                  title="Senaryoyu kaldır"
+                  aria-label={scenario.name + " senaryosunu kaldır"}
+                  onClick={onRemove}
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                  Sil
+                </button>
+              </div>
+            </>
+          ) : (
             <button
               type="button"
-              className="icon-button"
+              className="icon-button schedule-shift-remove"
               aria-label="Projeyi senaryodan çıkar"
               title="Projeyi senaryodan çıkar"
-              disabled={scenario.shifts.length === 1}
-              onClick={() =>
-                onChange({
-                  ...scenario,
-                  shifts: scenario.shifts.filter((_, i) => i !== index),
-                })
-              }
+              onClick={() => removeShift(index)}
             >
               <X size={14} aria-hidden="true" />
             </button>
-          </div>
-        ))}
+          )}
+        </div>
+      ))}
+      <div className="schedule-card-options">
         <button
           type="button"
           className="textbutton"
@@ -588,7 +654,12 @@ function ScenarioCard({
           />
           Aşamalar, başlıklar ve kilometre taşları da kaysın
         </label>
-      </fieldset>
+      </div>
+      {duplicate && (
+        <p className="negative schedule-card-duplicate" role="alert">
+          {DUPLICATE_SCENARIO_MESSAGE}
+        </p>
+      )}
       {problems.map((problem) => (
         <p key={problem} className="negative" role="alert">
           {problem}
@@ -621,12 +692,6 @@ function ComparisonView({
   const base = columns[0];
   const teamName = (id: string) =>
     data.teams.find((t) => t.id === id)?.name || id;
-  const better = (value: number, reference: number) =>
-    value < reference - 1e-9
-      ? "is-better"
-      : value > reference + 1e-9
-        ? "is-worse"
-        : undefined;
   return (
     <section className="schedule-comparison" aria-label="Karşılaştırma">
       <p className="schedule-comparison-scope">
@@ -638,7 +703,9 @@ function ComparisonView({
           <tr>
             <th />
             {columns.map((column) => (
-              <th key={column.key}>{column.name}</th>
+              <th key={column.key}>
+                {column.key === "base" ? "Mevcut Bitiş Tarihi" : column.name}
+              </th>
             ))}
           </tr>
         </thead>
@@ -653,57 +720,6 @@ function ComparisonView({
               ))}
             </tr>
           ))}
-          <tr>
-            <th>Toplam kaynak açığı (kişi-ay)</th>
-            {columns.map((column, i) => (
-              <td
-                key={column.key}
-                className={
-                  i
-                    ? better(column.summary.shortage, base.summary.shortage)
-                    : undefined
-                }
-              >
-                {fmt(column.summary.shortage)}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            <th>Açık olan ay sayısı</th>
-            {columns.map((column, i) => (
-              <td
-                key={column.key}
-                className={
-                  i
-                    ? better(
-                        column.summary.shortageMonths,
-                        base.summary.shortageMonths,
-                      )
-                    : undefined
-                }
-              >
-                {column.summary.shortageMonths}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            <th>En yüksek aylık açık</th>
-            {columns.map((column) => (
-              <td key={column.key}>
-                {column.summary.peak
-                  ? `${fmt(column.summary.peak.value)} · ${monthLabel(column.summary.peak.month)}`
-                  : "Açık yok"}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            <th>Kaydırılan planlanan kayıt</th>
-            {columns.map((column) => (
-              <td key={column.key}>
-                {column.key === "base" ? "—" : column.moved}
-              </td>
-            ))}
-          </tr>
         </tbody>
       </table>
       <div className="schedule-impact-head">
@@ -729,7 +745,7 @@ function ComparisonView({
         </span>
       </div>
       <ImpactTable
-        title="Liderlik bazında"
+        title="Liderlik Bazında Senaryo Karşılaştırma"
         firstHeader="Liderlik / Birim"
         rows={comparison.leaderRows.map((row) => ({
           key: "leader:" + (row.leader || row.unitId || row.name),
@@ -743,7 +759,7 @@ function ComparisonView({
         total
       />
       <ImpactTable
-        title="Takım bazında"
+        title="Takım Bazında Senaryo Karşılaştırma"
         firstHeader="Takım"
         rows={teams.map((team) => ({
           key: team,
@@ -784,6 +800,16 @@ function ImpactTable({
   const totalIds = [
     ...new Set(rows.filter((row) => !row.depth).flatMap((row) => row.ids)),
   ];
+  // No team is touched: say so instead of a header-only table or a lone 0 total.
+  if (!rows.length)
+    return (
+      <div className="schedule-impact-block">
+        <h4>{title}</h4>
+        <p className="schedule-impact-empty">
+          Bu senaryo hiçbir takımın kalan kaynağını değiştirmiyor.
+        </p>
+      </div>
+    );
   const all = total
     ? [
         ...rows,

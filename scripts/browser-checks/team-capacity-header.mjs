@@ -1,4 +1,4 @@
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectWorkspaceView } from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 
@@ -20,9 +20,7 @@ export async function checkTeamCapacityHeader(f) {
   const { page } = await f.client("root-admin");
   try {
     await selectWorkspaceTab(page, "Kaynak Planlama");
-    await page
-      .getByRole("tab", { name: "Takım → Projeler", exact: true })
-      .click();
+    await selectWorkspaceView(page, "Takım Bazlı");
     await page.getByRole("button", { name: "Takım", exact: true }).click();
     const teamPicker = page.locator('.pickerpanel[data-state="open"]');
     await teamPicker
@@ -98,8 +96,9 @@ export async function checkTeamCapacityHeader(f) {
           );
           return {
             height: row.getBoundingClientRect().height,
-            horizontal: boxes.every(
-              (box) => Math.abs(box.top - boxes[0].top) < 2,
+            // Compact months stack the three values in one column.
+            stacked: boxes.every(
+              (box, i) => !i || box.top >= boxes[i - 1].bottom - 1,
             ),
             fits: values.scrollWidth <= values.clientWidth,
           };
@@ -108,10 +107,7 @@ export async function checkTeamCapacityHeader(f) {
           layout.height < 80,
           `Compact team header height: ${layout.height}`,
         );
-        assert(
-          layout.horizontal,
-          "Detailed view places monthly values side by side",
-        );
+        assert(layout.stacked, "Compact view stacks the monthly values");
         assert(layout.fits, "Monthly values fit their column");
         const numbersVisible = await row
           .locator(".team-capacity-number")
@@ -164,10 +160,15 @@ export async function checkTeamCapacityHeader(f) {
     await f.check(
       "team capacity header: narrow views remain compact and inside their month columns",
       async () => {
-        for (const mode of ["compact", "overview"]) {
+        // Kaynak Planlama is always compact; there is no density choice.
+        assert.equal(
           await page
             .getByRole("combobox", { name: "Takvim yoğunluğu", exact: true })
-            .selectOption(mode);
+            .count(),
+          0,
+        );
+        assert(await page.locator(".app.dense-compact").count());
+        for (const mode of ["compact"]) {
           await row.scrollIntoViewIfNeeded();
           const layout = await row.evaluate((row) => ({
             height: row.getBoundingClientRect().height,

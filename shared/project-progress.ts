@@ -1,4 +1,5 @@
 import { ownValue } from "./records.ts";
+import { topLeader } from "./leadership-hierarchy.ts";
 
 /**
  * Project progress per project × leadership. Leaders enter a cumulative
@@ -204,6 +205,29 @@ export function leaderResourceByMonth(
     out.set(leader, byMonth);
   }
   return out;
+}
+/** Progress is tracked by the top leadership only (as in the leadership
+ * report): resource of sub-leaderships rolls up into their top leadership. */
+export const isTopLeader = (
+  data: { leaderParents?: Record<string, string> },
+  name: string,
+) => !!name && topLeader(data, name) === name;
+export function topLeaderResourceByMonth(
+  data: {
+    teams: { id: string; lead?: string }[];
+    leaderParents?: Record<string, string>;
+  },
+  entries: Record<string, number>,
+  projectId: string,
+) {
+  return leaderResourceByMonth(
+    data.teams.map((team) => ({
+      id: team.id,
+      lead: team.lead ? topLeader(data, team.lead) : "",
+    })),
+    entries,
+    projectId,
+  );
 }
 const sum = (byMonth: Record<string, number> | undefined, months: string[]) =>
   months.reduce((total, month) => total + (ownValue(byMonth, month) || 0), 0);

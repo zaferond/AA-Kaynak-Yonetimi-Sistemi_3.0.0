@@ -10,6 +10,8 @@ import {
   DEFAULT_MONTHLY_HOURS,
 } from "../backend/domain/index.mjs";
 import { Store } from "../backend/store.mjs";
+import { OFFICIAL_HOLIDAYS } from "../shared/official-holidays.ts";
+import { workdaysInMonth } from "../shared/actual-units.ts";
 import { hashPassword } from "../backend/auth.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -58,7 +60,7 @@ const weekday = (month) => {
   for (let day = 1; day <= 28; day++) {
     const date = dayInMonth(month, day),
       n = new Date(date + "T12:00:00Z").getUTCDay();
-    if (n > 0 && n < 6) return date;
+    if (n > 0 && n < 6 && !OFFICIAL_HOLIDAYS[date]) return date;
   }
   throw Error("weekday missing");
 };
@@ -66,7 +68,7 @@ const nextWeekday = (month, after) => {
   for (let day = Number(after.slice(-2)) + 1; day <= 28; day++) {
     const date = dayInMonth(month, day),
       n = new Date(date + "T12:00:00Z").getUTCDay();
-    if (n > 0 && n < 6) return date;
+    if (n > 0 && n < 6 && !OFFICIAL_HOLIDAYS[date]) return date;
   }
   throw Error("next weekday missing");
 };
@@ -225,7 +227,10 @@ test("training counts toward distributed percentage without reducing hours; leav
   );
   assert.equal(
     d.actualPercentEntries[key],
-    ((projectAmount * DEFAULT_MONTHLY_HOURS) / 216) * 100,
+    // Manual hours drop the leave and the month's official holiday hours.
+    ((projectAmount * DEFAULT_MONTHLY_HOURS) /
+      (220 - 4 - (workdaysInMonth(month) * 9 - base))) *
+      100,
   );
 });
 

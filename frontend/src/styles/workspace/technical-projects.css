@@ -131,8 +131,12 @@ html[data-theme="technical"] .app .projectmatrix .gantt-note-list li {
 html[data-theme="technical"] .app .projectmatrix .gantt-note-list li::before {
   content: none;
 }
-/* The bar shows its first note; the counter tells how many follow. */
-html[data-theme="technical"] .app .projectmatrix .gantt-note-list li + li,
+/* Notes of one date range stack one under another inside the same bar. */
+html[data-theme="technical"] .app .projectmatrix .gantt-note-list li + li {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--gantt-color) 30%, #fff);
+}
 html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-dates {
   display: none;
 }
@@ -152,21 +156,6 @@ html[data-theme="technical"]
   color: var(--brand-muted);
   text-decoration-thickness: 1px;
   opacity: 1;
-}
-html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-more {
-  display: inline-block;
-  flex: none;
-  width: auto;
-  max-height: none;
-  overflow: visible;
-  padding: 0 5px;
-  border-radius: 2px;
-  background: #fff;
-  color: var(--brand-muted);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  line-height: 16px;
-  font-variant-numeric: tabular-nums;
 }
 html[data-theme="technical"]
   .app
@@ -198,4 +187,22 @@ html[data-theme="technical"] .app .projectmatrix .milestone-track .gantt-bar {
   html[data-theme="technical"] .app .projectmatrix .gantt-bar .gantt-note-list {
     visibility: hidden;
   }
+}
+
+/* 5-year view: a one-month phase shows only its initial; centre it in the
+   narrow cell so it stays inside the box. */
+html[data-theme="technical"]
+  .app.dense-overview
+  .projectmatrix
+  .phase-chip[data-phase-run="single"] {
+  justify-content: center;
+  padding-inline: 0;
+  overflow: hidden;
+}
+html[data-theme="technical"]
+  .app.dense-overview
+  .projectmatrix
+  .phase-chip[data-phase-run="single"]
+  .phasepreview {
+  text-align: center;
 }

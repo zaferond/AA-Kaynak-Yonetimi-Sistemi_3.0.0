@@ -1,8 +1,4 @@
-import {
-  ScenarioWarningStatus,
-  WarningCalculationSummary,
-} from "./ScenarioWarningStatus";
-import { explainSignal } from "./progress-management";
+import { ScenarioWarningStatus } from "./ScenarioWarningStatus";
 import { Fragment, useMemo } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
@@ -12,7 +8,7 @@ import {
 import ProjectResponsible from "../../ProjectResponsible";
 import ProgressTopicCells from "./ProgressTopicCells";
 import { phaseChipStyle, phaseRunKey, phaseRunSpans } from "../../phase-chip";
-import { monthLabel, fmt } from "../../format";
+import { monthLabel, monthName, fmt } from "../../format";
 import {
   pctLabel,
   type ProgressContext,
@@ -35,6 +31,7 @@ export default function ProgressManagementMatrix({
   months,
   monthWidth,
   month,
+  lastLockedMonth,
   expanded,
   setExpanded,
   detail,
@@ -45,6 +42,8 @@ export default function ProgressManagementMatrix({
   months: string[];
   monthWidth: number;
   month: string;
+  /** Last month locked for changes; names the evaluation column. */
+  lastLockedMonth?: string;
   expanded: Set<string>;
   setExpanded: (value: Set<string>) => void;
   detail: string;
@@ -73,7 +72,7 @@ export default function ProgressManagementMatrix({
     [ctx, projects, months],
   );
   const metrics = [
-    { key: "resource", label: "Planlanan kaynak (kişi-ay)" },
+    { key: "resource", label: "Planlanan Kaynak (Kişi/Ay)" },
     { key: "target", label: "Planlanan %" },
     { key: "actual", label: "Gerçekleşen %" },
     { key: "gap", label: "Fark %" },
@@ -132,10 +131,10 @@ export default function ProgressManagementMatrix({
               : "detail"
         }
         aria-label="Proje ve Kaynak Değerlendirme Raporu"
-        style={{ width: 580 + months.length * monthWidth, minWidth: "100%" }}
+        style={{ width: 510 + months.length * monthWidth, minWidth: "100%" }}
       >
         <colgroup>
-          <col style={{ width: 220 }} />
+          <col style={{ width: 150 }} />
           <col style={{ width: 240 }} />
           <col style={{ width: 120 }} />
           {months.map((m) => (
@@ -149,8 +148,9 @@ export default function ProgressManagementMatrix({
           />
           <tr>
             <th scope="col" className="progress-matrix-assessment">
-              İlerleme ve kaynak değerlendirmesi
-              <small>Son kilitli ay</small>
+              {lastLockedMonth
+                ? `${monthName(lastLockedMonth)} Ayı Değerlendirmesi`
+                : "Değerlendirme"}
             </th>
             <th scope="col" className="progress-matrix-name">
               Proje / Liderlik
@@ -182,7 +182,7 @@ export default function ProgressManagementMatrix({
               <Fragment key={row.project.id}>
                 {[
                   { key: "phase", label: "Aşama" } as const,
-                  { key: "topics", label: "Kritik konular" } as const,
+                  { key: "topics", label: "Kritik Konular" } as const,
                   ...metrics,
                 ].map(({ key, label }, index) => (
                   <tr
@@ -207,22 +207,6 @@ export default function ProgressManagementMatrix({
                           <ScenarioWarningStatus
                             assessment={project.scenario}
                           />
-                          <details className="progress-assessment-section">
-                            <summary>Hesap ve diğer uyarılar</summary>
-                            <WarningCalculationSummary
-                              assessment={project.scenario}
-                            />
-                            {[
-                              ...new Set(
-                                [
-                                  ...row.signals,
-                                  ...row.leaders.flatMap((l) => l.signals),
-                                ].map((signal) => explainSignal(signal.reason)),
-                              ),
-                            ].map((reason) => (
-                              <p key={reason}>{reason}</p>
-                            ))}
-                          </details>
                         </div>
                       </td>
                     )}

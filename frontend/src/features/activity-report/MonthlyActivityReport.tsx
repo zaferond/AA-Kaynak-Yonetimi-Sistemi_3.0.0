@@ -50,13 +50,15 @@ export default function MonthlyActivityReport({
   teams,
   months,
   todayDate,
+  unit,
 }: {
   rows: ActivityRow[];
   teams: Team[];
   months: string[];
   todayDate: string;
+  /** Chosen in the page heading ("Görünüm"). */
+  unit: ActualUnit;
 }) {
-  const [unit, setUnit] = useState<ActualUnit>("percent");
   const [page, setPage] = useState(0);
   useEffect(() => setPage(0), [teams, months, allRows]);
   const rows = useMemo(() => {
@@ -102,19 +104,6 @@ export default function MonthlyActivityReport({
       className="panel monthly-activity-report"
       aria-label="Aktivite Raporu"
     >
-      <div className="activity-toolbar">
-        <label>
-          Görünüm{" "}
-          <select
-            aria-label="Aktivite raporu birimi"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as ActualUnit)}
-          >
-            <option value="percent">Yüzde (%)</option>
-            <option value="hours">Saat</option>
-          </select>
-        </label>
-      </div>
       <Table
         className="activity-matrix"
         aria-label="Çalışanların aylık aktiviteleri"
