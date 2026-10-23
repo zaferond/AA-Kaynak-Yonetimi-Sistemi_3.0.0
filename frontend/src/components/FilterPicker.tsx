@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -13,16 +13,35 @@ export type PickerItem = {
   depth?: number;
   parentId?: string;
 };
+/** Marks the searched part of a name; folding keeps one character per letter. */
+function Highlight({ text, query }: { text: string; query: string }) {
+  const needle = fold(query.trim());
+  const chars = [...text];
+  const folded = chars.map((c) => fold(c));
+  const at = needle ? folded.join("").indexOf(needle) : -1;
+  if (at < 0 || folded.some((c) => c.length !== 1)) return <>{text}</>;
+  return (
+    <>
+      {chars.slice(0, at).join("")}
+      <mark>{chars.slice(at, at + needle.length).join("")}</mark>
+      {chars.slice(at + needle.length).join("")}
+    </>
+  );
+}
 function ItemLabel({
   item,
   descriptionId,
+  query = "",
 }: {
   item: PickerItem;
   descriptionId?: string;
+  query?: string;
 }) {
   return (
     <span className="picker-item-label">
-      <span>{item.name}</span>
+      <span>
+        <Highlight text={item.name} query={query} />
+      </span>
       {item.description && (
         <small id={descriptionId} className="picker-item-description">
           {" "}
@@ -42,6 +61,7 @@ export function Picker({
   single = false,
   empty = "Tümü",
   compact = false,
+  countOnly = false,
 }: {
   label: string;
   value: string[];
@@ -50,6 +70,8 @@ export function Picker({
   single?: boolean;
   empty?: string;
   compact?: boolean;
+  /** Show a count even for one choice; filter bars list names as tokens. */
+  countOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [query, setQuery] = useState(""),
@@ -96,10 +118,12 @@ export function Picker({
           >
             <span>
               {value.length ? (
-                selected.length === 1 ? (
+                selected.length === 1 && !countOnly ? (
                   <ItemLabel item={selected[0]} />
                 ) : (
-                  value.length + " seçim"
+                  <>
+                    <b className="picker-count">{value.length}</b> seçim
+                  </>
                 )
               ) : (
                 empty
@@ -128,6 +152,28 @@ export function Picker({
               placeholder="Yazarak ara…"
             />
           </div>
+          {!single && value.length > 0 && (
+            <div className="picker-selected">
+              <small>
+                Seçili {value.length} / {items.length}
+              </small>
+              <div>
+                {selected.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-label={item.name + " seçimini kaldır"}
+                    onClick={() =>
+                      onChange(value.filter((id) => id !== item.id))
+                    }
+                  >
+                    {item.name}
+                    <X size={12} aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {!single && (
             <div className="pickeractions">
               <button
@@ -180,7 +226,11 @@ export function Picker({
                       ↳
                     </span>
                   )}
-                  <ItemLabel item={i} descriptionId={descriptionId(i)} />
+                  <ItemLabel
+                    item={i}
+                    descriptionId={descriptionId(i)}
+                    query={query}
+                  />
                   {value.includes(i.id) && <Check size={15} />}
                 </button>
               ) : (
@@ -217,7 +267,11 @@ export function Picker({
                       ↳
                     </span>
                   )}
-                  <ItemLabel item={i} descriptionId={descriptionId(i)} />
+                  <ItemLabel
+                    item={i}
+                    descriptionId={descriptionId(i)}
+                    query={query}
+                  />
                 </label>
               ),
             )}

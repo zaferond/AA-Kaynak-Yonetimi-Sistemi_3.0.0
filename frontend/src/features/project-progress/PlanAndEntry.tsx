@@ -2,6 +2,7 @@ import { useId, useState, type ReactNode } from "react";
 import Badge from "../../components/Badge";
 import { createPortal } from "react-dom";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
+import ProgressMonthLock from "./ProgressMonthLock";
 import { CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
@@ -168,20 +169,34 @@ export default function PlanAndEntry({
     <div className="progress-baseline">
       {actionsHost &&
         createPortal(
-          <ProgressLeadershipToggle
-            checked={groups.some(([name]) => !collapsed.has(name))}
-            disabled={!groups.length}
-            onChange={(open) => {
-              setCollapsed((previous) => {
-                const next = new Set(previous);
-                groups.forEach(([name]) => {
-                  if (open) next.delete(name);
-                  else next.add(name);
+          <>
+            {month && (
+              <ProgressMonthLock
+                data={ctx.data}
+                month={month}
+                admin={isAdmin}
+                saving={saving}
+                onSave={onSave}
+                onError={(text) =>
+                  setApproval(text ? { text, error: true } : undefined)
+                }
+              />
+            )}
+            <ProgressLeadershipToggle
+              checked={groups.some(([name]) => !collapsed.has(name))}
+              disabled={!groups.length}
+              onChange={(open) => {
+                setCollapsed((previous) => {
+                  const next = new Set(previous);
+                  groups.forEach(([name]) => {
+                    if (open) next.delete(name);
+                    else next.add(name);
+                  });
+                  return next;
                 });
-                return next;
-              });
-            }}
-          />,
+              }}
+            />
+          </>,
           actionsHost,
         )}
       <ProgressFilters
@@ -242,32 +257,40 @@ export default function PlanAndEntry({
         role="group"
         aria-label="Bekleyen işler"
       >
-        {WAITING.map(({ key, label }) => (
-          <label key={key} className="progress-waiting-option">
-            <input
-              type="checkbox"
-              checked={waiting.has(key)}
-              onChange={(e) =>
+        {/* Square toggles as in Haftalık Kritik Konular. Several may be on at
+            once and combine; "Tümü" clears them. */}
+        <div className="progress-waiting-filter">
+          <button
+            type="button"
+            aria-pressed={!waiting.size}
+            onClick={() => setWaiting(new Set())}
+          >
+            Tümü <span>{items.length}</span>
+          </button>
+          {WAITING.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={waiting.has(key)}
+              data-waiting={key}
+              onClick={() =>
                 setWaiting((previous) => {
                   const next = new Set(previous);
-                  if (e.target.checked) next.add(key);
-                  else next.delete(key);
+                  if (next.has(key)) next.delete(key);
+                  else next.add(key);
                   return next;
                 })
               }
-            />
-            {key === "evaluation"
-              ? `${month ? monthName(month) : "Seçili"} ${label}`
-              : label}
-            <Badge
-              variant="count"
-              className="progress-waiting-count"
-              aria-label="adet"
             >
-              {waitingCount(key)}
-            </Badge>
-          </label>
-        ))}
+              {key === "evaluation"
+                ? `${month ? monthName(month) : "Seçili"} ${label}`
+                : label}{" "}
+              <span className="progress-waiting-count">
+                {waitingCount(key)}
+              </span>
+            </button>
+          ))}
+        </div>
         {isAdmin && (
           <button
             type="button"

@@ -14,6 +14,7 @@ import {
   clearAfterComplete,
   recalculateTargetsAfterEdit,
   proposalProblems,
+  suggestRevisionTargets,
   suggestTargets,
   targetAt,
   lastLockedMonth,
@@ -206,22 +207,21 @@ export default function ProgressCard({
   const openingValid =
     Number.isFinite(opening) && opening! >= 0 && opening! <= 100;
   const frozen = (m: string) => !!baseline && m <= lockedThrough;
-  // After a lock the suggested curve starts from the newest locked month.
-  const suggestFrom =
-    baseline && form && lockedThrough > form.openingMonth ? lockedThrough : "";
+  // A revision keeps the locked months, follows the entered actuals and
+  // spreads the rest from the newest actual; a new plan starts at opening.
   const suggested =
     form && openingValid
       ? (form.adjustedSuggestion ??
-        (suggestFrom
-          ? {
-              ...lockedTargets(baseline!, form.openingMonth, suggestFrom),
-              ...suggestTargets(
-                suggestFrom,
-                targetAt(baseline, suggestFrom)!,
-                project.end,
-                planned,
-              ),
-            }
+        (baseline
+          ? suggestRevisionTargets({
+              approved: baseline,
+              openingMonth: form.openingMonth,
+              openingPct: opening!,
+              lockedThrough,
+              actuals: record?.actuals,
+              projectEnd: project.end,
+              planned,
+            })
           : suggestTargets(form.openingMonth, opening!, project.end, planned)))
       : undefined;
   const months = form ? monthsAfter(form.openingMonth, project.end) : [];
@@ -245,7 +245,11 @@ export default function ProgressCard({
           )
             ? ["Hedeflere yalnız sayı girin."]
             : []),
-          ...proposalProblems(proposal, project.end),
+          ...proposalProblems(
+            proposal,
+            project.end,
+            baseline ? lockedThrough : "",
+          ),
           ...(baseline && !proposal.reason
             ? ["Hedef planı revizyonu için gerekçe yazın."]
             : []),

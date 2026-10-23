@@ -35,49 +35,29 @@ export async function checkTeamCapacityHeader(f) {
     );
     const row = table.locator(`[data-planning-group="${f.teamA.id}"]`);
     await row.scrollIntoViewIfNeeded();
+    // Monthly capacity lives in the Kalan Kaynak report above the table.
+    const summary = (kind, month) =>
+      page.locator(".capacitystrip .summary.s" + kind + " td").nth(month);
     await f.check(
-      "team capacity header: compact monthly totals appear beside team identity with accessible labels and threshold colors",
+      "team capacity header: the team row carries only the team identity; monthly capacity and its threshold colours are in the Kalan Kaynak report",
       async () => {
-        for (const label of [
-          "Aktif Kaynak",
-          "Dağıtılan Kaynak",
-          "Kalan Kaynak",
-        ]) {
-          assert.equal(await row.getByText(label, { exact: true }).count(), 0);
-          assert(
-            (
-              await row
-                .locator('[data-team-capacity-month="2026-01"]')
-                .getByLabel(new RegExp(label))
-                .getAttribute("title")
-            ).includes(label),
-          );
-        }
         assert.deepEqual(
           await row
-            .locator(
-              '[data-team-capacity-month="2026-01"] [data-team-capacity-kind]',
-            )
-            .allTextContents(),
-          ["1", "1,1", "-0,1"],
+            .locator("[data-team-capacity-month]")
+            .evaluateAll((cells) =>
+              cells.map((cell) => cell.textContent + cell.children.length),
+            ),
+          Array(12).fill("0"),
+        );
+        assert.equal(await page.locator(".capacity-legend").count(), 0);
+        assert.equal(await summary(0, 1).innerText(), "1");
+        assert.equal(await summary(2, 1).innerText(), "1,1");
+        assert.equal(await summary(3, 1).innerText(), "-0,1");
+        assert(
+          (await summary(3, 1).getAttribute("class")).includes("over-warning"),
         );
         assert(
-          (
-            await row
-              .locator(
-                '[data-team-capacity-month="2026-01"] [data-team-capacity-kind="2"]',
-              )
-              .getAttribute("class")
-          ).includes("over-warning"),
-        );
-        assert(
-          (
-            await row
-              .locator(
-                '[data-team-capacity-month="2026-03"] [data-team-capacity-kind="2"]',
-              )
-              .getAttribute("class")
-          ).includes("over-critical"),
+          (await summary(3, 3).getAttribute("class")).includes("over-critical"),
         );
         assert.equal(
           await table.locator(".summary").count(),
@@ -89,40 +69,11 @@ export async function checkTeamCapacityHeader(f) {
           next: row.nextElementSibling.rowIndex,
         }));
         assert(position.next > position.heading);
-        const layout = await row.evaluate((row) => {
-          const values = [...row.querySelectorAll(".team-capacity-values")][0];
-          const boxes = [...values.children].map((value) =>
-            value.getBoundingClientRect(),
-          );
-          return {
-            height: row.getBoundingClientRect().height,
-            // Compact months stack the three values in one column.
-            stacked: boxes.every(
-              (box, i) => !i || box.top >= boxes[i - 1].bottom - 1,
-            ),
-            fits: values.scrollWidth <= values.clientWidth,
-          };
-        });
-        assert(
-          layout.height < 80,
-          `Compact team header height: ${layout.height}`,
-        );
-        assert(layout.stacked, "Compact view stacks the monthly values");
-        assert(layout.fits, "Monthly values fit their column");
-        const numbersVisible = await row
-          .locator(".team-capacity-number")
-          .evaluateAll((numbers) =>
-            numbers.every((number) => number.getBoundingClientRect().width > 3),
-          );
-        assert(
-          numbersVisible,
-          "Numeric values have visible width, not just DOM text",
-        );
         await f.capture(page, "team-capacity-header");
       },
     );
     await f.check(
-      "team capacity header: resource entry updates summary and project filter retains all-project team totals",
+      "team capacity header: resource entry updates the Kalan Kaynak report; a project filter narrows its allocated row",
       async () => {
         const input = table.locator(
           `[data-plan-cell="${f.teamA.id}|p-a|2026-01"] input`,
@@ -130,14 +81,10 @@ export async function checkTeamCapacityHeader(f) {
         await input.fill("0,75");
         await input.press("Enter");
         await f.wait(
-          async () =>
-            (await row
-              .locator(
-                '[data-team-capacity-month="2026-01"] [data-team-capacity-kind="1"]',
-              )
-              .innerText()) === "1,25",
-          "header reflects saved allocation",
+          async () => (await summary(3, 1).innerText()) === "-0,25",
+          "report reflects saved allocation",
         );
+        assert.equal(await summary(2, 1).innerText(), "1,25");
         await page.getByRole("button", { name: "Proje", exact: true }).click();
         const picker = page.locator('.pickerpanel[data-state="open"]');
         await picker
@@ -147,18 +94,15 @@ export async function checkTeamCapacityHeader(f) {
           .getByRole("checkbox", { name: "Browser Project A", exact: true })
           .check();
         await page.keyboard.press("Escape");
-        assert.deepEqual(
-          await row
-            .locator(
-              '[data-team-capacity-month="2026-01"] [data-team-capacity-kind]',
-            )
-            .allTextContents(),
-          ["1", "1,25", "-0,25"],
+        await f.wait(
+          async () => (await summary(2, 1).innerText()) === "0,75",
+          "report shows the selected project's allocation",
         );
+        assert.equal(await summary(3, 1).innerText(), "0,25");
       },
     );
     await f.check(
-      "team capacity header: narrow views remain compact and inside their month columns",
+      "team capacity header: compact team rows stay short and keep the team label inside its cell",
       async () => {
         // Kaynak Planlama is always compact; there is no density choice.
         assert.equal(
@@ -168,25 +112,14 @@ export async function checkTeamCapacityHeader(f) {
           0,
         );
         assert(await page.locator(".app.dense-compact").count());
-        for (const mode of ["compact"]) {
-          await row.scrollIntoViewIfNeeded();
-          const layout = await row.evaluate((row) => ({
-            height: row.getBoundingClientRect().height,
-            fits: [...row.querySelectorAll(".team-capacity-values")].every(
-              (values) => values.scrollWidth <= values.clientWidth,
-            ),
-            labelFits: row.cells[0].scrollWidth <= row.cells[0].clientWidth,
-            numbersVisible: [
-              ...row.querySelectorAll(".team-capacity-number"),
-            ].every((number) => number.getBoundingClientRect().width > 3),
-          }));
-          await f.capture(page, `team-capacity-${mode}`);
-          assert(layout.height < 85, `${mode} header height: ${layout.height}`);
-          assert(
-            layout.fits && layout.labelFits && layout.numbersVisible,
-            `${mode} summaries stay inside their cells: ${JSON.stringify(layout)}`,
-          );
-        }
+        await row.scrollIntoViewIfNeeded();
+        const layout = await row.evaluate((row) => ({
+          height: row.getBoundingClientRect().height,
+          labelFits: row.cells[0].scrollWidth <= row.cells[0].clientWidth,
+        }));
+        await f.capture(page, "team-capacity-compact");
+        assert(layout.height < 85, `compact header height: ${layout.height}`);
+        assert(layout.labelFits, JSON.stringify(layout));
       },
     );
   } finally {

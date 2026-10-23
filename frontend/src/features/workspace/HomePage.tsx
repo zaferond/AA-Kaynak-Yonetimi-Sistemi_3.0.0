@@ -4,6 +4,7 @@ import { TAB_LABELS } from "../../settings";
 import { currentPlanningDate } from "../../resource-dates";
 import { isoWeek } from "../../iso-week";
 import { menuTabs, type MenuTab } from "./menu-tabs";
+import HomeCardArt, { bentoSpans } from "./HomeCardArt";
 
 const GROUPS: Record<MenuTab["group"], string> = {
   home: "",
@@ -36,7 +37,7 @@ const dayFormat = new Intl.DateTimeFormat("tr-TR", {
 });
 
 /** Ana Sayfa: the opening screen. One card per screen the user may open,
- * in sidebar order; a card opens its screen. */
+ * in sidebar order, laid out as a bento grid; a card opens its screen. */
 export default function HomePage({
   user,
   onOpen,
@@ -48,6 +49,7 @@ export default function HomePage({
   const cards = menuTabs(user).filter(
     (tab): tab is Exclude<MenuTab, { value: "home" }> => tab.value !== "home",
   );
+  const spans = bentoSpans(cards.length);
   return (
     <section className="home-page" aria-label="Ana Sayfa">
       <p className="home-greeting">
@@ -57,21 +59,25 @@ export default function HomePage({
         {isoWeek(today).week}
       </p>
       <div className="home-cards" data-count={cards.length}>
-        {cards.map(({ value, Icon, group }) => (
+        {cards.map(({ value, Icon, group }, index) => (
           <button
             key={value}
             type="button"
             className="home-card"
+            data-span={spans[index]}
             onClick={() => onOpen(value)}
           >
-            <span className="home-card-top">
-              <span className="home-card-icon" aria-hidden="true">
-                <Icon size={20} />
+            <HomeCardArt value={value} />
+            <span className="home-card-body">
+              <span className="home-card-top">
+                <span className="home-card-icon" aria-hidden="true">
+                  <Icon size={18} />
+                </span>
+                <span className="home-card-group">{GROUPS[group]}</span>
               </span>
-              <span className="home-card-group">{GROUPS[group]}</span>
+              <strong>{TAB_LABELS[value]}</strong>
+              <span className="home-card-text">{DESCRIPTIONS[value]}</span>
             </span>
-            <strong>{TAB_LABELS[value]}</strong>
-            <span className="home-card-text">{DESCRIPTIONS[value]}</span>
             <ArrowRight className="home-card-go" size={16} aria-hidden="true" />
           </button>
         ))}

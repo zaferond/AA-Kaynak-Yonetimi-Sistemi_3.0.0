@@ -1,0 +1,212 @@
+/* Technical theme filter bar: each filter is one compact "Label  Value ▾"
+   control sized to its content; applied selections sit beneath as tokens. */
+html[data-theme="technical"] .app .planning-filterbar .filters {
+  flex: 1 1 auto;
+  gap: 6px;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > :is(.pick, label.pick):nth-child(n) {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  max-width: 300px;
+  height: 28px;
+  padding-left: 9px;
+  border: 1px solid var(--brand-border);
+  border-radius: 3px;
+  background: #fff;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > :is(.pick, label.pick):hover {
+  border-color: var(--brand-border-strong);
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > :is(.pick, label.pick):focus-within {
+  border-color: var(--brand-focus);
+  box-shadow: 0 0 0 2px var(--brand-focus-shadow);
+}
+html[data-theme="technical"] .app .planning-filterbar .filters > .pick > span {
+  font-weight: 500;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > .pick
+  :is(.pickerbutton, input, select) {
+  width: auto;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-weight: 600;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > .pick
+  :is(.pickerbutton, input, select):focus-visible {
+  outline: none;
+}
+html[data-theme="technical"] .app .planning-filterbar .filters .pickerbutton {
+  gap: 6px;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  .pickerbutton
+  > svg {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  > .filter-active {
+  border-color: var(--brand-border-strong);
+  background: var(--brand-selected);
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  .filter-active
+  .pickerbutton {
+  background: transparent;
+  box-shadow: none;
+}
+.picker-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-right: 3px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--brand-primary, #234f7a);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Applied selections. */
+.filter-tokens {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--brand-border, #d3dae3);
+  font-size: var(--fs-xs);
+}
+.filter-token-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.filter-token-group > span {
+  margin-right: 2px;
+  color: var(--brand-muted, #576473);
+}
+.filter-token,
+.filter-token-more,
+.picker-selected button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  max-width: 260px;
+  padding: 0 6px 0 8px;
+  border: 1px solid var(--brand-border-strong, #9aa8b8);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--brand-text, #18212c);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.filter-token svg,
+.picker-selected button svg {
+  flex: none;
+  color: var(--brand-muted, #576473);
+}
+.filter-token:hover,
+.picker-selected button:hover {
+  border-color: var(--brand-primary, #234f7a);
+}
+.filter-token:hover svg,
+.picker-selected button:hover svg {
+  color: var(--report-shortage-color, #b5562e);
+}
+.filter-token-more {
+  padding: 0 8px;
+  border-style: dashed;
+  color: var(--brand-primary, #234f7a);
+  font-weight: 600;
+}
+.filter-tokens-clear {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand-primary, #234f7a);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Picker panel: selected items pinned above the list, search hits marked. */
+.picker-selected {
+  display: grid;
+  gap: 6px;
+  padding: 10px 0 2px;
+}
+.picker-selected small {
+  color: var(--brand-muted, #576473);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+.picker-selected > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 76px;
+  overflow-y: auto;
+}
+.picker-selected button {
+  flex: none;
+  width: auto;
+  background: var(--brand-selected, #e2ebf4);
+  border-color: transparent;
+}
+.picker-item-label mark {
+  padding: 0;
+  background: #fde9b8;
+  color: inherit;
+  font-weight: 600;
+}

@@ -15,6 +15,7 @@ import {
   validPlanningMonth,
 } from "../../../shared/planning-dates";
 import { Picker } from "../components/FilterPicker";
+import FilterTokens from "./FilterTokens";
 import type { Data, Team } from "../model";
 import type { Principal } from "../access";
 import type { WorkspaceDensity } from "./WorkspaceNavigation";
@@ -89,6 +90,20 @@ export default function WorkspaceFilters({
     set(next);
     notify(kind);
   }
+  function changeLeads(v: string[]) {
+    if (leads.length === v.length && leads.every((id) => v.includes(id)))
+      return;
+    setLeads(v);
+    const selected = selectedLeadershipScope(data, v, true);
+    setTeamIds((old) =>
+      old.filter(
+        (id) =>
+          !v.length ||
+          selected.has(data.teams.find((t) => t.id === id)?.lead || ""),
+      ),
+    );
+    notify("leader");
+  }
   const today = currentPlanningDate();
   const organizationItems = useMemo(
     () => organizationPickerItems(data, leaderItems, availableTeams, today),
@@ -110,32 +125,16 @@ export default function WorkspaceFilters({
             <div className="filters" key={filterResetKey}>
               {tab !== "projects" && (
                 <Picker
+                  countOnly
                   label="Liderlik"
                   value={leads}
-                  onChange={(v) => {
-                    if (
-                      leads.length === v.length &&
-                      leads.every((id) => v.includes(id))
-                    )
-                      return;
-                    setLeads(v);
-                    const selected = selectedLeadershipScope(data, v, true);
-                    setTeamIds((old) =>
-                      old.filter(
-                        (id) =>
-                          !v.length ||
-                          selected.has(
-                            data.teams.find((t) => t.id === id)?.lead || "",
-                          ),
-                      ),
-                    );
-                    notify("leader");
-                  }}
+                  onChange={changeLeads}
                   items={organizationItems.leaders}
                 />
               )}
               {tab !== "projects" && (
                 <Picker
+                  countOnly
                   label="Takım"
                   value={teamIds}
                   onChange={(v) =>
@@ -146,6 +145,7 @@ export default function WorkspaceFilters({
               )}
               {tab !== "resources" && tab !== "overview" && (
                 <Picker
+                  countOnly
                   label="Proje"
                   value={projectIds}
                   onChange={(v) =>
@@ -156,6 +156,7 @@ export default function WorkspaceFilters({
               )}
               {tab === "actual" && (
                 <Picker
+                  countOnly
                   label="Kişi"
                   value={personIds}
                   onChange={(v) =>
@@ -235,6 +236,55 @@ export default function WorkspaceFilters({
                 </button>
               )}
             </div>
+            <FilterTokens
+              groups={[
+                ...(tab !== "projects"
+                  ? [
+                      {
+                        label: "Liderlik",
+                        value: leads,
+                        items: organizationItems.leaders,
+                        onChange: changeLeads,
+                      },
+                      {
+                        label: "Takım",
+                        value: teamIds,
+                        items: organizationItems.teams,
+                        onChange: (v: string[]) =>
+                          applySelection(teamIds, v, setTeamIds, "team"),
+                      },
+                    ]
+                  : []),
+                ...(tab !== "resources" && tab !== "overview"
+                  ? [
+                      {
+                        label: "Proje",
+                        value: projectIds,
+                        items: data.projects,
+                        onChange: (v: string[]) =>
+                          applySelection(
+                            projectIds,
+                            v,
+                            setProjectIds,
+                            "project",
+                          ),
+                      },
+                    ]
+                  : []),
+                ...(tab === "actual"
+                  ? [
+                      {
+                        label: "Kişi",
+                        value: personIds,
+                        items: availablePeople,
+                        onChange: (v: string[]) =>
+                          applySelection(personIds, v, setPersonIds, "person"),
+                      },
+                    ]
+                  : []),
+              ]}
+              onClear={() => notify("reset")}
+            />
           </div>
         </>
       )}

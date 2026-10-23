@@ -484,6 +484,19 @@ test("a revision changes targets only after the newest locked month", async (t) 
     { "2026-12": 70, "2027-01": 100 },
   ])
     await assert.rejects(revise(revised), status(409));
+  // A project behind plan may restart below the locked month's target …
+  await revise({ "2026-11": 50, "2026-12": 45, "2027-01": 100 });
+  assert.equal((await f.record()).proposal.targets["2026-12"], 45);
+  // … but after the lock the curve may not fall again.
+  const withdrawn = await f.record();
+  await f.save(f.users.lead, {
+    ...withdrawn,
+    proposal: { ...withdrawn.proposal, status: "draft" },
+  });
+  await assert.rejects(
+    revise({ "2026-11": 50, "2026-12": 70, "2027-01": 60 }),
+    status(400),
+  );
   await revise({ "2026-11": 50, "2026-12": 60, "2027-01": 100 });
   assert.equal((await f.record()).proposal.status, "pending");
 });

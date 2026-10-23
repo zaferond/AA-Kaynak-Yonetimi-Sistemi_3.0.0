@@ -55,6 +55,7 @@ import { checkExcelXmlCharacters } from "./browser-checks/excel-xml-characters.m
 import { checkRiskSystems } from "./browser-checks/risk-systems.mjs";
 import { checkActivityReport } from "./browser-checks/activity-report.mjs";
 import { checkResourceReports } from "./browser-checks/resource-reports.mjs";
+import { checkProgressReportLoading } from "./browser-checks/progress-report-loading.mjs";
 import { checkViewportScroll } from "./browser-checks/viewport-scroll.mjs";
 import { checkTransportRecovery } from "./browser-checks/transport-recovery.mjs";
 import { checkMilestoneParentDates } from "./browser-checks/milestone-parent-dates.mjs";
@@ -182,6 +183,15 @@ try {
     f.checks.push(...activity.checks);
     f.errors.push(...activity.errors);
     await activity.close();
+  }
+  // Its extra projects would change project counts in the shared fixture.
+  const progressLoading = await fixture();
+  try {
+    await checkProgressReportLoading(progressLoading);
+  } finally {
+    f.checks.push(...progressLoading.checks);
+    f.errors.push(...progressLoading.errors);
+    await progressLoading.close();
   }
   await checkViewportScroll(f);
   assert.deepEqual(f.errors, []);

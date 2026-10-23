@@ -57,5 +57,7 @@
   "workspace/technical-directory.css",
   "workspace/technical-badges.css",
   "workspace/technical-empty.css",
-  "workspace/technical-home.css"
+  "workspace/technical-home.css",
+  "reports/chart-interaction.css",
+  "workspace/technical-filters.css"
 ]

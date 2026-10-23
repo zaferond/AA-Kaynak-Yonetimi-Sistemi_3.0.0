@@ -340,42 +340,13 @@ html[data-theme="technical"]
   font-weight: 600;
 }
 
-/* Kaynak Planlama team rows: active capacity is the neutral base, the
-   allocated share carries the planned-entry blue and only the remainder is
-   green, so the three boxes no longer read alike. Over-allocation keeps its
-   warning and critical colours. */
+/* Planned-allocation selection: the top-left cell (Ctrl+Enter fills the
+   selection from it) is marked on its input like the rest, not on the cell. */
 html[data-theme="technical"]
   .app.tab-plan
-  :is(.allocation-grid .team-capacity-value, .capacity-legend-item):not(
-    .over-warning,
-    .over-critical
-  ) {
-  border-color: var(--tbl-frame);
-  background: #fff;
-  color: var(--brand-text);
-}
-html[data-theme="technical"]
-  .app.tab-plan
-  :is(
-    .allocation-grid .team-capacity-value,
-    .capacity-legend-item
-  ).team-capacity-kind-1:not(.over-warning, .over-critical) {
-  border-color: var(--table-planned-entry-border);
-  background: var(--table-planned-entry-background);
-  color: var(--table-planned-entry-color);
-}
-html[data-theme="technical"]
-  .app.tab-plan
-  :is(
-    .allocation-grid .team-capacity-value,
-    .capacity-legend-item
-  ).team-capacity-kind-2:not(.over-warning, .over-critical) {
-  border-color: #9fcdb0;
-  background: #eef7f2;
-  color: #087f6a;
-}
-html[data-theme="technical"] .app.tab-plan .capacity-legend-item {
-  border-radius: 3px;
+  .allocation-grid
+  td.selectedcell:has(.cell input[title*="Ctrl+Enter"]) {
+  box-shadow: none;
 }
 
 /* Head Count: headers as in every other table; the total column is set off

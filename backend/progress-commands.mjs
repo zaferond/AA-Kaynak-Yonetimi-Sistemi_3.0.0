@@ -118,7 +118,11 @@ export function stageProgressChange(
     if (to === "approved" && !admin)
       fail(403, "Temel planı yalnız admin onaylar.");
     if (to !== "draft") {
-      const problems = proposalProblems(proposal, project.end);
+      const problems = proposalProblems(
+        proposal,
+        project.end,
+        baselines.length ? lastLockedMonth(d.progressLocks) : "",
+      );
       if (problems.length) fail(400, problems[0]);
       if (baselines.length && !proposal.reason?.trim())
         fail(400, "Yeni temel plan için gerekçe yazın.");

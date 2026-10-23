@@ -145,6 +145,10 @@ export async function checkResourceReports(f) {
           await page
             .getByRole("button", { name: "Takım", exact: true })
             .textContent(),
+          /^1\s*seçim$/,
+        );
+        assert.match(
+          await page.locator(".filter-tokens").innerText(),
           new RegExp(team.name),
         );
         await choose([noCapacity.name]);
@@ -152,6 +156,10 @@ export async function checkResourceReports(f) {
           await page
             .getByRole("button", { name: "Takım", exact: true })
             .textContent(),
+          /^1\s*seçim$/,
+        );
+        assert.match(
+          await page.locator(".filter-tokens").innerText(),
           new RegExp(noCapacity.name),
         );
         await choose([team.name]);

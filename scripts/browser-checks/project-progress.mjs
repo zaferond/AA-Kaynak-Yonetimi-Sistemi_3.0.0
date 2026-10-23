@@ -280,9 +280,9 @@ export async function checkProjectProgress(f) {
           name: "Bekleyen işler",
           exact: true,
         });
-        const approvalBox = strip.locator("label").filter({
-          hasText: "Hedef Plan Onay Bekleyen",
-        });
+        const approvalBox = strip
+          .locator(".progress-waiting-filter button")
+          .filter({ hasText: "Hedef Plan Onay Bekleyen" });
         assert.equal(
           (
             await approvalBox.locator(".progress-waiting-count").textContent()
@@ -295,14 +295,15 @@ export async function checkProjectProgress(f) {
             .getByRole("button", { name: "Hedef Planların Tümünü Onayla" })
             .isDisabled(),
         );
-        await approvalBox.locator("input").check();
+        await approvalBox.click();
+        assert.equal(await approvalBox.getAttribute("aria-pressed"), "true");
         assert.equal(await page.locator(".progress-card").count(), 1);
         page.once("dialog", (dialog) => dialog.accept());
         await strip
           .getByRole("button", { name: "Hedef Planların Tümünü Onayla" })
           .click();
         await strip.getByText("1 hedef plan onaylandı.").waitFor();
-        await approvalBox.locator("input").uncheck();
+        await approvalBox.click();
         const record = (await f.state()).projectProgress.find(
           (r) => r.projectId === "p-a" && r.leader === f.teamA.lead,
         );
@@ -438,16 +439,16 @@ export async function checkProjectProgress(f) {
         // Entered for September and not locked yet: awaiting evaluation.
         const evaluationBox = page
           .getByRole("group", { name: "Bekleyen işler", exact: true })
-          .locator("label")
+          .locator(".progress-waiting-filter button")
           .filter({ hasText: "Eylül Ayı Değerlendirme Bekliyor" });
         const evaluationCount = async () =>
           (
             await evaluationBox.locator(".progress-waiting-count").textContent()
           ).trim();
         assert.notEqual(await evaluationCount(), "0");
-        await evaluationBox.locator("input").check();
+        await evaluationBox.click();
         await otherCard.waitFor();
-        await evaluationBox.locator("input").uncheck();
+        await evaluationBox.click();
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eyl 2026): Tamamlandı - Değişikliğe Açık",
@@ -623,6 +624,13 @@ export async function checkProjectProgress(f) {
           .click();
         // Locked months are evaluated: nothing waits any more.
         assert.equal(await evaluationCount(), "0");
+        // The month's lock shows in the same place on this tab too.
+        await page
+          .getByRole("button", {
+            name: "Eylül Ayının Kilidini Aç",
+            exact: true,
+          })
+          .waitFor();
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eyl 2026): Tamamlandı - Değişikliğe Kapalı",

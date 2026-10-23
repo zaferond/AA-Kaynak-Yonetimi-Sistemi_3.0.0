@@ -649,14 +649,23 @@ html[data-theme="technical"] .app.tab-progress .progress-waiting-strip {
   gap: 8px;
   margin-top: -6px;
 }
-html[data-theme="technical"] .app.tab-progress .progress-waiting-option {
+/* Waiting work: one strip of square toggles, as the topic-status filter in
+   Haftalık Kritik Konular. */
+html[data-theme="technical"] .app.tab-progress .progress-waiting-filter {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
   height: 32px;
-  padding: 0 6px 0 10px;
   border: 1px solid var(--btn-border);
   border-radius: 3px;
+  overflow: hidden;
+}
+html[data-theme="technical"] .app.tab-progress .progress-waiting-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 0;
+  border-right: 1px solid var(--tbl-rule);
   background: #fff;
   color: var(--brand-text);
   font-size: var(--fs-xs);
@@ -665,15 +674,43 @@ html[data-theme="technical"] .app.tab-progress .progress-waiting-option {
 }
 html[data-theme="technical"]
   .app.tab-progress
-  .progress-waiting-option:has(input:checked) {
-  border-color: var(--brand-primary);
-  background: color-mix(in srgb, var(--brand-primary) 8%, #fff);
+  .progress-waiting-filter
+  button:last-child {
+  border-right: 0;
 }
-html[data-theme="technical"] .app.tab-progress .progress-waiting-option input {
-  width: 15px;
-  height: 15px;
-  margin: 0;
-  accent-color: var(--brand-primary);
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-filter
+  button:hover:not([aria-pressed="true"]) {
+  background: var(--btn-hover);
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-filter
+  button[aria-pressed="true"] {
+  background: var(--brand-primary);
+  color: #fff;
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-filter
+  button
+  span {
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: var(--tbl-group-background);
+  color: var(--brand-text);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-filter
+  button[aria-pressed="true"]
+  span {
+  background: #ffffff2e;
+  color: #fff;
 }
 html[data-theme="technical"] .app.tab-progress .progress-approve-all {
   min-height: 32px;

@@ -973,6 +973,13 @@
   border-radius: 7px;
   margin-bottom: 10px;
 }
+.project-progress .progress-matrix-more {
+  position: sticky;
+  left: 0;
+  padding: 10px 12px;
+  color: var(--brand-muted, #60715e);
+  font-size: var(--fs-xs);
+}
 .project-progress .progress-monthly-matrix {
   table-layout: fixed;
   border-collapse: separate;

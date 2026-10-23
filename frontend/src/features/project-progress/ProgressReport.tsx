@@ -2,12 +2,17 @@ import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
 } from "./ScenarioWarningStatus";
-import Badge from "../../components/Badge";
 import type { WarningAssessment } from "../../../../shared/scenario-warnings.ts";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Lock, LockOpen } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
+import ProgressMonthLock from "./ProgressMonthLock";
 import { createPortal } from "react-dom";
 import type { WorkspaceDensity } from "../WorkspaceNavigation";
 import type { Principal } from "../../access";
@@ -103,7 +108,8 @@ const matches = (project: ManagedProject, filter: DecisionFilter) => {
     );
   return true;
 };
-const PAGE_SIZE = 10;
+/** Projects added each time the table is scrolled near its end. */
+const BATCH = 10;
 
 /** Project headings, leadership detail and monthly cumulative progress. */
 export default function ProgressReport({
@@ -137,10 +143,10 @@ export default function ProgressReport({
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [detail, setDetail] = useState("");
   const year = month.slice(0, 4);
-  const [page, setPage] = useState(0);
+  const [shown, setShown] = useState(BATCH);
   const [error, setError] = useState("");
   useEffect(() => {
-    setPage(0);
+    setShown(BATCH);
   }, [ctx, month, leader, projectId, decision]);
   useEffect(() => {
     if (projectId && !data.projects.some((p) => p.id === projectId))
@@ -207,43 +213,14 @@ export default function ProgressReport({
   ].sort((a, b) => a.localeCompare(b, "tr"));
   const count = (filter: DecisionFilter) =>
     projects.filter((p) => matches(p, filter)).length;
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const visible = filtered.slice(
-    Math.min(page, pageCount - 1) * PAGE_SIZE,
-    (Math.min(page, pageCount - 1) + 1) * PAGE_SIZE,
-  );
+  const visible = filtered.slice(0, shown);
+  const loadMore = useCallback(() => setShown((count) => count + BATCH), []);
   const lastLockedMonth = [...(data.progressLocks || [])]
     .map((item) => item.id)
     .sort()
     .at(-1);
-  const lock = (data.progressLocks || []).find((item) => item.id === month);
   const detailRow = rows.find((row) => row.project.id === detail);
 
-  async function toggleLock() {
-    // Unlocking drops the month's evaluation and reopens its entries; a
-    // second click on the same button must not do that silently.
-    if (
-      lock &&
-      !window.confirm(
-        `${monthName(month)} ayının kilidi açılsın mı? Ayın değerlendirmesi kaldırılır ve girişler yeniden değiştirilebilir.`,
-      )
-    )
-      return;
-    setError("");
-    try {
-      await onSave([
-        {
-          kind: "progressLock",
-          id: month,
-          value: lock ? null : { id: month, lockedByName: "", lockedAt: "" },
-          revision: data.revisions["progressLock:" + month] || 0,
-          ...(lock ? { operation: "delete" as const } : {}),
-        },
-      ]);
-    } catch (cause) {
-      setError((cause as Error).message);
-    }
-  }
   function exportReport() {
     try {
       downloadProgressReport(
@@ -262,32 +239,14 @@ export default function ProgressReport({
       {actionsHost &&
         createPortal(
           <>
-            {!admin && lock && (
-              // Leaders cannot unlock; they still see that the month is closed.
-              <Badge
-                tone="warning"
-                variant="status"
-                className="progress-lock-state"
-              >
-                {monthName(month)} Ayı Kilitli
-              </Badge>
-            )}
-            {admin && (
-              <button
-                type="button"
-                className="button progress-lock-button"
-                // A locked month shows in the button's own colour.
-                data-locked={lock ? "true" : "false"}
-                aria-pressed={!!lock}
-                disabled={saving}
-                onClick={() => void toggleLock()}
-              >
-                {lock ? <Lock size={14} /> : <LockOpen size={14} />}
-                {lock
-                  ? `${monthName(month)} Ayının Kilidini Aç`
-                  : `${monthName(month)} Ayını Kilitle`}
-              </button>
-            )}
+            <ProgressMonthLock
+              data={data}
+              month={month}
+              admin={admin}
+              saving={saving}
+              onSave={onSave}
+              onError={setError}
+            />
             <ProgressLeadershipToggle
               checked={visible.some((project) =>
                 expanded.has(project.row.project.id),
@@ -449,9 +408,11 @@ export default function ProgressReport({
       )}
       <div className="progress-matrix-toolbar">
         <span>
-          {filtered.length} proje ·{" "}
-          {density === "overview" ? `${year}–${Number(year) + 4}` : year} aylık
-          görünümü · Son kilitli ay:{" "}
+          {filtered.length} proje
+          {visible.length < filtered.length &&
+            ` (${visible.length} yüklendi, aşağı kaydırdıkça devamı gelir)`}{" "}
+          · {density === "overview" ? `${year}–${Number(year) + 4}` : year}{" "}
+          aylık görünümü · Son kilitli ay:{" "}
           {lastLockedMonth ? monthLabel(lastLockedMonth) : "—"}
         </span>
       </div>
@@ -469,33 +430,10 @@ export default function ProgressReport({
           setExpanded={setExpanded}
           detail={detail}
           onDetail={setDetail}
+          onLoadMore={visible.length < filtered.length ? loadMore : undefined}
         />
       ) : (
         <p className="emptymsg">Bu süzgeçlere uyan ilerleme kaydı yok.</p>
-      )}
-      {pageCount > 1 && (
-        <div className="progress-report-pages">
-          <button
-            type="button"
-            className="button"
-            disabled={page === 0}
-            onClick={() => setPage(page - 1)}
-          >
-            Önceki
-          </button>
-          <span>
-            {Math.min(page, pageCount - 1) + 1} / {pageCount} · Sayfa başına{" "}
-            {PAGE_SIZE} proje
-          </span>
-          <button
-            type="button"
-            className="button"
-            disabled={page >= pageCount - 1}
-            onClick={() => setPage(page + 1)}
-          >
-            Sonraki
-          </button>
-        </div>
       )}
       {detailRow && (
         <ProjectDetail

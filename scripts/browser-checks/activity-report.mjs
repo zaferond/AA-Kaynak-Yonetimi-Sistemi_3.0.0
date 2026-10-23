@@ -236,6 +236,10 @@ export async function checkActivityReport(f) {
           await page
             .getByRole("button", { name: "Proje", exact: true })
             .textContent(),
+          /^1\s*seçim$/,
+        );
+        assert.match(
+          await page.locator(".filter-tokens").innerText(),
           /Browser Project A/,
         );
         await choose("Proje", []);

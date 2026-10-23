@@ -1,6 +1,8 @@
-import type { CSSProperties } from "react";
+import { useId, type CSSProperties } from "react";
 import useChartWidth from "./useChartWidth";
+import ChartTooltip, { useChartHover } from "./ChartTooltip";
 import { fmt, monthLabel } from "../../format";
+import { areaPath, niceScale, smoothPath } from "../../chart-geometry";
 
 type Series = {
   name: string;
@@ -43,10 +45,27 @@ export default function MonthlyComparison({
       item.values.filter((value): value is number => value != null),
     ),
   );
-  const ceiling = max * 1.12;
-  const x = (i: number) =>
-    left + ((right - left) * (i + 0.5)) / Math.max(1, months.length);
+  const scale = niceScale(max * 1.04);
+  const ceiling = scale.top;
+  const band = (right - left) / Math.max(1, months.length);
+  const x = (i: number) => left + band * (i + 0.5);
   const y = (value: number) => bottom - (value / ceiling) * (bottom - top);
+  const gradient = useId();
+  const { active, setActive, svgProps } = useChartHover(
+    months.length,
+    left,
+    right,
+  );
+  // Each unbroken run of months is drawn as its own smooth segment.
+  const runs = (item: Series) =>
+    item.values.reduce<{ x: number; y: number }[][]>(
+      (all, value, i) => {
+        if (value == null) all.push([]);
+        else all[all.length - 1].push({ x: x(i), y: y(value) });
+        return all;
+      },
+      [[]],
+    );
   return (
     <>
       <div className="resource-chart-legend">
@@ -70,26 +89,38 @@ export default function MonthlyComparison({
         role="region"
         aria-label={title + " grafiği"}
       >
-        <svg
-          width={w}
-          height={h}
-          viewBox={`0 0 ${w} ${h}`}
-          role="img"
-          aria-label={title}
-        >
-          <text x={left} y={14} className="resource-chart-axis">
-            {unit === "percent" ? "Etkinlik (%)" : "Kişi eşdeğeri"}
-          </text>
-          {[0, 1, 2, 3, 4].map((tick) => {
-            const value = (ceiling * tick) / 4;
-            return (
-              <g key={tick}>
+        <div className="chart-frame" style={{ width: w }}>
+          <svg
+            width={w}
+            height={h}
+            viewBox={`0 0 ${w} ${h}`}
+            role="img"
+            aria-label={title}
+            {...svgProps}
+          >
+            <defs>
+              <linearGradient id={gradient} x1="0" x2="0" y1="0" y2="1">
+                <stop
+                  offset="0"
+                  stopColor={series[0]?.color}
+                  stopOpacity={0.16}
+                />
+                <stop offset="1" stopColor={series[0]?.color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <text x={left} y={14} className="resource-chart-axis">
+              {unit === "percent" ? "Etkinlik (%)" : "Kişi eşdeğeri"}
+            </text>
+            {scale.ticks.map((value) => (
+              <g key={value}>
                 <line
                   x1={left}
                   x2={right}
                   y1={y(value)}
                   y2={y(value)}
-                  className="resource-chart-grid"
+                  className={
+                    value ? "resource-chart-grid" : "resource-chart-baseline"
+                  }
                 />
                 <text
                   x={left - 10}
@@ -100,99 +131,122 @@ export default function MonthlyComparison({
                   {unit === "percent" ? "%" + fmt(value) : fmt(value)}
                 </text>
               </g>
-            );
-          })}
-          {reference != null && (
-            <g className="resource-chart-reference">
-              <line
-                x1={left}
-                x2={right}
-                y1={y(reference)}
-                y2={y(reference)}
-                stroke="var(--report-forecast-color, #b45309)"
-                strokeDasharray="6 5"
-              />
-              <text
-                x={right}
-                y={y(reference) - 6}
-                textAnchor="end"
-                className="resource-chart-axis"
-              >
-                {formatValue(reference)} · plana eşit
-              </text>
-            </g>
-          )}
-          {series.map((item) => {
-            let connected = false;
-            const path = item.values
-              .map((value, i) => {
-                if (value == null) {
-                  connected = false;
-                  return "";
-                }
-                const command = `${connected ? "L" : "M"}${x(i)},${y(value)}`;
-                connected = true;
-                return command;
-              })
-              .join(" ");
-            return (
-              <path
-                key={item.name}
-                d={path}
-                fill="none"
-                stroke={item.color}
-                strokeWidth={3.5}
-                strokeDasharray={item.dashed ? "7 5" : undefined}
-              />
-            );
-          })}
-          {months.map((month, i) => {
-            const label =
-              monthLabel(month) +
-              " · " +
-              series
-                .map((item) => item.name + ": " + formatValue(item.values[i]))
-                .join(" · ");
-            return (
-              <g
-                key={month}
-                tabIndex={0}
-                aria-label={label}
-                className="resource-chart-point"
-              >
-                <title>{label}</title>
-                <rect
-                  x={x(i) - (right - left) / Math.max(1, months.length) / 2}
-                  y={top}
-                  width={(right - left) / Math.max(1, months.length)}
-                  height={bottom - top}
-                  fill="transparent"
+            ))}
+            {reference != null && (
+              <g className="resource-chart-reference">
+                <line
+                  x1={left}
+                  x2={right}
+                  y1={y(reference)}
+                  y2={y(reference)}
+                  stroke="var(--report-forecast-color, #b45309)"
+                  strokeDasharray="6 5"
                 />
-                {series
-                  .filter((item) => item.values[i] != null)
-                  .map((item) => (
-                    <circle
-                      key={item.name}
-                      cx={x(i)}
-                      cy={y(item.values[i]!)}
-                      r={4.5}
-                      fill="white"
-                      stroke={item.color}
-                      strokeWidth={2.5}
-                    />
-                  ))}
                 <text
-                  x={x(i)}
-                  y={234}
-                  textAnchor="middle"
+                  x={right}
+                  y={y(reference) - 6}
+                  textAnchor="end"
                   className="resource-chart-axis"
                 >
-                  {monthLabel(month)}
+                  {formatValue(reference)} · plana eşit
                 </text>
               </g>
-            );
-          })}
-        </svg>
+            )}
+            {series[0] &&
+              runs(series[0]).map((run, i) => (
+                <path
+                  key={i}
+                  d={areaPath(run, bottom)}
+                  fill={`url(#${gradient})`}
+                  className="resource-chart-area"
+                />
+              ))}
+            {active != null && (
+              <line
+                x1={x(active)}
+                x2={x(active)}
+                y1={top}
+                y2={bottom}
+                className="chart-crosshair"
+              />
+            )}
+            {series.map((item) =>
+              runs(item).map((run, i) => (
+                <path
+                  key={item.name + i}
+                  d={smoothPath(run)}
+                  fill="none"
+                  stroke={item.color}
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  strokeDasharray={item.dashed ? "6 5" : undefined}
+                />
+              )),
+            )}
+            {months.map((month, i) => {
+              const label =
+                monthLabel(month) +
+                " · " +
+                series
+                  .map((item) => item.name + ": " + formatValue(item.values[i]))
+                  .join(" · ");
+              return (
+                <g
+                  key={month}
+                  tabIndex={0}
+                  aria-label={label}
+                  className="resource-chart-point"
+                  data-active={active === i || undefined}
+                  onFocus={() => setActive(i)}
+                  onBlur={() => setActive(null)}
+                >
+                  <title>{label}</title>
+                  <rect
+                    x={x(i) - band / 2}
+                    y={top}
+                    width={band}
+                    height={bottom - top}
+                    fill="transparent"
+                  />
+                  {series
+                    .filter((item) => item.values[i] != null)
+                    .map((item) => (
+                      <circle
+                        key={item.name}
+                        cx={x(i)}
+                        cy={y(item.values[i]!)}
+                        r={4.5}
+                        fill="white"
+                        stroke={item.color}
+                        strokeWidth={2.5}
+                      />
+                    ))}
+                  <text
+                    x={x(i)}
+                    y={234}
+                    textAnchor="middle"
+                    className="resource-chart-axis"
+                  >
+                    {monthLabel(month)}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+          {active != null && (
+            <ChartTooltip
+              x={x(active)}
+              width={w}
+              title={monthLabel(months[active])}
+              rows={series.map((item) => ({
+                name: item.name,
+                value: formatValue(item.values[active]),
+                color: item.color,
+                dashed: item.dashed,
+              }))}
+            />
+          )}
+        </div>
       </div>
       <details className="resource-chart-values">
         <summary>Aylık değerleri göster</summary>

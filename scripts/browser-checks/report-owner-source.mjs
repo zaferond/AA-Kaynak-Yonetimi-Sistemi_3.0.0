@@ -89,7 +89,14 @@ export async function checkReportOwnerSource(f) {
             "filter-owner-" + (label === "Liderlik" ? "leader" : "team"),
           );
           await page.keyboard.press("Escape");
-          assert.match(await trigger.innerText(), new RegExp(owner));
+          // One choice shows as a count; the token below names it and
+          // carries the owner as its tooltip.
+          assert.match(await trigger.innerText(), /^1\s*seçim$/);
+          const token = page.locator(
+            `.filter-token-group[data-filter="${label}"] .filter-token`,
+          );
+          assert.equal((await token.innerText()).trim(), name);
+          assert.equal(await token.getAttribute("title"), owner);
           assert.equal(
             await trigger.getAttribute("title"),
             name + " - " + owner,

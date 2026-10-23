@@ -1337,12 +1337,15 @@ html[data-theme="technical"] [data-slot="table-container"] > .today-date-line {
 }
 
 /* Stronger pointer feedback for action buttons, including portalled dialogs.
-   Tabs, switches and color-bearing timeline controls retain their own states. */
+   Tabs, switches, color-bearing timeline controls and home cards retain their
+   own states. */
 @media (hover: hover) {
   html[data-theme="technical"]
     button:not(:disabled):not([aria-disabled="true"]):not([role="tab"]):not(
       [role="switch"]
-    ):not([data-timeline-item]):not(.phasebutton):not(.phase-chip):hover {
+    ):not([data-timeline-item]):not(.phasebutton):not(.phase-chip):not(
+      .home-card
+    ):hover {
     filter: brightness(0.84);
   }
 }

@@ -76,6 +76,16 @@ export async function checkPlannedAllocation(f) {
               .evaluate((el) => el === document.activeElement),
           "top-left selection focus",
         );
+        // The top-left cell is marked on its input like the others; the
+        // table cell behind it is not outlined.
+        assert.deepEqual(
+          await page
+            .locator(".selectedcell[data-plan-cell]")
+            .evaluateAll((cells) =>
+              cells.map((td) => getComputedStyle(td).boxShadow),
+            ),
+          ["none", "none", "none"],
+        );
         await cell(page, a("05")).click({ modifiers: ["Control"] });
         assert.deepEqual(await selectedKeys(page), [
           a("01"),

@@ -1,5 +1,7 @@
-/* Ana Sayfa: one card per screen, four to a row, as approved in the
-   "A · Kart ızgarası" preview. Few cards (two or three) grow wider. */
+/* Ana Sayfa: a bento grid of one card per screen. Three columns; rows of two
+   put one card across two columns (alternating sides). Each card opens
+   with a small line drawing of its screen on a drafting-grid band. Few
+   cards (two or three) sit in one even row. */
 html[data-theme="technical"] .app .home-page {
   padding: 0 0 24px;
 }
@@ -10,26 +12,33 @@ html[data-theme="technical"] .app .home-greeting {
 }
 html[data-theme="technical"] .app .home-cards {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(212px, auto);
   gap: 14px;
 }
 html[data-theme="technical"]
   .app
-  .home-cards:is([data-count="2"], [data-count="3"]) {
+  .home-cards:is([data-count="1"], [data-count="2"], [data-count="3"]) {
   grid-template-columns: repeat(var(--home-columns, 3), minmax(0, 1fr));
   max-width: 1100px;
 }
 html[data-theme="technical"] .app .home-cards[data-count="2"] {
   --home-columns: 2;
 }
+html[data-theme="technical"] .app .home-cards[data-count="1"] {
+  --home-columns: 1;
+  max-width: 420px;
+}
+html[data-theme="technical"] .app .home-card[data-span="2"] {
+  grid-column: span 2;
+}
 html[data-theme="technical"] .app .home-card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
-  min-height: 150px;
-  padding: 16px 18px 18px;
+  overflow: hidden;
+  padding: 0;
   border: 1px solid var(--tbl-frame);
   border-radius: 6px;
   background: #fff;
@@ -38,15 +47,113 @@ html[data-theme="technical"] .app .home-card {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 0.12s ease,
-    box-shadow 0.12s ease;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 html[data-theme="technical"] .app .home-card:is(:hover, :focus-visible) {
   border-color: var(--brand-primary);
+  background: #fff;
   box-shadow:
     0 0 0 1px var(--brand-primary),
-    0 6px 18px #234f7a1f;
+    0 8px 22px #234f7a24;
   outline: none;
+}
+
+/* Drawing band: a faint drafting grid behind the screen's line drawing. */
+html[data-theme="technical"] .app .home-card-art {
+  display: block;
+  flex: 0 0 92px;
+  height: 92px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--tbl-frame);
+  background-color: var(--brand-surface-soft);
+  background-image:
+    linear-gradient(#234f7a0d 1px, transparent 1px),
+    linear-gradient(90deg, #234f7a0d 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+html[data-theme="technical"] .app .home-card-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.home-card-art :is(.art-line, .art-rule, .art-dash, .art-accent) {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.home-card-art .art-line {
+  stroke: var(--brand-primary, #234f7a);
+}
+.home-card-art .art-rule {
+  stroke: var(--brand-border-strong, #9aa8b8);
+}
+.home-card-art .art-dash {
+  stroke: var(--brand-border-strong, #9aa8b8);
+  stroke-dasharray: 4 4;
+}
+.home-card-art .art-accent {
+  stroke: var(--report-shortage-color, #b5562e);
+}
+.home-card-art .art-fill {
+  fill: #c9d8e7;
+}
+.home-card-art .art-fill-strong {
+  fill: var(--brand-mid, #4a6a8c);
+}
+.home-card-art .art-cell {
+  fill: #fff;
+  stroke: var(--brand-border, #d3dae3);
+}
+.home-card-art .art-soft {
+  fill: var(--brand-surface, #eef2f6);
+}
+.home-card-art .art-focus {
+  fill: #fff;
+  stroke: var(--brand-primary, #234f7a);
+  stroke-width: 1.5;
+}
+.home-card-art .art-warm {
+  fill: #f4dfae;
+}
+.home-card-art .art-hot {
+  fill: #ecc0ad;
+}
+.home-card-art .art-accent-fill {
+  fill: #e3a68c;
+}
+.home-card-art .art-dot {
+  fill: var(--brand-primary, #234f7a);
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.home-card-art :is(rect, path, circle) {
+  transition:
+    fill 0.15s,
+    stroke 0.15s;
+}
+html[data-theme="technical"]
+  .app
+  .home-card:is(:hover, :focus-visible)
+  .art-fill {
+  fill: #a9c1da;
+}
+
+html[data-theme="technical"] .app .home-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 44px 16px 18px;
+  transition: transform 0.15s ease;
+}
+html[data-theme="technical"]
+  .app
+  .home-card:is(:hover, :focus-visible)
+  .home-card-body {
+  transform: translateX(3px);
 }
 html[data-theme="technical"] .app .home-card-top {
   display: flex;
@@ -57,8 +164,8 @@ html[data-theme="technical"] .app .home-card-top {
 html[data-theme="technical"] .app .home-card-icon {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   background: #e8f0f8;
   color: var(--brand-primary);
@@ -73,7 +180,6 @@ html[data-theme="technical"] .app .home-card strong {
   font-weight: 600;
 }
 html[data-theme="technical"] .app .home-card-text {
-  padding-right: 26px;
   color: var(--brand-muted);
   font-size: var(--fs-sm);
   line-height: 1.4;
@@ -91,7 +197,15 @@ html[data-theme="technical"]
   color: var(--brand-primary);
 }
 @media (max-width: 1100px) {
-  html[data-theme="technical"] .app .home-cards {
+  html[data-theme="technical"] .app .home-cards:nth-child(n) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html[data-theme="technical"] .app .home-card[data-span="2"] {
+    grid-column: auto;
+  }
+}
+@media (max-width: 640px) {
+  html[data-theme="technical"] .app .home-cards:nth-child(n) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

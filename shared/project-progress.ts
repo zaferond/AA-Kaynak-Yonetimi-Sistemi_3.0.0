@@ -187,6 +187,9 @@ export function changedLockedMonth(
 export function proposalProblems(
   proposal: Pick<ProgressProposal, "openingMonth" | "openingPct" | "targets">,
   projectEnd: string,
+  /** A revision's newest locked month: the target after it may fall below
+   * that month's frozen target, so a revision can restart from the actual. */
+  lockedThrough = "",
 ) {
   const problems: string[] = [];
   const months = monthsAfter(proposal.openingMonth, projectEnd);
@@ -197,8 +200,13 @@ export function proposalProblems(
     problems.push(
       "Hedefler açılıştan sonraki ve bitişe kadarki aylara girilir.",
     );
-  let last = proposal.openingPct;
+  let last = proposal.openingPct,
+    pastLock = !lockedThrough || proposal.openingMonth >= lockedThrough;
   for (const month of months) {
+    if (!pastLock && month > lockedThrough) {
+      pastLock = true;
+      last = 0;
+    }
     const value = ownValue(proposal.targets, month);
     if (value === undefined) continue;
     if (value < last) {
@@ -292,6 +300,73 @@ export function suggestTargets(
   });
   if (months.length) targets[months.at(-1)!] = 100;
   return targets;
+}
+
+/**
+ * Suggested targets for a revision. Locked months keep their approved
+ * targets. A month with an entered actual is suggested at that actual, so the
+ * new target never exceeds what was achieved; the months after the newest
+ * actual spread the remaining work from it to 100 % by the planned resource.
+ */
+export function suggestRevisionTargets({
+  approved,
+  openingMonth,
+  openingPct,
+  lockedThrough,
+  actuals,
+  projectEnd,
+  planned,
+}: {
+  approved: Pick<ProgressBaseline, "openingMonth" | "openingPct" | "targets">;
+  openingMonth: string;
+  openingPct: number;
+  lockedThrough: string;
+  actuals: Record<string, ProgressActual> | undefined;
+  projectEnd: string;
+  planned: Record<string, number> | undefined;
+}) {
+  const frozenThrough = lockedThrough > openingMonth ? lockedThrough : "";
+  const targets: ProgressTargets = frozenThrough
+    ? lockedTargets(approved, openingMonth, frozenThrough)
+    : {};
+  const start = frozenThrough ? targetAt(approved, frozenThrough)! : openingPct;
+  const months = monthsAfter(openingMonth, projectEnd);
+  const actual = (month: string) => ownValue(actuals, month)?.pct;
+  const entered = months.filter((month) => actual(month) !== undefined);
+  const newest = entered.at(-1);
+  if (!newest)
+    return {
+      ...targets,
+      ...suggestTargets(
+        frozenThrough || openingMonth,
+        start,
+        projectEnd,
+        planned,
+      ),
+    };
+  // Up to the newest actual the target follows the actuals; a month without
+  // one keeps the last actual before it (or the start, capped by the first).
+  let running = Math.min(start, actual(entered[0])!);
+  for (const month of months) {
+    if (month > newest) break;
+    running = actual(month) ?? running;
+    if (!frozenThrough || month > frozenThrough) targets[month] = running;
+  }
+  const reached = actual(newest)!;
+  if (reached >= 100) {
+    // Done in a locked month: the first open month completes the plan.
+    const done =
+      !frozenThrough || newest > frozenThrough
+        ? newest
+        : months.find((month) => month > frozenThrough);
+    if (done) targets[done] = 100;
+    return targets;
+  }
+  const from = frozenThrough > newest ? frozenThrough : newest;
+  const tail = suggestTargets(from, reached, projectEnd, planned);
+  // The plan must still reach 100 % by the end month.
+  if (!Object.keys(tail).length) targets[months.at(-1)!] = 100;
+  return { ...targets, ...tail };
 }
 
 /** Rebuild a falling tail from the edited month to its existing completion. */

@@ -346,10 +346,15 @@ export async function checkViewportScroll(f) {
               })
               .check();
             await page.keyboard.press("Escape");
+            // One choice shows as a count; its name sits in the token row.
             assert.match(
               await page
                 .getByRole("button", { name: "Proje", exact: true })
                 .textContent(),
+              /^1\s*seçim$/,
+            );
+            assert.match(
+              await page.locator(".filter-tokens").innerText(),
               /Synthetic viewport project 0/,
             );
             await page

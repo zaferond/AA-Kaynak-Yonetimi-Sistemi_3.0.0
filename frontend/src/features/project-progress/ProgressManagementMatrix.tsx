@@ -1,5 +1,5 @@
 import { ScenarioWarningStatus } from "./ScenarioWarningStatus";
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   TimelineMonthHead,
@@ -37,6 +37,7 @@ export default function ProgressManagementMatrix({
   setExpanded,
   detail,
   onDetail,
+  onLoadMore,
 }: {
   ctx: ProgressContext;
   projects: ManagedProject[];
@@ -49,7 +50,25 @@ export default function ProgressManagementMatrix({
   setExpanded: (value: Set<string>) => void;
   detail: string;
   onDetail: (id: string) => void;
+  /** Set while more projects remain; called as the table nears its end. */
+  onLoadMore?: () => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null),
+    endRef = useRef<HTMLDivElement>(null);
+  // The table scrolls inside its own box; the next batch loads as its end
+  // comes within reach. Re-observing after each batch loads again while the
+  // end is still in view, so a tall screen fills up.
+  useEffect(() => {
+    const root = scrollRef.current,
+      end = endRef.current;
+    if (!onLoadMore || !root || !end) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && onLoadMore(),
+      { root, rootMargin: "0px 0px 300px 0px" },
+    );
+    observer.observe(end);
+    return () => observer.disconnect();
+  }, [onLoadMore, projects.length]);
   const values = useMemo(
     () =>
       new Map(
@@ -117,6 +136,7 @@ export default function ProgressManagementMatrix({
     });
   return (
     <div
+      ref={scrollRef}
       className="progress-matrix-scroll"
       role="region"
       aria-label="Aylık ilerleme tablosu"
@@ -364,6 +384,11 @@ export default function ProgressManagementMatrix({
           })}
         </tbody>
       </table>
+      {onLoadMore && (
+        <div ref={endRef} className="progress-matrix-more">
+          Projeler yükleniyor…
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,124 @@
+/* Line charts: dashed grid, smooth series, crosshair and a value card on hover. */
+.chart-frame {
+  position: relative;
+}
+.chartscroll:has(.chart-frame) {
+  margin: 0;
+  padding: 0 18px;
+}
+:is(.resource-chart-grid, .chart-grid) {
+  stroke: var(--report-grid-color, #dce3e9);
+  stroke-dasharray: 3 4;
+}
+:is(.resource-chart-baseline, .chart-baseline) {
+  stroke: var(--brand-border-strong, #9aa8b8);
+}
+.chart-crosshair {
+  stroke: var(--brand-border-strong, #9aa8b8);
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+.chart-forecast-zone {
+  fill: var(--brand-surface-soft, #f6f8fa);
+}
+
+/* Month dots stay hidden until their column is pointed at or focused. */
+.resource-chart-point circle,
+.chart-dot {
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.resource-chart-point:is([data-active], :focus) circle,
+.chart-dot:is([data-active], [data-keep]) {
+  opacity: 1;
+}
+.resource-chart-point[data-active] circle,
+.chart-dot[data-active] {
+  r: 5.5;
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(0 1px 2px #18212c33);
+}
+.resource-chart-point:is(:focus, :hover) rect {
+  fill: transparent;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+  min-width: 190px;
+  padding: 9px 12px 10px;
+  border: 1px solid var(--brand-border, #d3dae3);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 6px 18px -8px #18212c40;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.chart-tooltip strong {
+  padding-bottom: 5px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--brand-border, #d3dae3);
+  color: var(--brand-text, #18212c);
+  font-weight: 600;
+}
+.chart-tooltip span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--brand-muted, #576473);
+}
+.chart-tooltip i {
+  width: 12px;
+  border-top: 2.5px solid;
+}
+.chart-tooltip i.dashed {
+  border-top-style: dashed;
+}
+.chart-tooltip b {
+  margin-left: auto;
+  padding-left: 16px;
+  color: var(--brand-text, #18212c);
+  font-weight: 600;
+}
+
+/* Change badge under a headline figure. */
+.chart-change {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  font-style: normal;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-muted, #576473);
+}
+.chart-change[data-trend="up"] {
+  color: var(--report-current-color, #087f6a);
+}
+.chart-change[data-trend="down"] {
+  color: var(--report-shortage-color, #b5562e);
+}
+.chart-change[data-trend="forecast"] {
+  color: var(--report-forecast-color, #9a6a12);
+}
+
+/* Bar charts: the pointed month keeps full colour, the rest step back. */
+.chart-band {
+  fill: var(--brand-surface-soft, #f6f8fa);
+}
+.chart-bar {
+  transition: opacity 0.12s;
+}
+.chart-bar[data-dim] {
+  opacity: 0.45;
+}
+.chart-average line {
+  stroke: var(--brand-muted, #576473);
+  stroke-dasharray: 6 4;
+}
+.chart-average text {
+  fill: var(--brand-muted, #576473);
+}

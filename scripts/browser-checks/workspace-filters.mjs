@@ -189,15 +189,15 @@ export async function checkWorkspaceFilters(f) {
           "p-b",
         );
         await selectWorkspaceView(page, "Takım Bazlı");
+        // Team rows carry no monthly values; the report above keeps them.
         assert.equal(
           await page
             .locator("table.planning-grid")
             .filter({ has: page.getByText("Takım / Proje", { exact: true }) })
-            .locator(
-              '[data-team-capacity-month="2026-01"] [data-team-capacity-kind="1"]',
-            )
+            .locator('[data-team-capacity-month="2026-01"]')
+            .first()
             .textContent(),
-          fmt(metric.total),
+          "",
         );
         assert.equal(await summaryValue(2), fmt(0.5));
         await page.goto(f.origin);

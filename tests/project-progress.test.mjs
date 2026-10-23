@@ -9,6 +9,7 @@ import {
   proposalProblems,
   riskLevel,
   suggestTargets,
+  suggestRevisionTargets,
   recalculateTargetsAfterEdit,
   targetAt,
   resourcePlanStart,
@@ -508,4 +509,106 @@ test("the progress sheet lists each project with its leaderships, numbers as num
   assert.match(xml, /Test &amp; &lt;onay&gt;/);
   assert.match(xml, /Perf\. 0,77/);
   assert.match(xml, /<dimension ref="A1:I5"\/>/);
+});
+
+test("a revision suggestion follows the entered actuals and restarts from the newest one", () => {
+  const approved = {
+    openingMonth: "2026-06",
+    openingPct: 0,
+    targets: {
+      "2026-07": 20,
+      "2026-08": 30,
+      "2026-09": 40,
+      "2026-10": 60,
+      "2026-11": 80,
+      "2026-12": 100,
+    },
+  };
+  const args = {
+    approved,
+    openingMonth: "2026-06",
+    openingPct: 0,
+    lockedThrough: "2026-09",
+    projectEnd: "2026-12",
+    planned: undefined,
+  };
+  const actual = (pct) => ({ pct, note: "x" });
+  // Behind plan: September locked at a 40 % target with 30 % done, October
+  // entered at 33 %. Locked months keep their targets, October takes its
+  // actual and the rest is spread from 33 %.
+  const targets = suggestRevisionTargets({
+    ...args,
+    actuals: { "2026-09": actual(30), "2026-10": actual(33) },
+  });
+  assert.deepEqual(targets, {
+    "2026-07": 20,
+    "2026-08": 30,
+    "2026-09": 40,
+    "2026-10": 33,
+    "2026-11": 66.5,
+    "2026-12": 100,
+  });
+  const proposal = { openingMonth: "2026-06", openingPct: 0, targets };
+  // The fall below the locked month's target is allowed only at the lock.
+  assert.deepEqual(proposalProblems(proposal, "2026-12", "2026-09"), []);
+  assert.equal(
+    proposalProblems(proposal, "2026-12")[0],
+    "2026-10 hedefi önceki hedeften küçük olamaz.",
+  );
+  assert.equal(
+    proposalProblems(
+      { ...proposal, targets: { ...targets, "2026-11": 30 } },
+      "2026-12",
+      "2026-09",
+    )[0],
+    "2026-11 hedefi önceki hedeften küçük olamaz.",
+  );
+  // Only the locked month has an actual: the open months restart from it.
+  assert.deepEqual(
+    suggestRevisionTargets({ ...args, actuals: { "2026-09": actual(30) } }),
+    {
+      "2026-07": 20,
+      "2026-08": 30,
+      "2026-09": 40,
+      "2026-10": 53.3,
+      "2026-11": 76.7,
+      "2026-12": 100,
+    },
+  );
+  // Work already complete: the plan ends at the month it reached 100 %.
+  assert.deepEqual(
+    suggestRevisionTargets({
+      ...args,
+      actuals: { "2026-10": actual(100) },
+    }),
+    { "2026-07": 20, "2026-08": 30, "2026-09": 40, "2026-10": 100 },
+  );
+  // Completed in the locked month: the first open month reaches 100 %.
+  const doneInLock = suggestRevisionTargets({
+    ...args,
+    actuals: { "2026-09": actual(100) },
+  });
+  assert.deepEqual(doneInLock, {
+    "2026-07": 20,
+    "2026-08": 30,
+    "2026-09": 40,
+    "2026-10": 100,
+  });
+  assert.deepEqual(
+    proposalProblems(
+      { openingMonth: "2026-06", openingPct: 0, targets: doneInLock },
+      "2026-12",
+      "2026-09",
+    ),
+    [],
+  );
+  // No actuals at all: the curve continues from the newest locked target.
+  assert.deepEqual(suggestRevisionTargets({ ...args, actuals: {} }), {
+    "2026-07": 20,
+    "2026-08": 30,
+    "2026-09": 40,
+    "2026-10": 60,
+    "2026-11": 80,
+    "2026-12": 100,
+  });
 });
