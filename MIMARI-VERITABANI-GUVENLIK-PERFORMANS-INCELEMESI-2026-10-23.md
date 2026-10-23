@@ -45,9 +45,11 @@ Veritabanı 786 KB olduğu için bugün hızlı. Asıl risk dayanıklılık: Ver
 
 **Öneri:** Canlı kullanım için MSSQL'e geçilmeli; [IT-MSSQL-GECIS.md](IT-MSSQL-GECIS.md) hazır. Geçişe kadar `npm run db:backup` ve `npm run db:verify-backup` günlük olarak zamanlanmalı.
 
-### 2. Orta — Vite 8.0.16'da bilinen açıklar
+### 2. Orta — Vite 8.0.16'da bilinen açıklar · **Giderildi**
 
-Sürüm 8.0.16'yı kapsayan beş uyarı var (launch-editor üzerinden komut çalıştırma, `server.fs.allow` atlatma ve benzerleri). Hepsi yalnız geliştirme sunucusunu etkiliyor; derlenmiş site ve dağıtım paketi etkilenmiyor. `frontend/package.json` içinde `vite` 8.3.5'e yükseltilmeli (küçük sürüm). Ardından `npm run verify` ve tarayıcı kontrolleri çalıştırılmalı.
+Sürüm 8.0.16'yı kapsayan beş uyarı var (launch-editor üzerinden komut çalıştırma, `server.fs.allow` atlatma ve benzerleri). Hepsi yalnız geliştirme sunucusunu etkiliyor; derlenmiş site ve dağıtım paketi etkilenmiyor.
+
+**Giderildi:** `vite` 8.3.5'e yükseltildi. `npm --prefix frontend audit` artık 0 açık veriyor.
 
 ### 3. Orta — Yerel hesap şifre kuralı zayıf
 
@@ -55,7 +57,7 @@ Sürüm 8.0.16'yı kapsayan beş uyarı var (launch-editor üzerinden komut çal
 
 **Öneri:** Sıralı/tekrarlı karakter ve yaygın şifre listesi denetimi eklenmeli, en az bir harf ve bir rakam istenmeli. Demo hesapları canlı veritabanına taşınmamalı. AD hesapları bu kuraldan etkilenmiyor.
 
-### 4. Orta — Her yazma tüm planlama verisini okuyor ve doğruluyor
+### 4. Orta — Her yazma tüm planlama verisini okuyor ve doğruluyor · **İzleme eklendi**
 
 Bilinen konu N3, "kısmen giderildi". `Store.mutate()` her yazmada şunları yapıyor:
 - Tüm planlama verisini okuyor ve kopyalıyor.
@@ -69,9 +71,21 @@ MSSQL'de bunların hepsi tek bir özel uygulama kilidi altında oluyor. Yazma s�
 - Eski yıllar arşivlenmeli.
 - Uzun vadede doğrulama, yalnız değişen varlıkları kapsayacak şekilde daraltılmalı.
 
-### 5. Düşük — Arayüz tek parça paket
+**Yapılan (kullanıcıyla kararlaştırılan ilk adım):**
+- `Store.mutate()` artık her yazmanın aşama sürelerini ölçüyor: kilit bekleme, okuma, komut, doğrulama, yazma, yanıt ve commit.
+- Toplam süre `SLOW_MUTATION_MS` eşiğini (varsayılan 1000 ms) aşınca sunucu günlüğüne tek satır yazılıyor. Satırda bu süreler ve veri hacmi (proje, takım, kaynak, dağıtım sayıları) var; ad, kimlik ya da değer yazılmıyor.
+- Testler: `tests/slow-mutation-log.test.mjs`.
+- Doğrulamanın daraltılması, ölçümler gerekçe gösterirse ayrı bir adım olarak yapılacak.
 
-`app.js` 934 KB (gzip ile yaklaşık 300 KB); kod bölme ya da sonradan yükleme yok. Giriş ekranı bile uygulamanın tamamını indiriyor. İç ağda kabul edilebilir. Raporlar, Excel üretimi ve senaryo diyalogları `React.lazy` ile ayrılabilir.
+### 5. Düşük — Arayüz tek parça paket · **Giderildi**
+
+`app.js` 934 KB (gzip ile yaklaşık 300 KB); kod bölme ya da sonradan yükleme yok. Giriş ekranı bile uygulamanın tamamını indiriyor. İç ağda kabul edilebilir.
+
+**Giderildi:** Derleme ES modül parçalarına geçti (`frontend/build.mjs`); dosya adlarında yine 12 haneli içerik özeti var. Sonuç:
+- **Giriş ekranı:** 934 KB yerine 209 KB (gzip ile 67 KB).
+- **Çalışma alanı gövdesi:** 444 KB (gzip ile 136 KB); giriş ekranında arka planda indiriliyor.
+- **Seyrek kullanılan ekranlar:** Değerlendirme, raporlar, organizasyon, risk, kritik konular ve senaryo ayrı parçalarda. Gövde açıldıktan sonra arka planda ön yükleniyorlar, bu yüzden ilk açılışta da beklenmiyor (`frontend/src/lazy-panel.tsx`).
+- **Paket kontrolü:** Dağıtım paketi kontrolü parça dosyalarını tanıyacak şekilde güncellendi.
 
 ### 6. Düşük — Derleme klasöründe eski çıktılar birikiyor
 

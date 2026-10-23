@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { SYSTEM_NAME, UI_THEME } from "./settings";
-import Portal from "./App";
 import ErrorBoundary from "./ErrorBoundary";
 import PasswordChangeForm from "./PasswordChangeForm";
 import {
@@ -12,6 +11,11 @@ import {
   observeSessionChanges,
   resumeRemembered,
 } from "./storage";
+
+// The workspace is a separate chunk: the sign-in screen loads without it and
+// fetches it in the background, so it is usually ready by the time it is used.
+const loadPortal = () => import("./App");
+const Portal = lazy(loadPortal);
 
 function App() {
   const [ready, setReady] = useState(false);
@@ -27,6 +31,9 @@ function App() {
   const [sessionKey, setSessionKey] = useState(0);
   const [capsLock, setCapsLock] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    void loadPortal().catch(() => {});
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -115,7 +122,18 @@ function App() {
         />
       </AuthLayout>
     );
-  if (ready) return <Portal key={sessionKey} />;
+  if (ready)
+    return (
+      <Suspense
+        fallback={
+          <p className="app-loading" role="status">
+            Yükleniyor…
+          </p>
+        }
+      >
+        <Portal key={sessionKey} />
+      </Suspense>
+    );
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -445,7 +445,12 @@ export async function checkProjectProgress(f) {
           (
             await evaluationBox.locator(".progress-waiting-count").textContent()
           ).trim();
-        assert.notEqual(await evaluationCount(), "0");
+        // The server has the actual; wait until the screen has merged the
+        // save response before reading the count.
+        await f.wait(
+          async () => (await evaluationCount()) !== "0",
+          "September actual awaits evaluation on screen",
+        );
         await evaluationBox.click();
         await otherCard.waitFor();
         await evaluationBox.click();

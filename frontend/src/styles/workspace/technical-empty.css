@@ -36,3 +36,11 @@ html[data-theme="technical"]
   max-width: 560px;
   margin: 0;
 }
+
+/* A screen loading as its own chunk on first use (lazy-panel.tsx, main.tsx). */
+html[data-theme="technical"] :is(.panel-loading, .app-loading) {
+  margin: 0;
+  padding: 24px 16px;
+  color: var(--brand-muted);
+  font-size: var(--fs-sm);
+}

@@ -39,18 +39,12 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { ClipboardPaste, Copy } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import AbsenceReport from "./AbsenceReport";
 import { useActualView } from "./features/actual-allocation/useActualView";
 import { useActivityReport } from "./features/activity-report/useActivityReport";
-import MonthlyActivityReport from "./features/activity-report/MonthlyActivityReport";
-import WorkspaceReports from "./features/workspace/WorkspaceReports";
-import HeadcountReports from "./features/resource-reports/HeadcountReports";
 import ActivePostingPlanningToggle, {
   activePostingsIncluded,
 } from "./features/workspace/ActivePostingPlanningToggle";
-import AccessPanel from "./AccessPanel";
 import PortalEditorDialog from "./features/PortalEditorDialog";
-import ScheduleScenarioDialog from "./features/schedule-scenario/ScheduleScenarioDialog";
 import ScenarioReportBar from "./features/schedule-scenario/ScenarioReportBar";
 import { useScheduleScenarios } from "./features/schedule-scenario/useScheduleScenarios";
 import { usePlannedGrid } from "./features/usePlannedGrid";
@@ -61,10 +55,7 @@ import PersonAllocationPanel from "./PersonAllocationPanel";
 import type { ActualUnit } from "./actual-units";
 import ErrorBoundary from "./ErrorBoundary";
 import { mergeNewerActuals } from "./features/actual-allocation/merge-actual-view";
-import ProjectInfoReport from "./ProjectInfoReport";
-import ProjectProgressPanel, {
-  type ProgressView,
-} from "./features/project-progress/ProjectProgressPanel";
+import type { ProgressView } from "./features/project-progress/ProjectProgressPanel";
 import { useActualLayout } from "./features/actual-allocation/useActualLayout";
 import ProgressBadge, {
   progressBadgeIndex,
@@ -72,10 +63,34 @@ import ProgressBadge, {
 import ProjectResponsible from "./ProjectResponsible";
 import ProjectTimelinePanel from "./features/ProjectTimelinePanel";
 import ResourcesPanel from "./features/ResourcesPanel";
-import RiskManagement from "./RiskManagement";
 import { DEFAULT_FILTERS, RISK_MANAGEMENT_ENABLED } from "./settings";
 import { captureSessionGuard, currentUser, readLocal } from "./storage";
-import TeamDirectory from "./TeamDirectory";
+import { lazyPanel, preloadPanels } from "./lazy-panel";
+
+// Screens opened from the menu load on first use; the planning grid, projects
+// and actual entry stay in the main chunk.
+const AbsenceReport = lazyPanel(() => import("./AbsenceReport"));
+const MonthlyActivityReport = lazyPanel(
+  () => import("./features/activity-report/MonthlyActivityReport"),
+);
+const WorkspaceReports = lazyPanel(
+  () => import("./features/workspace/WorkspaceReports"),
+);
+const HeadcountReports = lazyPanel(
+  () => import("./features/resource-reports/HeadcountReports"),
+);
+const AccessPanel = lazyPanel(() => import("./AccessPanel"));
+const ProjectInfoReport = lazyPanel(() => import("./ProjectInfoReport"));
+const ProjectProgressPanel = lazyPanel(
+  () => import("./features/project-progress/ProjectProgressPanel"),
+);
+const RiskManagement = lazyPanel(() => import("./RiskManagement"));
+const TeamDirectory = lazyPanel(() => import("./TeamDirectory"));
+// Mounted closed for admins and managers: nothing to show while it loads.
+const ScheduleScenarioDialog = lazyPanel(
+  () => import("./features/schedule-scenario/ScheduleScenarioDialog"),
+  null,
+);
 ("use client");
 const openingOptions = readWorkspaceOptions(
   window.location.search,
@@ -160,6 +175,12 @@ export default function Portal() {
   useEffect(() => {
     if (tab !== "actual" || !isAdmin) setSharedCalendarOpen(false);
   }, [tab, isAdmin]);
+  // The other screens download in the background once this one is shown, so
+  // they open at once later. The sign-in screen and first paint stay light.
+  useEffect(() => {
+    const handle = window.setTimeout(() => void preloadPanels(), 300);
+    return () => window.clearTimeout(handle);
+  }, []);
   // Read-only scenario status remains visible in critical topics.
   const progressBadges = useMemo(
     () =>

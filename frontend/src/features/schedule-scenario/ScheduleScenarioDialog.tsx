@@ -5,7 +5,7 @@ import {
   type SetStateAction,
   type ReactNode,
 } from "react";
-import { ChartColumn, Copy, Plus, Trash2, X } from "lucide-react";
+import { ChartColumn, Copy, Eraser, Plus, X } from "lucide-react";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import {
   Dialog,
@@ -599,15 +599,17 @@ function ScenarioCard({
                     Kopyala
                   </button>
                 )}
+                {/* Clears this draft card (the last one starts over empty);
+                    saved scenarios are deleted from the list below. */}
                 <button
                   type="button"
-                  className="button danger"
-                  title="Senaryoyu kaldır"
-                  aria-label={scenario.name + " senaryosunu kaldır"}
+                  className="button"
+                  title="Senaryo kartını temizle"
+                  aria-label={scenario.name + " senaryo kartını temizle"}
                   onClick={onRemove}
                 >
-                  <Trash2 size={14} aria-hidden="true" />
-                  Sil
+                  <Eraser size={14} aria-hidden="true" />
+                  Temizle
                 </button>
               </div>
             </>

@@ -54,9 +54,15 @@ try {
   assert(references.some((url) => url.endsWith(".js")));
   assert(references.some((url) => url.endsWith(".css")));
   assert(references.some((url) => url.endsWith(".svg")));
+  // Screens loaded on first use: imported by the entry module, not the HTML.
+  const chunks = Object.keys(manifest.artifacts).filter((file) =>
+    /^site\/assets\/chunk\.[a-f0-9]{12}\.js$/.test(file),
+  );
+  assert(chunks.length > 0, "Review package acceptance when chunks change");
   const plainFiles = [
     "site/index.html",
     ...references.map((url) => "site" + url),
+    ...chunks,
   ];
   // Assets referenced from CSS rather than HTML: already compressed, no .gz copy.
   const cssAssets = Object.keys(manifest.artifacts).filter((file) =>

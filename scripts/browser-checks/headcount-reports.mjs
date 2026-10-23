@@ -75,14 +75,13 @@ export async function checkHeadcountReports(f) {
   await f.check(
     "headcount: left sub-tabs retain resource reports and show dated status pivots with unique totals",
     async () => {
-      assert(
-        await page
-          .getByRole("heading", {
-            name: "Liderlik Bazında Eksik Raporu",
-            exact: true,
-          })
-          .isVisible(),
-      );
+      // The reports screen may still be arriving as its own chunk.
+      await page
+        .getByRole("heading", {
+          name: "Liderlik Bazında Eksik Raporu",
+          exact: true,
+        })
+        .waitFor();
       const tabs = page.getByRole("tablist", {
         name: "Kaynak raporu görünümü",
         exact: true,

@@ -37,6 +37,27 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // within this time at the latest. VIEW_CACHE_MAX_AGE_MS=0 turns the cache off:
 // every view then reads only the rows its user may see, as before.
 const VIEW_CACHE_MAX_AGE_MS = 60_000;
+// A write slower than this (lock wait included) is logged with its phase
+// times and the snapshot size. SLOW_MUTATION_MS=0 logs every write.
+const SLOW_MUTATION_MS = 1000;
+const size = (value) =>
+  Array.isArray(value)
+    ? value.length
+    : value && typeof value === "object"
+      ? Object.keys(value).length
+      : 0;
+/** Counts only: no names, ids or values reach the log. */
+export function snapshotSize(data) {
+  return {
+    projects: size(data.projects),
+    teams: size(data.teams),
+    resources: size(data.resources),
+    allocations: size(data.allocations),
+    actualAllocations: size(data.actualAllocations),
+    personDays: size(data.personDays),
+    projectProgress: size(data.projectProgress),
+  };
+}
 function deepFreeze(value) {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
     Object.freeze(value);
@@ -55,6 +76,12 @@ export class Store {
       Number(this.env.VIEW_CACHE_MAX_AGE_MS ?? VIEW_CACHE_MAX_AGE_MS);
     if (!Number.isFinite(this.viewCacheMaxAgeMs) || this.viewCacheMaxAgeMs < 0)
       throw Error("VIEW_CACHE_MAX_AGE_MS 0 veya pozitif bir sayı olmalıdır.");
+    this.slowMutationMs =
+      options.slowMutationMs ??
+      Number(this.env.SLOW_MUTATION_MS ?? SLOW_MUTATION_MS);
+    if (!Number.isFinite(this.slowMutationMs) || this.slowMutationMs < 0)
+      throw Error("SLOW_MUTATION_MS 0 veya pozitif bir sayı olmalıdır.");
+    this.log = options.log || console.warn;
     this.provider = this.env.DB_PROVIDER || "sqljs";
     if (!["sqljs", "mssql"].includes(this.provider))
       throw Error("DB_PROVIDER sqljs veya mssql olmalıdır.");
@@ -365,7 +392,17 @@ export class Store {
       afterPersist,
     } = {},
   ) {
-    return this.transaction(async (c) => {
+    const requested = performance.now();
+    const marks = {};
+    let mark = requested,
+      size;
+    const phase = (name) => {
+      const now = performance.now();
+      marks[name] = Math.round(now - mark);
+      mark = now;
+    };
+    const outcome = await this.transaction(async (c) => {
+      phase("lockMs");
       const active = await this.findUser({ id: u._id }, c);
       if (!active?.active || active.version !== u.version)
         fail(401, "Oturum yenilenmeli.");
@@ -381,12 +418,15 @@ export class Store {
         before = planningOnly ? snapshot.data : copy,
         data = planningOnly ? copy : snapshot.data,
         generation = snapshot.generation;
+      phase("readMs");
       const beforeUsers = auditUsers ? await this.users(c) : [];
       const result = await (prepared?.stage || fn)(data, active, c, generation);
+      phase("commandMs");
       synchronizeProgressStarts(data);
       const valid = this.validateSnapshot(data, {
         previousResources: before.resources,
       });
+      phase("validateMs");
       captureLegacyResourceReferences(valid, { referenceData: before });
       synchronizeScenarioWarnings(valid);
       // Same transaction/lock as the command. Imports and cascading team edits
@@ -414,6 +454,8 @@ export class Store {
         "UPDATE kp_settings SET " + assignments.join(",") + " WHERE id=1",
         values,
       );
+      phase("persistMs");
+      size = snapshotSize(valid);
       if (returnView) {
         // The optional result envelope carries import counters with this commit.
         // Preserve the SQL read representation of unchanged entities. If
@@ -428,10 +470,18 @@ export class Store {
           planningDelta,
           metadataEquality: settings.metadataEquality,
         });
+        phase("viewMs");
         return returnResult ? { view, result } : view;
       }
       return result;
     });
+    // After the commit (the file write for SQL.js), so the total is what the
+    // request waited for.
+    phase("commitMs");
+    const totalMs = Math.round(performance.now() - requested);
+    if (totalMs >= this.slowMutationMs)
+      this.log("Slow mutation", JSON.stringify({ totalMs, ...marks, size }));
+    return outcome;
   }
   async persist(before, next, c, options) {
     return persistPlanningSnapshot(before, next, c, options);

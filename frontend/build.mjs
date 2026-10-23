@@ -32,12 +32,21 @@ await build({
   },
   build: {
     outDir: path.join(root, ".compiled"),
+    emptyOutDir: true,
     minify: true,
-    lib: {
-      entry: path.join(root, "src/main.tsx"),
-      name: "KaynakPortal",
-      formats: ["iife"],
-      fileName: () => "app.js",
+    // ES modules so screens opened later load as separate chunks. Names carry
+    // a 12-hex content hash like the other assets; CSS stays one file.
+    cssCodeSplit: false,
+    modulePreload: false,
+    assetsDir: "",
+    rollupOptions: {
+      input: path.join(root, "src/main.tsx"),
+      output: {
+        format: "es",
+        hashCharacters: "hex",
+        entryFileNames: "app.[hash:12].js",
+        chunkFileNames: "chunk.[hash:12].js",
+      },
     },
   },
 });
@@ -53,11 +62,19 @@ async function asset(label, ext, bytes) {
     );
   return name;
 }
-const jsName = await asset(
-  "app",
-  "js",
-  await fs.readFile(path.join(root, ".compiled/app.js")),
-);
+// Rollup already named the modules by content; chunks import each other by
+// these names, so they are copied as they are.
+const compiledJs = (await fs.readdir(path.join(root, ".compiled")))
+  .filter((file) => file.endsWith(".js"))
+  .sort();
+const jsName = compiledJs.find((file) => file.startsWith("app."));
+if (!jsName) throw Error("Derleme giriş dosyası (app.*.js) bulunamadı.");
+const chunkNames = compiledJs.filter((file) => file !== jsName);
+for (const name of compiledJs) {
+  const bytes = await fs.readFile(path.join(root, ".compiled", name));
+  await fs.writeFile(path.join(site, "assets", name), bytes);
+  await fs.writeFile(path.join(site, "assets", name + ".gz"), gzipSync(bytes));
+}
 const faviconName = await asset(
   "favicon",
   "svg",
@@ -99,7 +116,7 @@ const css = [
 ].join("\n");
 const cssName = await asset("app", "css", Buffer.from(css));
 
-const html = `<!doctype html><html lang="tr" data-theme="${UI_THEME}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${SYSTEM_NAME}</title><link rel="icon" type="image/svg+xml" href="/assets/${faviconName}"><link rel="stylesheet" href="/assets/${cssName}"><script defer src="/assets/${jsName}"></script></head><body><div id="root"></div><noscript>JavaScript etkin olmalıdır.</noscript></body></html>`;
+const html = `<!doctype html><html lang="tr" data-theme="${UI_THEME}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${SYSTEM_NAME}</title><link rel="icon" type="image/svg+xml" href="/assets/${faviconName}"><link rel="stylesheet" href="/assets/${cssName}"><script type="module" src="/assets/${jsName}"></script></head><body><div id="root"></div><noscript>JavaScript etkin olmalıdır.</noscript></body></html>`;
 await fs.writeFile(path.join(site, "index.html"), html);
 await fs.writeFile(path.join(site, "index.html.gz"), gzipSync(html));
 await writeDeploymentManifest(packageRoot, sourceHashes, {
@@ -109,7 +126,7 @@ await writeDeploymentManifest(packageRoot, sourceHashes, {
     "site/assets/otokar-logo.svg",
     "site/assets/" + loginBackgroundName,
     ...Object.values(fontNames).map((name) => "site/assets/" + name),
-    ...[faviconName, jsName, cssName].flatMap((name) => [
+    ...[faviconName, jsName, ...chunkNames, cssName].flatMap((name) => [
       "site/assets/" + name,
       "site/assets/" + name + ".gz",
     ]),
