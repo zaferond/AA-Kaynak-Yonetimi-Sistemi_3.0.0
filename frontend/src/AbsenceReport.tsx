@@ -6,6 +6,8 @@ import type { PersonalCalendarRange } from "./features/work-calendar/calendar-ra
 import { preparePersonalRangeRemoval } from "./features/calendar-commands";
 import { writeBatch } from "./storage";
 import WorkCalendarDialog from "./WorkCalendarDialog";
+import ReportDownloadButton from "./components/ReportDownloadButton";
+import { downloadTable } from "./xlsx-table";
 import {
   Table,
   TableHeader,
@@ -14,6 +16,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import EmptyState from "./components/EmptyState";
 
 const dateFormat = new Intl.DateTimeFormat("tr-TR", {
   day: "2-digit",
@@ -64,6 +67,40 @@ export default function AbsenceReport({
       setBusy(false);
     }
   }
+  function exportRows() {
+    const day = (iso: string) =>
+      new Date(iso + "T12:00:00").toLocaleDateString("tr-TR");
+    try {
+      downloadTable("Calisan-Izin-ve-Egitim-Kayitlari.xlsx", {
+        sheet: "İzin ve Eğitim",
+        title: "Çalışan İzin ve Eğitim Kayıtları",
+        header: [
+          "Ayrılış / Başlangıç",
+          "Dönüş (Hariç)",
+          "Çalışan",
+          "Takım",
+          "Tür",
+          "Çalışma Günü",
+          "Toplam Saat",
+          "Açıklama",
+        ],
+        rows: rows.map((row) => [
+          day(row.range.from),
+          day(row.range.to),
+          row.resource.name,
+          row.teamNames.join(", "),
+          row.range.entry.type === "leave" ? "İzin" : "Eğitim",
+          row.days,
+          row.hours,
+          row.range.entry.label || "",
+        ]),
+        widths: [16, 16, 26, 36, 10, 12, 12, 40],
+      });
+      setError("");
+    } catch (cause) {
+      setError((cause as Error).message);
+    }
+  }
   return (
     <section className="panel absence-report">
       <div className="panelhead">
@@ -73,6 +110,11 @@ export default function AbsenceReport({
         <div className="absence-report-summary">
           <strong>{rows.length}</strong> kayıt <span>·</span>{" "}
           <strong>{total.toLocaleString("tr-TR")}</strong> saat
+          <ReportDownloadButton
+            label="İzin ve Eğitim Kayıtlarını Excel'e Aktar"
+            disabled={!rows.length}
+            onClick={exportRows}
+          />
         </div>
       </div>
       {rows.length ? (
@@ -153,7 +195,9 @@ export default function AbsenceReport({
           </TableBody>
         </Table>
       ) : (
-        <p className="emptymsg">Seçili dönemde izin veya eğitim kaydı yok.</p>
+        <EmptyState title="Kayıt yok">
+          Seçili dönemde izin veya eğitim kaydı bulunmuyor.
+        </EmptyState>
       )}
       {error && (
         <p role="alert" className="work-calendar-error">

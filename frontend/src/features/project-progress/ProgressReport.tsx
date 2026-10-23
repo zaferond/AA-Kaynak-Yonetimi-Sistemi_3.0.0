@@ -37,6 +37,7 @@ import {
   managementSheets,
   managementExportRows,
 } from "./progress-management-export";
+import EmptyState from "../../components/EmptyState";
 
 type DecisionFilter =
   | ""
@@ -221,6 +222,12 @@ export default function ProgressReport({
     .at(-1);
   const detailRow = rows.find((row) => row.project.id === detail);
 
+  function resetAllFilters() {
+    setLeader("");
+    setProjectId("");
+    setDecision("");
+    onResetFilters();
+  }
   function exportReport() {
     try {
       downloadProgressReport(
@@ -269,14 +276,7 @@ export default function ProgressReport({
           </>,
           actionsHost,
         )}
-      <ProgressFilters
-        onReset={() => {
-          setLeader("");
-          setProjectId("");
-          setDecision("");
-          onResetFilters();
-        }}
-      >
+      <ProgressFilters onReset={resetAllFilters}>
         <label className="pick">
           <span>Liderlik</span>
           <select
@@ -379,7 +379,12 @@ export default function ProgressReport({
           onLoadMore={visible.length < filtered.length ? loadMore : undefined}
         />
       ) : (
-        <p className="emptymsg">Bu süzgeçlere uyan ilerleme kaydı yok.</p>
+        <EmptyState
+          title="Proje bulunamadı"
+          action={{ label: "Filtreleri Sıfırla", onClick: resetAllFilters }}
+        >
+          Seçili süzgeçlere uyan değerlendirme kaydı yok.
+        </EmptyState>
       )}
       {detailRow && (
         <ProjectDetail
@@ -448,7 +453,9 @@ function ProjectDetail({
           </tbody>
         </table>
       ) : (
-        <p className="emptymsg">Henüz gerçekleşen girişi yok.</p>
+        <EmptyState title="Gerçekleşen girişi yok">
+          Bu proje için henüz aylık gerçekleşen yüzdesi kaydedilmedi.
+        </EmptyState>
       )}
     </section>
   );

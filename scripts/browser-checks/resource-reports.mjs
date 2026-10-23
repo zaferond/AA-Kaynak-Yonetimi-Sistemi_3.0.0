@@ -415,7 +415,7 @@ export async function checkResourceReports(f) {
         await selectWorkspaceTab(page, "Çalışan & Yetki Tanımlama");
         assert.match(
           await report.innerText(),
-          /Seçili dönemde izin veya eğitim kaydı yok/,
+          /Kayıt yok\s+Seçili dönemde izin veya eğitim kaydı bulunmuyor/,
         );
         await selectWorkspaceTab(page, "Raporlar");
         await page

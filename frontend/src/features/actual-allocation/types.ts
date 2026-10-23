@@ -2,6 +2,8 @@ import type { Data, Project, Resource, Team } from "../../model";
 import type { ActualEntry } from "../actual-allocation-commands";
 
 export type PersonAllocationPanelProps = {
+  /** Clears the workspace filters (empty-state action). */
+  onResetFilters?: () => void;
   layout: import("./useActualAllocationView").ActualLayout;
   /** Entry unit, chosen in the page heading next to "Görünüm". */
   unit: import("../../actual-units").ActualUnit;

@@ -82,6 +82,12 @@ export async function checkActualPersonLayout(f) {
           .getByText("“bulunmayan kişi” ile eşleşen kişi yok.")
           .waitFor();
         assert.equal(await page.locator("[data-person-heading]").count(), 0);
+        // The empty state offers the one action that resolves it.
+        await page
+          .getByRole("button", { name: "Aramayı Temizle", exact: true })
+          .click();
+        assert.equal(await page.getByLabel("Kişi ara").inputValue(), "");
+        await page.locator("[data-person-heading]").first().waitFor();
       },
     );
     await f.check(

@@ -16,6 +16,7 @@ import {
 import DirectoryManagementDialog from "./features/team-directory/DirectoryManagementDialog";
 import { useViewportWorkspace } from "./features/workspace/useViewportWorkspace";
 import { useDirectoryEditor } from "./features/team-directory/useDirectoryEditor";
+import EmptyState from "./components/EmptyState";
 
 export default function TeamDirectory({
   data,
@@ -197,7 +198,18 @@ export default function TeamDirectory({
         </TableBody>
       </Table>
       {!groups.length && (
-        <p className="emptymsg">Aramanıza uygun liderlik veya takım yok.</p>
+        <EmptyState
+          title="Birim bulunamadı"
+          action={
+            query.trim()
+              ? { label: "Aramayı Temizle", onClick: () => setQuery("") }
+              : undefined
+          }
+        >
+          {query.trim()
+            ? `“${query.trim()}” ile eşleşen liderlik veya takım yok.`
+            : "Henüz liderlik veya takım tanımlanmamış."}
+        </EmptyState>
       )}
       {canEdit && <DirectoryManagementDialog data={data} editor={editor} />}
     </section>

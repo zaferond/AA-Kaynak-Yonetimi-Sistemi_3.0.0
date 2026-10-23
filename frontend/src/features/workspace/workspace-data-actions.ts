@@ -47,7 +47,7 @@ export function createWorkspaceDataActions({
       !confirm(
         "Tüm liderliklerdeki, tüm projelerdeki ve tüm aylardaki " +
           n +
-          " dağıtım hücresi sıfırlanacak.\n\nEkrandaki filtreler ve görünür dönem bu işlemi sınırlamaz. Çalışan kayıtları, kapasite bilgileri ve proje planları korunur.\n\nGeri almak için işlem öncesi veri yedeği gerekir. Tüm dağılımlar sıfırlansın mı?",
+          " dağıtım hücresi sıfırlanacak.\n\nEkrandaki filtreler ve görünür dönem bu işlemi sınırlamaz. Çalışan kayıtları, kapasite bilgileri ve proje planları korunur.\n\nGeri almak için işlem öncesi veri yedeği gerekir. Tüm kaynak dağılımları sıfırlansın mı?",
       )
     )
       return;

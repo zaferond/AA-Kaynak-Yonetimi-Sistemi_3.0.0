@@ -15,6 +15,8 @@ type PlanningGrid = Pick<
 >;
 export type PlannedAllocationProps = {
   data: Data;
+  /** Clears the workspace filters (empty-state action). */
+  onResetFilters?: () => void;
   teams: Team[];
   projects: Project[];
   months: string[];

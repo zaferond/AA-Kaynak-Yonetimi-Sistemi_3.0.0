@@ -21,6 +21,7 @@ import type {
   ActualCalendarMode,
   ActualPhaseDetail,
 } from "./features/actual-allocation/types";
+import EmptyState from "./components/EmptyState";
 
 export default function PersonAllocationPanel(
   props: PersonAllocationPanelProps,
@@ -231,31 +232,53 @@ export default function PersonAllocationPanel(
         onPhaseClose={() => setPhaseDetail(null)}
       />
       {!projects.length && (
-        <p className="emptymsg">Seçili filtrelerde proje bulunamadı.</p>
+        <EmptyState
+          title="Proje bulunamadı"
+          action={
+            props.onResetFilters && {
+              label: "Filtreleri Sıfırla",
+              onClick: props.onResetFilters,
+            }
+          }
+        >
+          Seçili filtrelere ve döneme uyan proje yok.
+        </EmptyState>
       )}
       {!!projects.length &&
         layout === "person" &&
         !!query.trim() &&
         !totalRows && (
-          <p className="emptymsg">“{query.trim()}” ile eşleşen kişi yok.</p>
+          <EmptyState
+            title="Kişi bulunamadı"
+            action={{ label: "Aramayı Temizle", onClick: () => setQuery("") }}
+          >
+            “{query.trim()}” ile eşleşen kişi yok.
+          </EmptyState>
         )}
       {!!projects.length && props.onlyDataRows && !totalRows && (
-        <div className="emptymsg">
-          <p>Seçili dönemde gerçekleşen değeri girilmiş satır yok.</p>
-          <button
-            type="button"
-            className="button"
-            onClick={() => props.onOnlyDataRowsChange(false)}
-          >
-            Tüm Satırları Göster
-          </button>
-        </div>
+        <EmptyState
+          title="Veri olan satır yok"
+          action={{
+            label: "Tüm Satırları Göster",
+            onClick: () => props.onOnlyDataRowsChange(false),
+          }}
+        >
+          Seçili dönemde gerçekleşen değeri girilmiş satır bulunmuyor.
+        </EmptyState>
       )}
       {!!projects.length && !people.length && (
-        <p className="emptymsg">
-          Seçili filtrelerde dağıtılabilir kişi bulunamadı; proje aşamaları
+        <EmptyState
+          title="Dağıtılabilir kişi yok"
+          action={
+            props.onResetFilters && {
+              label: "Filtreleri Sıfırla",
+              onClick: props.onResetFilters,
+            }
+          }
+        >
+          Seçili filtrelerde kişi bulunamadı; yalnız proje aşamaları
           gösteriliyor.
-        </p>
+        </EmptyState>
       )}
     </section>
   );

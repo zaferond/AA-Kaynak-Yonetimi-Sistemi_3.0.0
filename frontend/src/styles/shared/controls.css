@@ -236,6 +236,15 @@ select {
   text-align: center;
   color: #789;
 }
+/* EmptyState: title, one sentence, at most one action. */
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.empty-state > p {
+  margin: 0;
+}
 .phasebutton {
   min-height: 85px;
 }

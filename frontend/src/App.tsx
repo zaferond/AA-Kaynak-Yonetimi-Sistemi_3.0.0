@@ -73,6 +73,7 @@ import {
   TAB_LABELS,
 } from "./settings";
 import { captureSessionGuard, currentUser, readLocal } from "./storage";
+import AllocationResetPanel from "./features/AllocationResetPanel";
 import { lazyPanel, preloadPanels } from "./lazy-panel";
 
 // Screens opened from the menu load on first use; the planning grid, projects
@@ -560,7 +561,6 @@ export default function Portal() {
   const workspaceFilters = data && (
     <WorkspaceFilters
       data={viewData || data}
-      user={user}
       tab={tab}
       leads={leads}
       setLeads={setLeads}
@@ -581,8 +581,6 @@ export default function Portal() {
       setDensity={setDensity}
       filterResetKey={filterResetKey}
       resetFilters={resetFilters}
-      saving={saving}
-      resetAll={resetAll}
       showPeriodFilters={tab !== "overview" || reportView !== "headcount"}
     />
   );
@@ -813,6 +811,7 @@ export default function Portal() {
               {(isAdmin || isManager) && tab === "plan" && (
                 <TabsContent value="plan">
                   <PlannedAllocationPanel
+                    onResetFilters={resetFilters}
                     data={data}
                     teams={teams}
                     projects={projects}
@@ -885,6 +884,7 @@ export default function Portal() {
                     />
                   ) : (
                     <ProjectTimelinePanel
+                      onResetFilters={resetFilters}
                       selection={projectMenus.phaseGrid}
                       progress={progressBadges}
                       projects={projects}
@@ -976,6 +976,7 @@ export default function Portal() {
                   (isManager && !!user?.leaders.length) ||
                   user?.resourceId ? (
                     <PersonAllocationPanel
+                      onResetFilters={resetFilters}
                       layout={actualLayout}
                       unit={actualUnit}
                       // The refresh that follows the user's own save keeps
@@ -1040,6 +1041,7 @@ export default function Portal() {
                     </div>
                   )}
                   <MonthlyActivityReport
+                    onResetFilters={resetFilters}
                     rows={activity.value?.rows || []}
                     teams={teams}
                     months={months}
@@ -1107,6 +1109,13 @@ export default function Portal() {
                           />
                         )}
                       </AccessPanel>
+                      <AllocationResetPanel
+                        disabled={
+                          saving ||
+                          !Object.values(data.allocations).some((v) => v !== 0)
+                        }
+                        onReset={resetAll}
+                      />
                       <AbsenceReport
                         data={data}
                         teamIds={ids}

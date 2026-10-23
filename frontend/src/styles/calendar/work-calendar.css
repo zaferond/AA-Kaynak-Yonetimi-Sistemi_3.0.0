@@ -276,9 +276,16 @@
   align-items: center;
 }
 .absence-report-summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: #6d8496;
   font-size: var(--fs-xs);
   white-space: nowrap;
+}
+/* Excel download at the right end of the record count. */
+.absence-report-summary .report-download-button {
+  margin-left: 10px;
 }
 .absence-report-summary strong {
   color: #285e84;

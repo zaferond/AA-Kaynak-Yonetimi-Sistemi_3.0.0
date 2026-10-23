@@ -43,6 +43,7 @@ import {
   weekLabel,
   type IsoWeek,
 } from "./iso-week";
+import EmptyState from "./components/EmptyState";
 
 const STATUS_LABELS = { late: "Gecikti", active: "Sürüyor" } as const;
 
@@ -344,11 +345,22 @@ export default function ProjectInfoReport({
         </div>
       )}
       {groups.length && !visibleGroups.length ? (
-        <p className="emptymsg project-info-filter-empty">
+        <EmptyState
+          title="Konu bulunamadı"
+          className="project-info-filter-empty"
+          action={{
+            label: "Filtreleri Sıfırla",
+            onClick: () => {
+              setProjectFilter("");
+              setFilter("all");
+              setWeekKeys(new Set());
+            },
+          }}
+        >
           {projectId
             ? "Bu projede seçili süzgeçlere uyan konu yok."
-            : "Bu durumda konu yok."}
-        </p>
+            : "Seçili durum ve haftalara uyan konu yok."}
+        </EmptyState>
       ) : groups.length ? (
         <div className="project-info-groups">
           {visibleGroups.map((project) => {

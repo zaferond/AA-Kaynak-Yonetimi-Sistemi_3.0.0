@@ -21,6 +21,7 @@ import type { ProjectTimelineRowProps } from "./project-timeline-types";
 import { useWindowedSections } from "./workspace/useWindowedSections";
 import { useViewportWorkspace } from "./workspace/useViewportWorkspace";
 import type { WarningAssessment } from "../../../shared/scenario-warnings.ts";
+import EmptyState from "../components/EmptyState";
 export type ProjectTimelineActions = {
   onReorderProject: (
     sourceId: string,
@@ -73,6 +74,8 @@ type Props = {
   onPageChange: (page: number) => void;
   actions: ProjectTimelineActions;
   selection: ReturnType<typeof usePhaseGrid>;
+  /** Clears the workspace filters (empty-state action). */
+  onResetFilters?: () => void;
   /** Last evaluation per project id; empty for roles without Değerlendirme. */
   progress?: Map<string, WarningAssessment>;
 };
@@ -98,6 +101,7 @@ export default function ProjectTimelinePanel({
   actions,
   selection,
   progress,
+  onResetFilters,
 }: Props) {
   const viewportRef = useViewportWorkspace();
   const labelColumns = showCodes ? 2 : 1;
@@ -276,7 +280,17 @@ export default function ProjectTimelinePanel({
         {windowedRows}
       </Table>
       {!projects.length && (
-        <p className="emptymsg">Seçili filtrelere uygun proje bulunamadı.</p>
+        <EmptyState
+          title="Proje bulunamadı"
+          action={
+            onResetFilters && {
+              label: "Filtreleri Sıfırla",
+              onClick: onResetFilters,
+            }
+          }
+        >
+          Seçili filtrelere ve döneme uyan proje yok.
+        </EmptyState>
       )}
     </section>
   );

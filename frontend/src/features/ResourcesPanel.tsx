@@ -37,7 +37,10 @@ import type { Data, Resource } from "../model";
 import { versionAt } from "../model";
 import { fullDateLabel } from "../format";
 import Pager from "../Pager";
+import ReportDownloadButton from "../components/ReportDownloadButton";
+import { downloadEmployees } from "./access/employee-export";
 import ResourceImportPanel from "../ResourceImportPanel";
+import EmptyState from "../components/EmptyState";
 
 type Props = {
   userId: string | undefined;
@@ -122,6 +125,11 @@ export default function ResourcesPanel({
               setSearch(value);
               notify(value.trim() ? employeeSearchField(data, value) : "reset");
             }}
+          />
+          <ReportDownloadButton
+            label="Çalışan ve Yetki Listesini Excel'e Aktar"
+            disabled={!rows.length}
+            onClick={() => downloadEmployees(data, rows, start)}
           />
           {/* The upload counterpart of the download buttons: an up arrow. */}
           <button
@@ -491,7 +499,18 @@ export default function ResourcesPanel({
         label="Kayıt"
       />
       {!rows.length && (
-        <p className="emptymsg">Bu filtrelere uygun çalışan veya hesap yok.</p>
+        <EmptyState
+          title="Kayıt bulunamadı"
+          action={
+            search.trim()
+              ? { label: "Aramayı Temizle", onClick: () => setSearch("") }
+              : undefined
+          }
+        >
+          {search.trim()
+            ? `“${search.trim()}” ile eşleşen çalışan veya hesap yok.`
+            : "Henüz çalışan veya hesap kaydı yok."}
+        </EmptyState>
       )}
     </section>
   );

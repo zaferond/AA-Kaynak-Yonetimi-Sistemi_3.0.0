@@ -17,12 +17,10 @@ import {
 import { Picker } from "../components/FilterPicker";
 import FilterTokens from "./FilterTokens";
 import type { Data, Team } from "../model";
-import type { Principal } from "../access";
 import type { WorkspaceDensity } from "./WorkspaceNavigation";
 type SelectionSetter = Dispatch<SetStateAction<string[]>>;
 type Props = {
   data: Data;
-  user: Principal | null;
   tab: string;
   leads: string[];
   setLeads: (values: string[]) => void;
@@ -43,13 +41,10 @@ type Props = {
   setDensity: (density: WorkspaceDensity) => void;
   filterResetKey: number;
   resetFilters: () => void;
-  saving: boolean;
-  resetAll: () => Promise<void>;
   showPeriodFilters?: boolean;
 };
 export default function WorkspaceFilters({
   data,
-  user,
   tab,
   leads,
   setLeads,
@@ -70,11 +65,8 @@ export default function WorkspaceFilters({
   setDensity,
   filterResetKey,
   resetFilters,
-  saving,
-  resetAll,
   showPeriodFilters = true,
 }: Props) {
-  const isAdmin = user?.role === "admin";
   const { notify, toast } = useFilterAppliedToast();
   function applySelection(
     current: string[],
@@ -223,18 +215,6 @@ export default function WorkspaceFilters({
               >
                 Filtreleri Sıfırla
               </button>
-              {tab === "plan" && isAdmin && (
-                <button
-                  className="button deletebutton"
-                  disabled={
-                    saving ||
-                    !Object.values(data.allocations).some((v) => v !== 0)
-                  }
-                  onClick={resetAll}
-                >
-                  Tüm Dağılımları Sıfırla
-                </button>
-              )}
             </div>
             <FilterTokens
               groups={[

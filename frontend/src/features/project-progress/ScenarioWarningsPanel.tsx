@@ -29,6 +29,7 @@ import {
   downloadScenarioWarnings,
   lastAction,
 } from "./scenario-warning-export";
+import EmptyState from "../../components/EmptyState";
 
 const dateLabel = (at: string) => new Date(at).toLocaleString("tr-TR");
 const dayLabel = (at: string) =>
@@ -436,7 +437,24 @@ export default function ScenarioWarningsPanel({
           </table>
         </div>
       ) : (
-        <p className="emptymsg">Bu filtrelere uyan senaryo uyarısı yok.</p>
+        <EmptyState
+          title="Senaryo uyarısı yok"
+          action={
+            project || status
+              ? {
+                  label: "Filtreleri Sıfırla",
+                  onClick: () => {
+                    setProject("");
+                    setStatus("");
+                  },
+                }
+              : undefined
+          }
+        >
+          {project || status
+            ? "Seçili filtrelere uyan uyarı bulunamadı."
+            : "Uyarılar bir ay kilitlendiğinde oluşur; henüz uyarı yok."}
+        </EmptyState>
       )}
       {pageCount > 1 && (
         <div className="progress-report-pages">

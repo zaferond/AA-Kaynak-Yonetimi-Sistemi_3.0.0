@@ -16,6 +16,7 @@ import {
   type ActivityMonth,
 } from "./activity-report-data";
 import { activityBand, BAND_LABELS } from "./activity-band";
+import EmptyState from "../../components/EmptyState";
 
 const PAGE_SIZE = 100;
 /* One label column: leadership and team move to a group row per team. */
@@ -53,6 +54,7 @@ export default function MonthlyActivityReport({
   todayDate,
   unit,
   projectFiltered = false,
+  onResetFilters,
 }: {
   rows: ActivityRow[];
   teams: Team[];
@@ -62,6 +64,8 @@ export default function MonthlyActivityReport({
   unit: ActualUnit;
   /** A project filter shows part of each month: no utilisation colours. */
   projectFiltered?: boolean;
+  /** Clears the workspace filters (empty-state action). */
+  onResetFilters?: () => void;
 }) {
   const currentMonth = todayDate.slice(0, 7);
   const [page, setPage] = useState(0);
@@ -220,7 +224,17 @@ export default function MonthlyActivityReport({
           {!rows.length && (
             <TableRow>
               <TableCell colSpan={1 + months.length} className="activity-empty">
-                Seçilen filtrelerde görüntülenebilen çalışan kaydı bulunmuyor.
+                <EmptyState
+                  title="Çalışan bulunamadı"
+                  action={
+                    onResetFilters && {
+                      label: "Filtreleri Sıfırla",
+                      onClick: onResetFilters,
+                    }
+                  }
+                >
+                  Seçili filtrelerde görüntülenebilen çalışan kaydı yok.
+                </EmptyState>
               </TableCell>
             </TableRow>
           )}

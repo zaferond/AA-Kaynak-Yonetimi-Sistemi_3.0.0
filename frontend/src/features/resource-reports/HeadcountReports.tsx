@@ -21,6 +21,7 @@ import {
   headcountColumnTotal,
   headcountWithPostings,
 } from "./headcount-report-data";
+import EmptyState from "../../components/EmptyState";
 
 export default function HeadcountReports({
   data,
@@ -157,7 +158,9 @@ export default function HeadcountReports({
                       className="headcount-empty"
                       colSpan={columns.length + (definition.showTotal ? 2 : 1)}
                     >
-                      Bu filtrelere uygun birim yok.
+                      <EmptyState title="Birim bulunamadı">
+                        Seçili liderlik ve takım filtrelerine uyan birim yok.
+                      </EmptyState>
                     </TableCell>
                   </TableRow>
                 )}

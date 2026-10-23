@@ -129,7 +129,7 @@ export async function checkWorkspaceActions(f) {
       },
     );
     await f.check(
-      "workspace actions: global reset ignores display filters; cancel/503 preserve data and retry clears only planned allocations",
+      "workspace actions: global reset (Organizasyon screen) ignores display filters; cancel/503 preserve data and retry clears only planned allocations",
       async () => {
         await selectWorkspaceTab(page, "Kaynak Planlama");
         await choose(page, "Takım", [f.teamA.name]);
@@ -142,10 +142,14 @@ export async function checkWorkspaceActions(f) {
         await page
           .locator(".planning-filterbar .period select")
           .selectOption("6");
+        // The reset lives on the admin Organizasyon screen, not the plan.
         const button = page.getByRole("button", {
-          name: "Tüm Dağılımları Sıfırla",
+          name: "Tüm Kaynak Dağılımlarını Sıfırla",
           exact: true,
         });
+        assert.equal(await button.count(), 0);
+        await selectWorkspaceTab(page, "Organizasyon & Çalışan & Yetki");
+        await button.waitFor();
         const before = await f.state();
         page.once("dialog", async (dialog) => {
           assert(dialog.message().includes("Ekrandaki filtreler"));
@@ -196,6 +200,34 @@ export async function checkWorkspaceActions(f) {
           );
         assert(await button.isDisabled());
         await seedPlan();
+      },
+    );
+    await f.check(
+      "workspace actions: Çalışan & Yetki and leave records export to Excel above their tables",
+      async () => {
+        await selectWorkspaceTab(page, "Çalışan & Yetki Tanımlama");
+        const xml = await exportSheet(
+          page.getByRole("button", {
+            name: "Çalışan ve Yetki Listesini Excel'e Aktar",
+            exact: true,
+          }),
+          "calisan-ve-yetki.xlsx",
+        );
+        for (const text of [
+          "Yetki Kapsamı",
+          "Browser Employee",
+          "Browser Other Employee",
+          "qa.employee",
+          "Normal Kullanıcı",
+        ])
+          assert(xml.includes(text), text);
+        // The leave records keep their own download beside the record count.
+        await page
+          .getByRole("button", {
+            name: "İzin ve Eğitim Kayıtlarını Excel'e Aktar",
+            exact: true,
+          })
+          .waitFor();
       },
     );
     await f.check(

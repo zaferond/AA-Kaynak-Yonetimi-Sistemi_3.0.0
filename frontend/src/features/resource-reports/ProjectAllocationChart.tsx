@@ -6,6 +6,7 @@ import {
   type ProjectResourceComparison,
 } from "../../../../shared/resource-planning-reports";
 import useChartWidth from "./useChartWidth";
+import EmptyState from "../../components/EmptyState";
 
 const chartValue = (value: number) =>
   value > 0 && value < 0.005 ? "<0,01" : fmt(value);
@@ -236,11 +237,15 @@ export default function ProjectAllocationChart({
             ))}
           </svg>
         ) : (
-          <p className="emptymsg">
+          <EmptyState
+            title={
+              series.length ? "Proje kaynağı yok" : "Kaynak türü seçilmedi"
+            }
+          >
             {series.length
               ? "Seçili dönemde gösterilecek proje kaynağı yok."
               : "Grafikte gösterilecek en az bir kaynak türü seçin."}
-          </p>
+          </EmptyState>
         )}
       </div>
       {!!ranked.length && (

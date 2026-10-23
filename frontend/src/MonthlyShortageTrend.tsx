@@ -10,6 +10,7 @@ import {
   buildMonthlyShortageTrend,
   summarizeMonthlyShortage,
 } from "./monthly-shortage-trend";
+import EmptyState from "./components/EmptyState";
 
 const numberFormat = new Intl.NumberFormat("tr-TR", {
   maximumFractionDigits: 2,
@@ -214,9 +215,9 @@ export default function MonthlyShortageTrend({
           </div>
         </div>
       ) : (
-        <p className="emptymsg">
-          Grafik için liderlik veya takım seçimine uygun takım bulunamadı.
-        </p>
+        <EmptyState title="Grafik için takım yok">
+          Liderlik veya takım seçimine uyan takım bulunamadı.
+        </EmptyState>
       )}
     </section>
   );

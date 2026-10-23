@@ -9,6 +9,7 @@ import {
 import MonthlyComparison from "./MonthlyComparison";
 import ProjectAllocationChart from "./ProjectAllocationChart";
 import PlanningEffectivenessChart from "./PlanningEffectivenessChart";
+import EmptyState from "../../components/EmptyState";
 
 const actualColor = "var(--report-current-color, #087f6a)";
 const demandColor = "var(--report-planned-color, #1d4ed8)";
@@ -110,9 +111,9 @@ export default function ResourcePlanningCharts({
             ))}
           </ol>
         ) : (
-          <p className="emptymsg">
+          <EmptyState title="Kaynak açığı yok">
             Seçili dönemde kaynak açığı bulunan takım yok.
-          </p>
+          </EmptyState>
         )}
         {ranked.length > 10 && (
           <button

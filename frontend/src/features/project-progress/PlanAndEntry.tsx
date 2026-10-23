@@ -24,6 +24,7 @@ import {
 } from "./progress-scope";
 import { progressChange, type ProgressContext } from "./progress-view";
 import { monthName } from "../../format";
+import EmptyState from "../../components/EmptyState";
 
 /** Quick "waiting work" boxes under the filters; checked boxes combine. */
 const WAITING = [
@@ -79,6 +80,13 @@ export default function PlanAndEntry({
     error?: boolean;
   }>();
   const groupId = useId();
+  function resetAllFilters() {
+    setLeader("");
+    setPlanFilter("");
+    setEntryFilter("");
+    setWaiting(new Set());
+    onResetFilters();
+  }
   const locked = (ctx.data.progressLocks || []).some((l) => l.id === month);
   const entryOf = (item: ProgressItem) =>
     entryStatus(item.record, month, currentMonth);
@@ -199,15 +207,7 @@ export default function PlanAndEntry({
           </>,
           actionsHost,
         )}
-      <ProgressFilters
-        onReset={() => {
-          setLeader("");
-          setPlanFilter("");
-          setEntryFilter("");
-          setWaiting(new Set());
-          onResetFilters();
-        }}
-      >
+      <ProgressFilters onReset={resetAllFilters}>
         <label className="pick">
           <span>Liderlik</span>
           <select value={leader} onChange={(e) => setLeader(e.target.value)}>
@@ -378,12 +378,18 @@ export default function PlanAndEntry({
             </div>
           </section>
         ))
+      ) : leaders.length ? (
+        <EmptyState
+          title="Proje bulunamadı"
+          action={{ label: "Filtreleri Sıfırla", onClick: resetAllFilters }}
+        >
+          Seçili süzgeçlere uyan proje kartı yok.
+        </EmptyState>
       ) : (
-        <p className="emptymsg">
-          {leaders.length
-            ? "Bu süzgece uyan proje yok."
-            : "Kaynak Planlama Yetkisi'nde size liderlik atanmamış; admin yetki verdiğinde projeleriniz burada görünür."}
-        </p>
+        <EmptyState title="Liderlik yetkiniz yok">
+          Kaynak Planlama Yetkisi'nde size liderlik atanmamış; Admin yetki
+          verdiğinde projeleriniz burada görünür.
+        </EmptyState>
       )}
     </div>
   );

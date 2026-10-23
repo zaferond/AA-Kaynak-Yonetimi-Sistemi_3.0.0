@@ -1,4 +1,5 @@
 import { Switch } from "@/components/ui/switch";
+import EmptyState from "../components/EmptyState";
 import PlannedCapacitySummary from "./planned-allocation/PlannedCapacitySummary";
 import PlannedAllocationTable from "./planned-allocation/PlannedAllocationTable";
 import type { PlannedAllocationProps } from "./planned-allocation/types";
@@ -33,22 +34,31 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
       </div>
       <PlannedAllocationTable {...props} />
       {(!teams.length || !projects.length) && (
-        <p className="emptymsg">Bu filtrelere uygun takım veya proje yok.</p>
+        <EmptyState
+          title="Gösterilecek plan yok"
+          action={
+            props.onResetFilters && {
+              label: "Filtreleri Sıfırla",
+              onClick: props.onResetFilters,
+            }
+          }
+        >
+          Seçili filtrelere uyan takım veya proje bulunamadı.
+        </EmptyState>
       )}
       {!!teams.length &&
         !!projects.length &&
         onlyDataRows &&
         !groups.length && (
-          <div className="emptymsg">
-            <p>Seçili dönemde planlanan dağılımı olan satır yok.</p>
-            <button
-              type="button"
-              className="button"
-              onClick={() => props.onOnlyDataRowsChange(false)}
-            >
-              Tüm Satırları Göster
-            </button>
-          </div>
+          <EmptyState
+            title="Veri olan satır yok"
+            action={{
+              label: "Tüm Satırları Göster",
+              onClick: () => props.onOnlyDataRowsChange(false),
+            }}
+          >
+            Seçili dönemde planlanan dağılımı olan satır bulunmuyor.
+          </EmptyState>
         )}
       <footer className="tablefoot">
         <span>Birim: aylık kişi eşdeğeri · Ondalık giriş: 0,5</span>

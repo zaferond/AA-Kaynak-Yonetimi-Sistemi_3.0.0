@@ -24,6 +24,7 @@ import {
   reportGroupManager,
   type ReportGroup,
 } from "./resource-report-groups";
+import EmptyState from "../components/EmptyState";
 export type { ReportGroup } from "./resource-report-groups";
 type Props = {
   groups: ReportGroup[];
@@ -256,7 +257,9 @@ export default function RemainingResourceTable({
           </TableFooter>
         </Table>
         {!groups.length && (
-          <p className="emptymsg">Bu filtrelere uygun birim yok.</p>
+          <EmptyState title="Birim bulunamadı">
+            Seçili liderlik ve takım filtrelerine uyan birim yok.
+          </EmptyState>
         )}
       </>
     );
