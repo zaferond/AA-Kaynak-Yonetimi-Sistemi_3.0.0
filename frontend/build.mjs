@@ -55,7 +55,7 @@ const hash = (b) =>
 async function asset(label, ext, bytes) {
   const name = label + "." + hash(bytes) + "." + ext;
   await fs.writeFile(path.join(site, "assets", name), bytes);
-  if (ext !== "png" && ext !== "woff2")
+  if (!["png", "jpg", "woff2"].includes(ext))
     await fs.writeFile(
       path.join(site, "assets", name + ".gz"),
       gzipSync(bytes),
@@ -80,11 +80,21 @@ const faviconName = await asset(
   "svg",
   await fs.readFile(path.join(root, "assets/favicon.svg")),
 );
-const loginBackgroundName = await asset(
-  "login-background",
+const kocLogoName = await asset(
+  "koc-logo",
   "png",
-  await fs.readFile(path.join(root, "assets/login-background.png")),
+  await fs.readFile(path.join(root, "assets/koc-logo.png")),
 );
+// Sign-in screen photos, one shown at random; referenced from login.css.
+const vehicleNames = {};
+for (const file of (await fs.readdir(path.join(root, "assets/login-vehicles")))
+  .filter((name) => name.endsWith(".jpg"))
+  .sort())
+  vehicleNames[file] = await asset(
+    "login-vehicle-" + file.slice(0, -4),
+    "jpg",
+    await fs.readFile(path.join(root, "assets/login-vehicles", file)),
+  );
 // Fonts are already compressed; each gets a content hash like the other assets.
 const fontNames = {};
 for (const font of ["ibm-plex-sans-latin", "ibm-plex-sans-latin-ext"])
@@ -104,10 +114,12 @@ const bundledCss = (await fs.readdir(path.join(root, ".compiled")))
 const css = [
   await fs.readFile(path.join(root, "assets/base.css"), "utf8"),
   withFontUrls(await readWorkspaceStyles()),
-  (await fs.readFile(path.join(root, "src/login.css"), "utf8")).replaceAll(
-    "/assets/login-background.png",
-    "/assets/" + loginBackgroundName,
-  ),
+  (await fs.readFile(path.join(root, "src/login.css"), "utf8"))
+    .replaceAll("/assets/koc-logo.png", "/assets/" + kocLogoName)
+    .replace(/\/assets\/login-vehicles\/([a-z0-9-]+\.jpg)/g, (url, file) => {
+      if (!vehicleNames[file]) throw Error("Bilinmeyen giriş görseli: " + url);
+      return "/assets/" + vehicleNames[file];
+    }),
   ...(await Promise.all(
     bundledCss.map((file) =>
       fs.readFile(path.join(root, ".compiled", file), "utf8"),
@@ -124,8 +136,9 @@ await writeDeploymentManifest(packageRoot, sourceHashes, {
     "site/index.html",
     "site/index.html.gz",
     "site/assets/otokar-logo.svg",
-    "site/assets/" + loginBackgroundName,
+    "site/assets/" + kocLogoName,
     ...Object.values(fontNames).map((name) => "site/assets/" + name),
+    ...Object.values(vehicleNames).map((name) => "site/assets/" + name),
     ...[faviconName, jsName, ...chunkNames, cssName].flatMap((name) => [
       "site/assets/" + name,
       "site/assets/" + name + ".gz",

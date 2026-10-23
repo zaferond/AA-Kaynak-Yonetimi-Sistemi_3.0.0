@@ -248,6 +248,10 @@ function App() {
   );
 }
 
+/** Vehicle photos (assets/login-vehicles, login.css data-vehicle); one is
+ * picked at random each time the sign-in screen opens. */
+const LOGIN_VEHICLES = 6;
+
 function AuthLayout({
   label,
   children,
@@ -255,10 +259,11 @@ function AuthLayout({
   label: string;
   children: React.ReactNode;
 }) {
+  const [vehicle] = useState(() => Math.floor(Math.random() * LOGIN_VEHICLES));
   return (
     <main className="auth-screen">
       <div className="auth-shell">
-        {/* The Otokar mark is in the background picture; one is enough. */}
+        {/* A vehicle photo; the logos sit under the form. */}
         <aside className="auth-brand">
           <div className="auth-brand-content">
             <h1>{SYSTEM_NAME}</h1>
@@ -269,11 +274,24 @@ function AuthLayout({
           <div className="auth-brand-footer">
             Planlama - Kaynak Yönetimi - Raporlama
           </div>
-          <div className="auth-brand-art" aria-hidden="true" />
+          <div
+            className="auth-brand-art"
+            data-vehicle={vehicle}
+            aria-hidden="true"
+          />
         </aside>
 
         <section className="auth-panel" aria-label={label}>
           <div className="auth-panel-inner">{children}</div>
+          <div className="auth-logos">
+            <img
+              src="/assets/otokar-logo.svg"
+              alt="Otokar"
+              width={70}
+              height={19}
+            />
+            <span className="auth-koc-logo" role="img" aria-label="Koç" />
+          </div>
         </section>
       </div>
     </main>

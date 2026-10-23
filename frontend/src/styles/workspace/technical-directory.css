@@ -173,3 +173,9 @@ html[data-theme="technical"]
   ) {
   border-color: var(--tbl-frame);
 }
+
+/* Organizasyon Yapısı fills the window (workspace-dock): the heading row
+   keeps its size and air, the table takes the rest and scrolls. */
+html[data-theme="technical"] .app .team-directory.workspace-dock > .panelhead {
+  flex: none;
+}

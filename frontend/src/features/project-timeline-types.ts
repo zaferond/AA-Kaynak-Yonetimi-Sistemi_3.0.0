@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import type { Milestone, Project } from "../model";
+import type { WarningAssessment } from "../../../shared/scenario-warnings.ts";
 import type { TimelinePeriod } from "../timeline-periods";
 import type { milestoneRanges } from "../milestone-ranges";
 import type { milestoneBarsForPeriods } from "../milestone-bars";
@@ -12,6 +13,8 @@ export type ProjectTimelineRowProps = {
   ordering: ReturnType<ReturnType<typeof useProjectRowOrder>["rowProps"]>;
   phaseSelection: ReturnType<typeof usePhaseGrid>;
   project: Project;
+  /** The project's last evaluation (Değerlendirme), when the user sees it. */
+  progress?: WarningAssessment;
   projectRevision: number;
   periods: TimelinePeriod[];
   density: "detail" | "compact" | "overview";

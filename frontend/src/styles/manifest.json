@@ -59,5 +59,7 @@
   "workspace/technical-empty.css",
   "workspace/technical-home.css",
   "reports/chart-interaction.css",
-  "workspace/technical-filters.css"
+  "workspace/technical-filters.css",
+  "workspace/global-search.css",
+  "workspace/notifications.css"
 ]

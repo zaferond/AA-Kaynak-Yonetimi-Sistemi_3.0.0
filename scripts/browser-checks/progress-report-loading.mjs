@@ -45,13 +45,18 @@ export async function checkProgressReportLoading(f) {
         });
         const rows = region.locator("tr.progress-project-row");
         await rows.first().waitFor();
-        const toolbar = page.locator(".progress-matrix-toolbar");
+        // No count line above the table; the total is in the filter.
         const total = Number(
-          (await toolbar.innerText()).match(/^(\d+) proje/)[1],
+          (
+            await page
+              .locator(".progress-decision-filter option")
+              .first()
+              .innerText()
+          ).match(/\((\d+)\)/)[1],
         );
         assert(total > 20, `projects in the report: ${total}`);
         assert.equal(await rows.count(), 10);
-        assert.match(await toolbar.innerText(), /10 yüklendi/);
+        assert.equal(await page.locator(".progress-matrix-toolbar").count(), 0);
         assert.equal(
           await page.locator(".progress-report-pages").count(),
           0,
@@ -70,7 +75,6 @@ export async function checkProgressReportLoading(f) {
         }
         assert.equal(await rows.count(), total);
         assert.equal(await region.locator(".progress-matrix-more").count(), 0);
-        assert.doesNotMatch(await toolbar.innerText(), /yüklendi/);
       },
     );
   } finally {

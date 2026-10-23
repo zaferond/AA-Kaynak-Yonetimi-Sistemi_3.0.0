@@ -362,17 +362,18 @@ export default function WorkspaceNavigation({
                     Çalışma Takvimi
                   </button>
                 )}
-                {/* Aktivite Raporu has no Excel export yet. */}
-                {!["resources", "activity"].includes(tab) && (
+                {tab !== "resources" && (
                   <ReportDownloadButton
                     label={
                       tab === "projects"
                         ? "Proje Raporunu İndir"
-                        : tab === "overview"
-                          ? reportView === "headcount"
-                            ? "Head Count Excel'e Aktar"
-                            : "Kaynak Raporu İndir"
-                          : "Excel'e Aktar"
+                        : tab === "activity"
+                          ? "Aktivite Raporunu Excel'e Aktar"
+                          : tab === "overview"
+                            ? reportView === "headcount"
+                              ? "Head Count Excel'e Aktar"
+                              : "Kaynak Raporu İndir"
+                            : "Excel'e Aktar"
                     }
                     onClick={onExport}
                     disabled={

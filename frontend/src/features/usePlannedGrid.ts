@@ -250,9 +250,9 @@ export function usePlannedGrid({
           ? previous.includes(key)
             ? previous.filter((item) => item !== key)
             : [...previous, key]
-          : cellSet.has(key)
-            ? cells
-            : [key];
+          : // A plain click narrows any selection to the clicked cell,
+            // also when that cell was part of it.
+            [key];
       setCells(selected);
       if (selected.length) focusPlanSelection(selected);
     };

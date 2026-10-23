@@ -7,6 +7,9 @@ import { downloadProjects } from "../../project-export";
 import { downloadResourceReport } from "../../resource-report-export";
 import { downloadHeadcountReport } from "../../headcount-report-export";
 import { buildHeadcountReport } from "../resource-reports/headcount-report-data";
+import { downloadActivityReport } from "../activity-report/activity-report-export";
+import type { ActivityRow } from "../activity-report/activity-report-data";
+import type { ActualUnit } from "../../actual-units";
 import { currentPlanningDate } from "../../resource-dates";
 import type { Principal } from "../../access";
 import type { Metric } from "../../metrics";
@@ -42,6 +45,10 @@ type Props = {
   metric: (ids: string[], month: string) => Metric;
   /** Shown in the report heading when a delay scenario is drawn. */
   scenarioLabel?: string;
+  /** Aktivite Raporu rows as loaded for the current filters. */
+  activityRows?: ActivityRow[];
+  activityUnit?: ActualUnit;
+  projectIds?: string[];
   setError: (message: string) => void;
 };
 /** Dispatch only the current authorized view to the existing workbook writers. */
@@ -67,6 +74,9 @@ export function createWorkspaceExports({
   teamReportGroups,
   metric,
   scenarioLabel,
+  activityRows = [],
+  activityUnit = "percent",
+  projectIds = [],
   setError,
 }: Props) {
   function exportResourceReport() {
@@ -111,7 +121,20 @@ export function createWorkspaceExports({
           resourceReportFilterSummary(leads, teamIds),
         );
       else if (tab === "overview") exportResourceReport();
-      else if (tab === "plan" && data)
+      else if (tab === "activity") {
+        // Same rows as the screen: the selected teams, every page.
+        const ids = new Set(teams.map((team) => team.id));
+        downloadActivityReport({
+          rows: activityRows.filter((row) => ids.has(row.teamId)),
+          months,
+          unit: activityUnit,
+          todayDate,
+          filterLabel:
+            resourceReportFilterSummary(leads, teamIds) +
+            (projectIds.length ? ` · Proje: ${projectIds.length} seçili` : ""),
+          projectFiltered: projectIds.length > 0,
+        });
+      } else if (tab === "plan" && data)
         downloadPlannedAllocations(data, teams, projects, months);
       else if (tab === "actual" && data)
         downloadActualAllocations(

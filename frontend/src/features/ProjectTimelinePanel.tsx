@@ -20,6 +20,7 @@ import { useProjectRowOrder } from "./useProjectRowOrder";
 import type { ProjectTimelineRowProps } from "./project-timeline-types";
 import { useWindowedSections } from "./workspace/useWindowedSections";
 import { useViewportWorkspace } from "./workspace/useViewportWorkspace";
+import type { WarningAssessment } from "../../../shared/scenario-warnings.ts";
 export type ProjectTimelineActions = {
   onReorderProject: (
     sourceId: string,
@@ -72,6 +73,8 @@ type Props = {
   onPageChange: (page: number) => void;
   actions: ProjectTimelineActions;
   selection: ReturnType<typeof usePhaseGrid>;
+  /** Last evaluation per project id; empty for roles without Değerlendirme. */
+  progress?: Map<string, WarningAssessment>;
 };
 
 export default function ProjectTimelinePanel({
@@ -94,6 +97,7 @@ export default function ProjectTimelinePanel({
   onPageChange,
   actions,
   selection,
+  progress,
 }: Props) {
   const viewportRef = useViewportWorkspace();
   const labelColumns = showCodes ? 2 : 1;
@@ -132,6 +136,7 @@ export default function ProjectTimelinePanel({
           setExpandedProjects((old) => ({ ...old, [p.id]: value }))
         }
         project={p}
+        progress={progress?.get(p.id)}
         showCodes={showCodes}
         projectRevision={revisions["project:" + p.id] || 0}
         ordering={ordering.rowProps(p.id)}

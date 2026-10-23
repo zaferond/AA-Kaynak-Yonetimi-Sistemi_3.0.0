@@ -11,6 +11,7 @@ import { readActualReportData } from "./actual-report-reader.mjs";
 import { persistPlanningSnapshot } from "./planning-writer.mjs";
 import { prepareMutationSettings } from "./mutation-settings.mjs";
 import { auditEntries } from "./audit.mjs";
+import { buildNotifications, NOTIFICATION_KINDS } from "./notifications.mjs";
 import { isPlanningCommand, preparePlanningCommand } from "./operations.mjs";
 import { readPlanningPreflight } from "./planning-preflight.mjs";
 import { synchronizeProgressStarts } from "./progress-commands.mjs";
@@ -325,6 +326,25 @@ export class Store {
         })),
       };
     }, true);
+  }
+  /** Others' recent changes the user may see (backend/notifications.mjs). */
+  async notifications(u, { limit = 30 } = {}) {
+    // The scoped snapshot first (it checks the session); then the log.
+    const { data, user } = await this.view(u);
+    const kinds = NOTIFICATION_KINDS.map((_, i) => "@p" + i).join(",");
+    const n = NOTIFICATION_KINDS.length;
+    const page =
+      this.provider === "mssql"
+        ? `OFFSET 0 ROWS FETCH NEXT @p${n + 1} ROWS ONLY`
+        : `LIMIT @p${n + 1}`;
+    // Read past the limit: rows outside the user's scope are dropped below.
+    const rows = (
+      await this.db.query(
+        `SELECT id,occurred_at,actor_id,actor_name,kind,record_id,record_name,action,changes FROM kp_audit_events WHERE kind IN (${kinds}) AND actor_id<>@p${n} ORDER BY occurred_at DESC,id DESC ${page}`,
+        [...NOTIFICATION_KINDS, u._id, limit * 10],
+      )
+    ).rows;
+    return { notifications: buildNotifications(rows, data, user.role, limit) };
   }
   copySnapshot(data, { planningOnly = false } = {}) {
     return planningOnly

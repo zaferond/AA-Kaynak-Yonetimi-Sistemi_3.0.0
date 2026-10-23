@@ -56,6 +56,8 @@ import { checkRiskSystems } from "./browser-checks/risk-systems.mjs";
 import { checkActivityReport } from "./browser-checks/activity-report.mjs";
 import { checkResourceReports } from "./browser-checks/resource-reports.mjs";
 import { checkProgressReportLoading } from "./browser-checks/progress-report-loading.mjs";
+import { checkGlobalSearch } from "./browser-checks/global-search.mjs";
+import { checkNotifications } from "./browser-checks/notifications.mjs";
 import { checkViewportScroll } from "./browser-checks/viewport-scroll.mjs";
 import { checkTransportRecovery } from "./browser-checks/transport-recovery.mjs";
 import { checkMilestoneParentDates } from "./browser-checks/milestone-parent-dates.mjs";
@@ -174,6 +176,8 @@ try {
   await checkTimelineLayers(f);
   await checkResourceReports(f);
   await checkMemberBadges(f);
+  await checkGlobalSearch(f);
+  await checkNotifications(f);
   // Activity's fixed capacity expectations require its own empty calendar;
   // the preceding calendar checks intentionally retain shared holidays.
   const activity = await fixture();

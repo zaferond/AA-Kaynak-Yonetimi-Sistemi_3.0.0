@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ChangeEvent } from "react";
+import NotificationBell from "./workspace/NotificationBell";
 import {
   Users,
   Minimize2,
@@ -6,6 +7,7 @@ import {
   ChevronDown,
   Download,
   Upload,
+  Search,
 } from "lucide-react";
 import {
   Popover,
@@ -23,6 +25,12 @@ type Props = {
   onExportBackup: () => void;
   onRestoreBackup: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   onLogout: () => Promise<void>;
+  /** The open screen's menu name; stays in view while the page scrolls. */
+  location?: string;
+  /** Opens the Ctrl+K search. */
+  onSearch?: () => void;
+  /** Opens the screen a notification is about. */
+  onOpenTab?: (tab: string) => void;
 };
 export default function WorkspaceHeader({
   user,
@@ -31,6 +39,9 @@ export default function WorkspaceHeader({
   onExportBackup,
   onRestoreBackup,
   onLogout,
+  location,
+  onSearch,
+  onOpenTab,
 }: Props) {
   const isAdmin = user?.role === "admin",
     isManager = user?.role === "manager";
@@ -71,10 +82,28 @@ export default function WorkspaceHeader({
           className="mast-company-logo"
           src="/assets/otokar-logo.svg"
           alt="Otokar"
-          width={126}
-          height={34}
+          width={74}
+          height={20}
         />
+        {location && <span className="mast-location">{location}</span>}
+        {onSearch && (
+          <button
+            type="button"
+            className="mast-search"
+            onClick={onSearch}
+            aria-keyshortcuts="Control+K Meta+K"
+          >
+            <Search size={15} aria-hidden="true" />
+            <span>Ara…</span>
+            <kbd>
+              {/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘K" : "Ctrl K"}
+            </kbd>
+          </button>
+        )}
         <div className="masttopright">
+          {user && onOpenTab && (
+            <NotificationBell userId={user.id} onOpen={onOpenTab} />
+          )}
           <Popover open={menuOpen} onOpenChange={setMenuOpen}>
             <PopoverTrigger asChild>
               <button

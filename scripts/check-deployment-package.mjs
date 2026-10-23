@@ -66,13 +66,14 @@ try {
   ];
   // Assets referenced from CSS rather than HTML: already compressed, no .gz copy.
   const cssAssets = Object.keys(manifest.artifacts).filter((file) =>
-    /^site\/assets\/(?:login-background|ibm-plex-sans-latin(?:-ext)?)\.[a-f0-9]{12}\.(?:png|woff2)$/.test(
+    /^site\/assets\/(?:koc-logo|login-vehicle-[a-z0-9-]+|ibm-plex-sans-latin(?:-ext)?)\.[a-f0-9]{12}\.(?:png|jpg|woff2)$/.test(
       file,
     ),
   );
   assert.equal(
     cssAssets.length,
-    3,
+    // Koç logo, two fonts and the sign-in vehicle photos.
+    3 + 6,
     "Review package acceptance when CSS assets change",
   );
   const expected = [

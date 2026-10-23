@@ -29,6 +29,7 @@ import { milestoneRanges } from "./milestone-ranges";
 import { milestoneBarsForPeriods } from "./milestone-bars";
 import { weeklyNoteLayout } from "./weekly-note-bars";
 import MilestoneTrack from "./MilestoneTrack";
+import ProjectProgressLine from "./features/project-progress/ProjectProgressLine";
 import type { ProjectTimelineRowProps } from "./features/project-timeline-types";
 import { positionPointerTooltip } from "./features/position-pointer-tooltip";
 
@@ -36,6 +37,7 @@ import { monthLabel, dateLabel } from "./features/timeline-labels";
 
 export default function ProjectTimelineRows({
   project,
+  progress,
   projectRevision,
   ordering,
   periods,
@@ -178,6 +180,7 @@ export default function ProjectTimelineRows({
                   {monthLabel(project.start)} → {monthLabel(project.end)}
                 </span>
               </small>
+              <ProjectProgressLine assessment={progress} />
             </div>
             {milestones.length > 0 && (
               <span

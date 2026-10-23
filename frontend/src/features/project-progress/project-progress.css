@@ -863,56 +863,6 @@
   font-size: var(--fs-xs);
   font-weight: 650;
 }
-.project-progress .progress-management-cards {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin: 14px 0;
-}
-.project-progress .progress-management-cards button {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 5px 10px;
-  padding: 12px;
-  border: 1px solid #d5dfcf;
-  border-top: 3px solid #7b8b72;
-  border-radius: 8px;
-  background: #fff;
-  text-align: left;
-  color: var(--brand-text, #293a2d);
-  cursor: pointer;
-}
-.project-progress .progress-management-cards button > span {
-  align-self: center;
-  font-size: var(--fs-sm);
-  font-weight: 700;
-}
-.project-progress .progress-management-cards button > strong {
-  grid-row: span 2;
-  font-size: 25px;
-  font-variant-numeric: tabular-nums;
-}
-.project-progress .progress-management-cards button small {
-  color: var(--brand-muted, #60715e);
-  font-size: var(--fs-xs);
-}
-.project-progress .progress-management-cards button[data-tone="risk"] {
-  border-top-color: #c2413b;
-}
-.project-progress .progress-management-cards button[data-tone="ahead"] {
-  border-top-color: #2e7d32;
-}
-.project-progress .progress-management-cards button[data-tone="donor"] {
-  border-top-color: #287d8e;
-}
-.project-progress .progress-management-cards button[data-tone="missing"] {
-  border-top-color: #b7791f;
-}
-.project-progress .progress-management-cards button[aria-pressed="true"] {
-  outline: 2px solid #617852;
-  outline-offset: 1px;
-  background: #f4f7ef;
-}
 .project-progress .progress-report-help {
   margin-bottom: 14px;
 }
@@ -945,7 +895,6 @@
 .project-progress .progress-transfer-review article small {
   color: #60715e;
 }
-.project-progress .progress-matrix-toolbar,
 .project-progress .progress-report-pages {
   display: flex;
   justify-content: space-between;
@@ -955,15 +904,6 @@
   margin: 12px 0 8px;
   font-size: var(--fs-xs);
   color: #60715e;
-}
-.project-progress .progress-matrix-toolbar > div {
-  display: flex;
-  gap: 6px;
-}
-.project-progress .progress-matrix-toolbar .button {
-  min-height: 28px;
-  height: 28px;
-  font-size: var(--fs-xs);
 }
 .project-progress .progress-matrix-scroll {
   max-width: 100%;
@@ -1118,11 +1058,6 @@
 }
 .project-progress .progress-assessment .progress-level {
   font-size: 11px;
-}
-@media (max-width: 900px) {
-  .project-progress .progress-management-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .project-progress .progress-resource-decision {

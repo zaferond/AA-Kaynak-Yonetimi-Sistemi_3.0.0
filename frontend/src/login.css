@@ -7,9 +7,7 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  background: url("/assets/login-background.png") center / contain no-repeat
-    #f5f5f2;
-  background-blend-mode: multiply;
+  background: #f5f5f2;
   color: #19344d;
   font-family:
     Inter,
@@ -125,7 +123,7 @@
     linear-gradient(135deg, transparent 63%, #ffffff08 63.2%, transparent 63.5%);
   pointer-events: none;
 }
-/* Opaque, so the photo collage never shows through the fields. */
+/* The form panel is opaque white. */
 .auth-panel {
   display: grid;
   place-items: center;
@@ -380,4 +378,125 @@
 }
 .password-change-dialog {
   max-width: 420px;
+}
+
+/* Technical theme: a plain light grey page instead of the collage; the brand
+   panel shows one vehicle photo, and the Otokar and Koç marks sit small
+   under the form. */
+html[data-theme="technical"] .auth-screen {
+  background: #f3f5f7;
+}
+html[data-theme="technical"] .auth-shell {
+  width: min(100%, 920px);
+  min-height: 480px;
+}
+html[data-theme="technical"] .auth-brand {
+  min-height: 480px;
+  background: #1d2632;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-theme="technical"] .auth-brand::before,
+html[data-theme="technical"] .auth-brand::after {
+  display: none;
+}
+/* One vehicle per visit (main.tsx picks data-vehicle): photos in
+   assets/login-vehicles, covering the panel under a dark tint. The x
+   position keeps each vehicle in the middle of the upright panel. */
+html[data-theme="technical"] .auth-brand-art {
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size:
+    100% 100%,
+    cover;
+}
+/* Arma 6×6 */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="0"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/arma-6x6.jpg");
+  background-position:
+    0 0,
+    53% 50%;
+}
+/* Arma II 8×8 */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="1"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/arma-2-8x8.jpg");
+  background-position:
+    0 0,
+    54% 50%;
+}
+/* Tulpar */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="2"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/tulpar.jpg");
+  background-position:
+    0 0,
+    43% 50%;
+}
+/* Akrep II */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="3"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/akrep-2.jpg");
+  background-position:
+    0 0,
+    67% 50%;
+}
+/* Cobra II */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="4"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/cobra-2.jpg");
+  background-position:
+    0 0,
+    55% 50%;
+}
+/* Cobra II Romanya */
+html[data-theme="technical"] .auth-brand-art[data-vehicle="5"] {
+  background-image:
+    linear-gradient(180deg, #1d2632d9 0%, #1d263266 42%, #1d2632e6 100%),
+    url("/assets/login-vehicles/cobra-2-romanya.jpg");
+  background-position:
+    0 0,
+    47% 50%;
+}
+html[data-theme="technical"] .auth-panel {
+  grid-template-rows: 1fr auto;
+  gap: 18px;
+}
+html[data-theme="technical"] .auth-logos {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid var(--brand-border);
+}
+html[data-theme="technical"] .auth-logos img {
+  display: block;
+  width: 70px;
+  height: 19px;
+  object-fit: contain;
+}
+html[data-theme="technical"] .auth-koc-logo {
+  display: block;
+  width: 72px;
+  aspect-ratio: 145 / 48;
+  background: url("/assets/koc-logo.png") center / contain no-repeat;
+}
+.auth-logos {
+  display: none;
+}
+@media (max-width: 760px) {
+  html[data-theme="technical"] .auth-shell {
+    min-height: 0;
+  }
+  html[data-theme="technical"] .auth-brand {
+    min-height: 240px;
+  }
 }

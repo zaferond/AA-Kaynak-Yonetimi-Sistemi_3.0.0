@@ -279,6 +279,33 @@ export async function checkProgressManagement(f) {
       },
     );
     await f.check(
+      "projects: the project row shows the last evaluation as a target/actual bar; employees see none",
+      async () => {
+        await selectWorkspaceTab(page, "Projeler");
+        const line = page.locator(
+          '[data-project-heading="p-a"] .project-progress-line',
+        );
+        await line.waitFor();
+        assert.equal(await line.getAttribute("data-progress"), "ahead");
+        assert.match(
+          await line.getAttribute("title"),
+          /^Eyl 2026: Gerçekleşen %70 · Hedef %[\d,]+ · Sapma \+[\d,]+ puan · Planın İlerisinde$/,
+        );
+        const employee = await f.client("employee");
+        try {
+          await selectWorkspaceTab(employee.page, "Projeler");
+          await employee.page.locator('[data-project-heading="p-a"]').waitFor();
+          assert.equal(
+            await employee.page.locator(".project-progress-line").count(),
+            0,
+          );
+        } finally {
+          await employee.context.close();
+        }
+        await open();
+      },
+    );
+    await f.check(
       "scenario report: Excel contains current matrix decisions and numeric monthly progress",
       async () => {
         const project = page.getByRole("combobox", {

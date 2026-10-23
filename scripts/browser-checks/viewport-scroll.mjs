@@ -27,34 +27,42 @@ export async function checkViewportScroll(f) {
   const finalProjectId = orderedProjects.at(-1).id;
   const { page, context } = await f.client("root-admin");
   async function checkHeaders(table) {
-    await table.evaluate(
-      () =>
-        new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve)),
-        ),
-    );
-    const headers = await table.evaluate((container) => {
-      const cr = container.getBoundingClientRect();
-      return [...container.querySelectorAll("thead th")]
-        .filter((cell) => {
-          const r = cell.getBoundingClientRect();
-          return r.right > cr.left && r.left < cr.right;
-        })
-        .map((cell) => {
-          const r = cell.getBoundingClientRect();
-          const x =
-            Math.max(cr.left, r.left) +
-            Math.min(
-              (Math.min(cr.right, r.right) - Math.max(cr.left, r.left)) / 2,
-              8,
-            );
-          const top = document.elementFromPoint(x, r.top + r.height / 2);
-          return {
-            inside: r.top >= cr.top - 2 && r.bottom <= cr.bottom,
-            painted: cell === top || cell.contains(top),
-          };
-        });
-    });
+    // A wheel gesture can still be settling on the compositor; measure until
+    // the sticky headers are in place (or time out with the last reading).
+    let headers = [];
+    const until = Date.now() + 3000;
+    while (true) {
+      await table.evaluate(
+        () =>
+          new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          ),
+      );
+      headers = await table.evaluate((container) => {
+        const cr = container.getBoundingClientRect();
+        return [...container.querySelectorAll("thead th")]
+          .filter((cell) => {
+            const r = cell.getBoundingClientRect();
+            return r.right > cr.left && r.left < cr.right;
+          })
+          .map((cell) => {
+            const r = cell.getBoundingClientRect();
+            const x =
+              Math.max(cr.left, r.left) +
+              Math.min(
+                (Math.min(cr.right, r.right) - Math.max(cr.left, r.left)) / 2,
+                8,
+              );
+            const top = document.elementFromPoint(x, r.top + r.height / 2);
+            return {
+              inside: r.top >= cr.top - 2 && r.bottom <= cr.bottom,
+              painted: cell === top || cell.contains(top),
+            };
+          });
+      });
+      if (headers.length && headers.every((h) => h.inside && h.painted)) break;
+      if (Date.now() > until) break;
+    }
     assert(headers.length > 0);
     assert(
       headers.every((h) => h.inside && h.painted),

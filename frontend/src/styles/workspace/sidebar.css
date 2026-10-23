@@ -261,17 +261,28 @@ html[data-theme]
 
 /* A little more room for the company logo; neutral grey application chrome. */
 html[data-theme] .app > header.mast {
-  padding-block: 9px;
+  padding-block: 5px;
   background: linear-gradient(110deg, #e3e5e8, #f1f2f4);
   color: #303842;
   border-bottom: 1px solid #c7ccd3;
 }
+/* A small wordmark, then the open screen's name after a thin rule: the page
+   heading scrolls away, this stays. */
 .app .mast-company-logo {
   display: block;
   flex: none;
-  width: 126px;
-  height: 34px;
+  width: 74px;
+  height: 20px;
   object-fit: contain;
+}
+.app .mast-location {
+  flex: none;
+  padding-left: 12px;
+  border-left: 1px solid #aab2bd;
+  color: #3d4652;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
 }
 html[data-theme] .app .mast :is(.button, .iconbutton, .mastuser-trigger) {
   background: #ffffff78;
@@ -288,8 +299,7 @@ html[data-theme]
   outline-color: #465565;
 }
 @media (max-width: 650px) {
-  .app .mast-company-logo {
-    width: 110px;
-    height: 30px;
+  .app .mast-location {
+    display: none;
   }
 }

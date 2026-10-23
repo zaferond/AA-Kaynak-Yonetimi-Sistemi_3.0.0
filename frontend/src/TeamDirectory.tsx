@@ -14,6 +14,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import DirectoryManagementDialog from "./features/team-directory/DirectoryManagementDialog";
+import { useViewportWorkspace } from "./features/workspace/useViewportWorkspace";
 import { useDirectoryEditor } from "./features/team-directory/useDirectoryEditor";
 
 export default function TeamDirectory({
@@ -31,8 +32,11 @@ export default function TeamDirectory({
   const [query, setQuery] = useState("");
   const editor = useDirectoryEditor({ data, onSaved, onEditingChange });
   const groups = directoryTree(data, query);
+  // Sized to the window like the planning grids: the table fills the rest of
+  // the screen instead of stopping in a fixed-height box.
+  const panelRef = useViewportWorkspace();
   return (
-    <section className="panel team-directory">
+    <section ref={panelRef} className="panel team-directory workspace-dock">
       <div className="panelhead">
         <div>
           <h2>Organizasyon Yapısı</h2>

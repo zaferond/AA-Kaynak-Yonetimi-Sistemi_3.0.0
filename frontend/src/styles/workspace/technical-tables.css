@@ -294,8 +294,7 @@ html[data-theme="technical"] .app .activity-matrix thead th {
 html[data-theme="technical"] .app .activity-matrix .activity-person {
   font-weight: 600;
 }
-html[data-theme="technical"] .app .activity-matrix thead .activity-person,
-html[data-theme="technical"] .app .activity-matrix .activity-year-label {
+html[data-theme="technical"] .app .activity-matrix thead .activity-person {
   padding-inline: var(--tbl-pad-x);
   text-align: left;
 }
@@ -461,4 +460,58 @@ html[data-theme="technical"] .app .actual-expand[aria-expanded="true"] {
   border-color: var(--brand-primary);
   background: var(--brand-primary);
   color: #fff;
+}
+
+/* Aktivite Giriş: a two-decimal percent ("%30,48") fills the narrow month
+   cell; slim side padding and even-width figures keep it whole. */
+html[data-theme="technical"] .app .person-allocation .person-amount input {
+  padding-inline: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Aktivite Raporu: a recorded month is neutral; a finished month takes the
+   colour of its utilisation band (activityBand). Amber marks months likely
+   missing entries, red over-booking. The running month stays neutral. */
+html[data-theme="technical"] .app .activity-matrix td.has-activity {
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app
+  :is(.activity-matrix td, .activity-legend i)[data-activity-band="full"] {
+  background: #e1f0e7;
+  color: #0b5a33;
+}
+html[data-theme="technical"]
+  .app
+  :is(.activity-matrix td, .activity-legend i)[data-activity-band="good"] {
+  background: #f0f7f2;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app
+  :is(.activity-matrix td, .activity-legend i)[data-activity-band="low"] {
+  background: #fdf3df;
+  color: #7a4b00;
+}
+html[data-theme="technical"]
+  .app
+  :is(.activity-matrix td, .activity-legend i)[data-activity-band="very-low"] {
+  background: #f9e1bd;
+  color: #6b3f00;
+}
+html[data-theme="technical"]
+  .app
+  :is(.activity-matrix td, .activity-legend i)[data-activity-band="over"] {
+  background: #fbe2da;
+  color: #8a2f12;
+}
+html[data-theme="technical"] .app .activity-legend i[data-activity-band] {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px 0 10px;
+  border: 1px solid var(--tbl-rule);
+  border-radius: 2px;
+  vertical-align: -2px;
 }

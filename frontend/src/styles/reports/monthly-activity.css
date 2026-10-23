@@ -66,13 +66,9 @@
   background: var(--table-year-background, #e9efe5);
   color: var(--table-year-color, #344736);
 }
-.app .activity-year-row th {
-  top: 0;
-  height: 24px;
-  padding: 3px 6px;
-}
+/* The month row is the only header row: it sticks to the top edge. */
 .app .activity-month-row th {
-  top: 24px;
+  top: 0;
   height: 28px;
   padding-block: 3px;
 }
@@ -97,11 +93,6 @@
   background: var(--brand-surface-soft, #f6f8f4);
   z-index: 9;
   text-align: center;
-}
-.app .activity-matrix .activity-year-label {
-  left: 0;
-  z-index: 10;
-  background: var(--table-year-label-background);
 }
 /* One heading row per team replaces the repeated leadership/team columns.
    The label sticks to the left while the months scroll. */

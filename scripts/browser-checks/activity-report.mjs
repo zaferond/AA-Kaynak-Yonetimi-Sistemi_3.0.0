@@ -336,6 +336,19 @@ export async function checkActivityReport(f) {
         const panel = page.locator(
           '.monthly-activity-report > [data-slot="table-container"]',
         );
+        // Unscrolled, the month header ends where the first team row begins:
+        // the team name is not hidden behind it.
+        const overlap = await panel.evaluate((el) => {
+          el.scrollTop = 0;
+          // The header cells are the sticky boxes, not their row.
+          const head = el.querySelector("thead th").getBoundingClientRect();
+          const first = el.querySelector("tbody tr").getBoundingClientRect();
+          return head.bottom - first.top;
+        });
+        assert(
+          overlap <= 1,
+          `month header covers the first row by ${overlap}px`,
+        );
         await panel.evaluate((el) => {
           el.scrollLeft = 500;
           el.scrollTop = 250;

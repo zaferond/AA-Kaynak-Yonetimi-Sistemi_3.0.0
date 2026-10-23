@@ -445,6 +445,12 @@ export function createApp(
       res.json(await store.activityReport(req.user, query));
     }),
   );
+  app.get(
+    "/api/notifications",
+    reportReadGate.handler(async (req, res) => {
+      res.json(await store.notifications(req.user));
+    }),
+  );
   app.get("/api/version", async (req, res) => {
     res.json({
       generation: await store.generation(),

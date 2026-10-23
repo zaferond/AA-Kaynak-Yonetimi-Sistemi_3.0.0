@@ -1,25 +1,24 @@
 # Kullanıcı manueli
 
-## Güncel belge: sürüm 2.0 (16.10.2026)
+## Güncel belge: sürüm 3.0 (23.10.2026)
 
-`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (18 sayfa) güncel arayüzü anlatır ve rol bazlı yetki matrisini içerir: Admin, Yönetici, Normal Kullanıcı ve Normal-Proje rolleri, proje görüntüleme yetkisi, yeni aşama renkleri, köşe bildirimleri ve varsayılan olarak kapalı başlayan anahtarlar. Uygulama durumu: main, commit `76934c5`. Ekran görüntüleri kurgusal test verisiyle (`scripts/demo-data.mjs`) alınmıştır.
+`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (22 sayfa) güncel arayüzü anlatır: yan menü ve yeni ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi. Uygulama durumu: main `2a1aa09` ve sonrasındaki arayüz geliştirmeleri. Ekran görüntüleri kurgusal demo verisiyle alınmıştır.
 
-`v2/` klasörü kaynakları içerir:
+`v3/` klasörü kaynakları içerir:
 
-- `manual.html`: belge metni ve sayfa düzeni.
+- `manual.html`: belge metni ve sayfa düzeni (IBM Plex Sans, `frontend/assets/fonts` altından).
 - `shots/`: PDF'de kullanılan ekran görüntüleri (JPEG).
-- `add-accounts.mjs`: demo veritabanının **kopyasına** ekran görüntüsü için geçici `sistem.admin` (Admin) ve `proje.ofisi` (Normal-Proje) hesapları ekler.
-- `shots.mjs`: 3100 portunda çalışan kopya sunucudan ekran görüntülerini alır (PNG; PDF için JPEG'e çevrilir).
+- `server.mjs`: demo veritabanının **geçici kopyasını** açar, ekran görüntüsü hesaplarını ekler (`sistem.admin`, `proje.ofisi`) ve kopyada `genel.mudur` ile `muhendis.detay` şifrelerini ayarlar. Kopya iş bitince silinir.
+- `shots.mjs`: `server.mjs` ile kopyayı başlatıp tüm ekran görüntülerini PNG olarak alır.
 - `pdf.mjs`: `manual.html` dosyasını Chrome ile A4 PDF'e dönüştürür.
 
-Yeniden üretme (proje kökünde, `APP_ROOT` proje kökü olacak şekilde):
+Yeniden üretme (proje kökünde):
 
-1. Demo veritabanının bir kopyasını geçici klasöre alın; `node add-accounts.mjs <kopya.sqlite>` çalıştırın.
-2. Kopyayı `PORT=3100 APP_ORIGIN=http://localhost:3100 SQLJS_FILE=<kopya> node backend/server.mjs` ile açın.
-3. `node shots.mjs <çıktı-klasörü>`; görüntüleri `v2/shots/` altına JPEG olarak koyun.
-4. `node pdf.mjs v2/manual.html <çıktı.pdf>`.
+1. `node docs/kullanici-manueli/v3/shots.mjs <çıktı-klasörü>` (başka bir demo dosyası için önüne `MANUAL_DB=<dosya.sqlite>` ekleyin).
+2. Görüntüleri JPEG'e çevirip `v3/shots/` altına koyun (macOS: `sips -s format jpeg -s formatOptions 82 x.png --out v3/shots/x.jpg`).
+3. `node docs/kullanici-manueli/v3/pdf.mjs <çıktı.pdf>`.
 
-Gerçek veritabanına (`data/planlama.sqlite`) bu adımlarda dokunulmaz.
+Gerçek veritabanına (`data/planlama.sqlite`) ve canlı demo dosyasına bu adımlarda yazılmaz. `v2/` önceki sürüm 2.x kaynaklarıdır.
 
 ## Önceki belge: sürüm 1.1
 

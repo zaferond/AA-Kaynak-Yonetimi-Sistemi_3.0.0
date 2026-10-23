@@ -37,7 +37,7 @@ const directories = [
   "frontend/assets",
 ];
 const excluded = new Set(["node_modules", "data", ".compiled", ".git"]);
-const codeExtensions = /\.(?:mjs|ts|tsx|css|sql|svg|png|woff2)$/;
+const codeExtensions = /\.(?:mjs|ts|tsx|css|sql|svg|png|jpg|woff2)$/;
 const artifactExtensions =
   /\.(?:html|js|css|svg|png|ico|jpg|jpeg|webp|woff2)(?:\.gz)?$/;
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");

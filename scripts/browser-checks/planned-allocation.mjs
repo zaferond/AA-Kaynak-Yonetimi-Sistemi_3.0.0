@@ -110,6 +110,18 @@ export async function checkPlannedAllocation(f) {
           async () => (await selectedKeys(page)).length === 0,
           "Enter clears selection",
         );
+        // A plain click on a cell inside the selection keeps only that cell.
+        await drag(page, a("01"), a("03"));
+        assert.equal((await selectedKeys(page)).length, 3);
+        await cell(page, a("02")).click();
+        assert.deepEqual(await selectedKeys(page), [a("02")]);
+        await f.wait(
+          () =>
+            cell(page, a("02"))
+              .locator("input")
+              .evaluate((el) => el === document.activeElement),
+          "clicked cell focus",
+        );
         await drag(page, a("01"), a("02"));
         await page.locator(".tablefoot").click();
         assert.deepEqual(await selectedKeys(page), []);

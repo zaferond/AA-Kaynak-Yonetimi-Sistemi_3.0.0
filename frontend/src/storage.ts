@@ -261,6 +261,21 @@ export async function readActivityReport(
       }),
   );
 }
+export type NotificationItem = {
+  id: string;
+  at: string;
+  actor: string;
+  kind: string;
+  record: string;
+  summary: string;
+  tab: string;
+  /** Consecutive identical changes folded into this one. */
+  count: number;
+};
+/** Others' recent changes within this user's scope (newest first). */
+export async function readNotifications(): Promise<NotificationItem[]> {
+  return (await api("/notifications")).notifications;
+}
 export async function checkUpdates() {
   const epoch = sessionEpoch;
   try {

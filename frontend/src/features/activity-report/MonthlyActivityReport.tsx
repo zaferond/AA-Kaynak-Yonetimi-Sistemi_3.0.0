@@ -15,6 +15,7 @@ import {
   type ActivityRow,
   type ActivityMonth,
 } from "./activity-report-data";
+import { activityBand, BAND_LABELS } from "./activity-band";
 
 const PAGE_SIZE = 100;
 /* One label column: leadership and team move to a group row per team. */
@@ -51,6 +52,7 @@ export default function MonthlyActivityReport({
   months,
   todayDate,
   unit,
+  projectFiltered = false,
 }: {
   rows: ActivityRow[];
   teams: Team[];
@@ -58,7 +60,10 @@ export default function MonthlyActivityReport({
   todayDate: string;
   /** Chosen in the page heading ("Görünüm"). */
   unit: ActualUnit;
+  /** A project filter shows part of each month: no utilisation colours. */
+  projectFiltered?: boolean;
 }) {
+  const currentMonth = todayDate.slice(0, 7);
   const [page, setPage] = useState(0);
   useEffect(() => setPage(0), [teams, months, allRows]);
   const rows = useMemo(() => {
@@ -181,6 +186,11 @@ export default function MonthlyActivityReport({
                         key={cell.month}
                         data-activity-month={cell.month}
                         data-employment-state={cell.state}
+                        data-activity-band={
+                          projectFiltered
+                            ? undefined
+                            : activityBand(cell, currentMonth)
+                        }
                         className={
                           "activity-value " +
                           (cell.totalFte > 0 ? "has-activity " : "") +
@@ -222,6 +232,14 @@ export default function MonthlyActivityReport({
           hesabında izin ve çalışma takvimi sonrası çalışma saati kullanılır.
         </span>
         <span className="activity-legend">
+          {!projectFiltered &&
+            (Object.keys(BAND_LABELS) as (keyof typeof BAND_LABELS)[]).map(
+              (band) => (
+                <span key={band}>
+                  <i data-activity-band={band} /> {BAND_LABELS[band]}
+                </span>
+              ),
+            )}
           <i className="activity-before-start" /> İşbaşı öncesi{" "}
           <i className="activity-departed" /> İşten ayrıldı
         </span>

@@ -328,50 +328,6 @@ export default function ProgressReport({
           {error}
         </p>
       )}
-      <div className="progress-management-cards" aria-label="Yönetici özeti">
-        {(
-          [
-            {
-              filter: "risk",
-              tone: "risk",
-              label: "Dikkat gerektiren konular",
-              detail: "Gecikme, kaynak veya kritik iş uyarısı",
-            },
-            {
-              filter: "ahead",
-              tone: "ahead",
-              label: "Planın İlerisinde",
-              detail: "Sapma ileride olma eşiğine ulaştı",
-            },
-            {
-              filter: "review",
-              tone: "donor",
-              label: "Fazla kaynak değerlendirilebilir",
-              detail: "S-07 / S-08: aktarım veya serbest bırakma",
-            },
-            {
-              filter: "missing",
-              tone: "missing",
-              label: "Değerlendirme bekliyor",
-              detail: "Karşılaştırma için tamamlanmalı",
-            },
-          ] as const
-        ).map((card) => (
-          <button
-            key={card.filter}
-            type="button"
-            data-tone={card.tone}
-            aria-pressed={decision === card.filter}
-            onClick={() =>
-              setDecision(decision === card.filter ? "" : card.filter)
-            }
-          >
-            <span>{card.label}</span>
-            <strong>{count(card.filter)}</strong>
-            <small>{card.detail}</small>
-          </button>
-        ))}
-      </div>
       {comparisons.length > 0 && (
         <section
           className="progress-transfer-review"
@@ -406,16 +362,6 @@ export default function ProgressReport({
           </div>
         </section>
       )}
-      <div className="progress-matrix-toolbar">
-        <span>
-          {filtered.length} proje
-          {visible.length < filtered.length &&
-            ` (${visible.length} yüklendi, aşağı kaydırdıkça devamı gelir)`}{" "}
-          · {density === "overview" ? `${year}–${Number(year) + 4}` : year}{" "}
-          aylık görünümü · Son kilitli ay:{" "}
-          {lastLockedMonth ? monthLabel(lastLockedMonth) : "—"}
-        </span>
-      </div>
       {filtered.length ? (
         <ProgressManagementMatrix
           ctx={ctx}

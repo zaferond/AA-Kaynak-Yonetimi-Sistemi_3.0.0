@@ -1,6 +1,10 @@
 import { createWorkspaceDataActions } from "./features/workspace/workspace-data-actions";
 import { useMessageToast } from "./features/workspace/useFilterAppliedToast";
 import HomePage from "./features/workspace/HomePage";
+import GlobalSearch, {
+  type SearchItem,
+} from "./features/workspace/GlobalSearch";
+import { menuTabs } from "./features/workspace/menu-tabs";
 import Badge from "./components/Badge";
 import { createProjectActions } from "./features/workspace/project-actions";
 import { createWorkspaceExports } from "./features/workspace/workspace-exports";
@@ -63,7 +67,11 @@ import ProgressBadge, {
 import ProjectResponsible from "./ProjectResponsible";
 import ProjectTimelinePanel from "./features/ProjectTimelinePanel";
 import ResourcesPanel from "./features/ResourcesPanel";
-import { DEFAULT_FILTERS, RISK_MANAGEMENT_ENABLED } from "./settings";
+import {
+  DEFAULT_FILTERS,
+  RISK_MANAGEMENT_ENABLED,
+  TAB_LABELS,
+} from "./settings";
 import { captureSessionGuard, currentUser, readLocal } from "./storage";
 import { lazyPanel, preloadPanels } from "./lazy-panel";
 
@@ -175,6 +183,22 @@ export default function Portal() {
   useEffect(() => {
     if (tab !== "actual" || !isAdmin) setSharedCalendarOpen(false);
   }, [tab, isAdmin]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  // Ctrl+K (Cmd+K on a Mac) opens the search from any screen.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        !event.altKey &&
+        event.key.toLowerCase() === "k"
+      ) {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   // The other screens download in the background once this one is shown, so
   // they open at once later. The sign-in screen and first paint stay light.
   useEffect(() => {
@@ -501,6 +525,9 @@ export default function Portal() {
     scenarioLabel: reportScenario
       ? reportScenario.scenario.name + " (senaryo, kayıtlar değişmedi)"
       : undefined,
+    activityRows: activity.value?.rows,
+    activityUnit,
+    projectIds,
     setError,
   });
   function phaseText(p: Project, m: string) {
@@ -562,6 +589,68 @@ export default function Portal() {
   const workspaceMenu = useWorkspaceMenu(tab);
   // Notices show on every screen, also those without a filter bar.
   const messageToast = useMessageToast(notice, noticeId);
+  const searchItems = useMemo((): SearchItem[] => {
+    const screens = menuTabs(user);
+    const can = (value: string) => screens.some((t) => t.value === value);
+    return [
+      ...screens.map(({ value, Icon }) => ({
+        kind: "screen" as const,
+        id: value,
+        name: TAB_LABELS[value as keyof typeof TAB_LABELS],
+        Icon,
+      })),
+      ...(can("projects")
+        ? (viewData?.projects || []).map((p) => ({
+            kind: "project" as const,
+            id: p.id,
+            name: p.name,
+            detail: p.responsibleName || undefined,
+          }))
+        : []),
+      ...(can("plan")
+        ? [
+            ...leaderFilterItems.map((l) => ({
+              kind: "leader" as const,
+              id: l.id,
+              name: l.name,
+            })),
+            ...availableTeams.map((t) => ({
+              kind: "team" as const,
+              id: t.id,
+              name: t.name,
+              detail: t.lead || undefined,
+            })),
+          ]
+        : []),
+      ...(can("actual")
+        ? (viewData?.resources || [])
+            .filter((r) => r.name)
+            .map((r) => ({ kind: "person" as const, id: r.id, name: r.name }))
+        : []),
+    ];
+  }, [user, viewData, leaderFilterItems, availableTeams]);
+  /** A pick narrows the filters to it, then opens the screen that shows it. */
+  function openSearchItem(item: SearchItem) {
+    if (item.kind === "screen") return changeTab(item.id);
+    if (item.kind === "project") {
+      setProjectIds([item.id]);
+      return changeTab("projects");
+    }
+    if (item.kind === "leader") {
+      setTeamIds([]);
+      setLeads([item.id]);
+      return changeTab("plan");
+    }
+    if (item.kind === "team") {
+      setLeads([]);
+      setTeamIds([item.id]);
+      return changeTab("plan");
+    }
+    setLeads([]);
+    setTeamIds([]);
+    setPersonIds([item.id]);
+    return changeTab("actual");
+  }
   return (
     <div
       className={
@@ -600,6 +689,15 @@ export default function Portal() {
         onExportBackup={downloadBackup}
         onRestoreBackup={restoreBackupFile}
         onLogout={signOut}
+        location={TAB_LABELS[tab as keyof typeof TAB_LABELS]}
+        onSearch={() => setSearchOpen(true)}
+        onOpenTab={changeTab}
+      />
+      <GlobalSearch
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        items={searchItems}
+        onPick={openSearchItem}
       />
       <main>
         <WriteRecoveryNotice
@@ -788,6 +886,7 @@ export default function Portal() {
                   ) : (
                     <ProjectTimelinePanel
                       selection={projectMenus.phaseGrid}
+                      progress={progressBadges}
                       projects={projects}
                       revisions={data.revisions}
                       months={months}
@@ -946,6 +1045,7 @@ export default function Portal() {
                     months={months}
                     todayDate={todayDate}
                     unit={activityUnit}
+                    projectFiltered={projectIds.length > 0}
                   />
                 </TabsContent>
               )}
