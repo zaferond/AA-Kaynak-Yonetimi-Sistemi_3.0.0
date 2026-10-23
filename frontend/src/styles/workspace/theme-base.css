@@ -141,11 +141,6 @@ html[data-theme="technical"]
   .app
   .workspace-nav
   .navtabs
-  [role="tab"][data-state="active"],
-html[data-theme="technical"]
-  .app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
   [role="tab"][data-state="active"] {
   color: #fff;
   border-color: var(--brand-primary);
@@ -163,11 +158,7 @@ html[data-theme="technical"]
   [role="tab"]:focus-visible {
   outline-color: var(--brand-focus);
 }
-html[data-theme="technical"] .app .workspace-nav-actions [role="tablist"],
-html[data-theme="technical"]
-  .app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch) {
+html[data-theme="technical"] .app .workspace-nav-actions [role="tablist"] {
   background: var(--brand-surface);
   border-color: var(--brand-border-strong);
   box-shadow: inset 0 1px 2px
@@ -179,16 +170,10 @@ html[data-theme="technical"]
 html[data-theme="technical"] .app .workspace-nav-actions [role="tab"] {
   color: var(--brand-primary);
 }
-html[data-theme="technical"]
-  .app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
-  [role="tab"] {
-  color: var(--brand-primary);
-}
+
 html[data-theme="technical"]
   .app
-  :is(.workspace-nav-actions, .progress-head-actions)
+  :is(.workspace-nav-actions)
   [role="tab"]:hover:not([data-state="active"]) {
   color: var(--brand-dark);
   background: var(--brand-surface-soft);
@@ -379,7 +364,7 @@ html[data-theme="technical"]
   background: var(--brand-surface);
 }
 html[data-theme="technical"]
-  :is(.editor, .directory-dialog, .work-calendar-dialog, .access-control-panel)
+  :is(.editor, .directory-dialog, .work-calendar-dialog)
   :is(
     input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
     textarea,
@@ -390,7 +375,7 @@ html[data-theme="technical"]
   border-color: var(--brand-border);
 }
 html[data-theme="technical"]
-  :is(.editor, .directory-dialog, .work-calendar-dialog, .access-control-panel)
+  :is(.editor, .directory-dialog, .work-calendar-dialog)
   :is(input, textarea, select, .pickerbutton):focus-visible {
   outline-color: var(--brand-focus);
   border-color: var(--brand-focus);
@@ -488,11 +473,7 @@ html[data-theme="technical"]
   border-left-color: var(--brand-mid);
 }
 html[data-theme="technical"]
-  :is(
-    .milestone-range-number,
-    .milestone-note-input .milestone-note-number,
-    .milestone-range-date-arrow
-  ) {
+  :is(.milestone-range-number, .milestone-note-input .milestone-note-number) {
   background: var(--brand-surface);
   color: var(--brand-primary);
   border-color: var(--brand-border);
@@ -557,13 +538,10 @@ html[data-theme="technical"]
     .stats span,
     .stats small,
     .stats p,
-    .chartnote,
     .subline,
     .emptymsg,
-    .filterline,
     .tablefoot,
-    .project-responsible,
-    .phase-selection-hint
+    .project-responsible
   ) {
   color: var(--brand-muted);
 }
@@ -836,7 +814,6 @@ html[data-theme="technical"]
     .directory-record,
     .directory-manager-details,
     .directory-manager-footer,
-    .access-search,
     .access-leader-field,
     .access-form-actions
   ) {
@@ -848,7 +825,6 @@ html[data-theme="technical"] .access-permission-form {
 html[data-theme="technical"]
   :is(
     .work-calendar-personal,
-    .work-calendar-form,
     .work-calendar-list,
     .work-calendar-year,
     .work-calendar-actions
@@ -865,7 +841,6 @@ html[data-theme="technical"]
     .work-calendar-year,
     .work-calendar-personal h3,
     .work-calendar-list h3,
-    .work-calendar-form-title,
     .work-calendar-year button,
     .work-calendar-list time
   ) {
@@ -1044,7 +1019,6 @@ html[data-theme="technical"]
     .shortage-summary span,
     .shortage-summary small,
     .absence-report-summary,
-    .milestone-date-hint,
     .milestone-range-kind > span,
     .milestone-range-colors span
   ),
@@ -1321,7 +1295,7 @@ html[data-theme="technical"]
   color: #277456;
 }
 html[data-theme="technical"]
-  :is(.milestone-range-empty, .milestone-preview-empty, .milestone-note-empty) {
+  :is(.milestone-range-empty, .milestone-note-empty) {
   color: var(--brand-muted);
   background: var(--brand-surface-soft);
   border-color: var(--brand-border);

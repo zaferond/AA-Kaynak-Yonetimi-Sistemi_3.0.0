@@ -30,7 +30,7 @@ export function prepareMilestoneReportChange(
   )
     throw Error("Detay not bulunamadı. Menüyü yeniden açıp tekrar deneyin.");
   if (includeInReport && !notes[noteIndex].text.trim())
-    throw Error("Rapora eklenecek detay not boş olamaz.");
+    throw Error("Kritik konulara eklenecek detay not boş olamaz.");
   const nextNotes = notes.map((note, index) =>
     index === noteIndex ? { ...note, includeInReport } : note,
   );

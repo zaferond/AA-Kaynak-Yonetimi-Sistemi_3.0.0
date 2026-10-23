@@ -253,7 +253,7 @@ export default function MilestoneDateEditor({
                           })
                         }
                       />
-                      Rapora Ekle
+                      Kritik Konulara Ekle
                     </label>
                     <label>
                       <input
@@ -350,7 +350,7 @@ export default function MilestoneDateEditor({
                                 })
                               }
                             />
-                            Rapora Ekle
+                            Kritik Konulara Ekle
                           </label>
                           <label className="milestone-note-complete">
                             <input

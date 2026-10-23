@@ -168,7 +168,7 @@ export function assertMilestoneDateRanges(
       throw Error("Bilgi tarihleri proje dönemi içinde olmalı.");
     for (const note of rangeNotes(range)) {
       if (note.includeInReport && !note.text.trim())
-        throw Error("Rapora eklenecek açıklama boş olamaz.");
+        throw Error("Kritik konulara eklenecek açıklama boş olamaz.");
       if (!note.text.trim()) continue;
       const { start, end } = noteDates(note, range);
       if (

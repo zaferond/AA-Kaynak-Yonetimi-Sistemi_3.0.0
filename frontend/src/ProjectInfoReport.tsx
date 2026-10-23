@@ -558,6 +558,7 @@ export default function ProjectInfoReport({
                                       <button
                                         type="button"
                                         className="remove"
+                                        title="Haftalık Kritik Konular listesinden çıkarır; not silinmez."
                                         disabled={busy}
                                         onClick={() =>
                                           void apply(
@@ -568,7 +569,7 @@ export default function ProjectInfoReport({
                                           )
                                         }
                                       >
-                                        Rapordan Çıkar
+                                        Çıkar
                                       </button>
                                     </>
                                   </div>
@@ -589,8 +590,8 @@ export default function ProjectInfoReport({
           <h3>Raporda henüz kritik konu yok</h3>
           <p>
             {canEdit
-              ? "Kritik konular Projeler ekranındaki başlıklardan gelir. Bir başlığın notunu açıp “Rapora Ekle” kutusunu işaretlediğinizde not burada listelenir."
-              : "Kritik konular Projeler ekranındaki başlıklardan gelir. Bir yönetici notu “Rapora Ekle” ile işaretlediğinde burada listelenir."}
+              ? "Kritik konular Projeler ekranındaki başlıklardan gelir. Bir başlığın notunu açıp “Kritik Konulara Ekle” kutusunu işaretlediğinizde not burada listelenir."
+              : "Kritik konular Projeler ekranındaki başlıklardan gelir. Bir yönetici notu “Kritik Konulara Ekle” ile işaretlediğinde burada listelenir."}
           </p>
           {onOpenProjects && (
             <button

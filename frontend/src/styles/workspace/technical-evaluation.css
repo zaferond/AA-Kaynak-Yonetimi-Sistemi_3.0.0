@@ -189,18 +189,8 @@ html[data-theme="technical"] .project-progress .progress-expand {
   border-color: var(--btn-border);
   border-radius: 3px;
 }
-html[data-theme="technical"]
-  .project-progress
-  :is(.progress-assessment-caption, .progress-card-hint) {
+html[data-theme="technical"] .project-progress :is(.progress-card-hint) {
   color: var(--brand-muted);
-}
-html[data-theme="technical"]
-  .project-progress
-  :is(
-    .progress-assessment .progress-action,
-    .progress-resource-decision:not([data-review])
-  ) {
-  color: var(--brand-text);
 }
 
 /* Senaryo Uyarıları and Uyarı Ayarları. */

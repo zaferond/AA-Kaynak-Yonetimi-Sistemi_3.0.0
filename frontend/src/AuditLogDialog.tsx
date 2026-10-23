@@ -45,7 +45,7 @@ const fields: Record<string, string> = {
   additionalRanges: "Ek notlar",
   notes: "Notlar",
   text: "Metin",
-  includeInReport: "Rapora ekle",
+  includeInReport: "Kritik konulara ekle",
   completed: "Tamamlandı",
   barColor: "Bar rengi",
   barStyle: "Bar görünümü",

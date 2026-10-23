@@ -32,7 +32,7 @@ export function projectInfoReportSheet(projects: ReportProject[]): string {
     `<row r="1" ht="29" customHeight="1">${cell(1, 0, "AA Mühendislik | Haftalık Kritik Konular", 1)}</row>`,
   );
   rows.push(
-    `<row r="2" ht="22" customHeight="1">${cell(2, 0, `Rapora Ekle seçili açıklamalar · ${new Date().toLocaleDateString("tr-TR")}`, 2)}</row>`,
+    `<row r="2" ht="22" customHeight="1">${cell(2, 0, `Kritik Konulara Ekle seçili açıklamalar · ${new Date().toLocaleDateString("tr-TR")}`, 2)}</row>`,
   );
   rows.push(
     `<row r="3" ht="24" customHeight="1">${headers.map((header, index) => cell(3, index, header, 3)).join("")}</row>`,
@@ -82,7 +82,7 @@ export function projectInfoReportWorkbook(
       project.infos.some((info) => info.topics.length),
     )
   )
-    throw Error("Rapora eklenecek açıklama bulunamadı.");
+    throw Error("Kritik konulara eklenecek açıklama bulunamadı.");
   return createWorkbook({
     sheets: [
       {

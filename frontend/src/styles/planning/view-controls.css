@@ -22,64 +22,6 @@
 }
 
 /* Make the planned allocation orientation easy to distinguish at a glance. */
-.app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch) {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  max-width: 100%;
-  height: 34px;
-  min-height: 34px;
-  padding: 3px;
-  border: 1px solid #a9c1d3;
-  border-radius: 7px;
-  background: #e8f0f5;
-  box-shadow: inset 0 1px 2px #24455f12;
-}
-.app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
-  [role="tab"] {
-  flex: 0 0 auto;
-  min-width: 124px;
-  height: 26px;
-  min-height: 26px;
-  padding: 4px 9px;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  background: transparent;
-  color: #31536d;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  transition:
-    background-color 0.15s,
-    color 0.15s,
-    box-shadow 0.15s;
-}
-.app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
-  [role="tab"]:hover:not([data-state="active"]) {
-  background: #f8fbfd;
-  color: #173f5e;
-}
-.app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
-  [role="tab"][data-state="active"] {
-  border-color: #315b7d;
-  background: #315b7d;
-  color: #fff;
-  box-shadow: 0 1px 4px #183a5650;
-}
-.app:is(.tab-plan, .tab-resources, .tab-overview, .tab-progress)
-  :is(.workspace-nav-actions, .progress-head-actions)
-  :is(.plan-view-switch, .organization-view-switch)
-  [role="tab"]:focus-visible {
-  outline: 2px solid var(--brand-focus, #2c75a8);
-  outline-offset: 2px;
-}
 
 /* A team's monthly capacity stays with its frozen identity above its projects. */
 .app.tab-plan .allocation-grid .team-capacity-header > td {

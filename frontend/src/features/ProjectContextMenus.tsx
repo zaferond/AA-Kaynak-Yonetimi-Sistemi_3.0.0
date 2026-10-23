@@ -200,8 +200,8 @@ export default function ProjectContextMenus({
                       aria-checked={note.includeInReport}
                       aria-label={
                         (note.includeInReport
-                          ? "Rapordan çıkar: "
-                          : "Rapora ekle: ") + note.text
+                          ? "Kritik konulardan çıkar: "
+                          : "Kritik konulara ekle: ") + note.text
                       }
                       className="milestone-report-item"
                       disabled={
@@ -236,7 +236,7 @@ export default function ProjectContextMenus({
                   ))
                 ) : (
                   <div className="milestone-report-empty">
-                    Rapora eklenebilecek detay not yok.
+                    Kritik konulara eklenebilecek detay not yok.
                   </div>
                 )}
               </div>

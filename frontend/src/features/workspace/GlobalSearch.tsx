@@ -1,4 +1,10 @@
-import { useMemo, useState, type ComponentType } from "react";
+import {
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ComponentType,
+} from "react";
 import {
   Building2,
   CornerDownLeft,
@@ -68,6 +74,24 @@ export default function GlobalSearch({
         .slice(0, PER_GROUP),
     })).filter((group) => group.items.length);
   }, [items, query]);
+  // Sit right under the top-bar button when it is visible.
+  const [anchor, setAnchor] = useState<CSSProperties | null>(null);
+  useLayoutEffect(() => {
+    if (!open) return;
+    const button = document.querySelector(".mast-search");
+    const rect = button?.getBoundingClientRect();
+    if (!rect || !rect.width) return setAnchor(null);
+    // The page may be zoomed (html zoom); fixed positions use CSS pixels.
+    const zoom =
+      Number.parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const viewport = window.innerWidth / zoom;
+    const width = Math.min(640, viewport - 32);
+    setAnchor({
+      "--search-top": rect.bottom / zoom + 6 + "px",
+      "--search-left":
+        Math.max(16, Math.min(rect.left / zoom, viewport - width - 16)) + "px",
+    } as CSSProperties);
+  }, [open]);
   const flat = groups.flatMap((group) => group.items);
   const current = Math.min(active, Math.max(0, flat.length - 1));
   function close(next: boolean) {
@@ -88,6 +112,8 @@ export default function GlobalSearch({
         <DialogPrimitive.Overlay className="global-search-overlay" />
         <DialogPrimitive.Content
           className="global-search"
+          data-anchored={anchor ? "" : undefined}
+          style={anchor || undefined}
           aria-describedby={undefined}
         >
           <DialogPrimitive.Title className="sr-only">

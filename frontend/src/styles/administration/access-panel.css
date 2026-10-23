@@ -437,9 +437,7 @@
   overflow-wrap: anywhere;
   max-width: 100%;
 }
-.app.tab-resources
-  .employee-access-table
-  :is(.access-edit-button, .access-revoke-button) {
+.app.tab-resources .employee-access-table :is(.access-revoke-button) {
   height: auto;
   min-height: 27px;
   line-height: 1.35;

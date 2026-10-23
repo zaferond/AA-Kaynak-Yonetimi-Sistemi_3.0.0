@@ -156,8 +156,8 @@ export function useProjectMenus({
       setMilestoneMenu((current) => (current === target ? null : current));
       setNotice(
         includeInReport
-          ? "Detay not rapora eklendi."
-          : "Detay not rapordan çıkarıldı.",
+          ? "Detay not kritik konulara eklendi."
+          : "Detay not kritik konulardan çıkarıldı.",
       );
     } catch (error) {
       setError((error as Error).message);

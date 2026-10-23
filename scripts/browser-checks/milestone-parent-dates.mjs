@@ -173,7 +173,7 @@ export async function checkMilestoneParentDates(f) {
           .click();
         await dialog
           .getByRole("alert")
-          .filter({ hasText: "Rapora eklenecek açıklama boş olamaz." })
+          .filter({ hasText: "Kritik konulara eklenecek açıklama boş olamaz." })
           .waitFor();
         assert.equal(
           (await f.state()).revisions["project:" + original.id],

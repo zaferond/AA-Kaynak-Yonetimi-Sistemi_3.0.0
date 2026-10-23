@@ -376,9 +376,6 @@
   justify-content: flex-end;
   gap: 8px;
 }
-.password-change-dialog {
-  max-width: 420px;
-}
 
 /* Technical theme: a plain light grey page instead of the collage; the brand
    panel shows one vehicle photo, and the Otokar and Koç marks sit small

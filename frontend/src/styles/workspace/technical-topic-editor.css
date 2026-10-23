@@ -132,7 +132,7 @@ html[data-theme="technical"] .milestone-note-row {
 }
 html[data-theme="technical"]
   .timeline-editor-form
-  :is(.milestone-bar-options, .milestone-colors)
+  :is(.milestone-bar-options)
   button {
   border-color: var(--btn-border);
   border-radius: 3px;
@@ -141,7 +141,7 @@ html[data-theme="technical"]
 }
 html[data-theme="technical"]
   .timeline-editor-form
-  :is(.milestone-bar-options, .milestone-colors)
+  :is(.milestone-bar-options)
   button.selected {
   border-color: var(--brand-primary);
   background: var(--tbl-selected);
