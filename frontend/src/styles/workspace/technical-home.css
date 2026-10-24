@@ -179,11 +179,6 @@ html[data-theme="technical"] .app .home-card strong {
   font-size: 15px;
   font-weight: 600;
 }
-html[data-theme="technical"] .app .home-card-text {
-  color: var(--brand-muted);
-  font-size: var(--fs-sm);
-  line-height: 1.4;
-}
 html[data-theme="technical"] .app .home-card-go {
   position: absolute;
   right: 16px;

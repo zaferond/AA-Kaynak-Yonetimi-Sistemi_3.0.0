@@ -2887,6 +2887,119 @@ test("activity API: Team Member sees own team, Lider leadership with descendants
     );
 });
 
+test("activity HTTP reads historical periods with one reference date even when SQL spans a month boundary", async (t) => {
+  const beforeMidnight = Date.parse("2026-10-31T20:59:59Z");
+  t.mock.timers.enable({ apis: ["Date"], now: beforeMidnight });
+  const { store, user, state, write, request } = await setup(t);
+  const data = (await state()).data;
+  const a = data.teams.find((team) => team.lead && team.kind !== "leadership");
+  const b = data.teams.find(
+    (team) => team.lead && team.lead !== a.lead && team.kind !== "leadership",
+  );
+  const version = (team, patch = {}) => ({
+    effective: "2026-01",
+    start: "2026-01-01",
+    end: "",
+    team: team.id,
+    lead: team.lead,
+    status: "Aktif Çalışan",
+    included: true,
+    amount: 1,
+    ...patch,
+  });
+  const resources = [
+    { id: "boundary-starter", versions: [version(a, { start: "2026-10-31" })] },
+    {
+      id: "boundary-transfer",
+      versions: [version(a), version(b, { effective: "2026-11" })],
+    },
+    { id: "boundary-peer", versions: [version(a)] },
+    { id: "boundary-outsider", versions: [version(b)] },
+  ];
+  assert.equal(
+    (
+      await write([
+        {
+          kind: "project",
+          id: "boundary-project",
+          value: {
+            id: "boundary-project",
+            name: "Synthetic boundary",
+            start: "2026-01",
+            end: "2026-12",
+            phases: {},
+          },
+        },
+        ...resources.map((resource) => ({
+          kind: "resource",
+          id: resource.id,
+          value: { ...resource, name: resource.id, note: "" },
+        })),
+        ...[
+          ["boundary-peer", "2026-01", 0.5],
+          ["boundary-peer", "2026-10", 0.25],
+          ["boundary-outsider", "2026-01", 0.9],
+        ].map(([id, month, value]) => ({
+          kind: "actual",
+          id: `${id}|boundary-project|${month}`,
+          value,
+        })),
+      ])
+    ).status,
+    200,
+  );
+  const starter = await user("boundary-starter", "normal", "boundary-starter");
+  const transfer = await user(
+    "boundary-transfer",
+    "normal",
+    "boundary-transfer",
+  );
+  const raw = store.db.raw;
+  let crossed = false;
+  const periods = [];
+  t.mock.method(store.db, "raw", function (sql, values, consume) {
+    const result = raw.call(this, sql, values, consume);
+    if (/^SELECT\b/.test(sql) && sql.includes("FROM [kp_actual_allocations]")) {
+      periods.push(values);
+      crossed = true;
+      // The read scope has been selected. The projection now runs in November.
+      t.mock.timers.setTime(beforeMidnight + 2000);
+    }
+    return result;
+  });
+  for (const [auth, start, expectedFte] of [
+    [starter, "2026-01", 0.5],
+    [transfer, "2026-10", 0.25],
+  ]) {
+    t.mock.timers.setTime(beforeMidnight);
+    crossed = false;
+    periods.length = 0;
+    const report = await request(
+      `/activity-report?start=${start}&count=2&projects=[]`,
+      undefined,
+      auth,
+    );
+    assert.equal(report.status, 200);
+    assert(
+      crossed,
+      "the clock must cross the boundary during the scoped SQL read",
+    );
+    assert(periods.some((values) => values.includes(start)));
+    assert.deepEqual(
+      new Set(report.json.rows.map((row) => row.resourceId)),
+      new Set(["boundary-starter", "boundary-transfer", "boundary-peer"]),
+    );
+    assert(report.json.rows.every((row) => row.teamId === a.id));
+    const peer = report.json.rows.find(
+      (row) => row.resourceId === "boundary-peer",
+    );
+    assert.equal(peer.cells[0].month, start);
+    assert.equal(peer.cells[0].projectFte, expectedFte);
+    assert.equal(peer.cells[1].projectFte, 0);
+    if (start === "2026-10") assert.equal(peer.cells[1].state, "future");
+  }
+});
+
 test("direct leadership resource planning is independent from team capacity and keeps FK, permission and revision guards", async (t) => {
   const { request, admin, user, state, write, store } = await setup(t);
   const { buildCapacityIndex, sumCapacityMetrics } =

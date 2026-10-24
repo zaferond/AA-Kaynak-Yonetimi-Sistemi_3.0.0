@@ -5,6 +5,7 @@ import {
 import { planningUnitManagerIndex } from "../shared/resource-roles.ts";
 import { actualView } from "./actual-view.mjs";
 import { activityReport } from "./activity-report.mjs";
+import { currentPlanningDate } from "../shared/resource-dates.ts";
 import * as identity from "./identity-repository.mjs";
 import { readPlanningSnapshot } from "./planning-reader.mjs";
 import { readActualReportData } from "./actual-report-reader.mjs";
@@ -231,14 +232,22 @@ export class Store {
       const active = await this.findUser({ id: u._id }, c);
       if (!active?.active || active.version !== u.version)
         fail(401, "Oturum yenilenmeli.");
+      const date = currentPlanningDate();
       const data = await readActualReportData(
         c,
         this.provider,
         publicUser(active),
         query,
         "activity",
+        date,
       );
-      return activityReport(data, publicUser(active), query);
+      return activityReport(
+        data,
+        publicUser(active),
+        query,
+        date.slice(0, 7),
+        date,
+      );
     }, true);
   }
   async projectView(data, generation, active, c) {

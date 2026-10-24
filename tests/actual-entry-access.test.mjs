@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   actualEntryScope,
+  activityReportScope,
   canEnterActual,
   canManagePersonalCalendar,
 } from "../shared/actual-entry-access.ts";
@@ -155,4 +156,54 @@ test("Aktivite Raporu shows Aktivite Giriş people plus a member's own team", as
     [],
   );
   assert.equal(seen({ role: "admin", resourceId: "" }).length, 8);
+});
+
+test("activity report keeps an explicit reference date across month rollover for starters and transfers", async (t) => {
+  const { activityReport } = await import("../backend/activity-report.mjs");
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-10-31T21:00:00Z"),
+  });
+  const d = { ...structuredClone(data), projects: [], actualAllocations: {} };
+  d.resources.push(
+    person("starter", version("a", "Root", "member", { start: "2026-10-31" })),
+    person(
+      "transfer",
+      version("a", "Root", "member"),
+      version("b", "Root", "member", { effective: "2026-11" }),
+    ),
+  );
+  const query = { start: "2026-10", count: 2, projects: [] };
+  for (const id of ["starter", "transfer"]) {
+    const scope = activityReportScope(d, user(id), "2026-10", "2026-10-31");
+    assert.deepEqual(
+      scope.teams.map((team) => team.id),
+      ["a"],
+    );
+    const rows = activityReport(
+      d,
+      user(id),
+      query,
+      "2026-10",
+      "2026-10-31",
+    ).rows;
+    assert.deepEqual(
+      new Set(rows.map((row) => row.resourceId)),
+      new Set(["po", "member", "coe", "starter", "transfer"]),
+    );
+    assert(rows.every((row) => row.teamId === "a"));
+    assert(rows.every((row) => row.cells[1].projectFte === 0));
+  }
+  const november = activityReport(
+    d,
+    user("transfer"),
+    query,
+    "2026-11",
+    "2026-11-01",
+  );
+  assert.deepEqual(
+    new Set(november.rows.map((row) => row.resourceId)),
+    new Set(["b-member", "mover", "transfer"]),
+  );
+  assert(november.rows.every((row) => row.teamId === "b"));
 });

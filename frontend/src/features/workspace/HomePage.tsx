@@ -13,17 +13,6 @@ const GROUPS: Record<MenuTab["group"], string> = {
   actuals: "Aktivite",
   admin: "Yönetim",
 };
-const DESCRIPTIONS: Record<Exclude<MenuTab["value"], "home">, string> = {
-  projects: "Proje takvimleri, aşamalar, kilometre taşları ve senaryolar.",
-  plan: "Takım ve proje bazında aylık kaynak dağılımı.",
-  progress: "Hedef plan, gerçekleşen ve aylık değerlendirme.",
-  risk: "Sistem ve alt sistem riskleri.",
-  critical: "Haftanın kritik konuları ve gecikmeler.",
-  overview: "Liderlik ve takım bazında eksik kaynak, Head Count.",
-  actual: "Çalışanların aylık gerçekleşen kaynak girişi.",
-  activity: "Çalışanların aylık aktivite ve izin özeti.",
-  resources: "Çalışanlar, liderlikler, takımlar ve yetkiler.",
-};
 const ROLE_LABELS = {
   admin: "Admin",
   manager: "Yönetici",
@@ -76,7 +65,6 @@ export default function HomePage({
                 <span className="home-card-group">{GROUPS[group]}</span>
               </span>
               <strong>{TAB_LABELS[value]}</strong>
-              <span className="home-card-text">{DESCRIPTIONS[value]}</span>
             </span>
             <ArrowRight className="home-card-go" size={16} aria-hidden="true" />
           </button>

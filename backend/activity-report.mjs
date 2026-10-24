@@ -45,6 +45,8 @@ export function activityReportResources(data, scope, currentMonth) {
     const assignment = assignments.get(resource.id);
     return (
       assignment &&
+      // includes() also permits the user's own resource; require a visible
+      // assigned team so an out-of-scope team cannot become a report row.
       teamIds.has(assignment.team.id) &&
       scope.includes(resource.id, assignment.team.id)
     );
@@ -55,8 +57,9 @@ export function activityReport(
   user,
   query,
   currentMonth = currentPlanningMonth(),
+  date,
 ) {
-  const scope = activityReportScope(data, user, currentMonth);
+  const scope = activityReportScope(data, user, currentMonth, date);
   const permitted = scope.teams;
   const resources = activityReportResources(data, scope, currentMonth);
   // Without a project filter the rows keep every project (team totals stay
