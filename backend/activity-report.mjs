@@ -8,7 +8,7 @@ import {
   validPlanningMonth,
   MAX_FILTER_START,
 } from "../shared/planning-dates.ts";
-import { monthsFrom } from "../shared/model.ts";
+import { actualVersionAt, monthsFrom } from "../shared/model.ts";
 import { projectVisibility } from "../shared/project-access.ts";
 export const activityQuery = z
   .object({
@@ -38,18 +38,25 @@ export const activityQuery = z
       }),
   })
   .strict();
-export function activityReportResources(data, scope, currentMonth) {
-  const teamIds = new Set(scope.teams.map((team) => team.id));
+export function activityReportResources(data, scope, currentMonth, months) {
+  const teamIds = new Set(data.teams.map((team) => team.id));
   const assignments = createEmployeeAssignmentIndex(data, currentMonth);
+  const pastMonths = months.filter((month) => month <= currentMonth);
+  // An entirely future query retains the current eligible employee list.
+  const reportMonths = pastMonths.length ? pastMonths : [currentMonth];
   return data.resources.filter((resource) => {
-    const assignment = assignments.get(resource.id);
-    return (
-      assignment &&
-      // includes() also permits the user's own resource; require a visible
-      // assigned team so an out-of-scope team cannot become a report row.
-      teamIds.has(assignment.team.id) &&
-      scope.includes(resource.id, assignment.team.id)
-    );
+    // Keep the existing current-status policy (employees/departed, not ads).
+    if (!assignments.get(resource.id)) return false;
+    return reportMonths.some((month) => {
+      const version = actualVersionAt(resource, month);
+      // Use the month's team so leaving a team cannot erase its history.
+      // Self access is restricted to the employee's own rows, not old peers.
+      return (
+        version &&
+        teamIds.has(version.team) &&
+        scope.includes(resource.id, version.team)
+      );
+    });
   });
 }
 export function activityReport(
@@ -60,8 +67,8 @@ export function activityReport(
   date,
 ) {
   const scope = activityReportScope(data, user, currentMonth, date);
-  const permitted = scope.teams;
-  const resources = activityReportResources(data, scope, currentMonth);
+  const months = monthsFrom(query.start, query.count);
+  const resources = activityReportResources(data, scope, currentMonth, months);
   // Without a project filter the rows keep every project (team totals stay
   // complete); a filter may only name projects this user can view.
   const canSeeProject = projectVisibility(data, user, currentMonth);
@@ -70,6 +77,24 @@ export function activityReport(
       !query.projects.length ||
       (query.projects.includes(project.id) && canSeeProject(project.id)),
   );
+  const teamIds = new Set(scope.teams.map((team) => team.id));
+  const own = resources.find((resource) => resource.id === user.resourceId);
+  if (own)
+    for (const month of months.filter((month) => month <= currentMonth)) {
+      const version = actualVersionAt(own, month);
+      if (version && scope.includes(own.id, version.team))
+        teamIds.add(version.team);
+    }
+  const permitted = data.teams.filter((team) => teamIds.has(team.id));
+  // Authorize every team row: adding a user's former teams must never expose
+  // those teams' peers. Future self assignments do not expand the team scope.
+  const rows = buildActivityRows(
+    { ...data, resources },
+    permitted,
+    projects,
+    months,
+    currentMonth,
+  ).filter((row) => scope.includes(row.resourceId, row.teamId));
   const leaders = [
     ...new Set(permitted.map((team) => team.lead).filter(Boolean)),
   ];
@@ -85,12 +110,6 @@ export function activityReport(
     leaderParents: visibleLeaderParents(data, leaders),
     // Only aggregate cells leave the server: never return calendars, leave labels,
     // personal project records, HR notes, account identifiers or credentials.
-    rows: buildActivityRows(
-      { ...data, resources },
-      permitted,
-      projects,
-      monthsFrom(query.start, query.count),
-      currentMonth,
-    ),
+    rows,
   };
 }

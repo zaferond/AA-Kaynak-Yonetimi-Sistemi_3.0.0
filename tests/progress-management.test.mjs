@@ -141,6 +141,64 @@ test("project percentages compare the same complete leadership scope", () => {
   assert.equal(weighted.gap, 10);
 });
 
+test("removed resource plans use approval references for project totals and the same monthly Excel figures", () => {
+  const ctx = context({ planned: false });
+  const leaders = [leader("Liderlik A", 70), leader("Liderlik B", 30)];
+  for (const [index, l] of leaders.entries())
+    l.record.baselines[0].resourceReference = {
+      resourceTotal: index === 0 ? 3 : 1,
+      workPct: 100,
+      capturedAt: "2026-08-01T00:00:00Z",
+      source: "approval",
+    };
+  const point = managementPoint(ctx, project, leaders, "2026-09");
+  assert.equal(point.target, 50);
+  assert.equal(point.actual, 60);
+  assert.equal(point.gap, 10);
+  assert.equal(
+    plannedResourceAt(ctx, project.id, leaders, "2026-09"),
+    0,
+    "approval references must not fabricate current resource allocations",
+  );
+  const managed = manageProject(ctx, { ...row("p"), leaders }, "2026-09");
+  assert.deepEqual(
+    managed.leaders.map((l) => l.assessment.point.actual),
+    [70, 30],
+  );
+  const monthly = managementSheets(ctx, [managed], "2026-09", ["2026-09"])[1]
+    .xml;
+  assert.match(monthly, /<c r="D3" s="7"><v>50<\/v><\/c>/);
+  assert.match(monthly, /<c r="E3" s="7"><v>60<\/v><\/c>/);
+  assert.match(monthly, /<c r="E4" s="7"><v>70<\/v><\/c>/);
+  assert.match(monthly, /<c r="E5" s="7"><v>30<\/v><\/c>/);
+  leaders[1].record.actuals = {};
+  assert.equal(
+    managementPoint(ctx, project, leaders, "2026-09").actual,
+    null,
+    "a reference does not fill in missing actual entries",
+  );
+});
+
+test("leadership percentages remain visible without any project weight while unweighted totals remain unknown", () => {
+  const ctx = context({ planned: false });
+  const l = leader("Liderlik A", 60, { weight: 0 });
+  const point = managementPoint(ctx, project, [l], "2026-09", "leadership");
+  assert.equal(point.target, 50);
+  assert.equal(point.actual, 60);
+  assert.equal(point.gap, 10);
+  assert.equal(managementPoint(ctx, project, [l], "2026-09").actual, null);
+  l.record.actuals = {};
+  assert.equal(
+    managementPoint(ctx, project, [l], "2026-09", "leadership").actual,
+    null,
+  );
+  l.record.baselines = [];
+  assert.equal(
+    managementPoint(ctx, project, [l], "2026-09", "leadership").target,
+    null,
+  );
+});
+
 test("missing submissions and plans never produce an ahead or transfer recommendation", () => {
   for (const missing of [
     leader("Liderlik B", null),

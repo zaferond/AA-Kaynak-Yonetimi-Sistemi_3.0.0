@@ -82,7 +82,13 @@ export default function ProgressManagementMatrix({
               project.leaders.map((l) => [
                 l.row.record.id,
                 months.map((m) =>
-                  managementPoint(ctx, project.row.project, [l.row], m),
+                  managementPoint(
+                    ctx,
+                    project.row.project,
+                    [l.row],
+                    m,
+                    "leadership",
+                  ),
                 ),
               ]),
             ),

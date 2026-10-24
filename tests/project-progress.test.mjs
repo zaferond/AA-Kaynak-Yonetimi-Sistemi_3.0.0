@@ -384,6 +384,34 @@ test("the project figure weighs leaderships by planned resource or the admin's w
   assert.equal(partial.missing, 1);
 });
 
+test("project rollup uses the saved approval resource reference only when live planned resource is zero", () => {
+  const r = record();
+  r.baselines[0].resourceReference = {
+    resourceTotal: 3,
+    workPct: 100,
+    capturedAt: "2026-10-20T00:00:00Z",
+    source: "approval",
+  };
+  const rows = [
+    { record: r, target: 60, actual: 50, spent: null, plannedTotal: 0 },
+    { record: record(), target: 20, actual: 30, spent: null, plannedTotal: 1 },
+  ];
+  assert.equal(projectRollup(rows).target, 50);
+  assert.equal(projectRollup(rows).actual, 45);
+  rows[0].plannedTotal = 1;
+  assert.equal(
+    projectRollup(rows).target,
+    40,
+    "a live plan takes precedence over the old reference",
+  );
+  rows[0].record.weight = 0;
+  assert.equal(
+    projectRollup(rows).target,
+    20,
+    "explicit legacy zero weights remain respected",
+  );
+});
+
 test("planned FTE is grouped by the team's leadership", () => {
   const out = leaderResourceByMonth(
     [

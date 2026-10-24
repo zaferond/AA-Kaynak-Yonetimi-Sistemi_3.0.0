@@ -37,9 +37,8 @@ export async function readActualReportData(
   });
   const { data } = await readSnapshotMetadata(c, { report: kind });
   const month = date.slice(0, 7);
-  const months = monthsFrom(periodQuery.start, periodQuery.count).filter(
-    (m) => m <= month,
-  );
+  const reportMonths = monthsFrom(periodQuery.start, periodQuery.count);
+  const months = reportMonths.filter((m) => m <= month);
   const activityScope =
     kind === "activity" ? activityReportScope(data, user, month, date) : null;
   const teams =
@@ -47,7 +46,7 @@ export async function readActualReportData(
   const resources =
     kind === "actual"
       ? actualViewResources(data, user, teams, month)
-      : activityReportResources(data, activityScope, month);
+      : activityReportResources(data, activityScope, month, reportMonths);
   const owners = resources.map((resource) => resource.id);
   // Legacy separators can change interpretation of composite record keys.
   // Preserve the complete numeric read for those datasets; final projection

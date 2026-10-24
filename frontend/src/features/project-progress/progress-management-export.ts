@@ -76,11 +76,17 @@ export function managementSheets(
   const monthly: (string | number | null)[][] = [];
   for (const p of projects) {
     for (const entity of [
-      { name: "Proje geneli", value: p.assessment, leaders: p.row.leaders },
+      {
+        name: "Proje geneli",
+        value: p.assessment,
+        leaders: p.row.leaders,
+        scope: "project" as const,
+      },
       ...p.leaders.map((l) => ({
         name: l.row.record.leader,
         value: l.assessment,
         leaders: [l.row],
+        scope: "leadership" as const,
       })),
     ]) {
       const a = entity.value;
@@ -130,7 +136,13 @@ export function managementSheets(
         scenario?.code || "—",
       ]);
       for (const m of months) {
-        const point = managementPoint(ctx, p.row.project, entity.leaders, m);
+        const point = managementPoint(
+          ctx,
+          p.row.project,
+          entity.leaders,
+          m,
+          entity.scope,
+        );
         monthly.push([
           p.row.project.name,
           entity.name,

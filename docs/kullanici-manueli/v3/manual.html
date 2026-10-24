@@ -189,7 +189,7 @@
   </table>
   <p><b>Örnek:</b> Çalışan görevi Team Member olan bir Yönetici, Aktivite Giriş'te yalnız kendisini, Aktivite Raporu'nda kendi takımını görür. Çalışan görevi Lider olan bir Normal Kullanıcı ise kendi liderliğine ve alt liderliklere erişir.</p>
   <div class="note"><b>Çalışan kaydı eşleşmesi gerekir.</b> Admin dışındaki bir hesap çalışan kaydına bağlı değilse, Yönetici rolünde ve planlama için liderlik yetkisi olsa bile Aktivite Giriş ve Aktivite Raporu boş gelir. Admin, hesap eşleşmesini ve çalışanın görev/takım bilgilerini kontrol etmelidir.</div>
-  <p>Aktivite Giriş'te bir kişinin eski aylarına erişim, o ayki takımına göre denetlenir. Aktivite Raporu ise önce bugünkü görev ve takım kapsamındaki kişileri seçer, ardından seçili dönemin takım satırlarını üretir. Takım değiştiren kişinin önceki ayları bu nedenle raporda görünmeyebilir.</p>
+  <p><b>Takım değişikliği geçmiş raporları değiştirmez.</b> Kullanıcının kapsamı bugünkü organizasyon görevinden gelir; her ayın aktivitesi çalışanın o ay bulunduğu takım altında gösterilir. Eski takımın PO/Lideri yalnız o takıma ait ayları, yeni takımın PO/Lideri kendi takımına ait ayları görür. Çalışan, kendi geçmişinin tamamını ilgili takımlar altında görür; eski takım arkadaşlarının verilerine erişmez. Her ay yalnız bir takımın toplamına eklenir.</p>
   <h2>Yönetici planlama yetkisi</h2>
   <p><span class="ui">Planlanan Kaynak Dağılımı Yetkisi</span> alanındaki liderlik ve takım atamaları Aktivite Giriş veya Aktivite Raporu kapsamını genişletmez.</p>
   <ul>
@@ -490,6 +490,7 @@
     <li>İşbaşı öncesi ve işten ayrılış sonrası aylar ayrıca işaretlenir. Sayfa başına 100 satır gösterilir; <span class="ui">Önceki</span> / <span class="ui">Sonraki</span> ile gezilir.</li>
     <li><b>Excel'e aktarma</b> <span class="new">YENİ</span>: <span class="ui">Görünüm</span>'ün sağındaki indirme düğmesi raporu Liderlik, Takım, Çalışan ve aylık değer sütunlarıyla, aynı renk bantlarıyla indirir.</li>
     <li><b>Kapsam:</b> Uygulama rolü Yönetici veya Normal Kullanıcı olsa da çalışan görevi belirleyicidir: Team Member/CoE kendi takımını, Product Owner kendi takımını, Lider kendi liderliğini, alt liderlikleri ve bağlı takımları görür. Admin tümünü görür. Çalışan kaydı eşleşmemiş hesapların raporu boştur (2. bölüm).</li>
+    <li><b>Takım geçmişi:</b> Kişinin kendi geçmişi tüm takımlarını kapsar. Diğer çalışanlar için yalnız yetkili olduğunuz takımdaki aylar gösterilir. Takım değişikliği eski ayların görünürlüğünü ve toplamlarını ortadan kaldırmaz.</li>
   </ul>
 </section>
 

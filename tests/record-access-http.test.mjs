@@ -3000,6 +3000,160 @@ test("activity HTTP reads historical periods with one reference date even when S
   }
 });
 
+test("activity HTTP preserves transferred employees by report month without exposing former teammates or private data", async (t) => {
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-10-24T09:00:00Z"),
+  });
+  const { store, user, state, write, request, admin } = await setup(t);
+  const data = (await state()).data;
+  const a = data.teams.find((team) => team.lead && team.kind !== "leadership");
+  const b = data.teams.find(
+    (team) => team.lead && team.lead !== a.lead && team.kind !== "leadership",
+  );
+  const version = (team, role = "member", patch = {}) => ({
+    effective: "2026-01",
+    start: "2026-01-01",
+    end: "",
+    team: team.id,
+    lead: team.lead,
+    assignmentRole: role,
+    status: "Aktif Çalışan",
+    included: true,
+    amount: 1,
+    ...patch,
+  });
+  const resources = [
+    {
+      id: "history-mover",
+      versions: [version(a), version(b, "member", { effective: "2026-10" })],
+    },
+    { id: "history-old-po", versions: [version(a, "productOwner")] },
+    { id: "history-new-po", versions: [version(b, "productOwner")] },
+    { id: "history-old-peer", versions: [version(a)] },
+  ];
+  const saved = await write([
+    {
+      kind: "project",
+      id: "history-project",
+      value: {
+        id: "history-project",
+        name: "Synthetic history",
+        start: "2026-01",
+        end: "2026-12",
+        phases: {},
+      },
+    },
+    ...resources.map((resource) => ({
+      kind: "resource",
+      id: resource.id,
+      value: { ...resource, name: resource.id, note: "PRIVATE_HISTORY_HR" },
+    })),
+    ...[
+      ["history-mover", "2026-09", 0.4],
+      ["history-mover", "2026-10", 0.6],
+      ["history-old-peer", "2026-09", 0.9],
+    ].map(([id, month, value]) => ({
+      kind: "actual",
+      id: `${id}|history-project|${month}`,
+      value,
+    })),
+    {
+      kind: "personDay",
+      id: "history-mover|2026-09-01|training",
+      value: { type: "training", hours: 9, label: "PRIVATE_HISTORY_TRAINING" },
+    },
+  ]);
+  assert.equal(saved.status, 200);
+  const oldPo = await user("history-old-po", "normal", "history-old-po");
+  const newPo = await user("history-new-po", "manager", "history-new-po", [
+    a.lead,
+  ]);
+  const own = await user("history-mover", "normal", "history-mover");
+  const unlinked = await user("history-unlinked", "manager", "", [
+    a.lead,
+    b.lead,
+  ]);
+  const before = (await store.read()).data;
+  const url =
+    '/activity-report?start=2026-09&count=2&projects=["history-project"]';
+  const reports = [];
+  for (const auth of [oldPo, newPo, own, admin, unlinked]) {
+    const response = await request(url, undefined, auth);
+    assert.equal(response.status, 200);
+    assert(!JSON.stringify(response.json).includes("PRIVATE_HISTORY"));
+    reports.push(response.json);
+  }
+  const moverRows = (report) =>
+    report.rows.filter((row) => row.resourceId === "history-mover");
+  for (const [report, team, amounts] of [
+    [reports[0], a, [0.4, 0]],
+    [reports[1], b, [0, 0.6]],
+  ]) {
+    const rows = moverRows(report);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].teamId, team.id);
+    assert.deepEqual(
+      rows[0].cells.map((cell) => cell.projectFte),
+      amounts,
+    );
+    const hidden = rows[0].cells[team.id === a.id ? 1 : 0];
+    assert.deepEqual(
+      {
+        state: hidden.state,
+        total: hidden.totalFte,
+        training: hidden.trainingHours,
+        capacity: hidden.effectiveHours,
+        start: hidden.start,
+        end: hidden.end,
+      },
+      {
+        state: "other-team",
+        total: 0,
+        training: 0,
+        capacity: 0,
+        start: "",
+        end: "",
+      },
+    );
+  }
+  assert.equal(moverRows(reports[0])[0].cells[0].trainingHours, 9);
+  for (const report of [reports[2], reports[3]]) {
+    const rows = moverRows(report);
+    assert.deepEqual(
+      new Set(rows.map((row) => row.teamId)),
+      new Set([a.id, b.id]),
+    );
+    assert.equal(
+      rows
+        .flatMap((row) => row.cells)
+        .reduce((total, cell) => total + cell.projectFte, 0),
+      1,
+    );
+  }
+  assert(
+    !reports[2].rows.some((row) =>
+      ["history-old-po", "history-old-peer"].includes(row.resourceId),
+    ),
+  );
+  assert.deepEqual(
+    new Set(reports[2].teams.map((team) => team.id)),
+    new Set([a.id, b.id]),
+  );
+  assert.deepEqual(reports[4].rows, []);
+  const oldOnly = await request(
+    "/activity-report?start=2026-09&count=1",
+    undefined,
+    oldPo,
+  );
+  assert.equal(
+    moverRows(oldOnly.json)[0].cells[0].projectFte,
+    0.4,
+    "scoped SQL must load departed teammates' old records",
+  );
+  assert.deepEqual((await store.read()).data, before);
+});
+
 test("direct leadership resource planning is independent from team capacity and keeps FK, permission and revision guards", async (t) => {
   const { request, admin, user, state, write, store } = await setup(t);
   const { buildCapacityIndex, sumCapacityMetrics } =

@@ -17,9 +17,11 @@ Uygulama rolü, aktivite ekranlarının açılabilmesini belirler. Admin dışı
 
 Çalışan kaydıyla eşleşmemiş Admin dışındaki hesaplar, Yönetici rolünde ve planlama için liderlik yetkisi olsa da her iki aktivite ekranında boş sonuç görür. Bu durum bir yetki hatası değildir. Admin, hesap-çalışan eşleşmesini ve organizasyon görevini kontrol etmelidir.
 
+**Takım geçmişi:** Kullanıcının yetkisi bugünkü organizasyon görevinden, rapor satırının takımı ilgili aydaki görevlendirmeden gelir. Bir çalışan A'dan B'ye geçtiğinde A'nın PO/Lideri yalnız A'daki aylarını, B'nin PO/Lideri yalnız B'deki aylarını görür. Çalışan kendi geçmişini tüm takımları altında görür; bu istisna eski takım arkadaşlarına erişim vermez. Aynı ay iki kez toplanmaz. Aktivite Giriş'in yazma yetkileri bu rapor değişikliğinden etkilenmez.
+
 PDF'nin kapak tablosunda yalnız belge sürümü ve tarih bulunur. Ana Sayfa görseli, kartların detay açıklamaları kaldırılmış haliyle güncellenmiştir.
 
-**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1015/1015 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
+**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1021/1021 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
 
 `v3/` klasörü kaynakları içerir:
 

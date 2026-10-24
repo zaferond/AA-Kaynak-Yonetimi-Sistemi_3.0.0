@@ -205,5 +205,137 @@ test("activity report keeps an explicit reference date across month rollover for
     new Set(november.rows.map((row) => row.resourceId)),
     new Set(["b-member", "mover", "transfer"]),
   );
-  assert(november.rows.every((row) => row.teamId === "b"));
+  assert.deepEqual(
+    november.rows
+      .filter((row) => row.teamId === "a")
+      .map((row) => row.resourceId),
+    ["transfer"],
+  );
+  assert(
+    november.rows
+      .filter((row) => row.resourceId !== "transfer")
+      .every((row) => row.teamId === "b"),
+  );
+});
+
+test("historical report teams follow current responsibilities and preserve only the employee's own full history", async () => {
+  const { activityReport } = await import("../backend/activity-report.mjs");
+  const d = {
+    ...structuredClone(data),
+    projects: [{ id: "p" }],
+    actualAllocations: {
+      "mover|p|2026-09": 0.4,
+      "mover|p|2026-10": 0.6,
+    },
+  };
+  d.resources.find((r) => r.id === "mover").versions = [
+    version("a", "Root", "member"),
+    version("other", "Other", "member", { effective: "2026-10" }),
+  ];
+  d.resources.push(person("new-po", version("other", "Other", "productOwner")));
+  const query = { start: "2026-09", count: 2, projects: [] };
+  const report = (id, role = "normal") =>
+    activityReport(d, user(id, role), query, "2026-10", "2026-10-24");
+  const moverRows = (result) =>
+    result.rows.filter((row) => row.resourceId === "mover");
+  const before = structuredClone(d);
+  for (const id of ["po", "member", "leader"]) {
+    const result = report(id);
+    const rows = moverRows(result);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].teamId, "a");
+    assert.deepEqual(
+      rows[0].cells.map((cell) => cell.projectFte),
+      [0.4, 0],
+    );
+    assert.equal(rows[0].cells[1].state, "other-team");
+    assert(
+      !result.rows.some((row) =>
+        ["outsider", "new-po"].includes(row.resourceId),
+      ),
+    );
+  }
+  const next = moverRows(report("new-po"));
+  assert.equal(next.length, 1);
+  assert.equal(next[0].teamId, "other");
+  assert.deepEqual(
+    next[0].cells.map((cell) => cell.projectFte),
+    [0, 0.6],
+  );
+  const own = report("mover");
+  assert.deepEqual(
+    new Set(moverRows(own).map((row) => row.teamId)),
+    new Set(["a", "other"]),
+  );
+  assert.equal(
+    moverRows(own)
+      .flatMap((row) => row.cells)
+      .reduce((sum, cell) => sum + cell.projectFte, 0),
+    1,
+  );
+  assert(
+    !own.rows.some((row) => ["po", "member", "coe"].includes(row.resourceId)),
+    "own history must not expose former teammates",
+  );
+  assert.deepEqual(
+    new Set(own.teams.map((team) => team.id)),
+    new Set(["a", "other"]),
+  );
+  assert.deepEqual(moverRows(report("mover", "manager")), moverRows(own));
+  assert.equal(moverRows(report("", "admin")).length, 2);
+  assert.deepEqual(report("").rows, []);
+  d.resources.find((r) => r.id === "mover").versions[1].end = "2026-10-01";
+  assert.deepEqual(
+    report("mover").rows,
+    [],
+    "an inactive principal cannot regain access through self history",
+  );
+  d.resources.find((r) => r.id === "mover").versions[1].end = "";
+  assert.deepEqual(
+    d,
+    before,
+    "reporting does not change any historical records",
+  );
+});
+
+test("returning to a former team preserves separate month totals without reviving an old PO role", async () => {
+  const { activityReport } = await import("../backend/activity-report.mjs");
+  const d = {
+    ...structuredClone(data),
+    projects: [{ id: "p" }],
+    actualAllocations: {
+      "mover|p|2026-09": 0.4,
+      "mover|p|2026-10": 0.6,
+      "mover|p|2026-11": 0.2,
+    },
+  };
+  d.resources.find((r) => r.id === "mover").versions = [
+    version("a", "Root", "productOwner"),
+    version("other", "Other", "member", { effective: "2026-10" }),
+    version("a", "Root", "member", { effective: "2026-11" }),
+  ];
+  const query = { start: "2026-09", count: 3, projects: [] };
+  const rows = activityReport(
+    d,
+    user("po"),
+    query,
+    "2026-11",
+    "2026-11-01",
+  ).rows.filter((r) => r.resourceId === "mover");
+  assert.equal(rows.length, 1);
+  assert.deepEqual(
+    rows[0].cells.map((c) => c.projectFte),
+    [0.4, 0, 0.2],
+  );
+  const currentMember = activityReport(
+    d,
+    user("mover"),
+    query,
+    "2026-10",
+    "2026-10-24",
+  );
+  assert(
+    !currentMember.rows.some((r) => r.resourceId === "po"),
+    "former PO responsibilities do not carry forward",
+  );
 });

@@ -479,12 +479,16 @@ export function leaderProgress(
 
 /**
  * Project figures as the weighted mean of its leaderships. The weight is the
- * admin's value when set, else the leadership's planned FTE; leaderships
+ * legacy admin value when set, else planned FTE or the approval reference
+ * when the entire resource plan was removed; leaderships
  * without a value for a figure are left out of that figure's mean.
  */
 export function projectRollup(rows: LeaderProgress[]) {
   const weightOf = (row: LeaderProgress) =>
-    row.record.weight ?? row.plannedTotal;
+    row.record.weight ??
+    (row.plannedTotal ||
+      currentBaseline(row.record)?.resourceReference?.resourceTotal ||
+      0);
   const mean = (
     subset: LeaderProgress[],
     pick: (row: LeaderProgress) => number | null,

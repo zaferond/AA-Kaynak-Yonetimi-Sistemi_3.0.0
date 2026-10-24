@@ -93,6 +93,7 @@ export function managementPoint(
   project: Project,
   leaders: LeaderRow[],
   month: string,
+  scope: "project" | "leadership" = "project",
 ): ReportPoint {
   const values = leaders.map((l) => {
     const baseline = currentBaseline(l.record);
@@ -126,7 +127,11 @@ export function managementPoint(
   ).length;
   const allPlanned = total > 0 && values.every((v) => v.approved);
   const allActive = total > 0 && values.every((v) => v.active);
-  const aggregate = projectRollup(values);
+  // A leadership's own percentages need no project aggregation weight.
+  const aggregate =
+    scope === "leadership" && values.length === 1
+      ? values[0]
+      : projectRollup(values);
   const target = allPlanned && allActive ? aggregate.target : null;
   const actual =
     allPlanned && allActive && entered === total ? aggregate.actual : null;
@@ -239,8 +244,9 @@ export function assessManagement(
   leaders: LeaderRow[],
   month: string,
   signals: RiskSignal[] = [],
+  scope: "project" | "leadership" = "project",
 ): ManagementAssessment {
-  const point = managementPoint(ctx, project, leaders, month);
+  const point = managementPoint(ctx, project, leaders, month, scope);
   const horizon: string[] = [];
   for (let m = nextMonth(month); horizon.length < 3; m = nextMonth(m))
     horizon.push(m);
@@ -389,7 +395,14 @@ export function manageProject(
 ): ManagedProject {
   const leaders = row.leaders.map((l) => ({
     row: l,
-    assessment: assessManagement(ctx, row.project, [l], month, l.signals),
+    assessment: assessManagement(
+      ctx,
+      row.project,
+      [l],
+      month,
+      l.signals,
+      "leadership",
+    ),
   }));
   const base = assessManagement(ctx, row.project, row.leaders, month, [
     ...row.signals,
