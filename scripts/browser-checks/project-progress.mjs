@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectProgressMonth } from "./fixture.mjs";
 
 // Proje İlerlemesi: a leader sees the projects of the leaderships granted in
 // "Kaynak Planlama Yetkisi" grouped by leadership, proposes a baseline, an
@@ -46,6 +46,38 @@ export async function checkProjectProgress(f) {
       async () => {
         const { page } = leader;
         await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
+        const monthStrip = page.getByRole("group", {
+          name: "Ay seçimi",
+          exact: true,
+        });
+        await monthStrip.waitFor();
+        assert.equal(
+          await monthStrip.locator('button[data-month^="2026-"]').count(),
+          12,
+        );
+        assert.equal(
+          await page.getByRole("combobox", { name: "Ay", exact: true }).count(),
+          0,
+        );
+        assert(
+          await monthStrip.locator('button[data-month="2026-11"]').isDisabled(),
+        );
+        await selectProgressMonth(page, "2026-10");
+        assert.equal(
+          await monthStrip
+            .locator('button[data-month="2026-10"]')
+            .getAttribute("aria-pressed"),
+          "true",
+        );
+        await selectProgressMonth(page, "2026-09");
+        const waitingBounds = await page
+          .getByRole("group", { name: "Bekleyen işler", exact: true })
+          .boundingBox();
+        const monthBounds = await monthStrip.boundingBox();
+        assert(
+          monthBounds.y >= waitingBounds.y + waitingBounds.height,
+          "month selection sits below waiting filters",
+        );
         assert.equal(
           await page
             .getByRole("tab", { name: "Hedef Plan / Gerçekleşen Plan Giriş" })
@@ -394,9 +426,7 @@ export async function checkProjectProgress(f) {
         await otherCard
           .getByText("Hedef planı onaylandı.", { exact: true })
           .waitFor();
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-09");
+        await selectProgressMonth(page, "2026-09");
         const entryFilter = page.getByRole("combobox", {
           name: "Gerçekleşen Plan",
           exact: true,
@@ -588,9 +618,7 @@ export async function checkProjectProgress(f) {
         await actualField.fill("60");
         await noteField.fill("Kaydedilmemiş aylık revizyon");
         await entryFilter.selectOption("");
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-10");
+        await selectProgressMonth(page, "2026-10");
         await f.wait(
           async () =>
             (await otherCard
@@ -599,9 +627,7 @@ export async function checkProjectProgress(f) {
           "Month change resets the unsaved actual revision",
         );
         assert.equal(await noteField.inputValue(), "");
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-09");
+        await selectProgressMonth(page, "2026-09");
         await entryFilter.selectOption("entered");
         await reviseActual.waitFor();
         assert.equal(await actualField.count(), 0);
@@ -806,9 +832,7 @@ export async function checkProjectProgress(f) {
         await cancelActual.click();
         // Locking a missing entry must not describe it as saved.
         await entryFilter.selectOption("");
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-10");
+        await selectProgressMonth(page, "2026-10");
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eki 2026): Yönetici Girişi Bekleniyor",

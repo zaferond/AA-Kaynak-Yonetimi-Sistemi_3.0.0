@@ -1,6 +1,20 @@
 import { entityCollections } from "../shared/entity-kinds.ts";
 import { withWeekHistory } from "../shared/note-week-history.ts";
 import { fail } from "./auth.mjs";
+import { isDeepStrictEqual } from "node:util";
+
+/** Managers edit critical headings/notes/dates, never project metadata or ACLs.
+ * Manager snapshots omit access rules, so an omitted ACL must be preserved. */
+export function canUpdateProjectTopics(previous, next) {
+  if (!previous || !next || typeof next !== "object") return false;
+  const { milestones: oldTopics, access: oldAccess, ...oldProject } = previous;
+  const { milestones: newTopics, access: newAccess, ...newProject } = next;
+  return (
+    isDeepStrictEqual(oldProject, newProject) &&
+    !isDeepStrictEqual(oldTopics || [], newTopics || []) &&
+    (!Object.hasOwn(next, "access") || isDeepStrictEqual(oldAccess, newAccess))
+  );
+}
 
 // Preconditions: the batch parser accepted project/resource kind and the
 // orchestrator checked permissions, duplicates and revision. This module stages

@@ -1,18 +1,18 @@
 # Test ve Kalite Raporu: 24.10.2026 (güncellendi)
 
-Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş değişiklikler üzerinde yapıldı. İkinci inceleme `a0c3a9f` commit'inde yeniden doğrulandı ("Aktivite Raporu kapsamı görev kuralına bağlandı"). Tarih tutarlılığı, test ve Ana Sayfa sadeleştirme değişiklikleri doğrulandı ve `fc8933a` commit'iyle `main` dalından GitHub'a gönderildi. Son tur, `cc615d3` tabanı üzerindeki takım geçmişi ve değerlendirme yüzdeleri düzeltmelerini, kullanıcı manueli 3.1 güncellemesini ve yerel sunucuların çalıştırılmasını içerir.
+Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş değişiklikler üzerinde yapıldı. İkinci inceleme `a0c3a9f` commit'inde yeniden doğrulandı ("Aktivite Raporu kapsamı görev kuralına bağlandı"). Tarih tutarlılığı, test ve Ana Sayfa sadeleştirme değişiklikleri doğrulandı ve `fc8933a` commit'iyle `main` dalından GitHub'a gönderildi. Takım geçmişi ve değerlendirme yüzdeleri düzeltmeleri `160f761` ile main dalına gönderildi. Son tur, bu commit tabanında giriş ekranındaki ay satırını ve Yöneticinin haftalık kritik konu düzenleme yetkisini ekler; bu son değişiklikler bu raporla aynı commit içinde main dalına alınmıştır.
 İlk inceleyenler: kalite mühendisi (salt okunur kod analizi) ve test mühendisi (doğrulama zinciri). Son güncelleme uygulama ve doğrulama sonuçlarını da içerir.
 
-**Güncel durum:** İlk üç bulgu kapalı. Sonradan incelenen takım geçmişi ve kaynak planı boşken değerlendirme yüzdelerinin görünmemesi de düzeltildi. `npm run verify` başarılı; 1021 testin tamamı geçti. `npm run deploy:verify` sonucu `"ok": true`. Aktivite Raporu ve Proje/Kaynak Değerlendirme hedefli tarayıcı kontrolleri başarılı. Tam UI paketi ve native MSSQL doğrulaması kaldı.
+**Güncel durum:** İlk üç bulgu kapalı. Sonradan incelenen takım geçmişi ve kaynak planı boşken değerlendirme yüzdelerinin görünmemesi de düzeltildi. `npm run verify` başarılı; 1022 testin tamamı geçti. `npm run deploy:verify` sonucu `"ok": true`. Aktivite Raporu ve Proje/Kaynak Değerlendirme hedefli tarayıcı kontrolleri başarılı. Ay seçimi durum filtrelerinin altına taşındı; Yöneticiye yalnız görünür projelerin kritik başlık/konu/tarih düzenlemesi açıldı. Tam UI paketi ve native MSSQL doğrulaması kaldı.
 
 ## Doğrulama zinciri
 
-| Adım | İlk sonuç (`f02e381`) | Önceki sonuç (`a0c3a9f`) | Son sonuç (`cc615d3` + çalışma ağacı) |
+| Adım | İlk sonuç (`f02e381`) | Önceki sonuç (`a0c3a9f`) | Son sonuç (`160f761` üzerine bu raporla birlikte alınan değişiklikler) |
 |---|---|---|---|
 | iCloud kopya dosyaları | ✅ Yok | ✅ Yok | Bu turda ayrıca taranmadı |
 | `npm run format:check` | ❌ 2 dosya Prettier biçiminde değil | ✅ Tüm dosyalar uygun | ✅ Geçti (`verify`) |
 | `npm run typecheck` | ✅ Geçti | ✅ Geçti | ✅ Geçti (`build` içinde) |
-| `npm test` | ❌ 1009 testin 1007'si geçti, 2'si kaldı | ✅ 1013/1013 | ✅ 1021/1021; başarısız/atlanan yok |
+| `npm test` | ❌ 1009 testin 1007'si geçti, 2'si kaldı | ✅ 1013/1013 | ✅ 1022/1022; başarısız/atlanan yok |
 | `npm run build` + `npm run deploy:verify` | ✅ `"ok": true` | ✅ `"ok": true` | ✅ Derleme başarılı, `"ok": true`; kaynak ve çıktı farkı yok |
 | Ana Sayfa hedefli tarayıcı kontrolü | — | — | ✅ Admin ve normal kullanıcı: kart açıklamaları kaldırılmış, Projeler kartı açılıyor; JavaScript hatası yok |
 | Manuel 3.1 PDF kontrolü | — | — | ✅ 23 sayfa; metin, sürüm, kaldırılan kapak satırları ve sayfa sınırları kontrol edildi; tüm sayfalar görsel incelendi |
@@ -43,7 +43,7 @@ Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş deği�
 - **Düzeltme:** `Store.activityReport`, `currentPlanningDate()` ile tarihi bir kez üretip okuyucuya aynı günü, rapor üretimine aynı gün ve bu günden türetilen ayı geçiriyor. `activityReport` bu günü `activityReportScope` hesabına iletiyor.
 - **Birim regresyonu:** `tests/actual-entry-access.test.mjs` içinde saat kasıma geçmişken açıkça verilen `2026-10-31` tarihinin korunması, o gün işe başlayan kişi ve kasımda takım değiştiren kişi üzerinden doğrulanıyor. Kasım kapsamının yeni takımı seçtiği ve diğer takımın görünmediği de kontrol ediliyor.
 - **HTTP regresyonu:** `tests/record-access-http.test.mjs` içinde SQL okuması sırasında İstanbul saatiyle `31.10.2026 23:59:59` → `01.11.2026 00:00:01` geçişi simüle ediliyor. Ocak–şubat geçmiş dönem sorgusu ve ekim–kasım sorgusunda kişiler, takım, kayıtlı tutarlar ve gelecek ay durumu doğrulanıyor. İstemciden yeni bir `date` sorgu parametresi alınmıyor; okuyucuya verilen ortak tarih sunucuda belirleniyor.
-- **Sonuç:** Her iki yeni test hedefli koşuda ve 1021 testlik son tam pakette geçti.
+- **Sonuç:** Her iki yeni test hedefli koşuda ve 1022 testlik son tam pakette geçti.
 
 ### 3. ✅ [Kapandı] Biçim borcu
 
@@ -80,6 +80,13 @@ Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş deği�
 - Kullanıcı manueli HTML/PDF ve README sürüm 3.1'de eşitlendi. Yönetici ile organizasyondaki Lider ayrımı, hesap-çalışan eşleşmesi gerekliliği ve Admin istisnası belgelendi; Aktivite Raporu'nun yetki matrisi düzeltildi.
 - Manuelin kapak tablosundan Uygulama durumu, Önceki sürüme göre ve Ekran görüntüleri satırları kaldırıldı. Ana Sayfa görseli güncellendi; 23 sayfalık PDF yeniden üretilip doğrulandı.
 
+## Son arayüz ve yetki geliştirmeleri
+
+- **Ay seçimi:** Hedef Plan / Gerçekleşen Plan Giriş ekranının üst filtresindeki ay listesi kaldırıldı. Bekleyen iş kutularının altında, yıl bazında on iki ayı gösteren seçim satırı eklendi. Gelecek ve takip öncesi aylar görünür fakat seçilemez; geçmiş yılların geçerli ayları korunur. Ay değişikliği giriş alanlarını ve durum sayaçlarını günceller; sıfırlama varsayılan aya döner. Değerlendirme raporunun ay listesi korunur.
+- **Yönetici kritik konu yetkisi:** Görebildiği projelerde başlık/konu/tarih düzenleme ve Tamamlandı/Çıkar işlemleri açıldı. Proje adı, genel dönem, aşama, sıralama, erişim kuralları, proje ekleme/silme ve gizli projelerin güncellenmesi sunucuda reddedilir. Yöneticiye yalnız görünür projelerin revision bilgisi verilir; erişim kuralları istemcide gizli kalır ve kayıtta korunur. Çakışma kontrolü devam eder.
+- **Doğrulama:** `tests/record-access-http.test.mjs` izin verilen düzenleme, erişim kurallarının korunması, gizli proje/revision engeli ve eski revision için 409 kontrolünü kapsar. `tests/scope-index.test.mjs` yeni görünür proje revision sözleşmesine göre güncellendi. Hedefli tarayıcıda ay satırı, mevcut plan/onay/gerçekleşen akışları ve Yöneticiyle konu/tarih/tamamlanma/başlık kaydı doğrulandı. Tam test paketi 1022/1022 başarılıdır.
+- **Manuel:** HTML/PDF, README, hedef plan ekran görseli ve yetki matrisi güncellendi. PDF 23 sayfa olarak yeniden üretildi; değişen sayfalar ve tablo yerleşimi kontrol edildi.
+
 ## Kalan takip işleri
 
 | İş | Tür | Tamamlanma ölçütü |
@@ -89,7 +96,7 @@ Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş deği�
 
 ## Notlar
 
-- Son geliştirmeler bu raporla aynı commit içinde `main` dalına alınmıştır. Önceki uygulama/manuel değişiklikleri `cc615d3` commit'indedir.
+- Önceki geliştirmeler `160f761` ile GitHub'dadır. Bu son ay satırı/Yönetici yetkisi ve manuel değişiklikleri bu raporla aynı commit içinde main dalına alınmıştır.
 - Otomatik ve hedefli tarayıcı testleri geçici sentetik SQL.js veritabanları ve rastgele yerel portlarla çalıştı. Gerçek kullanıcı kayıtları test amacıyla değiştirilmedi.
 - Görüntüleme sorunu için `data/planlama.sqlite` ve `data/demo-sunum.sqlite`, dosyaya yazmayan SQL.js bellek kopyaları üzerinden incelendi. Kullanıcının isteğiyle 3000 normal, 3001 ayrı demo veritabanı ve ayrı oturum çereziyle çalıştırıldı.
-- Son tam doğrulama 1021/1021 test, biçim/tip kontrolü ve derlemeyi kapsar. Kaynak/derleme eşitliği `deploy:verify` ile denetlendi. Manifestteki commit alanı derlemenin alındığı `cc615d3` tabanını gösterir; gerçek doğrulama kaynak/çıktı karmaları üzerindendir.
+- Son tam doğrulama 1022/1022 test, biçim/tip kontrolü ve derlemeyi kapsar. Kaynak/derleme eşitliği `deploy:verify` ile denetlendi. Manifestteki commit alanı derlemenin alındığı `160f761` tabanını gösterir; gerçek doğrulama kaynak/çıktı karmaları üzerindendir.

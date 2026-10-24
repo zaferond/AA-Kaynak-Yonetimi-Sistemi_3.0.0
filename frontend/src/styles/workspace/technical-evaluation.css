@@ -618,6 +618,38 @@ html[data-theme="technical"]
 html[data-theme="technical"] .app.tab-progress .progress-approve-all {
   min-height: 32px;
 }
+
+html[data-theme="technical"] .app.tab-progress .progress-month-strip {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+html[data-theme="technical"] .app.tab-progress .progress-month-year {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+html[data-theme="technical"] .app.tab-progress .progress-month-year > strong {
+  font-size: var(--fs-sm);
+  color: var(--brand-muted);
+}
+html[data-theme="technical"] .app.tab-progress .progress-month-filter {
+  height: auto;
+}
+html[data-theme="technical"] .app.tab-progress .progress-month-filter button {
+  min-height: 32px;
+  flex: 1 0 auto;
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-month-filter
+  button:disabled {
+  color: var(--brand-muted);
+  background: var(--tbl-group-background);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
 html[data-theme="technical"] .app.tab-progress .progress-approve-message {
   color: var(--brand-muted);
   font-size: var(--fs-xs);

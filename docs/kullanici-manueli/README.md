@@ -21,7 +21,11 @@ Uygulama rolü, aktivite ekranlarının açılabilmesini belirler. Admin dışı
 
 PDF'nin kapak tablosunda yalnız belge sürümü ve tarih bulunur. Ana Sayfa görseli, kartların detay açıklamaları kaldırılmış haliyle güncellenmiştir.
 
-**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1021/1021 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
+Hedef Plan / Gerçekleşen Plan Giriş'te ay, bekleyen iş kutularının altındaki yıl/ay satırından seçilir; giriş ekranının üst filtresindeki ay listesi kaldırılmıştır. Rapor ekranı kendi ay listesini kullanmaya devam eder. Gelecek ve takip öncesi aylar görünür, ancak giriş için seçilemez.
+
+Yönetici, Haftalık Kritik Konular'da görebildiği projelerin kritik başlıklarını, konularını ve tarihlerini düzenleyebilir; Tamamlandı/Çıkar işlemlerini yapabilir. Bu izin proje ekleme/silme, proje adı/genel dönem/aşama veya erişim kurallarını değiştirme yetkisi vermez. Sunucu, kritik konu kaydı güncellenirken proje erişim kurallarını korur.
+
+**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1022/1022 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
 
 `v3/` klasörü kaynakları içerir:
 

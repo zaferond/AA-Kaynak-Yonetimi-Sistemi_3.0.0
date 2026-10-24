@@ -1334,4 +1334,12 @@
     max-width: none;
     width: auto;
   }
+  .app.tab-progress
+    .progress-baseline
+    .progress-filterbar.planning-filterbar
+    .filters {
+    grid-template-columns:
+      minmax(115px, 1fr) minmax(155px, 1.15fr) minmax(165px, 1.15fr)
+      minmax(190px, 1.4fr);
+  }
 }

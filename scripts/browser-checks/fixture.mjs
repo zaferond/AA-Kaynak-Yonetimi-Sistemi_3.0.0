@@ -271,6 +271,18 @@ export async function selectWorkspaceView(page, label) {
   await page.getByLabel("Görünüm", { exact: true }).selectOption({ label });
 }
 
+/** Entry uses the month strip; the report retains its month select. */
+export async function selectProgressMonth(page, month) {
+  const button = page.locator(
+    `.progress-month-strip button[data-month="${month}"]`,
+  );
+  if (await button.count()) await button.click();
+  else
+    await page
+      .getByRole("combobox", { name: "Ay", exact: true })
+      .selectOption(month);
+}
+
 export async function selectWorkspaceTab(page, name) {
   const menu = page.locator("#workspace-main-menu");
   const mainTab = menu.getByText(name, { exact: true });

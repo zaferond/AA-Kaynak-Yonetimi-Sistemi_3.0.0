@@ -238,11 +238,13 @@ test("scoped views preserve historical team boundaries, owned actuals, anonymous
   assert.equal(a.revisions["actual:r|p|2026-07"], undefined);
   assert.equal(a.revisions["actual:gone|p|2026-01"], undefined);
   assert.equal(own.revisions["allocation:a|p|2026-01"], undefined);
+  assert.equal(own.revisions["project:p"], undefined);
   assert.deepEqual(Object.keys(a.revisions), [
     "actual:r|p|2026-01",
     "allocation:a|p|2026-01",
     "actual:r|p|2026-04",
     "workedHours:r|2026-01",
+    "project:p",
     "calendar:shared",
     "risk:second",
     "risk:first",
@@ -289,7 +291,9 @@ test("scope changes cannot reuse a previous user's permissions or a previous res
     );
     assert.equal(view.actualTeamTotals["b|p|2026-07"], 0.5);
     assert.deepEqual(view.revisions, {
-      ...(view === unassigned ? { "allocation:a|p|2026-01": 4 } : {}),
+      ...(view === unassigned
+        ? { "allocation:a|p|2026-01": 4, "project:p": 13 }
+        : {}),
       "calendar:shared": 14,
       "risk:second": 2,
       "risk:first": 5,

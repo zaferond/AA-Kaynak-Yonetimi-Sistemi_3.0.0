@@ -88,6 +88,76 @@ export async function checkCriticalProjectFilter(f) {
         assert.equal(await groups.count(), 2);
       },
     );
+    await f.check(
+      "critical topics: managers edit dates, notes and headings while project metadata stays read only",
+      async () => {
+        const manager = await f.client("manager");
+        try {
+          await selectWorkspaceTab(manager.page, "Haftalık Kritik Konular");
+          const entry = manager.page
+            .locator(".project-info-entry")
+            .filter({ hasText: "QA Filter Heading a" });
+          await entry
+            .getByRole("button", { name: "Düzenle", exact: true })
+            .click();
+          const dialog = manager.page.getByRole("dialog", {
+            name: "Kritik Detay Konuyu Düzenle",
+            exact: true,
+          });
+          await dialog
+            .getByLabel("Kritik detay konu açıklaması")
+            .fill("Manager updated topic");
+          await dialog
+            .getByLabel("Kritik detay konu başlangıç tarihi")
+            .fill("2026-03-09");
+          await dialog
+            .getByLabel("Kritik detay konu bitiş tarihi")
+            .fill("2026-03-12");
+          await dialog
+            .getByRole("button", { name: "Kaydet", exact: true })
+            .click();
+          await dialog.waitFor({ state: "hidden" });
+          await entry
+            .getByText("Manager updated topic", { exact: true })
+            .waitFor();
+          await entry
+            .getByRole("button", { name: "Tamamlandı", exact: true })
+            .click();
+          await entry
+            .getByRole("button", { name: "Geri Al", exact: true })
+            .waitFor();
+          await entry
+            .getByRole("button", { name: "Başlık Düzenle", exact: true })
+            .click();
+          const heading = manager.page.getByRole("dialog", {
+            name: "Başlık Düzenle",
+            exact: true,
+          });
+          await heading
+            .getByLabel("Başlık", { exact: true })
+            .fill("Manager updated heading");
+          await heading
+            .getByRole("button", { name: "Kaydet", exact: true })
+            .click();
+          await heading.waitFor({ state: "hidden" });
+          await manager.page
+            .getByText("Manager updated heading", { exact: true })
+            .waitFor();
+          const saved = (await f.state()).projects.find((p) => p.id === "p-a");
+          assert.equal(saved.name, before.find((p) => p.id === "p-a").name);
+          await selectWorkspaceTab(manager.page, "Projeler");
+          assert.equal(
+            await manager.page
+              .getByRole("button", { name: "Yeni Proje", exact: true })
+              .count(),
+            0,
+          );
+          await f.capture(manager.page, "manager-critical-project-readonly");
+        } finally {
+          await manager.context.close();
+        }
+      },
+    );
   } finally {
     await context.close();
     const current = (await f.state()).projects;

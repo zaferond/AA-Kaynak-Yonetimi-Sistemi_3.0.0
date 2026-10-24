@@ -62,6 +62,7 @@
   table.grid thead th { background: var(--brand); color: #fff; font-weight: 600; }
   table.grid tbody th { background: #f3f6f9; font-weight: 600; width: 56mm; }
   table.grid tr { break-inside: avoid; }
+  table.operation-matrix th, table.operation-matrix td { padding: 1.1mm 2mm; }
   table.grid tr.group td { background: #dfe7ef; font-weight: 700; color: var(--brand); padding: 1.1mm 2mm; }
   .m td { text-align: center; }
   .m td.l { text-align: left; }
@@ -152,7 +153,7 @@
     <div class="role"><h3>Admin</h3>
       <p>Tüm ekranları ve verileri görür, tümünü düzenler. Hedef plan onayı, ay kilidi, uyarı ayarları, senaryo onayı ve takvime aktarma; çalışan, hesap, organizasyon, ortak çalışma takvimi, değişiklik geçmişi ve yedekleme yalnız Admin'dedir.</p></div>
     <div class="role"><h3>Yönetici</h3>
-      <p>Kaynak Planlama'da tüm takımları görür, kendisine verilen liderlik veya takım kapsamında giriş yapar. Kendi liderliklerinin hedef planını ve aylık gerçekleşen yüzdesini girer. Projeleri, kritik konuları ve raporları görüntüler; senaryo taslağı hazırlar.</p></div>
+      <p>Kaynak Planlama'da tüm takımları görür, kendisine verilen kapsamda giriş yapar. Kendi liderliklerinin hedef ve gerçekleşen planını girer. Görünür projelerin haftalık kritik başlık, konu ve tarihlerini düzenler; raporları görüntüler ve senaryo taslağı hazırlar.</p></div>
     <div class="role"><h3>Normal Kullanıcı</h3>
       <p>Aktivite Giriş'te çalışan kaydındaki görevine göre kendisinin veya ekibinin aktivitesini ve izin/eğitim takvimini girer. Aktivite Raporu'nu aynı görevden gelen kişi kapsamında, kendisine görünür projeleri proje yetkisine göre görüntüler.</p></div>
     <div class="role"><h3>Normal-Proje</h3>
@@ -354,7 +355,7 @@
     <li>Onaylı plan değişecekse <span class="ui">Hedef Plan Revize Et</span> ile gerekçeli revizyon hazırlanır; revizyon onaylanana kadar önceki plan geçerlidir. Yeni hedef, girilmiş gerçekleşen yüzdeden düşük olamaz (kilitli ay sınırında düşüşe izin verilir).</li>
     <li>Kayıtlı gerçekleşen değeri ay kilitlenene kadar <span class="ui">Gerçekleşen % Revize Et</span> ile düzeltilir.</li>
   </ol>
-  <p>Üstteki kutucuklar kartları süzer: <b>Hedef Plan Giriş Bekleyen</b>, <b>Hedef Plan Onay Bekleyen</b>, <b>Gerçekleşen Plan Giriş Bekleyen</b> ve seçili ayın <b>Değerlendirme Bekliyor</b> sayısı. Admin, onay bekleyenleri tek tek veya <span class="ui">Hedef Planların Tümünü Onayla</span> ile onaylar; sayısı sekmedeki rozette görünür. <span class="ui">Liderlikleri Aç / Kapa</span> grupları açar veya kapatır.</p>
+  <p>Durum kutuları kartları süzer: <b>Hedef Plan Giriş Bekleyen</b>, <b>Hedef Plan Onay Bekleyen</b>, <b>Gerçekleşen Plan Giriş Bekleyen</b> ve seçili ayın <b>Değerlendirme Bekliyor</b> sayısı. Hemen altındaki <b>ay satırından</b> seçim yapılır; tüm aylar yıl bazında listelenir. Gelecek aylar ve takip başlamamış dönemler seçilemez. Admin, seçili bekleyen planları <span class="ui">Hedef Planların Tümünü Onayla</span> ile onaylar. <span class="ui">Liderlikleri Aç / Kapa</span> grupları açar veya kapatır.</p>
   <div class="note"><b>Ay kilidi (Admin):</b> <span class="ui">[Ay] Ayını Kilitle</span> seçili ayı değişikliğe kapatır ve ayın değerlendirmesini (senaryo uyarılarını) oluşturur. Kilit açılırsa değerlendirme kaldırılır ve girişler yeniden açılır. Yönetici kilitli ayı rozetten görür, kilidi açamaz.</div>
 </section>
 
@@ -381,7 +382,7 @@
 <!-- 8 -->
 <section class="page">
   <h1>8. Haftalık Kritik Konular <span class="new">YENİ</span></h1>
-  <p>Projelerde <span class="ui">Kritik Konulara Ekle</span> ile işaretlenen notlar proje ve başlık bazında hafta numaralarıyla listelenir. Admin ve Normal-Proje düzenler; Yönetici yalnız görüntüler.</p>
+  <p>Projelerde <span class="ui">Kritik Konulara Ekle</span> ile işaretlenen notlar proje ve başlık bazında hafta numaralarıyla listelenir. Admin ve Normal-Proje düzenler; Yönetici de görebildiği projelerin kritik başlık, konu ve tarihlerini düzenler. Bu yetki proje adını, genel takvimini veya erişim kurallarını değiştirmez.</p>
   <figure>
     <div class="shot" style="height:96mm"><img src="shots/kritik-konular.jpg" alt="Haftalık Kritik Konular"></div>
     <figcaption>Durum ve hafta süzgeçleri; gecikmiş konular kırmızı "Gecikti" etiketiyle gösterilir.</figcaption>
@@ -579,7 +580,7 @@
         <td><span class="p">Kapsamlı</span><small>Kendi liderliklerinin hedef ve gerçekleşen girişi</small></td>
         <td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Haftalık Kritik Konular</th>
-        <td><span class="y">Düzenler</span></td><td><span class="s">Görür</span></td><td><span class="n">—</span></td><td><span class="y">Düzenler</span></td></tr>
+        <td><span class="y">Düzenler</span></td><td><span class="y">Düzenler</span><small>Görünür projeler</small></td><td><span class="n">—</span></td><td><span class="y">Düzenler</span></td></tr>
       <tr><th>Raporlar ve Head Count</th>
         <td><span class="s">Görür</span><small>+ Aktif İlanları Dahil Et</small></td><td><span class="s">Görür</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Aktivite Giriş</th>
@@ -600,7 +601,7 @@
 
 <section class="page">
   <h2>13.2 İşlem yetkileri</h2>
-  <table class="grid m">
+  <table class="grid m operation-matrix">
     <thead><tr><th>İşlem</th><th>Admin</th><th>Yönetici</th><th>Normal Kullanıcı</th><th>Normal-Proje</th></tr></thead>
     <tbody>
       <tr class="group"><td colspan="5" class="l">Aktivite ve takvim</td></tr>
@@ -617,9 +618,9 @@
       <tr><th>Senaryo taslağı / onay ve takvime aktarma</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Yalnız kendi taslağı</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Projeler ve kritik konular</td></tr>
       <tr><th>Proje ekleme, düzenleme, silme, sıralama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
-      <tr><th>Aşama, başlık, not ve kilometre taşı</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Projeler ekranında aşama, başlık ve kilometre taşı</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr><th>Proje görüntüleme yetkisini belirleme</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
-      <tr><th>Kritik konu düzenleme, Tamamlandı, Çıkar</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Kritik konu düzenleme, Tamamlandı, Çıkar</th><td><span class="y">✓</span></td><td><span class="y">✓</span><small>Görünür projeler</small></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Yönetim</td></tr>
       <tr><th>Çalışan / ilan, hesap, rol ve yetki tanımlama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Liderlik/takım yönetimi, Excel'den içe aktarma, Değişiklik Geçmişi, Veri Yedeği İndir / Yedek Yükle</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>

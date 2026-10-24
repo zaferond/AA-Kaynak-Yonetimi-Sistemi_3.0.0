@@ -2728,6 +2728,203 @@ test("leadership hierarchy persists, rejects cycles and protected deletion, rena
   assert.equal(dbParents["__proto__"], "QA Renamed");
 });
 
+test("managers edit visible project critical headings and dates without gaining project metadata, ACL or hidden-project access", async (t) => {
+  const { store, request, user, write, state } = await setup(t);
+  const access = { roles: ["manager"], leaders: [], teams: [], people: [] };
+  const topic = {
+    id: "manager-critical-heading",
+    name: "Original heading",
+    start: "2026-03-01",
+    end: "2026-03-20",
+    hasCriticalTopics: true,
+    barNotes: [
+      {
+        text: "Original critical topic",
+        includeInReport: true,
+        start: "2026-03-02",
+        end: "2026-03-05",
+      },
+    ],
+  };
+  const project = {
+    id: "manager-critical-project",
+    name: "Critical permission test",
+    start: "2026-01",
+    end: "2026-12",
+    phases: {},
+    access,
+    milestones: [topic],
+  };
+  assert.equal(
+    (
+      await write([
+        { kind: "project", id: project.id, value: project },
+        {
+          kind: "project",
+          id: "manager-hidden-project",
+          value: {
+            ...project,
+            id: "manager-hidden-project",
+            access: { ...access, roles: ["normal"] },
+          },
+        },
+      ])
+    ).status,
+    200,
+  );
+  const manager = await user("critical-manager", "manager");
+  const normal = await user("critical-normal", "normal");
+  const managerSnapshot = (await request("/data", undefined, manager)).json
+    .data;
+  const visible = managerSnapshot.projects.find((p) => p.id === project.id);
+  assert(visible);
+  assert.equal(visible.access, undefined);
+  const edited = {
+    ...visible,
+    milestones: [
+      {
+        ...visible.milestones[0],
+        name: "Updated heading",
+        barNotes: [
+          {
+            ...visible.milestones[0].barNotes[0],
+            text: "Updated critical topic",
+            completed: true,
+            start: "2026-03-03",
+            end: "2026-03-06",
+          },
+        ],
+      },
+    ],
+  };
+  const beforeRevision = (await state()).data.revisions[
+    "project:" + project.id
+  ];
+  assert.equal(
+    managerSnapshot.revisions["project:" + project.id],
+    beforeRevision,
+  );
+  assert.equal(
+    managerSnapshot.revisions["project:manager-hidden-project"],
+    undefined,
+  );
+  const update = await write(
+    [{ kind: "project", id: project.id, value: edited }],
+    manager,
+  );
+  assert.equal(update.status, 200);
+  const after = (await state()).data.projects.find((p) => p.id === project.id);
+  assert.equal(after.milestones[0].name, "Updated heading");
+  assert.equal(after.milestones[0].barNotes[0].completed, true);
+  assert.equal(after.milestones[0].barNotes[0].text, "Updated critical topic");
+  assert.deepEqual(
+    after.access,
+    access,
+    "a manager snapshot must not clear hidden ACLs",
+  );
+  const stale = await request(
+    "/changes",
+    {
+      changes: [
+        {
+          kind: "project",
+          id: project.id,
+          value: { ...edited, milestones: [topic] },
+          revision: beforeRevision,
+        },
+      ],
+    },
+    manager,
+  );
+  assert.equal(stale.status, 409);
+  for (const patch of [
+    { name: "Renamed project" },
+    { start: "2026-02" },
+    { end: "2027-01" },
+    { phases: { "2026-03": "Changed phase" } },
+    { sortOrder: 99 },
+    { access: { ...access, roles: [] } },
+  ]) {
+    assert.equal(
+      (
+        await write(
+          [
+            {
+              kind: "project",
+              id: project.id,
+              value: { ...edited, ...patch, milestones: [topic] },
+            },
+          ],
+          manager,
+        )
+      ).status,
+      403,
+    );
+  }
+  assert.equal(
+    (
+      await write(
+        [{ kind: "project", id: project.id, operation: "delete", value: null }],
+        manager,
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (
+      await write(
+        [
+          {
+            kind: "project",
+            id: "manager-created-project",
+            value: { ...edited, id: "manager-created-project" },
+          },
+        ],
+        manager,
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (
+      await write(
+        [
+          {
+            kind: "project",
+            id: "manager-hidden-project",
+            value: {
+              ...edited,
+              id: "manager-hidden-project",
+              milestones: [topic],
+            },
+          },
+        ],
+        manager,
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (
+      await write(
+        [
+          {
+            kind: "project",
+            id: project.id,
+            value: { ...edited, milestones: [topic] },
+          },
+        ],
+        normal,
+      )
+    ).status,
+    403,
+  );
+  assert.deepEqual(
+    (await state()).data.projects.find((p) => p.id === project.id),
+    after,
+  );
+});
+
 test("activity API: Team Member sees own team, Lider leadership with descendants, and preserves private write scopes", async (t) => {
   const { request, admin, user, state, write } = await setup(t);
   const d = (await state()).data;

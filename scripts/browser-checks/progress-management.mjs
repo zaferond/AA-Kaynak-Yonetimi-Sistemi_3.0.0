@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { applyChanges } from "../../backend/operations.mjs";
 import { download, zipEntries, validateXml } from "./files.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, selectProgressMonth } from "./fixture.mjs";
 
 export async function checkProgressManagement(f) {
   const extra = {
@@ -110,9 +110,7 @@ export async function checkProgressManagement(f) {
   const { page, context } = await f.client("root-admin");
   const open = async () => {
     await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");
-    await page
-      .getByRole("combobox", { name: "Ay", exact: true })
-      .selectOption("2026-09");
+    await selectProgressMonth(page, "2026-09");
     await page
       .getByRole("tab", {
         name: "Proje ve Kaynak Değerlendirme Raporu",
@@ -205,16 +203,12 @@ export async function checkProgressManagement(f) {
           await matrix.getByText("Hesap ve diğer uyarılar").count(),
           0,
         );
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-10");
+        await selectProgressMonth(page, "2026-10");
         await projectA()
           .getByText("Planın İlerisinde", { exact: true })
           .first()
           .waitFor();
-        await page
-          .getByRole("combobox", { name: "Ay", exact: true })
-          .selectOption("2026-09");
+        await selectProgressMonth(page, "2026-09");
         const phase = matrix.locator(
           `[data-project="${extra.id}"][data-metric="phase"] td[data-month="2026-09"]`,
         );

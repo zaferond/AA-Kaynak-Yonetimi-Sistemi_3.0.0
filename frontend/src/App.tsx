@@ -157,6 +157,7 @@ export default function Portal() {
   // "Normal-Proje": admin rights on the project screens only.
   const canEditProjects = isAdmin || isProjectEditor(user);
   const isManager = user?.role === "manager";
+  const canEditCriticalTopics = canEditProjects || isManager;
   const {
     tab,
     defaultTab,
@@ -338,6 +339,7 @@ export default function Portal() {
     data,
     isAdmin: !!isAdmin,
     canEditProjects,
+    canEditMilestones: canEditProjects || (isManager && tab === "critical"),
     saving,
     start,
     count,
@@ -369,8 +371,8 @@ export default function Portal() {
     setPlanMenu(null);
   }, [leads, teamIds, projectIds, start, count, search, view]);
   useEffect(() => {
-    if (!canEditProjects) setEditor(null);
-  }, [canEditProjects, user?.role]);
+    if (!canEditProjects && !(isManager && tab === "critical")) setEditor(null);
+  }, [canEditProjects, isManager, tab, user?.role]);
   useEffect(() => {
     if (!fullPlan) return;
     const sync = () => setBrowserFullScreen(!!document.fullscreenElement);
@@ -1135,7 +1137,7 @@ export default function Portal() {
                 <TabsContent value="critical">
                   <ProjectInfoReport
                     projects={data.projects}
-                    canEdit={canEditProjects}
+                    canEdit={canEditCriticalTopics}
                     onSave={(project) => save("project", project.id, project)}
                     onOpenProjects={() => changeTab("projects")}
                     progressBadge={progressBadge}

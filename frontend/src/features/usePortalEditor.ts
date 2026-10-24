@@ -27,6 +27,7 @@ type Props = {
   isAdmin: boolean;
   /** Admins and "Normal-Proje" accounts edit projects and their details. */
   canEditProjects: boolean;
+  canEditMilestones?: boolean;
   saving: boolean;
   start: string;
   count: number;
@@ -48,6 +49,7 @@ export function usePortalEditor({
   data,
   isAdmin,
   canEditProjects,
+  canEditMilestones = canEditProjects,
   saving,
   start,
   count,
@@ -140,7 +142,7 @@ export function usePortalEditor({
     }
   }
   function openMilestone(project: Project, milestone?: Milestone) {
-    if (!canEditProjects || !data) return;
+    if (!canEditMilestones || !data) return;
     setFormError("");
     const first =
       months.find((month) => month >= project.start && month <= project.end) ||
@@ -168,7 +170,7 @@ export function usePortalEditor({
     });
   }
   async function deleteMilestone(project: Project, milestone: Milestone) {
-    if (!data || !canEditProjects || saving) return;
+    if (!data || !canEditMilestones || saving) return;
     const current = data.projects.find((item) => item.id === project.id);
     if (!current?.milestones?.some((item) => item.id === milestone.id)) {
       const message =

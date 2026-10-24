@@ -90,7 +90,7 @@ export default function ProjectProgressPanel({
           ))}
         </select>
       </label>
-      {months.length > 0 && (
+      {view === "report" && months.length > 0 && (
         <label className="pick progress-month">
           <span>Ay</span>
           <select value={month} onChange={(e) => setMonth(e.target.value)}>
@@ -126,6 +126,8 @@ export default function ProjectProgressPanel({
           onResetFilters={resetSharedFilters}
           user={user}
           month={month}
+          months={months}
+          onMonthChange={setMonth}
           currentMonth={currentMonth}
           saving={saving}
           onSave={onSave}

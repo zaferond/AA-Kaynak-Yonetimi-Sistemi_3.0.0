@@ -209,12 +209,22 @@ export function scopeData(
   };
   // Keep the existing ordinary-then-risk revision order with one enumeration.
   const riskKeys: string[] = [];
+  // Critical-topic edits use the project's normal optimistic revision.
+  // Managers receive revisions only for projects they can actually view.
+  const managerProjectIds = new Set(
+    u.role === "manager"
+      ? d.projects
+          .filter((project) => !hiddenProjects.has(project.id))
+          .map((project) => project.id)
+      : [],
+  );
   const revisions = filterOwnRecords(d.revisions, (key) => {
     if (key.startsWith("risk:")) {
       riskKeys.push(key);
       return false;
     }
-    if (key.startsWith("project:")) return isProjectEditor(u);
+    if (key.startsWith("project:"))
+      return isProjectEditor(u) || managerProjectIds.has(key.slice(8));
     // Managers save and update their own delay scenarios.
     if (key.startsWith("scenario:")) return u.role === "manager";
     // Leaders write project progress; month locks are shown to them.

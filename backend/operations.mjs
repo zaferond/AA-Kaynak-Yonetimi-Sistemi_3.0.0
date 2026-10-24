@@ -30,7 +30,10 @@ import {
   synchronizeProgressStarts,
 } from "./progress-commands.mjs";
 import { stageTeamChange } from "./directory-commands.mjs";
-import { stageProjectResourceChange } from "./project-resource-commands.mjs";
+import {
+  stageProjectResourceChange,
+  canUpdateProjectTopics,
+} from "./project-resource-commands.mjs";
 import {
   stageActualChange,
   stageWorkedHoursChange,
@@ -183,6 +186,16 @@ function stageParsedChanges(d, u, changes) {
         id.split("|")[1] || "",
       );
     const projectEditor = kind === "project" && isProjectEditor(u);
+    const existingProject =
+      kind === "project"
+        ? d.projects.find((project) => project.id === id)
+        : undefined;
+    const managerTopics =
+      u.role === "manager" &&
+      kind === "project" &&
+      !operation &&
+      canSeeProject(id) &&
+      canUpdateProjectTopics(existingProject, value);
     const existingRisk =
       kind === "risk" ? d.risks?.find((item) => item.id === id) : undefined;
     const canRisk =
@@ -205,6 +218,7 @@ function stageParsedChanges(d, u, changes) {
       !ownActual &&
       !ownDay &&
       !projectEditor &&
+      !managerTopics &&
       !canRisk &&
       !canScenario &&
       !canProgress &&
@@ -309,7 +323,20 @@ function stageParsedChanges(d, u, changes) {
     } else if (kind === "team") {
       stageTeamChange(d, ch);
     } else {
-      stageProjectResourceChange(d, ch);
+      stageProjectResourceChange(
+        d,
+        managerTopics
+          ? {
+              ...ch,
+              value: {
+                ...value,
+                ...(existingProject.access
+                  ? { access: existingProject.access }
+                  : {}),
+              },
+            }
+          : ch,
+      );
     }
     d.revisions[k] = revision + 1;
   }

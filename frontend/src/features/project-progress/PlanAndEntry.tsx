@@ -23,7 +23,7 @@ import {
   type ProgressItem,
 } from "./progress-scope";
 import { progressChange, type ProgressContext } from "./progress-view";
-import { monthName } from "../../format";
+import { monthLabel, monthName } from "../../format";
 import EmptyState from "../../components/EmptyState";
 
 /** Quick "waiting work" boxes under the filters; checked boxes combine. */
@@ -55,6 +55,8 @@ export default function PlanAndEntry({
   onResetFilters,
   user,
   month,
+  months,
+  onMonthChange,
   currentMonth,
   saving,
   onSave,
@@ -65,6 +67,8 @@ export default function PlanAndEntry({
   onResetFilters: () => void;
   user: Principal | null;
   month: string;
+  months: string[];
+  onMonthChange: (month: string) => void;
   currentMonth: string;
   saving: boolean;
   onSave: (changes: Change[]) => Promise<void>;
@@ -80,6 +84,13 @@ export default function PlanAndEntry({
     error?: boolean;
   }>();
   const groupId = useId();
+  const monthYears = [
+    ...new Set([
+      ...months.map((value) => value.slice(0, 4)),
+      currentMonth.slice(0, 4),
+    ]),
+  ];
+  const allowedMonths = new Set(months);
   function resetAllFilters() {
     setLeader("");
     setPlanFilter("");
@@ -317,6 +328,38 @@ export default function PlanAndEntry({
             {approval.text}
           </span>
         )}
+      </div>
+      <div className="progress-month-strip" role="group" aria-label="Ay seçimi">
+        {monthYears.map((year) => (
+          <div className="progress-month-year" key={year}>
+            <strong>{year}</strong>
+            <div className="progress-waiting-filter progress-month-filter">
+              {Array.from(
+                { length: 12 },
+                (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`,
+              ).map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  data-month={value}
+                  aria-label={monthLabel(value)}
+                  aria-pressed={month === value}
+                  disabled={!allowedMonths.has(value)}
+                  title={
+                    !allowedMonths.has(value)
+                      ? value > currentMonth
+                        ? "Gelecek ay için gerçekleşen girişi yapılamaz."
+                        : "Takip dönemi başlamadı."
+                      : undefined
+                  }
+                  onClick={() => onMonthChange(value)}
+                >
+                  {monthName(value)}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
       {groups.length ? (
         groups.map(([name, items]) => (
