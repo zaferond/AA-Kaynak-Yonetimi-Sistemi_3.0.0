@@ -3563,7 +3563,7 @@ test("leader conflict rolls back the combined AD employee/account save without c
   );
 });
 
-test("actual peer read endpoint is authenticated, sanitized and never widens write authorization", async (t) => {
+test("actual view follows the organisation: a Team Member sees only themselves, their PO sees and edits the team", async (t) => {
   const { request, user, state, write } = await setup(t);
   const d = (await state()).data;
   const team = d.teams.find((t) => t.lead);
@@ -3637,16 +3637,16 @@ test("actual peer read endpoint is authenticated, sanitized and never widens wri
   const result = await request(url, undefined, auth);
   assert.equal(result.status, 200);
   assert.match(result.response.headers.get("cache-control"), /no-store/);
-  assert(result.json.data.resources.some((r) => r.id === "actual-peer"));
-  assert(!result.json.data.resources.some((r) => r.id === "actual-other"));
+  // Team Member: only their own row, even though the PO is in the same team.
+  assert.deepEqual(
+    result.json.data.resources.map((r) => r.id),
+    ["actual-own"],
+  );
   assert.equal(
     result.json.data.actualAllocations["actual-peer|actual-p|2026-09"],
-    0.25,
+    undefined,
   );
-  assert.equal(
-    result.json.monthSummaries["actual-peer|2026-09"].trainingHours,
-    9,
-  );
+  assert.equal(result.json.monthSummaries["actual-peer|2026-09"], undefined);
   assert(!JSON.stringify(result.json).includes("PRIVATE_"));
   assert.equal(
     (await request("/data", undefined, auth)).json.data.actualAllocations[
@@ -3680,6 +3680,66 @@ test("actual peer read endpoint is authenticated, sanitized and never widens wri
       )
     ).status,
     200,
+  );
+  assert.equal(
+    (
+      await write(
+        [
+          {
+            kind: "personDay",
+            id: "actual-peer|2026-09-02|leave",
+            value: { type: "leave", hours: 9, label: "" },
+          },
+        ],
+        auth,
+      )
+    ).status,
+    403,
+  );
+  // Product Owner: the whole team, its activity and its leave days.
+  const po = await user("actual-po", "normal", "actual-peer", []);
+  const teamView = await request(url, undefined, po);
+  assert.deepEqual(teamView.json.data.resources.map((r) => r.id).sort(), [
+    "actual-own",
+    "actual-peer",
+  ]);
+  assert(!JSON.stringify(teamView.json).includes("PRIVATE_HR"));
+  assert.equal(
+    teamView.json.data.actualAllocations["actual-own|actual-p|2026-09"],
+    0.1,
+  );
+  assert.equal(
+    (
+      await write(
+        [{ kind: "actual", id: "actual-own|actual-p|2026-09", value: 0.2 }],
+        po,
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await write(
+        [
+          {
+            kind: "personDay",
+            id: "actual-own|2026-09-02|leave",
+            value: { type: "leave", hours: 9, label: "" },
+          },
+        ],
+        po,
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await write(
+        [{ kind: "actual", id: "actual-other|actual-p|2026-09", value: 0.2 }],
+        po,
+      )
+    ).status,
+    403,
   );
 });
 
@@ -4062,15 +4122,16 @@ test("AD administrators: provisioning, linked role lifecycle, protected root and
   assert((await state()).data.resources.some((r) => r.id === resource.id));
 });
 
-test("private calendars remain own/admin-only across reads and mutation snapshots without losing monthly summaries", async (t) => {
+test("leave days reach only the person, their PO/Lider and admins, across reads and mutation snapshots", async (t) => {
   const { admin, request, user, state, write } = await setup(t);
   const initial = (await state()).data;
   const team = initial.teams.find((item) => item.lead);
   const other = initial.teams.find(
     (item) => item.lead && item.lead !== team.lead,
   );
+  // privacy-own is the Product Owner of privacy-peer's team.
   const people = [
-    ["privacy-own", other],
+    ["privacy-own", team],
     ["privacy-normal-own", other],
     ["privacy-peer", team],
     ["privacy-outsider", other],
@@ -4088,6 +4149,7 @@ test("private calendars remain own/admin-only across reads and mutation snapshot
         status: "Aktif Çalışan",
         included: true,
         amount: 1,
+        assignmentRole: id === "privacy-own" ? "productOwner" : "member",
       },
     ],
   }));
@@ -4151,7 +4213,7 @@ test("private calendars remain own/admin-only across reads and mutation snapshot
     [
       "manager",
       await user("privacy-manager", "manager", "privacy-own", [team.lead]),
-      "privacy-own",
+      ["privacy-own", "privacy-peer"],
     ],
     [
       "unlinked-manager",
@@ -4159,35 +4221,37 @@ test("private calendars remain own/admin-only across reads and mutation snapshot
         team.lead,
         other.lead,
       ]),
-      "",
+      [],
     ],
     [
       "normal",
       await user("privacy-normal", "normal", "privacy-normal-own", [team.lead]),
-      "privacy-normal-own",
+      ["privacy-normal-own"],
     ],
     [
       "unlinked-normal",
       await user("privacy-unlinked-normal", "normal", "", [team.lead]),
-      "",
+      [],
     ],
     ["admin", admin, null],
   ];
-  function assertCalendarScope(view, ownId) {
+  // `ids`: whose leave days the reader may see (null: everyone, admin).
+  function assertCalendarScope(view, ids) {
+    const visible = (key) => ids === null || ids.includes(key.split("|")[0]);
     const expected = Object.fromEntries(
-      Object.entries(before.personCalendar).filter(
-        ([key]) => ownId === null || key.startsWith(ownId + "|"),
-      ),
+      Object.entries(before.personCalendar).filter(([key]) => visible(key)),
     );
     assert.deepEqual(view.personCalendar, expected);
     for (const [key, revision] of Object.entries(before.revisions).filter(
       ([key]) => key.startsWith("personDay:"),
-    )) {
-      const visible =
-        ownId === null || key.startsWith("personDay:" + ownId + "|");
-      assert.equal(view.revisions[key], visible ? revision : undefined, key);
-    }
-    if (ownId !== null) assert(!JSON.stringify(view).includes("PRIVATE_"));
+    ))
+      assert.equal(
+        view.revisions[key],
+        visible(key.slice(10)) ? revision : undefined,
+        key,
+      );
+    if (ids !== null)
+      assert(!JSON.stringify(view).includes("PRIVATE_OUTSIDE_LEAVE"));
   }
   for (const [label, auth, ownId] of accounts) {
     await t.test(label + " reads", async () => {
@@ -4224,7 +4288,7 @@ test("private calendars remain own/admin-only across reads and mutation snapshot
     manager,
   );
   assert.equal(saved.status, 200);
-  assertCalendarScope(saved.json.data, "privacy-own");
+  assertCalendarScope(saved.json.data, ["privacy-own", "privacy-peer"]);
   assert.equal(
     saved.json.data.actualAllocations["privacy-peer|privacy-p|2026-09"],
     0.15,
@@ -4235,26 +4299,38 @@ test("private calendars remain own/admin-only across reads and mutation snapshot
     manager,
   );
   assert.equal(refreshed.status, 200);
-  assertCalendarScope(refreshed.json.data, "privacy-own");
+  assertCalendarScope(refreshed.json.data, ["privacy-own", "privacy-peer"]);
   assert.equal(
     refreshed.json.monthSummaries["privacy-peer|2026-09"].totalFte,
     0.175,
   );
-  const prohibited = await write(
+  // The PO changes a team member's leave; someone outside the team is refused.
+  const changed = await write(
     [
       {
         kind: "personDay",
         id: calendar[2].id,
-        value: { ...calendar[2].value, label: "ATTEMPTED_CHANGE" },
+        value: { ...calendar[2].value, label: "PO_CHANGE" },
+      },
+    ],
+    manager,
+  );
+  assert.equal(changed.status, 200);
+  const prohibited = await write(
+    [
+      {
+        kind: "personDay",
+        id: calendar[4].id,
+        value: { ...calendar[4].value, label: "ATTEMPTED_CHANGE" },
       },
     ],
     manager,
   );
   assert.equal(prohibited.status, 403);
   const after = (await state()).data;
-  assert.deepEqual(after.personCalendar, before.personCalendar);
-  assert.equal(
-    after.revisions["personDay:" + calendar[2].id],
-    before.revisions["personDay:" + calendar[2].id],
+  assert.equal(after.personCalendar[calendar[2].id].label, "PO_CHANGE");
+  assert.deepEqual(
+    after.personCalendar[calendar[4].id],
+    before.personCalendar[calendar[4].id],
   );
 });

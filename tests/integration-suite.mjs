@@ -446,13 +446,42 @@ export async function integrationSuite(store) {
       },
       400,
     );
+    // Aktivite Giriş follows the organisation: this account enters r's
+    // activity as the Product Owner of r's team, not through its grant.
+    await request("/changes", {
+      changes: [
+        {
+          kind: "resource",
+          id: "r-po",
+          revision: 0,
+          value: {
+            id: "r-po",
+            name: "Ürün Sahibi",
+            note: "",
+            versions: [
+              {
+                team: team.id,
+                lead: team.lead,
+                assignmentRole: "productOwner",
+                effective: "2026-01",
+                status: "Aktif Çalışan",
+                included: true,
+                amount: 1,
+                start: "2026-01-01",
+                end: "",
+              },
+            ],
+          },
+        },
+      ],
+    });
     await store.bootstrapUser({
       _id: "test-manager",
       username: "test.normal",
       name: "Yönetici",
       role: "manager",
       leaders: [team.lead],
-      resourceId: "",
+      resourceId: "r-po",
       active: true,
       password: await hashPassword(pass),
       revision: 1,
@@ -608,6 +637,7 @@ export async function integrationSuite(store) {
     await request("/changes", {
       changes: [
         { kind: "resource", id: "r", operation: "delete", revision: 1 },
+        { kind: "resource", id: "r-po", operation: "delete", revision: 1 },
       ],
     });
     assert.equal((await get()).data.resources.length, 0);

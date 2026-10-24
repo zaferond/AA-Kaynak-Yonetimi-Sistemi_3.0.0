@@ -102,19 +102,21 @@ export async function readSnapshotMetadata(c, { batch = false, report } = {}) {
         )
           .toISOString()
           .slice(0, 10),
-      barColor: r.bar_color || "red",
-      barStyle: r.bar_style || "solid",
+      // Key order follows the snapshot schema: the write response compares
+      // JSON, and a reordered key would force a second full read.
       ...(r.display_kind === "milestone" ? { displayKind: "milestone" } : {}),
       ...(r.diamond_style === "outline" ? { diamondStyle: "outline" } : {}),
       ...(Number(r.has_critical_topics) === 0
         ? { hasCriticalTopics: false }
         : {}),
+      ...(r.extra_ranges && r.extra_ranges !== "[]"
+        ? { additionalRanges: JSON.parse(r.extra_ranges) }
+        : {}),
+      barColor: r.bar_color || "red",
+      barStyle: r.bar_style || "solid",
       ...(r.bar_text ? { barText: r.bar_text } : {}),
       ...(r.bar_notes && r.bar_notes !== "[]"
         ? { barNotes: JSON.parse(r.bar_notes) }
-        : {}),
-      ...(r.extra_ranges && r.extra_ranges !== "[]"
-        ? { additionalRanges: JSON.parse(r.extra_ranges) }
         : {}),
     });
   }

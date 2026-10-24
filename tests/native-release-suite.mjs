@@ -4,6 +4,10 @@ import http from "node:http";
 import { hashPassword, publicUser, digest } from "../backend/auth.mjs";
 import { createApp } from "../backend/app.mjs";
 import { validate, scopeData } from "../shared/server-domain.ts";
+import {
+  actualEntryScope,
+  canManagePersonalCalendar,
+} from "../shared/actual-entry-access.ts";
 import { actualView } from "../backend/actual-view.mjs";
 import { activityReport } from "../backend/activity-report.mjs";
 import { requiredVersions } from "../backend/migration-catalog.mjs";
@@ -179,25 +183,32 @@ export async function nativeReleaseSuite(stores, checked) {
         data.revisions["actual:" + own + "|bench-p0|2026-02"] = 7;
       });
       const data = (await store.read()).data;
+      // Leave days reach the person, their PO/Lider (actual-entry-access.ts)
+      // and admins; a manager grant without an employee record sees none.
       for (const user of [users.normal, users.manager]) {
+        const scope = actualEntryScope(data, publicUser(user));
+        const allowed = (key) => {
+          const [id, day] = key.split("|");
+          return canManagePersonalCalendar(
+            data,
+            publicUser(user),
+            scope,
+            id,
+            day,
+          );
+        };
         for (const scoped of [
           scopeData(data, publicUser(user)),
           (await store.actualView(user, { start: "2026-01", count: 3 })).data,
         ]) {
-          assert(
-            Object.keys(scoped.personCalendar).every((key) =>
-              key.startsWith((user.resourceId || "NO_OWNER") + "|"),
-            ),
-          );
+          assert(Object.keys(scoped.personCalendar).every(allowed));
           assert(
             Object.keys(scoped.revisions)
               .filter((key) => key.startsWith("personDay:"))
-              .every((key) =>
-                key.startsWith(
-                  "personDay:" + (user.resourceId || "NO_OWNER") + "|",
-                ),
-              ),
+              .every((key) => allowed(key.slice(10))),
           );
+          if (!user.resourceId)
+            assert.deepEqual(Object.keys(scoped.personCalendar), []);
         }
       }
       const normal = await store.actualView(users.normal, {

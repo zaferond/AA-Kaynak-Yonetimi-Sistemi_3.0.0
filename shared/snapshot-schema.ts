@@ -14,9 +14,11 @@ import { MAX_RECORDED_MONTHLY_HOURS } from "./actual-units.ts";
 
 const mo = z.string().refine(validPlanningMonth, "Geçersiz ay.");
 const day = z.string().refine(validPlanningDate, "Geçersiz gün.");
+// Key order matches the SQL read model (snapshot-metadata-model.mjs): the
+// response check compares JSON, so a reordered key would force a re-read.
 const ver = z.object({
-  assignmentRole: z.enum(resourceRoles).optional(),
   effective: mo,
+  assignmentRole: z.enum(resourceRoles).optional(),
   team: z.string(),
   lead: z.string().optional(),
   status: z.enum(statuses as [string, ...string[]]),

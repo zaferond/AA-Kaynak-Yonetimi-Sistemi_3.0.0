@@ -544,7 +544,7 @@ export async function checkCalendar(f) {
       },
     );
     await f.check(
-      "calendar: admin reports reflect saved labels/dates; manager and unmapped user cannot read personal records",
+      "calendar: admin reports reflect saved labels/dates; a grant-only manager and unmapped user cannot read personal records",
       async () => {
         await page.reload();
         await selectWorkspaceTab(page, "Çalışan & Yetki Tanımlama");
@@ -554,13 +554,18 @@ export async function checkCalendar(f) {
         assert((await report.innerText()).includes("Training label"));
         assert.equal(await report.locator("tbody tr").count(), 2);
         await f.capture(page, "calendar-report");
+        // A manager grant without an employee record sees nobody here.
         await actualTab(manager.page).click();
-        await manager.page
-          .getByRole("textbox", {
-            name: "Browser Employee / Browser Project A / 2026-01 / %",
-            exact: true,
-          })
-          .waitFor();
+        await manager.page.waitForTimeout(500);
+        assert.equal(
+          await manager.page
+            .getByRole("textbox", {
+              name: "Browser Employee / Browser Project A / 2026-01 / %",
+              exact: true,
+            })
+            .count(),
+          0,
+        );
         assert.equal(
           await manager.page
             .getByRole("button", {
@@ -581,7 +586,7 @@ export async function checkCalendar(f) {
             key.startsWith("personDay:"),
           ),
         );
-        assert(scoped.monthSummaries["r-own|2026-01"]);
+        assert.equal(scoped.monthSummaries["r-own|2026-01"], undefined);
         assert(!JSON.stringify(scoped).includes("PRIVATE_LEAVE_LABEL"));
         assert(!JSON.stringify(scoped).includes("Training label"));
         await actualTab(other.page).click();

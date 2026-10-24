@@ -112,41 +112,25 @@ export async function checkActualTeamView(f) {
   try {
     await open(page);
     await f.check(
-      "actual team view: reciprocal team visibility, private calendars, monthly totals and preserved own write access",
+      "actual team view: a Team Member sees only themselves; their PO sees, edits and opens leave for the team",
       async () => {
-        const own = field(page, "Browser Employee"),
-          other = field(page, peer.name);
-        await other.waitFor();
-        const namePosition = (field) =>
-          field
-            .locator("xpath=ancestor::tr[1]")
-            .locator(".actual-person-name")
-            .evaluate((el) => el.getBoundingClientRect().x);
-        assert(
-          Math.abs((await namePosition(own)) - (await namePosition(other))) <
-            0.5,
-          "own calendar button must not indent the employee name relative to peers",
-        );
-        await f.capture(page, "actual-employee-name-alignment");
-        assert(await other.isDisabled());
-        assert.equal(await other.inputValue(), "45");
+        const own = field(page, "Browser Employee");
+        await own.waitFor();
         assert(!(await own.isDisabled()));
-        assert.equal(
-          await page
-            .getByRole("textbox", {
-              name: /Browser Other Employee \/ Browser Project/,
-            })
-            .count(),
-          0,
-        );
-        assert.equal(
-          await page
-            .getByRole("textbox", {
-              name: /QA Actual Child Worker \/ Browser Project/,
-            })
-            .count(),
-          0,
-        );
+        for (const name of [
+          peer.name,
+          childResource.name,
+          "Browser Other Employee",
+        ])
+          assert.equal(
+            await page
+              .getByRole("textbox", {
+                name: new RegExp(name + " / Browser Project"),
+              })
+              .count(),
+            0,
+            name,
+          );
         assert.equal(
           await page
             .getByRole("button", {
@@ -156,13 +140,6 @@ export async function checkActualTeamView(f) {
             .count(),
           0,
         );
-        await other.locator("xpath=..").locator("xpath=..").click();
-        const peerHours = page.getByRole("textbox", {
-          name: peer.name + " / 2026-09 çalışılan saat",
-          exact: true,
-        });
-        await peerHours.waitFor();
-        assert(await peerHours.isDisabled());
         await own.fill("9");
         await own.press("Enter");
         await f.wait(
@@ -172,24 +149,59 @@ export async function checkActualTeamView(f) {
             ) < 1e-9,
           "own actual saved",
         );
-        await f.wait(
-          async () =>
-            (await other.count()) === 1 && (await other.inputValue()) === "45",
-          "peer value and hours unit retained after refresh",
-        );
-        const reverse = await f.client("actual-peer");
+        const po = await f.client("actual-peer");
         try {
-          await open(reverse.page);
-          await field(reverse.page, "Browser Employee").waitFor();
-          assert(await field(reverse.page, "Browser Employee").isDisabled());
-          assert(!(await field(reverse.page, peer.name).isDisabled()));
+          await open(po.page);
+          const member = field(po.page, "Browser Employee"),
+            self = field(po.page, peer.name);
+          await member.waitFor();
+          const namePosition = (field) =>
+            field
+              .locator("xpath=ancestor::tr[1]")
+              .locator(".actual-person-name")
+              .evaluate((el) => el.getBoundingClientRect().x);
+          assert(
+            Math.abs(
+              (await namePosition(member)) - (await namePosition(self)),
+            ) < 0.5,
+            "calendar buttons keep names aligned",
+          );
+          await f.capture(po.page, "actual-employee-name-alignment");
+          assert(!(await member.isDisabled()));
+          assert(!(await self.isDisabled()));
+          assert.equal(await self.inputValue(), "45");
+          assert(
+            (await po.page
+              .getByRole("button", {
+                name: "Browser Employee izin ve eğitim takvimini aç",
+                exact: true,
+              })
+              .count()) > 0,
+          );
+          assert.equal(
+            await po.page
+              .getByRole("textbox", {
+                name: /QA Actual Child Worker \/ Browser Project/,
+              })
+              .count(),
+            0,
+          );
+          await member.fill("18");
+          await member.press("Enter");
+          await f.wait(
+            async () =>
+              Math.abs(
+                (await f.state()).actualAllocations["r-own|p-a|2026-09"] - 0.1,
+              ) < 1e-9,
+            "PO saved the team member's activity",
+          );
         } finally {
-          await reverse.context.close();
+          await po.context.close();
         }
       },
     );
     await f.check(
-      "actual team view: employee Leader sees child leadership without gaining peer write permissions",
+      "actual team view: an employee Lider sees and edits the leadership's teams, sub-leaderships included",
       async () => {
         const state = await f.state();
         const unitId = state.leadershipUnits[f.teamA.lead];
@@ -216,8 +228,8 @@ export async function checkActualTeamView(f) {
         await page.reload();
         await open(page);
         await field(page, childResource.name).waitFor();
-        assert(await field(page, childResource.name).isDisabled());
-        assert(await field(page, peer.name).isDisabled());
+        assert(!(await field(page, childResource.name).isDisabled()));
+        assert(!(await field(page, peer.name).isDisabled()));
         assert.equal(
           await page
             .getByRole("textbox", {

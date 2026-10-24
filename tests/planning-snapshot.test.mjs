@@ -702,7 +702,38 @@ test("authenticated HTTP delta writes fall back after another client's committed
 });
 
 test("actual and hour responses use one transaction/read and match SQL views for each role", async (t) => {
-  const { store, users } = await setup(t);
+  const { store, users, team } = await setup(t);
+  // Aktivite Giriş follows the organisation: the manager account enters r0's
+  // activity as the Product Owner of r0's team.
+  await changeAndView(store, users.admin, [
+    {
+      kind: "resource",
+      id: "r2",
+      revision: 0,
+      value: {
+        id: "r2",
+        name: "Synthetic product owner",
+        note: "",
+        versions: [
+          {
+            effective: "2026-01",
+            team: team.id,
+            lead: team.lead,
+            assignmentRole: "productOwner",
+            status: "Aktif Çalışan",
+            included: true,
+            start: "2026-01-01",
+            end: "",
+            amount: 1,
+          },
+        ],
+      },
+    },
+  ]);
+  await store.transaction((c) =>
+    store.saveUser({ ...users.manager, resourceId: "r2" }, c),
+  );
+  users.manager = await store.findUser({ id: "manager" });
   const originalRead = store.read;
   const originalTransaction = store.transaction;
   let reads = 0,

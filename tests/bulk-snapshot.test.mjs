@@ -498,7 +498,7 @@ test("editing your own permissions commits, revokes the old session and returns 
   assert.equal(relogin.json.user.role, "manager");
 });
 
-test("Milestone metadata keeps the conservative reread and its appearance survives reset", async (t) => {
+test("Milestone metadata needs no second read (stored key order matches validation) and its appearance survives reset", async (t) => {
   const ctx = await setup(t),
     operation = await input("reset", ctx),
     read = ctx.store.read;
@@ -509,7 +509,7 @@ test("Milestone metadata keeps the conservative reread and its appearance surviv
   });
   const result = await ctx.request(operation.url, operation.body, ctx.auth);
   assert.equal(result.status, 200);
-  assert.equal(calls, 2);
+  assert.equal(calls, 1);
   assert.equal(
     result.json.data.projects[0].milestones[0].diamondStyle,
     "outline",

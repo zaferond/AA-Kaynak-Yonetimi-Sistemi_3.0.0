@@ -90,6 +90,12 @@ export async function checkActualManagerHierarchy(f) {
       })),
     ]),
   );
+  // Aktivite Giriş follows the organisation: the account works as the Lider
+  // of the child leadership (its grant alone would give nothing).
+  const managerAccount = await f.store.findUser({ id: "manager" });
+  await f.store.transaction((c) =>
+    f.store.saveUser({ ...managerAccount, resourceId: "qa-child-leader" }, c),
+  );
   const { page, context } = await f.client("manager");
   const amount = (name) =>
     page.getByRole("textbox", {
@@ -103,10 +109,11 @@ export async function checkActualManagerHierarchy(f) {
       const response = await context.request.get(f.origin + url);
       assert.equal(response.status(), 200);
       const payload = await response.json();
-      assert.deepEqual(payload.data.personCalendar, {});
-      assert(
-        !JSON.stringify(payload).includes("PRIVATE_MANAGER_PEER_CALENDAR"),
-      );
+      // The Lider manages their teams' leave days.
+      assert.deepEqual(Object.keys(payload.data.personCalendar).sort(), [
+        "qa-grand-member|2026-01-07|leave",
+        "qa-grand-member|2026-01-08|training",
+      ]);
       if (payload.monthSummaries) {
         const summary = payload.monthSummaries["qa-grand-member|2026-01"];
         // 200 recorded hours less 9 h leave and the 1 January holiday.
@@ -115,7 +122,7 @@ export async function checkActualManagerHierarchy(f) {
       }
     }
     await f.check(
-      "manager actual hierarchy: root grant edits existing child leader and grandchild member records; peer calendars hidden",
+      "Lider actual hierarchy: edits own and sub-leadership team records and opens their leave calendars",
       async () => {
         for (const person of people) {
           await amount(person.name).waitFor();
@@ -132,22 +139,15 @@ export async function checkActualManagerHierarchy(f) {
               ) < 1e-9,
             "descendant existing allocation updated",
           );
-          assert.equal(
-            await page
+          assert(
+            (await page
               .getByRole("button", {
                 name: person.name + " izin ve eğitim takvimini aç",
                 exact: true,
               })
-              .count(),
-            0,
+              .count()) > 0,
           );
         }
-        assert.equal(
-          await page
-            .getByRole("button", { name: /izin ve eğitim takvimini aç/ })
-            .count(),
-          0,
-        );
         await amount("QA Grand Member").click();
         const hours = page.getByRole("textbox", {
           name: "QA Grand Member / 2026-01 çalışılan saat",
@@ -176,7 +176,7 @@ export async function checkActualManagerHierarchy(f) {
       },
     );
     await f.check(
-      "manager actual hierarchy: HTTP denies outside, normal peer and private-calendar writes; stale revisions still conflict",
+      "Lider actual hierarchy: HTTP denies outside activity and leave writes and normal peers; stale revisions still conflict",
       async () => {
         const send = async (client, change) => {
           const auth = await (
@@ -205,7 +205,7 @@ export async function checkActualManagerHierarchy(f) {
               { context },
               {
                 kind: "personDay",
-                id: "qa-grand-member|2026-01-05|leave",
+                id: "r-other|2026-01-05|leave",
                 value: { type: "leave", hours: 9, label: "Synthetic leave" },
                 revision: 0,
               },
@@ -250,5 +250,6 @@ export async function checkActualManagerHierarchy(f) {
     );
   } finally {
     await context.close();
+    await f.store.transaction((c) => f.store.saveUser(managerAccount, c));
   }
 }

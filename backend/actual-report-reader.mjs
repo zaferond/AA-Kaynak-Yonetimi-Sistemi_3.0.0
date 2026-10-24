@@ -11,7 +11,10 @@ import {
 } from "./actual-view.mjs";
 import { activityReportResources } from "./activity-report.mjs";
 import { activityTeamScope } from "../shared/employee-directory.ts";
-import { canReadPersonalCalendar } from "../shared/access.ts";
+import {
+  actualEntryScope,
+  canManagePersonalCalendar,
+} from "../shared/actual-entry-access.ts";
 import { filterOwnRecords } from "../shared/records.ts";
 import { currentPlanningDate } from "../shared/resource-dates.ts";
 import { monthsFrom } from "../shared/model.ts";
@@ -105,10 +108,22 @@ export async function readActualReportData(
   }
   const ownerSet = new Set(owners),
     monthSet = new Set(months);
+  // Whole-year calendars of the people the user manages (the leave dialog);
+  // other owners only for the months whose capacity the screen shows.
+  const entryScope =
+    kind === "actual" ? actualEntryScope(data, user, date) : null;
   data.personCalendar = filterOwnRecords(data.personCalendar, (key) => {
     const parts = key.split("|");
     return (
-      (kind === "actual" && canReadPersonalCalendar(user, parts[0])) ||
+      (!!entryScope &&
+        ownerSet.has(parts[0]) &&
+        canManagePersonalCalendar(
+          data,
+          user,
+          entryScope,
+          parts[0],
+          parts[1] || "",
+        )) ||
       legacy ||
       (ownerSet.has(parts[0]) && monthSet.has(parts[1]?.slice(0, 7)))
     );

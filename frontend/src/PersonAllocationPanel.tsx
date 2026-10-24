@@ -1,6 +1,9 @@
-import { allowedActualTeam, canReadPersonalCalendar } from "./access";
-import { actualVersionAt } from "./model";
-import { useState } from "react";
+import {
+  actualEntryScope,
+  canEnterActual,
+  canManagePersonalCalendar,
+} from "../../shared/actual-entry-access.ts";
+import { useMemo, useState } from "react";
 import type { Resource, Project } from "./model";
 import type { ActualUnit } from "./actual-units";
 import { writeBatch } from "./storage";
@@ -77,19 +80,15 @@ export default function PersonAllocationPanel(
     limitOpenRef: limit.openRef,
   });
   const { selectedCell, selectedHoursMonth, selectedHoursPerson } = selection;
+  // Team Member: self · Product Owner: own team · Lider: teams under the
+  // leadership · Admin: all (shared/actual-entry-access.ts, also on the server).
+  const entryScope = useMemo(() => actualEntryScope(data, user), [data, user]);
   function canEditPersonMonth(id: string, month: string) {
     if (props.loading) return false;
-    if (user.role === "admin" || id === user.resourceId) return true;
-    const resource = data.resources.find((person) => person.id === id);
-    const version = resource && actualVersionAt(resource, month);
-    return (
-      user.role === "manager" &&
-      !!version &&
-      allowedActualTeam(data, user, version.team)
-    );
+    return canEnterActual(data, user, entryScope, id, month);
   }
   function canViewPersonalCalendar(id: string) {
-    return canReadPersonalCalendar(user, id);
+    return canManagePersonalCalendar(data, user, entryScope, id);
   }
   async function save(
     resource: Resource,

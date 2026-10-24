@@ -100,15 +100,37 @@ test("actual view: team members and POs see their own team; leaders see descenda
   assert.equal(actualViewTeams(d, { ...user, role: "admin" }, date).length, 5);
   assert.deepEqual(actualViewTeams(d, { ...user, resourceId: "" }, date), []);
 });
-test("actual view: monthly aggregates preserve capacities while private days, HR and out-of-scope history stay hidden", () => {
+test("actual view: a Team Member sees only themselves; their PO sees the team, its monthly aggregates and its leave days", () => {
   const d = data();
   const transfer = person("transfer", "other");
   transfer.versions.push(v("team", { effective: "2026-10" }));
   d.resources.push(transfer);
   d.actualAllocations["transfer|p|2026-09"] = 0.5;
   d.actualAllocations["transfer|p|2026-10"] = 0.2;
+  d.personCalendar["own|2026-09-03|leave"] = {
+    type: "leave",
+    hours: 9,
+    label: "TEAM_LEAVE",
+  };
+  d.personCalendar["outsider|2026-09-04|leave"] = {
+    type: "leave",
+    hours: 9,
+    label: "OUTSIDE_LEAVE",
+  };
   const before = structuredClone(d);
-  const result = actualView(d, user, query, date);
+  // Team Member: only their own row and their own leave.
+  const member = actualView(d, user, query, date);
+  assert.deepEqual(
+    member.data.resources.map((p) => p.id),
+    ["own"],
+  );
+  assert.equal(member.data.actualAllocations["peer|p|2026-09"], undefined);
+  assert.equal(member.monthSummaries["peer|2026-09"], undefined);
+  assert.deepEqual(Object.keys(member.data.personCalendar), [
+    "own|2026-09-03|leave",
+  ]);
+  // Product Owner of the team: everyone in it, month by month.
+  const result = actualView(d, { ...user, resourceId: "peer" }, query, date);
   assert.deepEqual(
     new Set(result.data.resources.map((p) => p.id)),
     new Set(["own", "peer", "transfer"]),
@@ -123,15 +145,21 @@ test("actual view: monthly aggregates preserve capacities while private days, HR
   );
   assert.equal(result.monthSummaries["transfer|2026-09"], undefined);
   assert.deepEqual(
-    result.monthSummaries["peer|2026-09"],
-    createActualMonthIndex(d).get("peer", "2026-09"),
+    result.monthSummaries["own|2026-09"],
+    createActualMonthIndex(d).get("own", "2026-09"),
   );
-  assert.deepEqual(result.data.personCalendar, {});
-  assert(!JSON.stringify(result).includes("PRIVATE_"));
+  assert.deepEqual(Object.keys(result.data.personCalendar).sort(), [
+    "own|2026-09-03|leave",
+    "peer|2026-09-01|leave",
+    "peer|2026-09-02|training",
+  ]);
+  const text = JSON.stringify(result);
+  assert(!text.includes("PRIVATE_HR") && !text.includes("PRIVATE_CODE"));
+  assert(!text.includes("OUTSIDE_LEAVE"));
   assert.equal(result.data.users, undefined);
   assert.deepEqual(d, before);
 });
-test("actual view: inactive and future leaders gain no peer scope; explicit existing manager grants are preserved", () => {
+test("actual view: inactive and future leaders gain no scope; an app grant without the employee role gives none", () => {
   for (const patch of [
     { assignmentRole: "leader", status: "İşten Ayrıldı", end: "2026-10-01" },
     { assignmentRole: "leader", start: "2026-11-01" },
@@ -149,8 +177,8 @@ test("actual view: inactive and future leaders gain no peer scope; explicit exis
       data(),
       { ...user, role: "manager", resourceId: "", leaders: ["Other"] },
       date,
-    ).map((t) => t.id),
-    ["other"],
+    ),
+    [],
   );
 });
 test("actual view query rejects injected scopes and unbounded periods", () => {

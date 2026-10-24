@@ -713,10 +713,36 @@ test("Normal user sees and edits only the linked employee's actual distribution"
   );
 });
 
-test("Manager actual permissions follow leadership rather than planning status", () => {
+test("Actual entry follows the organisation: the Lider writes the leadership, an app grant alone does not", () => {
   const month = currentPlanningMonth();
   const d = fixture();
+  d.teams.push({
+    id: "la",
+    name: "A Liderliği",
+    lead: "A",
+    kind: "leadership",
+    excelCapacity: 0,
+  });
+  d.leadershipUnits = { A: "la" };
   d.resources = [
+    {
+      id: "boss",
+      name: "A Lideri",
+      note: "",
+      versions: [
+        {
+          effective: "2026-01",
+          team: "la",
+          lead: "A",
+          assignmentRole: "leader",
+          status: "Aktif Çalışan",
+          included: true,
+          start: "",
+          end: "",
+          amount: 1,
+        },
+      ],
+    },
     {
       id: "assigned",
       name: "Yetkili Çalışan",
@@ -774,6 +800,7 @@ test("Manager actual permissions follow leadership rather than planning status",
     id: "manager",
     role: "manager",
     leaders: ["A"],
+    resourceId: "boss",
   };
   applyChanges(d, manager, [
     {
@@ -826,9 +853,10 @@ test("Manager actual permissions follow leadership rather than planning status",
     "",
   );
   assert.deepEqual(viewOnly.actualAllocations, {});
+  // A leadership grant without the matching employee record writes nothing.
   assert.throws(
     () =>
-      applyChanges(d, { ...manager, leaders: [] }, [
+      applyChanges(d, { ...manager, resourceId: "" }, [
         { kind: "actual", id: `assigned|p|${month}`, value: 0.2, revision: 1 },
       ]),
     (error) => error.status === 403,

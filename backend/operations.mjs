@@ -3,12 +3,16 @@ import {
   stageScenarioWarningChange,
 } from "./scenario-warning-commands.mjs";
 import { ownValue } from "../shared/records.ts";
+import {
+  actualEntryScope,
+  canEnterActual,
+  canManagePersonalCalendar,
+} from "../shared/actual-entry-access.ts";
 import { PERSONAL_DAYS_PER_REQUEST } from "../shared/snapshot-calendar-validation.ts";
 import { parseAllocationKey } from "../shared/allocation-key.ts";
 import { z } from "zod";
 import { fail, publicUser } from "./auth.mjs";
 import {
-  allowedActualTeam,
   allowedPlanningTeam,
   validate,
   actualVersionAt,
@@ -136,6 +140,9 @@ function stageParsedChanges(d, u, changes) {
   const seen = new Set(),
     affectedActualMonths = new Set();
   // Decided on the snapshot before this batch; a batch cannot grant itself access.
+  // Only actual/leave changes need it; computed once, on first use.
+  let entryScope;
+  const scope = () => (entryScope ??= actualEntryScope(d, u));
   const canSeeProject =
     u.role === "admin" ? () => true : projectVisibility(d, publicUser(u));
   for (const ch of changes) {
@@ -155,18 +162,26 @@ function stageParsedChanges(d, u, changes) {
       : undefined;
     const assignment =
       resource && month ? actualVersionAt(resource, month) : undefined;
+    // Aktivite Giriş follows the organisation (Team Member: self, PO: own
+    // team, Lider: teams under the leadership), not the app role.
     const managerActual =
-      u.role === "manager" &&
       actualKind &&
       !!assignment &&
-      allowedActualTeam(d, publicUser(u), assignment.team);
+      canEnterActual(d, u, scope(), targetId, month);
     const ownActual =
       (u.role === "normal" || u.role === "manager") &&
       !!u.resourceId &&
       targetId === u.resourceId &&
       actualKind;
     const ownDay =
-      kind === "personDay" && !!u.resourceId && targetId === u.resourceId;
+      kind === "personDay" &&
+      canManagePersonalCalendar(
+        d,
+        u,
+        scope(),
+        targetId,
+        id.split("|")[1] || "",
+      );
     const projectEditor = kind === "project" && isProjectEditor(u);
     const existingRisk =
       kind === "risk" ? d.risks?.find((item) => item.id === id) : undefined;

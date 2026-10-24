@@ -34,7 +34,7 @@ test("actual hierarchy permissions: grants include descendant units and teams, n
     "malformed cycles fail closed",
   );
 });
-test("actual hierarchy view: descendant revisions survive scoping; transferred history, outside revisions and private calendar stay excluded", () => {
+test("actual hierarchy view: the Lider sees descendant teams month by month, including their leave days; transferred history and outside revisions stay excluded", () => {
   const d = {
     ...directory(),
     projects: [],
@@ -44,6 +44,22 @@ test("actual hierarchy view: descendant revisions survive scoping; transferred h
     workCalendar: {},
     risks: [],
     resources: [
+      {
+        id: "boss",
+        name: "Root leader",
+        versions: [
+          {
+            effective: "2026-01",
+            start: "2026-01-01",
+            team: "root",
+            lead: "Root",
+            assignmentRole: "leader",
+            status: "Aktif Çalışan",
+            included: true,
+            amount: 1,
+          },
+        ],
+      },
       {
         id: "r",
         name: "Synthetic employee",
@@ -82,7 +98,7 @@ test("actual hierarchy view: descendant revisions survive scoping; transferred h
   };
   const result = actualView(
     d,
-    manager,
+    { ...manager, role: "normal", leaders: [], resourceId: "boss" },
     { start: "2026-09", count: 2 },
     "2026-10-13",
   );
@@ -91,11 +107,19 @@ test("actual hierarchy view: descendant revisions survive scoping; transferred h
   assert.equal(result.data.actualAllocations["r|p|2026-10"], 0.2);
   assert.equal(result.data.revisions["actual:r|p|2026-10"], 4);
   assert.equal(result.data.revisions["workedHours:r|2026-10"], 5);
-  assert.equal(
-    result.data.revisions["personDay:r|2026-10-01|leave"],
-    undefined,
+  // The Lider manages leave days in their teams.
+  assert.equal(result.data.revisions["personDay:r|2026-10-01|leave"], 2);
+  assert.deepEqual(Object.keys(result.data.personCalendar), [
+    "r|2026-10-01|leave",
+  ]);
+  // The same app grant without the employee record sees nobody else.
+  const grantOnly = actualView(
+    d,
+    manager,
+    { start: "2026-09", count: 2 },
+    "2026-10-13",
   );
-  assert.deepEqual(result.data.personCalendar, {});
+  assert.deepEqual(grantOnly.data.resources, []);
 });
 test("report leave row: monthly leave days only for people and months a manager may see, never the daily calendar", async () => {
   const { scopeData } = await import("../shared/access.ts");

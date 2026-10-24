@@ -1,61 +1,42 @@
 import { activityQuery } from "./activity-report.mjs";
-import { scopeData, allowedActualTeam } from "../shared/access.ts";
+import { scopeData } from "../shared/access.ts";
 import {
-  employeeAssignment,
-  createEmployeeAssignmentIndex,
-} from "../shared/employee-directory.ts";
-import { selectedLeadershipScope } from "../shared/leadership-planning.ts";
+  actualEntryScope,
+  canManagePersonalCalendar,
+} from "../shared/actual-entry-access.ts";
+import { createEmployeeAssignmentIndex } from "../shared/employee-directory.ts";
 import { visibleLeaderParents } from "../shared/leadership-hierarchy.ts";
-import { resourceRole } from "../shared/resource-roles.ts";
-import {
-  actualVersionAt,
-  monthsFrom,
-  isWorkingStatus,
-} from "../shared/model.ts";
-import {
-  currentPlanningDate,
-  normalizeResourceDate,
-} from "../shared/resource-dates.ts";
+import { actualVersionAt, monthsFrom } from "../shared/model.ts";
+import { currentPlanningDate } from "../shared/resource-dates.ts";
 import { createActualMonthIndex } from "../shared/actual-months.ts";
 import { filterOwnRecords } from "../shared/records.ts";
 
 export const actualViewQuery = activityQuery.pick({ start: true, count: true });
 
-/** Read scope only. Existing command authorization remains authoritative. */
+/** Read scope only; writes are checked in operations.mjs with the same rule
+ * (shared/actual-entry-access.ts). Teams shown: the managed ones plus the
+ * user's own team (a Team Member sees only their own row in it). */
 export function actualViewTeams(data, user, date = currentPlanningDate()) {
-  if (user.role === "admin") return data.teams;
-  const ids =
-    user.role === "manager" && user.leaders.length
-      ? new Set(
-          data.teams
-            .filter((team) => allowedActualTeam(data, user, team.id))
-            .map((team) => team.id),
-        )
-      : new Set();
-  const own = employeeAssignment(data, user.resourceId || "", date.slice(0, 7));
-  if (
-    own &&
-    isWorkingStatus(own.version.status) &&
-    (!own.version.start ||
-      normalizeResourceDate(own.version.start, "start") <= date) &&
-    (!own.version.end || normalizeResourceDate(own.version.end, "end") >= date)
-  ) {
-    if (resourceRole(data, own.version) === "leader" && own.team.lead) {
-      const leaders = selectedLeadershipScope(data, [own.team.lead], true);
-      for (const team of data.teams)
-        if (leaders.has(team.lead)) ids.add(team.id);
-    } else ids.add(own.team.id);
-  }
-  return data.teams.filter((team) => ids.has(team.id));
+  const scope = actualEntryScope(data, user, date);
+  if (scope.admin) return data.teams;
+  return data.teams.filter(
+    (team) => scope.teamIds.has(team.id) || team.id === scope.ownTeamId,
+  );
 }
 
-export function actualViewResources(data, user, teams, currentMonth) {
-  const ids = new Set(teams.map((team) => team.id));
+export function actualViewResources(
+  data,
+  user,
+  _teams,
+  currentMonth,
+  date = currentPlanningDate(),
+) {
+  const scope = actualEntryScope(data, user, date);
   const assignments = createEmployeeAssignmentIndex(data, currentMonth);
   return data.resources.filter(
     (resource) =>
       resource.id === (user.resourceId || "") ||
-      ids.has(assignments.get(resource.id)?.team.id),
+      scope.teamIds.has(assignments.get(resource.id)?.team.id),
   );
 }
 
@@ -87,12 +68,22 @@ export function actualView(data, user, query, date = currentPlanningDate()) {
     user,
     { projectAccessData: data },
   );
-  const resources = actualViewResources(data, user, teams, currentMonth);
+  const scope = actualEntryScope(data, user, date);
+  const resources = actualViewResources(data, user, teams, currentMonth, date);
   const byId = new Map(resources.map((resource) => [resource.id, resource]));
   const canRead = (id, month) =>
     byId.has(id) &&
     monthSet.has(month) &&
-    (id === ownId || ids.has(actualVersionAt(byId.get(id), month)?.team));
+    (id === ownId ||
+      scope.teamIds.has(actualVersionAt(byId.get(id), month)?.team));
+  // Leave days of the people the user manages travel with the view.
+  const canReadDay = (key) => {
+    const [id, day] = key.split("|");
+    return (
+      byId.has(id) &&
+      canManagePersonalCalendar(data, user, scope, id, day || "")
+    );
+  };
   const entries = (values, monthIndex) =>
     filterOwnRecords(values, (key) => {
       const parts = key.split("|");
@@ -166,21 +157,15 @@ export function actualView(data, user, query, date = currentPlanningDate()) {
           return true;
         }),
         ...filterOwnRecords(data.revisions, (key) => {
-          if (user.role !== "manager") return false;
+          if (key.startsWith("personDay:")) return canReadDay(key.slice(10));
           const actual = key.startsWith("actual:");
           const hours = key.startsWith("workedHours:");
           if (!actual && !hours) return false;
           const parts = key.slice(actual ? 7 : 12).split("|");
-          const month = parts[actual ? 2 : 1];
-          const resource = byId.get(parts[0]);
-          const team = resource && actualVersionAt(resource, month)?.team;
-          return (
-            canRead(parts[0], month) &&
-            !!team &&
-            allowedActualTeam(data, user, team)
-          );
+          return canRead(parts[0], parts[actual ? 2 : 1]);
         }),
       },
+      personCalendar: filterOwnRecords(data.personCalendar, canReadDay),
       actualAllocations: entries(data.actualAllocations, 2),
       actualWorkedHours: entries(data.actualWorkedHours, 1),
       actualPercentEntries: entries(data.actualPercentEntries, 2),

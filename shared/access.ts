@@ -5,6 +5,10 @@ import { actualTeamTotalIndex, createActualTeamIndex } from "./model.ts";
 import { filterOwnRecords } from "./records.ts";
 import { leaveDaysByMonth } from "./actual-units.ts";
 import { isProjectEditor, projectVisibility } from "./project-access.ts";
+import {
+  actualEntryScope,
+  canManagePersonalCalendar,
+} from "./actual-entry-access.ts";
 export type Role = "admin" | "manager" | "normal";
 export type Credential = {
   salt: string;
@@ -41,8 +45,8 @@ export const ROOT_ADMIN_ID = "root-admin";
 /** Anonymous project id that aggregates actual team totals of hidden projects. */
 export const HIDDEN_PROJECT_ID = "~gizli";
 export type Principal = Omit<Account, "credential">;
-/** Daily leave/training details belong only to the employee and administrators.
- * Leadership grants authorize actual work entries, never private calendars. */
+/** The employee's own leave days (or an admin). Their PO and Lider are
+ * covered separately by canManagePersonalCalendar (actual-entry-access.ts). */
 export function canReadPersonalCalendar(
   u: Pick<Principal, "role" | "resourceId">,
   resourceId: string,
@@ -197,8 +201,11 @@ export function scopeData(
     entries: Record<string, number> | undefined,
     kind: "actual" | "workedHours",
   ) => filterOwnRecords(entries, (key) => canSeeActual(key, kind));
+  // Leave days: the person, their PO/Lider (actual-entry-access.ts), admins.
+  const entryScope = actualEntryScope(d, u);
   const canSeePersonDay = (key: string) => {
-    return canReadPersonalCalendar(u, key.split("|")[0]);
+    const [resourceId, day] = key.split("|");
+    return canManagePersonalCalendar(d, u, entryScope, resourceId, day || "");
   };
   // Keep the existing ordinary-then-risk revision order with one enumeration.
   const riskKeys: string[] = [];

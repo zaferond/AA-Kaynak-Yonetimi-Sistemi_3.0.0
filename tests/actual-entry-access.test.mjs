@@ -1,0 +1,124 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  actualEntryScope,
+  canEnterActual,
+  canManagePersonalCalendar,
+} from "../shared/actual-entry-access.ts";
+
+const version = (team, lead, assignmentRole, patch = {}) => ({
+  effective: "2026-01",
+  start: "2026-01-01",
+  end: "",
+  team,
+  lead,
+  status: "Aktif Çalışan",
+  included: true,
+  amount: 1,
+  assignmentRole,
+  ...patch,
+});
+const person = (id, ...versions) => ({ id, name: id, note: "", versions });
+// Root leadership with a sub-leadership (Child); "other" is outside.
+const data = {
+  leaders: ["Root", "Child", "Other"],
+  leaderParents: { Child: "Root" },
+  teams: [
+    { id: "root", name: "Root", lead: "Root", kind: "leadership" },
+    { id: "a", name: "A", lead: "Root" },
+    { id: "b", name: "B", lead: "Root" },
+    { id: "c", name: "C", lead: "Child" },
+    { id: "other", name: "Other", lead: "Other" },
+  ],
+  resources: [
+    person("leader", version("root", "Root", "leader")),
+    person("po", version("a", "Root", "productOwner")),
+    person("member", version("a", "Root", "member")),
+    person("coe", version("a", "Root", "coe")),
+    person("b-member", version("b", "Root", "member")),
+    person("c-member", version("c", "Child", "member")),
+    person("outsider", version("other", "Other", "member")),
+    // In team "a" until September, in "b" from October.
+    person(
+      "mover",
+      version("a", "Root", "member"),
+      version("b", "Root", "member", { effective: "2026-10" }),
+    ),
+  ],
+};
+const date = "2026-10-15";
+const user = (resourceId, role = "normal") => ({ role, resourceId });
+const editable = (u, month = "2026-10") => {
+  const scope = actualEntryScope(data, u, date);
+  return data.resources
+    .map((r) => r.id)
+    .filter((id) => canEnterActual(data, u, scope, id, month));
+};
+
+test("Team Member and CoE enter only their own activity", () => {
+  assert.deepEqual(editable(user("member")), ["member"]);
+  assert.deepEqual(editable(user("coe")), ["coe"]);
+});
+
+test("Product Owner enters their own team, month by month", () => {
+  assert.deepEqual(editable(user("po"), "2026-09"), [
+    "po",
+    "member",
+    "coe",
+    "mover",
+  ]);
+  // The mover left team "a" in October.
+  assert.deepEqual(editable(user("po"), "2026-10"), ["po", "member", "coe"]);
+});
+
+test("Lider enters every team under the leadership, sub-leaderships included", () => {
+  assert.deepEqual(editable(user("leader")), [
+    "leader",
+    "po",
+    "member",
+    "coe",
+    "b-member",
+    "c-member",
+    "mover",
+  ]);
+});
+
+test("the app role does not decide: a manager grant alone gives nothing, admin gives everything", () => {
+  assert.deepEqual(
+    editable({ role: "manager", resourceId: "", leaders: ["Root"] }),
+    [],
+  );
+  assert.deepEqual(
+    editable(user("member", "manager")),
+    ["member"],
+    "a Team Member stays a Team Member with a manager account",
+  );
+  assert.equal(editable({ role: "admin", resourceId: "" }).length, 8);
+});
+
+test("leave days follow the same people, by the day's team", () => {
+  const po = user("po");
+  const scope = actualEntryScope(data, po, date);
+  const can = (id, day) => canManagePersonalCalendar(data, po, scope, id, day);
+  assert(can("member", "2026-10-05"));
+  assert(can("mover", "2026-09-30"));
+  assert(!can("mover", "2026-10-01"));
+  assert(!can("b-member", "2026-10-05"));
+  assert(!can("outsider", "2026-10-05"));
+  const member = user("member");
+  const own = actualEntryScope(data, member, date);
+  assert(canManagePersonalCalendar(data, member, own, "member", "2026-10-05"));
+  assert(!canManagePersonalCalendar(data, member, own, "po", "2026-10-05"));
+});
+
+test("a departed or not yet started Lider manages nobody", () => {
+  for (const patch of [
+    { status: "İşten Ayrıldı", end: "2026-10-01" },
+    { start: "2026-11-01" },
+  ]) {
+    const d = structuredClone(data);
+    d.resources[0].versions = [version("root", "Root", "leader", patch)];
+    const scope = actualEntryScope(d, user("leader"), date);
+    assert.equal(scope.teamIds.size, 0);
+  }
+});
