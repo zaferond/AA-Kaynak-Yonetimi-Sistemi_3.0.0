@@ -2728,7 +2728,7 @@ test("leadership hierarchy persists, rejects cycles and protected deletion, rena
   assert.equal(dbParents["__proto__"], "QA Renamed");
 });
 
-test("activity API shares only current team's aggregate cells, manager descendants, and preserves private write scopes", async (t) => {
+test("activity API: Team Member sees own team, Lider leadership with descendants, and preserves private write scopes", async (t) => {
   const { request, admin, user, state, write } = await setup(t);
   const d = (await state()).data;
   const teamA = d.teams.find((team) => team.lead),
@@ -2739,7 +2739,11 @@ test("activity API shares only current team's aggregate cells, manager descendan
   const resources = [
     ["activity-own", teamA],
     ["activity-peer", teamA],
-    ["activity-manager", teamA],
+    // A Lider sits on the leadership row of team A's leadership.
+    [
+      "activity-manager",
+      d.teams.find((team) => team.id === d.leadershipUnits[teamA.lead]),
+    ],
     ["activity-child", teamB],
     ["activity-sibling", sibling],
   ].map(([id, team]) => ({
@@ -2803,16 +2807,13 @@ test("activity API shares only current team's aggregate cells, manager descendan
   assert.equal((await request(url)).status, 401);
   const report = await request(url, undefined, own);
   assert.equal(report.status, 200);
+  // The read-only report shows a Team Member's own team, whatever the
+  // account role; Aktivite Giriş still shows only their own row.
   assert.deepEqual(
     new Set(report.json.rows.map((row) => row.resourceId)),
-    new Set(["activity-own", "activity-peer", "activity-manager"]),
+    new Set(["activity-own", "activity-peer"]),
   );
   assert(!JSON.stringify(report.json).includes("PRIVATE_ACTIVITY"));
-  assert.equal(
-    report.json.rows.find((row) => row.resourceId === "activity-peer").cells[0]
-      .projectFte,
-    0.5,
-  );
   const privateView = await request("/data", undefined, own);
   assert(
     !Object.keys(privateView.json.data.actualAllocations).some((key) =>
@@ -2836,6 +2837,12 @@ test("activity API shares only current team's aggregate cells, manager descendan
   );
   assert.deepEqual((await request(url, undefined, unmapped)).json.rows, []);
   const beforeHierarchy = await request(url, undefined, manager);
+  assert(!JSON.stringify(beforeHierarchy.json).includes("PRIVATE_ACTIVITY"));
+  assert.equal(
+    beforeHierarchy.json.rows.find((row) => row.resourceId === "activity-peer")
+      .cells[0].projectFte,
+    0.5,
+  );
   assert(
     beforeHierarchy.json.rows.some(
       (row) => row.resourceId === "activity-sibling",
@@ -4332,5 +4339,74 @@ test("leave days reach only the person, their PO/Lider and admins, across reads 
   assert.deepEqual(
     after.personCalendar[calendar[4].id],
     before.personCalendar[calendar[4].id],
+  );
+});
+
+test("a leave crossing the PO's month boundary is refused naming the out-of-scope dates", async (t) => {
+  const { request, user, state, write } = await setup(t);
+  const d = (await state()).data;
+  const team = d.teams.find((t) => t.lead && t.kind !== "leadership");
+  const other = d.teams.find(
+    (t) => t.lead && t.kind !== "leadership" && t.id !== team.id,
+  );
+  const version = (owner, assignmentRole, effective = "2026-01") => ({
+    effective,
+    start: "2026-01-01",
+    end: "",
+    team: owner.id,
+    lead: owner.lead,
+    status: "Aktif Çalışan",
+    included: true,
+    amount: 1,
+    assignmentRole,
+  });
+  assert.equal(
+    (
+      await write([
+        {
+          kind: "resource",
+          id: "edge-po",
+          value: {
+            id: "edge-po",
+            name: "edge-po",
+            note: "",
+            versions: [version(team, "productOwner")],
+          },
+        },
+        {
+          kind: "resource",
+          id: "edge-mover",
+          value: {
+            id: "edge-mover",
+            name: "edge-mover",
+            note: "",
+            // Moves to another team in October.
+            versions: [
+              version(team, "member"),
+              version(other, "member", "2026-10"),
+            ],
+          },
+        },
+      ])
+    ).status,
+    200,
+  );
+  const po = await user("edge-po-account", "normal", "edge-po");
+  const leave = (day) => ({
+    kind: "personDay",
+    id: "edge-mover|" + day + "|leave",
+    value: { type: "leave", hours: 9, label: "" },
+  });
+  const refused = await write(
+    ["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02"].map(leave),
+    po,
+  );
+  assert.equal(refused.status, 403);
+  assert.match(refused.json.error, /01\.10\.2026, 02\.10\.2026/);
+  assert.match(refused.json.error, /yetki kapsamınız dışında/);
+  assert.doesNotMatch(refused.json.error, /09\.2026/);
+  assert.equal(
+    (await write(["2026-09-29", "2026-09-30"].map(leave), po)).status,
+    200,
   );
 });

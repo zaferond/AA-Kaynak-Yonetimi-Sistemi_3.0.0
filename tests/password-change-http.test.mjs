@@ -98,6 +98,13 @@ test("a temporary password allows only the password change until it is replaced"
     [{ currentPassword: "wrong-password-123", newPassword: CHOSEN }, /şifre/i],
     [{ currentPassword: TEMPORARY, newPassword: TEMPORARY }, /aynı|farklı/i],
     [{ currentPassword: TEMPORARY, newPassword: "short" }, /10/],
+    // Long but guessable: no letter, one repeated character, a sequence.
+    [{ currentPassword: TEMPORARY, newPassword: "1231231234" }, /harf/],
+    [{ currentPassword: TEMPORARY, newPassword: "aaaaaaaaaa" }, /rakam/],
+    [{ currentPassword: TEMPORARY, newPassword: "aaaaaaaaaa111" }, /tekrar/],
+    [{ currentPassword: TEMPORARY, newPassword: "abcdef1234" }, /ardışık/],
+    [{ currentPassword: TEMPORARY, newPassword: "9876543210zyx" }, /ardışık/],
+    [{ currentPassword: TEMPORARY, newPassword: "zyxwvu54321" }, /ardışık/],
   ]) {
     const refused = await request("/auth/password", body, first);
     assert(refused.status >= 400 && refused.status < 500, refused.status);

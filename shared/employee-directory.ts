@@ -65,14 +65,3 @@ export function directoryEmployees(
     })
     .sort((a, b) => a.resource.name.localeCompare(b.resource.name, "tr"));
 }
-export function activityTeamScope(data: Data, user: Principal, month: string) {
-  if (user.role === "admin") return data.teams;
-  const own = employeeAssignment(data, user.resourceId || "", month);
-  if (!own) return [];
-  if (user.role === "normal")
-    return data.teams.filter((team) => team.id === own.team.id);
-  const leaders = descendantLeaders(data, own.team.lead);
-  return own.team.lead
-    ? data.teams.filter((team) => leaders.has(team.lead))
-    : [];
-}

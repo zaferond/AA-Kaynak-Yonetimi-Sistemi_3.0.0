@@ -32,3 +32,26 @@ export function assertAdminPassword(
         " örnek dosyadaki yer tutucu veya kullanıcı adıyla aynı. Kendi şifrenizi yazın.",
     );
 }
+/** Newly chosen local passwords (POST /api/auth/password): at least one letter
+ * and one digit, and not made up only of repeated characters or ascending/
+ * descending runs (aaaa, 1234, dcba). Stored passwords and AD are unaffected. */
+export function assertNewPasswordStrength(password, name = "Yeni şifre") {
+  const value = String(password || "").toLocaleLowerCase("tr");
+  if (!/\p{L}/u.test(value) || !/\p{N}/u.test(value))
+    throw Error(name + " en az bir harf ve bir rakam içermeli.");
+  const chars = [...value].map((char) => char.codePointAt(0));
+  let weak = chars.length > 0;
+  for (let i = 0; weak && i < chars.length;) {
+    const step = chars[i + 1] - chars[i];
+    let j = i + 1;
+    if (Math.abs(step) <= 1)
+      while (j + 1 < chars.length && chars[j + 1] - chars[j] === step) j++;
+    if (j - i + 1 < 3 || Math.abs(step) > 1) weak = false;
+    i = j + 1;
+  }
+  if (weak)
+    throw Error(
+      name +
+        " yalnız tekrar eden karakterlerden veya ardışık dizilerden (ör. aaaa, 1234, abcd) oluşamaz.",
+    );
+}

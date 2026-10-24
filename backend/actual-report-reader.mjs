@@ -10,9 +10,9 @@ import {
   actualViewResources,
 } from "./actual-view.mjs";
 import { activityReportResources } from "./activity-report.mjs";
-import { activityTeamScope } from "../shared/employee-directory.ts";
 import {
   actualEntryScope,
+  activityReportScope,
   canManagePersonalCalendar,
 } from "../shared/actual-entry-access.ts";
 import { filterOwnRecords } from "../shared/records.ts";
@@ -40,14 +40,14 @@ export async function readActualReportData(
   const months = monthsFrom(periodQuery.start, periodQuery.count).filter(
     (m) => m <= month,
   );
+  const activityScope =
+    kind === "activity" ? activityReportScope(data, user, month, date) : null;
   const teams =
-    kind === "actual"
-      ? actualViewTeams(data, user, date)
-      : activityTeamScope(data, user, month);
+    kind === "actual" ? actualViewTeams(data, user, date) : activityScope.teams;
   const resources =
     kind === "actual"
       ? actualViewResources(data, user, teams, month)
-      : activityReportResources(data, teams, month);
+      : activityReportResources(data, activityScope, month);
   const owners = resources.map((resource) => resource.id);
   // Legacy separators can change interpretation of composite record keys.
   // Preserve the complete numeric read for those datasets; final projection

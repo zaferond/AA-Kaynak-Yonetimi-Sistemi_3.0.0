@@ -122,3 +122,37 @@ test("a departed or not yet started Lider manages nobody", () => {
     assert.equal(scope.teamIds.size, 0);
   }
 });
+
+test("Aktivite Raporu shows Aktivite Giriş people plus a member's own team", async () => {
+  const { activityReport } = await import("../backend/activity-report.mjs");
+  const d = { ...structuredClone(data), projects: [], actualAllocations: {} };
+  const query = { start: "2026-10", count: 1, projects: [] };
+  const seen = (u) =>
+    activityReport(d, u, query, "2026-10")
+      .rows.map((row) => row.resourceId)
+      .sort();
+  // The report is read only: members and CoE also see their teammates.
+  const teamA = ["coe", "member", "po"];
+  assert.deepEqual(seen(user("member")), teamA);
+  assert.deepEqual(seen(user("coe")), teamA);
+  assert.deepEqual(
+    seen(user("member", "manager")),
+    teamA,
+    "a manager account does not widen a Team Member",
+  );
+  assert.deepEqual(seen(user("po")), ["coe", "member", "po"]);
+  assert.deepEqual(seen(user("leader")), [
+    "b-member",
+    "c-member",
+    "coe",
+    "leader",
+    "member",
+    "mover",
+    "po",
+  ]);
+  assert.deepEqual(
+    seen({ role: "manager", resourceId: "", leaders: ["Root"] }),
+    [],
+  );
+  assert.equal(seen({ role: "admin", resourceId: "" }).length, 8);
+});

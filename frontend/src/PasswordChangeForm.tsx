@@ -69,7 +69,8 @@ export default function PasswordChangeForm({
         />
       </label>
       <small id={hintId} className="password-change-hint">
-        En az {MIN_LENGTH} karakter; kullanıcı adınız veya örnek şifre olamaz.
+        En az {MIN_LENGTH} karakter, en az bir harf ve bir rakam; kullanıcı
+        adınız, örnek şifre veya aaaa, 1234 gibi diziler olamaz.
       </small>
       <label>
         Yeni şifre (tekrar)

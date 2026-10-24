@@ -99,3 +99,28 @@ export function canManagePersonalCalendar(
 ) {
   return canEnterActual(data, user, scope, resourceId, date.slice(0, 7));
 }
+
+/** Aktivite Raporu shows the same people as Aktivite Giriş: the teams the
+ * user manages plus their own team, whose rows are limited to the people the
+ * user may enter (assignment of `month`). */
+export function activityReportScope(
+  data: Org,
+  user: Pick<Principal, "role" | "resourceId">,
+  month: string,
+  date = month === currentPlanningDate().slice(0, 7)
+    ? currentPlanningDate()
+    : month + "-01",
+) {
+  const scope = actualEntryScope(data, user, date);
+  const teamIds = new Set(scope.teamIds);
+  if (scope.ownTeamId) teamIds.add(scope.ownTeamId);
+  return {
+    teams: data.teams.filter((team) => teamIds.has(team.id)),
+    includes: (resourceId: string, teamId: string) =>
+      scope.admin ||
+      (!!resourceId && resourceId === user.resourceId) ||
+      scope.teamIds.has(teamId) ||
+      // The report (read only) also shows a member's own teammates.
+      (!!scope.ownTeamId && teamId === scope.ownTeamId),
+  };
+}

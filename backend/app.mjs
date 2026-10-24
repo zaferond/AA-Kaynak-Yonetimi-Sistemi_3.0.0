@@ -6,7 +6,10 @@ import { activityQuery } from "./activity-report.mjs";
 import { ReportReadAdmission } from "./report-read-admission.mjs";
 import express from "express";
 import { randomUUID } from "node:crypto";
-import { assertAdminPassword } from "./admin-credentials.mjs";
+import {
+  assertAdminPassword,
+  assertNewPasswordStrength,
+} from "./admin-credentials.mjs";
 import { z } from "zod";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -365,6 +368,7 @@ export function createApp(
         fail(400, "Yeni şifre mevcut şifreyle aynı olamaz.");
       try {
         assertAdminPassword(next, u.username, "Yeni şifre");
+        assertNewPasswordStrength(next);
       } catch (error) {
         fail(400, error.message);
       }

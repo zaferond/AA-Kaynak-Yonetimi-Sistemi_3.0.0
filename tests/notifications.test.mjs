@@ -200,3 +200,48 @@ test("summaries come from field names; unlisted kinds are dropped", () => {
     [1, 1, 1],
   );
 });
+
+test("a narrow reader still gets older in-scope changes behind many hidden ones", async (t) => {
+  const { store, users } = await setup(t);
+  const open = project("open");
+  const hidden = project("hidden", {
+    access: { roles: ["normal"], leaders: [], teams: [], people: [] },
+  });
+  await store.mutate(users.editor, (d, u) =>
+    applyChanges(d, u, [
+      { kind: "project", id: open.id, value: open, revision: 0 },
+      { kind: "project", id: hidden.id, value: hidden, revision: 0 },
+    ]),
+  );
+  const insert = (i, recordId, at) =>
+    store.db.query(
+      "INSERT INTO kp_audit_events(id,occurred_at,actor_id,actor_name,kind,record_id,record_name,action,changes) VALUES(@p0,@p1,'editor',@p2,'project',@p3,@p4,'update','[]')",
+      [
+        "synthetic-" + recordId + "-" + i,
+        at,
+        "Synthetic actor " + i,
+        recordId,
+        "Project " + recordId,
+      ],
+    );
+  // Five visible changes, then 700 newer ones the manager cannot see.
+  for (let i = 0; i < 5; i++)
+    await insert(i, "open", `2027-01-01T00:00:0${i}.000Z`);
+  for (let i = 0; i < 700; i++)
+    await insert(
+      i,
+      "hidden",
+      `2027-02-01T00:${String(Math.floor(i / 60)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}.000Z`,
+    );
+  const manager = (await store.notifications(users.manager)).notifications;
+  assert.equal(
+    manager.filter((n) => n.actor.startsWith("Synthetic actor")).length,
+    5,
+  );
+  assert(manager.every((n) => n.recordId !== "hidden"));
+  // Ordinary users may view the hidden project: they still get the limit.
+  assert.equal(
+    (await store.notifications(users.normal)).notifications.length,
+    30,
+  );
+});

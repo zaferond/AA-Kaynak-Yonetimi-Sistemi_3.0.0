@@ -10,7 +10,8 @@ export async function checkNotifications(f) {
         const bell = page.locator(".mast-bell");
         // The fixture's projects were created by another account.
         await f.wait(
-          async () => /yeni$/.test((await bell.getAttribute("aria-label")) || ""),
+          async () =>
+            /yeni$/.test((await bell.getAttribute("aria-label")) || ""),
           "unread notifications",
         );
         await bell.click();

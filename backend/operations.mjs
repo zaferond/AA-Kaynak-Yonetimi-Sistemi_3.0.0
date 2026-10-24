@@ -209,8 +209,33 @@ function stageParsedChanges(d, u, changes) {
       !canScenario &&
       !canProgress &&
       !canWarning
-    )
+    ) {
+      // A leave/training range may cross the user's scope (a PO's team
+      // member moving teams next month): name the refused dates.
+      if (kind === "personDay") {
+        const days = [
+          ...new Set(
+            changes
+              .filter((item) => item.kind === "personDay")
+              .map((item) => item.id.split("|"))
+              .filter(
+                ([resourceId, day = ""]) =>
+                  !canManagePersonalCalendar(d, u, scope(), resourceId, day),
+              )
+              .map(([, day = ""]) =>
+                /^\d{4}-\d{2}-\d{2}$/.test(day)
+                  ? `${day.slice(8, 10)}.${day.slice(5, 7)}.${day.slice(0, 4)}`
+                  : day,
+              ),
+          ),
+        ];
+        fail(
+          403,
+          `${days.join(", ")} ${days.length > 1 ? "tarihleri" : "tarihi"} yetki kapsamınız dışında.`,
+        );
+      }
       fail(403, "Bu işlem için yetkiniz yok.");
+    }
     if (
       (kind === "allocation" || kind === "actual") &&
       !canSeeProject(id.split("|")[1])

@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { buildActivityRows } from "../shared/activity-report.ts";
-import {
-  activityTeamScope,
-  createEmployeeAssignmentIndex,
-} from "../shared/employee-directory.ts";
+import { createEmployeeAssignmentIndex } from "../shared/employee-directory.ts";
+import { activityReportScope } from "../shared/actual-entry-access.ts";
 import { visibleLeaderParents } from "../shared/leadership-hierarchy.ts";
 import { currentPlanningMonth } from "../shared/resource-dates.ts";
 import {
@@ -40,12 +38,16 @@ export const activityQuery = z
       }),
   })
   .strict();
-export function activityReportResources(data, permitted, currentMonth) {
-  const teamIds = new Set(permitted.map((team) => team.id));
+export function activityReportResources(data, scope, currentMonth) {
+  const teamIds = new Set(scope.teams.map((team) => team.id));
   const assignments = createEmployeeAssignmentIndex(data, currentMonth);
   return data.resources.filter((resource) => {
     const assignment = assignments.get(resource.id);
-    return assignment && teamIds.has(assignment.team.id);
+    return (
+      assignment &&
+      teamIds.has(assignment.team.id) &&
+      scope.includes(resource.id, assignment.team.id)
+    );
   });
 }
 export function activityReport(
@@ -54,8 +56,9 @@ export function activityReport(
   query,
   currentMonth = currentPlanningMonth(),
 ) {
-  const permitted = activityTeamScope(data, user, currentMonth);
-  const resources = activityReportResources(data, permitted, currentMonth);
+  const scope = activityReportScope(data, user, currentMonth);
+  const permitted = scope.teams;
+  const resources = activityReportResources(data, scope, currentMonth);
   // Without a project filter the rows keep every project (team totals stay
   // complete); a filter may only name projects this user can view.
   const canSeeProject = projectVisibility(data, user, currentMonth);

@@ -500,3 +500,21 @@ test("long and multi-line critical details export losslessly as bounded continua
     assert.doesNotMatch(sheet, /<f[ >]/);
   }
 });
+
+test("the Excel 'this week' follows Turkish local time on Monday night", async (t) => {
+  const { projectInfoReportSheet } =
+    await import("../frontend/src/project-info-report-export.ts");
+  // Monday 2026-10-26 01:00 in Istanbul is still Sunday in UTC.
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: Date.parse("2026-10-25T22:00:00Z"),
+  });
+  assert.equal(
+    projectInfoReportSheet([]),
+    projectInfoReportSheet([], "2026-10-26"),
+  );
+  assert.notEqual(
+    projectInfoReportSheet([], "2026-10-26"),
+    projectInfoReportSheet([], "2026-10-25"),
+  );
+});

@@ -14,10 +14,10 @@ import {
   type IsoWeek,
 } from "../../shared/iso-week.ts";
 import type { ReportTopic } from "../../shared/project-info-report.ts";
+import { currentPlanningDate } from "../../shared/resource-dates.ts";
 
 /** Week columns on the right: last week, this week and three ahead. */
 const WEEK_OFFSETS = [-1, 0, 1, 2, 3];
-const todayIso = () => new Date().toISOString().slice(0, 10);
 
 /**
  * The mark of one topic in one week. The target week is the week of the
@@ -50,7 +50,7 @@ function cell(row: number, index: number, value: string, style: number) {
 
 export function projectInfoReportSheet(
   projects: ReportProject[],
-  today = todayIso(),
+  today = currentPlanningDate(),
 ): string {
   const thisWeek = isoWeek(today);
   const weeks = WEEK_OFFSETS.map((offset) => shiftWeek(thisWeek, offset));
@@ -136,7 +136,7 @@ const styles = `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="${sheet
 
 export function projectInfoReportWorkbook(
   projects: ReportProject[],
-  today = todayIso(),
+  today = currentPlanningDate(),
 ): Uint8Array {
   if (
     !projects.some((project) =>

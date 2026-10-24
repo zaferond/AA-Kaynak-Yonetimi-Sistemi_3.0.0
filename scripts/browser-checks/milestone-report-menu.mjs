@@ -73,7 +73,9 @@ export async function checkMilestoneReportMenu(f) {
     );
     await menu()
       .getByRole("menuitemcheckbox", {
-        name: (included ? "Kritik konulara ekle: " : "Kritik konulardan çıkar: ") + text,
+        name:
+          (included ? "Kritik konulara ekle: " : "Kritik konulardan çıkar: ") +
+          text,
         exact: true,
       })
       .click();

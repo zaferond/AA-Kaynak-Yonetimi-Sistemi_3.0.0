@@ -33,6 +33,8 @@ import {
   directoryRevision,
   directoryCatalogChanged,
 } from "../shared/directory-policy.ts";
+/** Upper bound of audit rows one notifications request may read. */
+const NOTIFICATION_MAX_ROWS = 5000;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // A database edited outside the application (no generation bump) is picked up
 // within this time at the latest. VIEW_CACHE_MAX_AGE_MS=0 turns the cache off:
@@ -335,15 +337,32 @@ export class Store {
     const n = NOTIFICATION_KINDS.length;
     const page =
       this.provider === "mssql"
-        ? `OFFSET 0 ROWS FETCH NEXT @p${n + 1} ROWS ONLY`
-        : `LIMIT @p${n + 1}`;
+        ? `OFFSET @p${n + 2} ROWS FETCH NEXT @p${n + 1} ROWS ONLY`
+        : `LIMIT @p${n + 1} OFFSET @p${n + 2}`;
     // Read past the limit: rows outside the user's scope are dropped below.
-    const rows = (
-      await this.db.query(
-        `SELECT id,occurred_at,actor_id,actor_name,kind,record_id,record_name,action,changes FROM kp_audit_events WHERE kind IN (${kinds}) AND actor_id<>@p${n} ORDER BY occurred_at DESC,id DESC ${page}`,
-        [...NOTIFICATION_KINDS, u._id, limit * 10],
+    // A narrow scope keeps reading page by page until the limit is filled or
+    // the log ends, never more than NOTIFICATION_MAX_ROWS rows in total.
+    const size = limit * 10;
+    const rows = [];
+    for (let offset = 0; offset < NOTIFICATION_MAX_ROWS; offset += size) {
+      const batch = (
+        await this.db.query(
+          `SELECT id,occurred_at,actor_id,actor_name,kind,record_id,record_name,action,changes FROM kp_audit_events WHERE kind IN (${kinds}) AND actor_id<>@p${n} ORDER BY occurred_at DESC,id DESC ${page}`,
+          [
+            ...NOTIFICATION_KINDS,
+            u._id,
+            Math.min(size, NOTIFICATION_MAX_ROWS - offset),
+            offset,
+          ],
+        )
+      ).rows;
+      rows.push(...batch);
+      if (
+        batch.length < size ||
+        buildNotifications(rows, data, user.role, limit).length >= limit
       )
-    ).rows;
+        break;
+    }
     return { notifications: buildNotifications(rows, data, user.role, limit) };
   }
   copySnapshot(data, { planningOnly = false } = {}) {

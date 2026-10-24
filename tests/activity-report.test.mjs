@@ -268,7 +268,7 @@ test("activity status uses the current month, not the report period or a schedul
   assert.equal(rows(data, ["2026-11"]).length, 0);
 });
 
-test("team activity scope ignores granted leaderships, limits peers and follows descendant leaders", async () => {
+test("activity scope follows the employee role: Team Member own team, Lider descendant leaders, grants ignored", async () => {
   const { activityReport } = await import("../backend/activity-report.mjs");
   const { directoryEmployees } =
     await import("../shared/employee-directory.ts");
@@ -294,20 +294,42 @@ test("team activity scope ignores granted leaderships, limits peers and follows 
     leaders: ["B Liderliği"],
     resourceId: "a",
   };
-  const peerReport = activityReport(data, own, query, "2026-10");
+  const ownReport = activityReport(data, own, query, "2026-10");
+  // The read-only report shows a Team Member's own teammates too.
   assert.deepEqual(
-    new Set(peerReport.rows.map((row) => row.resourceId)),
+    ownReport.rows.map((row) => row.resourceId),
+    ["a", "peer"],
+  );
+  assert(!JSON.stringify(ownReport).includes("PRIVATE_PEER"));
+  assert.deepEqual(
+    activityReport(
+      data,
+      { ...own, role: "manager" },
+      query,
+      "2026-10",
+    ).rows.map((row) => row.resourceId),
+    ["a", "peer"],
+    "a manager account does not widen a Team Member",
+  );
+  const po = structuredClone(data);
+  po.resources[0].versions[0].assignmentRole = "productOwner";
+  const poReport = activityReport(po, own, query, "2026-10");
+  assert.deepEqual(
+    new Set(poReport.rows.map((row) => row.resourceId)),
     new Set(["a", "peer"]),
   );
-  assert(!JSON.stringify(peerReport).includes("PRIVATE_PEER"));
+  assert(!JSON.stringify(poReport).includes("PRIVATE_PEER"));
+  const lider = structuredClone(data);
+  lider.teams = [
+    ...teams,
+    { id: "t-lead", name: "A", lead: "A Liderliği", kind: "leadership" },
+  ];
+  lider.resources[0].versions = [version("t-lead")];
   assert.deepEqual(
     new Set(
-      activityReport(
-        data,
-        { ...own, role: "manager" },
-        query,
-        "2026-10",
-      ).rows.map((row) => row.resourceId),
+      activityReport(lider, own, query, "2026-10").rows.map(
+        (row) => row.resourceId,
+      ),
     ),
     new Set(["a", "peer", "sibling", "child"]),
   );

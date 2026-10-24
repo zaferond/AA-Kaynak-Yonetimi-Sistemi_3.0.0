@@ -402,7 +402,7 @@ export async function checkActivityReport(f) {
       },
     );
     await f.check(
-      "activity report: manager and normal accounts retain API scope; reporting does not write data",
+      "activity report: Team Members see their own team whatever the account role; reporting does not write data",
       async () => {
         const originalManager = await f.store.findUser({ id: "manager" });
         await f.store.mutate(f.actor, (_data, _actor, session) =>
@@ -430,16 +430,20 @@ export async function checkActivityReport(f) {
               .evaluateAll((rows) =>
                 rows.map((r) => r.dataset.activityResource),
               );
-            if (role === "manager") {
-              assert(named.includes(ids[0]));
-              assert(!named.includes("r-other"));
-            }
-            if (role === "employee") {
-              assert(named.includes("r-own"));
-              assert(named.includes(ids[0]));
-              assert(!named.includes("r-other"));
-            }
+            // Both are Team Members: the read-only report shows their own
+            // team (Aktivite Giriş still shows only themselves).
+            const state = await f.state();
+            const teamOf = (id) =>
+              state.resources.find((r) => r.id === id)?.versions.at(-1).team;
+            const self = { manager: ids[0], employee: "r-own" }[role];
             if (role === "unmapped") assert.deepEqual(named, []);
+            else {
+              assert(named.includes(self), role);
+              assert(
+                named.every((id) => teamOf(id) === teamOf(self)),
+                role + ": only teammates",
+              );
+            }
           } finally {
             await client.context.close();
           }
