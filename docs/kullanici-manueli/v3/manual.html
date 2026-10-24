@@ -114,9 +114,6 @@
   <table class="meta">
     <tr><td>Belge sürümü</td><td>3.1</td></tr>
     <tr><td>Tarih</td><td>24.10.2026</td></tr>
-    <tr><td>Uygulama durumu</td><td>main dalı (2a1aa09) ve sonrasındaki arayüz geliştirmeleri</td></tr>
-    <tr><td>Önceki sürüme göre</td><td>Yeni yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Proje ve Kaynak Değerlendirme, Haftalık Kritik Konular, Aktivite Raporu Excel çıktısı ve renk bantları. Yeni bölümler <span class="new">YENİ</span> ile işaretlidir.</td></tr>
-    <tr><td>Ekran görüntüleri</td><td>Kurgusal test verisiyle alınmıştır; gerçek kişi veya proje bilgisi içermez.</td></tr>
   </table>
 </section>
 
@@ -157,7 +154,7 @@
     <div class="role"><h3>Yönetici</h3>
       <p>Kaynak Planlama'da tüm takımları görür, kendisine verilen liderlik veya takım kapsamında giriş yapar. Kendi liderliklerinin hedef planını ve aylık gerçekleşen yüzdesini girer. Projeleri, kritik konuları ve raporları görüntüler; senaryo taslağı hazırlar.</p></div>
     <div class="role"><h3>Normal Kullanıcı</h3>
-      <p>Aktivite Giriş'te, çalışan kaydındaki görevine göre kendisinin (ve PO/Lider ise ekibinin) aylık aktivitesini ve izin/eğitim takvimini girer. Kendi takımının Aktivite Raporu'nu ve kendisine görünür projeleri görüntüler.</p></div>
+      <p>Aktivite Giriş'te çalışan kaydındaki görevine göre kendisinin veya ekibinin aktivitesini ve izin/eğitim takvimini girer. Aktivite Raporu'nu aynı görevden gelen kişi kapsamında, kendisine görünür projeleri proje yetkisine göre görüntüler.</p></div>
     <div class="role"><h3>Normal-Proje</h3>
       <p>Projeler ve Haftalık Kritik Konular ekranlarında Admin ile aynı yetkilere sahiptir: proje ekler, düzenler, siler, sıralar; aşama, başlık, not ve kilometre taşlarını yönetir; proje görüntüleme yetkisini belirler.</p></div>
   </div>
@@ -175,20 +172,26 @@
       <tr><th>Organizasyon &amp; Çalışan &amp; Yetki</th><td>✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
     </tbody>
   </table>
-  <div class="note"><b>Kaynak rolü ile uygulama rolü farklıdır.</b> Çalışan kaydındaki Lider, Product Owner, Team Member veya CoE bilgisi organizasyondaki görevi gösterir; kendiliğinden uygulama yetkisi vermez. Uygulama rolü, çalışan formundaki <span class="ui">Hesap ve Yetkiler</span> bölümünden atanır.</div>
-  <h2>Aktivite Giriş kimin için yapılır? <span class="new">YENİ</span></h2>
-  <p>Aktivite Giriş uygulama rolüne değil, kişinin <b>çalışan kaydındaki görevine</b> göre çalışır. Görebildiği herkes için aylık aktivite ve izin/eğitim girişi de yapabilir.</p>
+  <div class="note"><b>Uygulama rolü ekran erişimini, çalışan görevi aktivite kapsamını belirler.</b> Yönetici rolü, Aktivite Giriş ve Aktivite Raporu'nda daha fazla kişiyi görme yetkisi vermez. Bu ekranlarda kapsam, hesaba bağlı çalışan kaydındaki Lider, Product Owner, Team Member veya CoE görevinden gelir. Admin tüm kişilere erişir.</div>
+</section>
+
+<section class="page">
+  <h2>Aktivite Giriş ve Aktivite Raporu kapsamı</h2>
+  <p>Aşağıdaki kişi kapsamı, ekranı açabilen Yönetici ve Normal Kullanıcı hesapları için aynıdır. Aktivite Raporu salt okunurdur; aktivite ve izin/eğitim değişiklikleri Aktivite Giriş'ten yapılır.</p>
   <table class="grid">
-    <thead><tr><th>Çalışan kaydındaki görev</th><th>Görür, aktivite ve izin girer</th></tr></thead>
+    <thead><tr><th>Çalışan kaydındaki görev</th><th>Aktivite Giriş ve izin/eğitim</th><th>Aktivite Raporu</th></tr></thead>
     <tbody>
-      <tr><th>Team Member, CoE</th><td>Yalnız kendisi</td></tr>
-      <tr><th>Product Owner</th><td>Kendisi ve kendi takımındaki herkes</td></tr>
-      <tr><th>Lider</th><td>Kendisi, kendi liderliği, altındaki tüm alt liderlikler ve bunlara bağlı bütün takımlardaki herkes</td></tr>
-      <tr><th>Admin (uygulama rolü)</th><td>Herkes</td></tr>
+      <tr><th>Team Member, CoE</th><td>Yalnız kendisi</td><td>Kendi takımı</td></tr>
+      <tr><th>Product Owner</th><td>Kendisi ve kendi takımı</td><td>Kendisi ve kendi takımı</td></tr>
+      <tr><th>Lider</th><td>Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar</td><td>Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar</td></tr>
+      <tr><th>Admin (uygulama rolü)</th><td>Herkes</td><td>Herkes</td></tr>
     </tbody>
   </table>
-  <p>Kişi takım değiştirirse önceki takımının PO'su yalnız o kişinin o takımda olduğu ayları görür. Çalışan kaydına bağlı olmayan bir hesap, liderlik yetkisi olsa bile Aktivite Giriş'te kimseyi görmez.</p>
+  <p><b>Örnek:</b> Çalışan görevi Team Member olan bir Yönetici, Aktivite Giriş'te yalnız kendisini, Aktivite Raporu'nda kendi takımını görür. Çalışan görevi Lider olan bir Normal Kullanıcı ise kendi liderliğine ve alt liderliklere erişir.</p>
+  <div class="note"><b>Çalışan kaydı eşleşmesi gerekir.</b> Admin dışındaki bir hesap çalışan kaydına bağlı değilse, Yönetici rolünde ve planlama için liderlik yetkisi olsa bile Aktivite Giriş ve Aktivite Raporu boş gelir. Admin, hesap eşleşmesini ve çalışanın görev/takım bilgilerini kontrol etmelidir.</div>
+  <p>Aktivite Giriş'te bir kişinin eski aylarına erişim, o ayki takımına göre denetlenir. Aktivite Raporu ise önce bugünkü görev ve takım kapsamındaki kişileri seçer, ardından seçili dönemin takım satırlarını üretir. Takım değiştiren kişinin önceki ayları bu nedenle raporda görünmeyebilir.</p>
   <h2>Yönetici planlama yetkisi</h2>
+  <p><span class="ui">Planlanan Kaynak Dağılımı Yetkisi</span> alanındaki liderlik ve takım atamaları Aktivite Giriş veya Aktivite Raporu kapsamını genişletmez.</p>
   <ul>
     <li><b>Liderlik yetkisi:</b> Seçilen liderlik ve altındaki tüm liderlik/takımlar için Kaynak Planlama girişi.</li>
     <li><b>Takım yetkisi:</b> Yalnız seçilen takım için Kaynak Planlama girişi.</li>
@@ -198,7 +201,7 @@
 <!-- 3 -->
 <section class="page">
   <h1>3. Ana Sayfa, arama ve bildirimler <span class="new">YENİ</span></h1>
-  <p>Giriş sonrası varsayılan ekran Ana Sayfa'dır. Üst satırda karşılama, rol, tarih ve hafta numarası; altında açabildiğiniz her ekran için bir kart bulunur. Karta tıklamak ilgili ekranı açar. Farklı bir açılış ekranı için kullanıcı menüsündeki <span class="ui">Varsayılan sekme</span>'yi kullanın.</p>
+  <p>Giriş sonrası varsayılan ekran Ana Sayfa'dır. Üst satırda karşılama, rol, tarih ve hafta numarası; altında açabildiğiniz her ekran için başlığını ve simgesini taşıyan bir kart bulunur. Karta tıklamak ilgili ekranı açar. Farklı bir açılış ekranı için kullanıcı menüsündeki <span class="ui">Varsayılan sekme</span>'yi kullanın.</p>
   <figure>
     <div class="shot" style="height:74mm"><img src="shots/ana-sayfa.jpg" alt="Ana Sayfa"></div>
     <figcaption>Ana Sayfa (Admin). Kartlar rolünüze göre değişir.</figcaption>
@@ -486,7 +489,7 @@
       <span class="band" style="background:#f9e1bd"></span>%50 altı. İçinde bulunulan ay ve boş hücreler renklendirilmez; proje filtresi seçiliyken renk kullanılmaz.</li>
     <li>İşbaşı öncesi ve işten ayrılış sonrası aylar ayrıca işaretlenir. Sayfa başına 100 satır gösterilir; <span class="ui">Önceki</span> / <span class="ui">Sonraki</span> ile gezilir.</li>
     <li><b>Excel'e aktarma</b> <span class="new">YENİ</span>: <span class="ui">Görünüm</span>'ün sağındaki indirme düğmesi raporu Liderlik, Takım, Çalışan ve aylık değer sütunlarıyla, aynı renk bantlarıyla indirir.</li>
-    <li><b>Kapsam:</b> Admin tümünü, Yönetici kendi liderliğini ve alt birimlerini, Normal Kullanıcı kendi takımını görür.</li>
+    <li><b>Kapsam:</b> Uygulama rolü Yönetici veya Normal Kullanıcı olsa da çalışan görevi belirleyicidir: Team Member/CoE kendi takımını, Product Owner kendi takımını, Lider kendi liderliğini, alt liderlikleri ve bağlı takımları görür. Admin tümünü görür. Çalışan kaydı eşleşmemiş hesapların raporu boştur (2. bölüm).</li>
   </ul>
 </section>
 
@@ -584,8 +587,7 @@
         <td><span class="n">—</span></td></tr>
       <tr><th>Aktivite Raporu</th>
         <td><span class="s">Görür</span><small>Tümü</small></td>
-        <td><span class="s">Görür</span><small>Kendi liderliği ve altı</small></td>
-        <td><span class="s">Görür</span><small>Kendi takımı</small></td>
+        <td colspan="2"><span class="s">Görür</span><small>Çalışan görevine göre: Team Member/CoE ve PO kendi takımı; Lider kendi liderliği, alt liderlikler ve bağlı takımlar</small></td>
         <td><span class="n">—</span></td></tr>
       <tr><th>Organizasyon &amp; Çalışan &amp; Yetki</th>
         <td><span class="y">Düzenler</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
@@ -633,6 +635,7 @@
     <thead><tr><th style="width:62mm">Durum</th><th>Yapılacak işlem</th></tr></thead>
     <tbody>
       <tr><th>Ekran, çalışan veya proje görünmüyor</th><td>Rolünüzü (sağ üst), filtreleri ve proje görüntüleme yetkisini kontrol edin. Gerekirse Admin'den rol veya kapsam isteyin.</td></tr>
+      <tr><th>Yönetici hesabında Aktivite Giriş veya Aktivite Raporu boş</th><td>Admin'den hesabın çalışan kaydıyla eşleşmesini, çalışanın görevini, takımını ve çalışma tarihlerini kontrol etmesini isteyin. Planlama için liderlik yetkisi vermek aktivite kapsamı oluşturmaz.</td></tr>
       <tr><th>Hücreye giriş yapılamıyor</th><td>Yetki kapsamını, proje dönemini, gelecek ay kısıtını ve ay kilidini kontrol edin.</td></tr>
       <tr><th>Toplu seçim yanlış hücreleri kapsıyor</th><td>Seçili hücrelerden birine Ctrl'siz tıklayın (seçim o hücreye iner) veya <kbd>Esc</kbd> ile seçimi kaldırın.</td></tr>
       <tr><th>Hedef plan kaydedilmiyor</th><td>Yeni hedef, girilmiş gerçekleşen yüzdeden düşük olamaz; ay kilidini ve plan durumunu (Proje Ekibi Onayında ise önce geri çekin) kontrol edin.</td></tr>

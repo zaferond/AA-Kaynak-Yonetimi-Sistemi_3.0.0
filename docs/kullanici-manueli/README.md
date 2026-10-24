@@ -1,8 +1,25 @@
 # Kullanıcı manueli
 
-## Güncel belge: sürüm 3.0 (23.10.2026)
+## Güncel belge: sürüm 3.1 (24.10.2026)
 
-`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (22 sayfa) güncel arayüzü anlatır: yan menü ve yeni ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi. Uygulama durumu: main `2a1aa09` ve sonrasındaki arayüz geliştirmeleri. Ekran görüntüleri kurgusal demo verisiyle alınmıştır.
+`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (23 sayfa) güncel arayüzü anlatır: yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi.
+
+### Aktivite yetkileri için kesinleşen kural
+
+Uygulama rolü, aktivite ekranlarının açılabilmesini belirler. Admin dışındaki hesaplarda kişi kapsamı, hesaba bağlı çalışanın organizasyon görevinden gelir; Yönetici (`manager`) rolü veya planlama liderliği atamaları (`user.leaders`) bu kapsamı genişletmez.
+
+| Çalışan görevi | Aktivite Giriş ve izin/eğitim | Aktivite Raporu |
+|---|---|---|
+| Team Member / CoE | Yalnız kendisi | Kendi takımı |
+| Product Owner | Kendisi ve kendi takımı | Kendisi ve kendi takımı |
+| Lider | Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar | Aynı kapsam |
+| Admin (uygulama rolü) | Herkes | Herkes |
+
+Çalışan kaydıyla eşleşmemiş Admin dışındaki hesaplar, Yönetici rolünde ve planlama için liderlik yetkisi olsa da her iki aktivite ekranında boş sonuç görür. Bu durum bir yetki hatası değildir. Admin, hesap-çalışan eşleşmesini ve organizasyon görevini kontrol etmelidir.
+
+PDF'nin kapak tablosunda yalnız belge sürümü ve tarih bulunur. Ana Sayfa görseli, kartların detay açıklamaları kaldırılmış haliyle güncellenmiştir.
+
+**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1015/1015 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
 
 `v3/` klasörü kaynakları içerir:
 
@@ -40,7 +57,7 @@ Gerçek veritabanına (`data/planlama.sqlite`) ve canlı demo dosyasına bu adı
 
 Türkçe destekli Arial (macOS/Windows) veya DejaVu Sans (Linux) gerekir. Özel font dizini `AA_MANUAL_FONT_DIR` ile seçilebilir. Beklenen dosyalar: Arial.ttf, Arial Bold.ttf, Arial Italic.ttf, Arial Bold Italic.ttf. Fontlar lisansları nedeniyle pakete eklenmez. `---page---` işaretleri PDF'de sayfa sonudur.
 
-## Doğrulama kaydı
+## Doğrulama kaydı (sürüm 1.1 arşivi)
 
 **İncelenen uygulama commit'i:** `38b5f48abb83dc3c6827d98e13f5fa0eefd5ec6d`. Bu commit, soluk aşama renklerini, sola hizalamayı ve özet tablonun boş/açık renkli köşe başlığını içerir.
 
