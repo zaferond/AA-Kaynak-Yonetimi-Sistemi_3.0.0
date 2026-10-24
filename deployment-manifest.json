@@ -1,7 +1,7 @@
 {
   "format": "aa-deployment-v1",
   "version": "3.0.0",
-  "commit": "f02e381af3075495b1ea051d42d294af058487de",
+  "commit": "a0c3a9f3fc0fdf18863a63718506ae3071ce5541",
   "sources": {
     "backend/active-directory.mjs": "3664ad7f8903dab2e832c09ae9553f2008510f34470f76ef3886d5e780cdf08f",
     "backend/activity-report.mjs": "e992d61e0363e5d01d935c225189a832ca330a61902ce7cc5e4360c46e551e10",

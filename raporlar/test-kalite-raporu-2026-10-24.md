@@ -1,49 +1,47 @@
-# Test ve Kalite Raporu: 24.10.2026
+# Test ve Kalite Raporu: 24.10.2026 (güncellendi)
 
-Kapsam: tüm proje, commit edilmemiş değişikliklere ayrıca odaklanıldı (son commit `f02e381`).
+Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş değişiklikler üzerinde yapıldı. Bu güncelleme `a0c3a9f` commit'inde yeniden doğrulandı ("Aktivite Raporu kapsamı görev kuralına bağlandı").
 İnceleyenler: kalite mühendisi (salt okunur kod analizi) ve test mühendisi (doğrulama zinciri).
 
-Kritik veya yüksek önemde, kanıtlanmış bir hata çıkmadı. Ancak zincir tam yeşil değil. Kalan iki test, bir ürün kararına bağlı.
+**Güncel durum:** Doğrulama zinciri tamamen yeşil. Üç bulgudan ikisi kapandı. Açık kalan tek madde düşük önemde (bulgu 2).
 
 ## Doğrulama zinciri
 
-| Adım | Sonuç | Süre |
+| Adım | İlk sonuç (`f02e381`) | Güncel sonuç (`a0c3a9f`) |
 |---|---|---|
-| iCloud kopya dosyaları | ✅ Yok | <1 sn |
-| `npm run format:check` | ❌ 2 dosya Prettier biçiminde değil | 15 sn |
-| `npm run typecheck` | ✅ Geçti | 14 sn |
-| `npm test` | ❌ 1009 testin 1007'si geçti, 2'si kaldı | 70 sn |
-| `npm run build` + `npm run deploy:verify` | ✅ Geçti, `"ok": true` | 7 sn |
-| `npm run test:ui`, `npm run test:db` | ⏭️ Çalıştırılmadı (25 dakikalık tarayıcı paketi ve MSSQL ortamı) | – |
+| iCloud kopya dosyaları | ✅ Yok | ✅ Yok |
+| `npm run format:check` | ❌ 2 dosya Prettier biçiminde değil | ✅ Tüm dosyalar uygun |
+| `npm run typecheck` | ✅ Geçti | ✅ Geçti |
+| `npm test` | ❌ 1009 testin 1007'si geçti, 2'si kaldı | ✅ 1013 testin 1013'ü geçti |
+| `npm run build` + `npm run deploy:verify` | ✅ `"ok": true` | ✅ `"ok": true` |
+| `npm run test:ui`, `npm run test:db` | ⏭️ Çalıştırılmadı | ⏭️ Çalıştırılmadı (25 dakikalık tarayıcı paketi ve MSSQL ortamı) |
 
 ## Bulgular
 
-### 1. [Karar gerekli] Aktivite Raporu'nda bir Team Member artık takım arkadaşlarını görmüyor
+| # | Bulgu | Önem | Durum |
+|---|---|---|---|
+| 1 | Team Member Aktivite Raporu'nda takım arkadaşlarını görmüyor | Karar gerekli | ✅ Kapandı |
+| 2 | Rapor kapsamı iki ayrı "bugün" değeriyle hesaplanıyor | Düşük | ⚠️ Açık |
+| 3 | Biçim borcu (2 dosya) | Düşük | ✅ Kapandı |
 
-- **Yer:** `shared/actual-entry-access.ts:103-124`, `backend/actual-report-reader.mjs:43-50`, `backend/activity-report.mjs:41-52`
-- **Neden:** Bu sonuç commit edilmemiş değişiklikten geliyor. Eski kural (`activityTeamScope`) kaldırıldı. Aktivite Raporu artık Aktivite Giriş ile aynı kişileri gösteriyor.
-- **Kırmızı testler:**
-  - `tests/activity-report.test.mjs:271`: beklenen `{a, peer}`, gelen `{a}`.
-  - `tests/record-access-http.test.mjs:2731`: beklenen `{activity-own, activity-peer, activity-manager}`, gelen `{activity-own}`.
-- **Yan etki:** `user.leaders` ile atanmış ama organizasyonda Lider olmayan `manager` hesapları raporu boş görebilir.
-- **Karar:**
-  - Bu bilinçli bir kararsa iki test eskimiş demektir ve yeni kurala göre güncellenmeli. Kılavuzun 3.1 sürümüne de bir not eklenmeli.
-  - Karar bu değilse testler gerçek bir yetki daralmasını yakalıyor ve kodun düzeltilmesi gerekiyor.
-- **Yeniden üretim:** `node --test tests/activity-report.test.mjs tests/record-access-http.test.mjs`
+### 1. ✅ [Kapandı] Aktivite Raporu'nda takım arkadaşlarının görünürlüğü
 
-### 2. [Düşük] Rapor kapsamı iki ayrı "bugün" değeriyle hesaplanıyor
+- **Karar:** Üye, raporda kendi takımını görür (rapor salt okunur). Aktivite Giriş'teki yazma kuralı değişmedi: Team Member orada yalnızca kendini görüyor.
+- **Uygulama:** `shared/actual-entry-access.ts:103-127` içindeki `activityReportScope`. `includes` artık `scope.ownTeamId` ekibini de kapsıyor.
+- **Testler:** `tests/activity-report.test.mjs` ve `tests/record-access-http.test.mjs` yeni kurala göre güncellendi, ikisi de yeşil. Tarayıcı kontrolü `scripts/browser-checks/activity-report.mjs` de güncellendi (bu turda çalıştırılmadı).
+- **Hâlâ kontrol edilmeli:** `user.leaders` ile atanmış ama organizasyonda Lider olmayan `manager` hesapları, kaynak kaydı yoksa raporu boş görebilir. Bu durum kılavuzun 3.1 sürümünde belirtilmeli.
 
-- **Yer:** `backend/actual-report-reader.mjs:44` ve `backend/activity-report.mjs:59`, çağıran yer `backend/store.mjs:232-239`
-- **Sorun:** `readActualReportData`, kapsamı `currentPlanningDate()` ile hesaplıyor. Ardından `activityReport` aynı kapsamı `currentPlanningMonth()` ile yeniden hesaplıyor.
+### 2. ⚠️ [Düşük, açık] Rapor kapsamı iki ayrı "bugün" değeriyle hesaplanıyor
+
+- **Yer:** `backend/actual-report-reader.mjs:30,44` ve `backend/activity-report.mjs:57-59`, çağıran yer `backend/store.mjs:229-242`
+- **Sorun:** `readActualReportData`, kapsamı `currentPlanningDate()` ile hesaplıyor. Ardından `activityReport` aynı kapsamı `currentPlanningMonth()` ile yeniden hesaplıyor. `store.activityReport` iki fonksiyona da ortak bir tarih geçirmiyor.
 - **Senaryo:** İstek ay geçişine denk gelirse, ekip değiştiren ya da işe yeni başlayan bir kişi rapordan düşebilir. Sonuç iki kümenin kesişimi olduğu için veri sızmıyor, yalnızca satır eksik çıkıyor.
 - **Düzeltme yönü:** Tarih `store.activityReport` içinde bir kez üretilsin ve iki fonksiyona da aynı değer geçirilsin.
 - **Test önerisi:** `tests/actual-entry-access.test.mjs` dosyasına ay sınırında (`2026-10-31` / `2026-11`) başlayan bir kişi için tutarlılık testi eklenebilir.
 
-### 3. [Düşük] Biçim borcu
+### 3. ✅ [Kapandı] Biçim borcu
 
-- **Yer:** `scripts/browser-checks/milestone-report-menu.mjs`, `scripts/browser-checks/notifications.mjs`
-- **Sorun:** İki dosya Prettier biçiminde değil. İkisi de daha önce commit edilmiş dosyalar; güncel değişiklikle ilgisi yok.
-- **Düzeltme:** `npx prettier --write` bu iki dosyaya uygulanır.
+- `scripts/browser-checks/milestone-report-menu.mjs` ve `scripts/browser-checks/notifications.mjs` `a0c3a9f` commit'inde biçimlendirildi. `format:check` temiz.
 
 ## Şüpheli / bilgi
 
@@ -54,13 +52,13 @@ Kritik veya yüksek önemde, kanıtlanmış bir hata çıkmadı. Ancak zincir ta
 - 001–045 migrasyonlarının hepsinde hem `_sqljs.sql` hem `_mssql.sql` dosyası var. 3 ve 12 iki tarafta da yok; bu, `backend/migration-catalog.mjs` ile tutarlı. `MIGRATIONS.md` de 45'e kadar güncel.
 - Kaldırılan `activityTeamScope` başka hiçbir yerde kullanılmıyor.
 - Ön yüz kapsamı kendisi hesaplamıyor, sunucunun döndürdüğünü kullanıyor. Kural `shared/` içinde tek yerde.
-- `tests/actual-entry-access.test.mjs` içindeki 7 testin hepsi geçti.
 
 ## İyileştirme önerileri
 
 - `readActualReportData` için geçmiş ay ve `date` parametresiyle çalışan bir HTTP testi eklenmeli.
 - `activityReportResources` içindeki `teamIds.has(...)` kontrolünün neden gerektiğini açıklayan bir yorum satırı eklenebilir.
+- Ön yüz değişikliklerini (`PasswordChangeForm.tsx`, Aktivite Raporu) doğrulamak için `npm run test:ui` çalıştırılmalı.
 
 ## Notlar
 
-- Kaynak koda, `data/planlama.sqlite` veritabanına, 3000/3001 portlarındaki sunuculara ve git'e dokunulmadı. Yeni test eklenmedi.
+- Güncelleme sırasında kaynak koda, `data/planlama.sqlite` veritabanına, 3000/3001 portlarındaki sunuculara ve git'e dokunulmadı. Yalnızca bu rapor güncellendi.
