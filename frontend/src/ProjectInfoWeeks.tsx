@@ -1,9 +1,13 @@
+import { useState } from "react";
 import type { IsoWeek } from "./iso-week";
 import { shiftWeek, weekDates, weekLabel } from "./iso-week";
 import type { TopicWeek, WeekState } from "./project-info-status";
 
 /** Current ranges longer than this collapse to one "W01–W20" chip. */
 const COLLAPSE_CURRENT_WEEKS = 9;
+/** Beyond this many boxes the rest fold into one "+N hafta" button. */
+const MAX_VISIBLE_CHIPS = 8;
+const FOLDED_SHOWN = 6;
 
 /** Consecutive weeks in the same state; only very long runs of current
  * weeks collapse. Cancelled weeks stay one red box each, and this week is
@@ -38,6 +42,7 @@ export default function TopicWeeks({
   thisWeek: IsoWeek;
   selected: ReadonlySet<string>;
 }) {
+  const [expanded, setExpanded] = useState(false);
   if (!weeks.length) return null;
   const year = thisWeek.year;
   const current = weeks.filter((w) => w.state !== "cancelled");
@@ -75,6 +80,22 @@ export default function TopicWeeks({
       </span>
     );
   };
+  const runs = [
+    ...cancelled.map((week) => [week]),
+    ...weekRuns(current, thisWeek.key),
+  ];
+  // Long lists keep the first boxes plus this week and selected weeks.
+  const keep = (run: TopicWeek[], index: number) =>
+    expanded ||
+    runs.length <= MAX_VISIBLE_CHIPS ||
+    index < FOLDED_SHOWN ||
+    run.some(
+      ({ week, state }) =>
+        selected.has(week.key) ||
+        (state === "current" && week.key === thisWeek.key),
+    );
+  const visibleRuns = runs.filter(keep);
+  const hiddenRuns = runs.filter((run, index) => !keep(run, index));
   // Old weeks first, red; the current range follows. The colour says it,
   // the screen-reader label spells it out.
   return (
@@ -93,8 +114,19 @@ export default function TopicWeeks({
         .filter(Boolean)
         .join(" · ")}
     >
-      {cancelled.map((week) => chip([week]))}
-      {weekRuns(current, thisWeek.key).map(chip)}
+      {visibleRuns.map(chip)}
+      {hiddenRuns.length > 0 && (
+        <button
+          type="button"
+          className="project-info-week project-info-week-more"
+          title={hiddenRuns
+            .map((run) => weekLabel(run[0].week, year))
+            .join(", ")}
+          onClick={() => setExpanded(true)}
+        >
+          +{hiddenRuns.reduce((n, run) => n + run.length, 0)} hafta
+        </button>
+      )}
     </span>
   );
 }

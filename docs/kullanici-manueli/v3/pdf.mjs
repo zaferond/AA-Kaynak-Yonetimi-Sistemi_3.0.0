@@ -23,7 +23,7 @@ await page.pdf({
   printBackground: true,
   preferCSSPageSize: true,
   displayHeaderFooter: true,
-  headerTemplate: `<div style="${font}">Askeri Araçlar Kaynak Yönetimi Sistemi · Kullanıcı Manueli ve Yetki Matrisi · Sürüm 3.0</div>`,
+  headerTemplate: `<div style="${font}">Askeri Araçlar Kaynak Yönetimi Sistemi · Kullanıcı Manueli ve Yetki Matrisi · Sürüm 3.1</div>`,
   footerTemplate: `<div style="${font};text-align:right"><span class="pageNumber"></span> / <span class="totalPages"></span></div>`,
 });
 await browser.close();

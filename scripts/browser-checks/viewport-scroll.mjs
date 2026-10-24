@@ -140,11 +140,18 @@ export async function checkViewportScroll(f) {
     await checkHeaders(table);
     const left = await table.evaluate((el) => el.scrollLeft);
     await table.hover();
-    await page.mouse.wheel(0, -600);
-    await f.wait(
-      async () => (await page.evaluate(() => scrollY)) < scroll - 20,
-      "upward wheel at table top continues on the page",
-    );
+    // Under load Chromium can drop a single synthetic wheel event; retry the
+    // gesture a few times. A table that swallows it still fails every try.
+    let moved = false;
+    for (let attempt = 0; attempt < 3 && !moved; attempt++) {
+      await page.mouse.wheel(0, -600);
+      const until = Date.now() + 2000;
+      while (!moved && Date.now() < until) {
+        moved = (await page.evaluate(() => scrollY)) < scroll - 20;
+        if (!moved) await page.waitForTimeout(50);
+      }
+    }
+    assert(moved, "upward wheel at table top continues on the page");
     // Also finish the upward gesture before the next programmatic page reset.
     await page.waitForTimeout(300);
     assert.equal(await table.evaluate((el) => el.scrollTop), 0);
@@ -421,12 +428,17 @@ export async function checkViewportScroll(f) {
           await table.evaluate((el) => {
             el.scrollTop = 0;
           });
-          await actual.page.mouse.wheel(0, -600);
-          await f.wait(
-            async () =>
-              (await actual.page.evaluate(() => scrollY)) < before - 20,
-            "actual page resumes upward scrolling",
-          );
+          // Retry a dropped synthetic wheel event (see checkScroll).
+          let moved = false;
+          for (let attempt = 0; attempt < 3 && !moved; attempt++) {
+            await actual.page.mouse.wheel(0, -600);
+            const until = Date.now() + 2000;
+            while (!moved && Date.now() < until) {
+              moved = (await actual.page.evaluate(() => scrollY)) < before - 20;
+              if (!moved) await actual.page.waitForTimeout(50);
+            }
+          }
+          assert(moved, "actual page resumes upward scrolling");
           assert.equal(await table.evaluate((el) => el.scrollTop), 0);
         },
       );

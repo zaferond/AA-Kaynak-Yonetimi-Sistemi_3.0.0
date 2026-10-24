@@ -62,8 +62,24 @@ export async function checkTeamOnlyResource(f) {
   try {
     await selectWorkspaceTab(page, "Çalışan & Yetki Tanımlama");
     await f.check(
-      "employee table: AD email has its own wrapping column and remains searchable",
+      "employee table: opens on everyday columns; Tümünü Göster brings the email, inclusion and note columns back",
       async () => {
+        for (const name of [
+          "E-posta Adresi",
+          "Kaynak Planına Dahil",
+          "İşten Ayrılış Tarihi",
+          "Açıklama",
+        ])
+          assert.equal(
+            await page.getByRole("columnheader", { name, exact: true }).count(),
+            0,
+            name + " hidden by default",
+          );
+        await page.getByRole("button", { name: /Sütunlar/ }).click();
+        await page
+          .getByRole("button", { name: "Tümünü Göster", exact: true })
+          .click();
+        await page.keyboard.press("Escape");
         assert.equal(
           await page
             .getByRole("columnheader", { name: "E-posta Adresi", exact: true })

@@ -7,7 +7,11 @@ import {
   buildProjectInfoReport,
   updateReportedTopic,
 } from "../frontend/src/project-info-report.ts";
-import { projectInfoReportWorkbook } from "../frontend/src/project-info-report-export.ts";
+import {
+  projectInfoReportWorkbook,
+  topicWeekMark,
+} from "../frontend/src/project-info-report-export.ts";
+import { isoWeek, shiftWeek } from "../shared/iso-week.ts";
 import { Store } from "../backend/store.mjs";
 import { validate } from "../backend/domain/index.mjs";
 
@@ -133,12 +137,18 @@ test("report groups only selected notes by project and info across date ranges",
   ]);
   assert.equal(report[1].infos[0].topics[0].text, "Son konu");
 
-  const workbook = projectInfoReportWorkbook(report);
+  // One row per topic: 5 topics + 3 heading rows; 6 text + 5 week columns.
+  const workbook = projectInfoReportWorkbook(report, "2026-10-21");
   const sheet = zipEntry(workbook, "xl/worksheets/sheet1.xml");
-  assert.match(sheet, /<autoFilter ref="A3:E6"\/>/);
-  assert.equal((sheet.match(/<row r="/g) || []).length, 6);
-  assert.match(sheet, /• \[Tamamlandı\] İlk konu/);
-  assert.match(sheet, /• İkinci konu/);
+  assert.match(sheet, /<autoFilter ref="A3:K8"\/>/);
+  assert.equal((sheet.match(/<row r="/g) || []).length, 8);
+  assert.match(sheet, />W43 \(bu hafta\)</);
+  // Same project (A) and same heading (B) rows are merged.
+  assert.match(sheet, /<mergeCell ref="A4:A7"\/>/);
+  assert.match(sheet, /<mergeCell ref="B4:B6"\/>/);
+  assert.doesNotMatch(sheet, /<mergeCell ref="A8:/);
+  assert.match(sheet, />Tamamlandı</);
+  assert.match(sheet, />Gecikti</);
   assert.ok(
     sheet.indexOf("<autoFilter") < sheet.indexOf("<mergeCells"),
     "Excel requires autoFilter before mergeCells",
@@ -167,6 +177,25 @@ test("report groups only selected notes by project and info across date ranges",
     zipEntry(workbook, "xl/workbook.xml"),
     /Haftalık Kritik Konular/,
   );
+});
+
+test("week columns: X in the target week; a missed target turns NOK and the X moves to this week; OK when completed", () => {
+  const week = (date) => isoWeek(date);
+  const thisWeek = week("2026-10-21"); // W43
+  const marks = (topic) =>
+    [-1, 0, 1, 2, 3].map((n) =>
+      topicWeekMark(topic, shiftWeek(thisWeek, n), thisWeek),
+    );
+  assert.deepEqual(marks({ end: "2026-10-29" }), ["", "", "X", "", ""]);
+  assert.deepEqual(marks({ end: "2026-10-14" }), ["NOK", "X", "", "", ""]);
+  assert.deepEqual(marks({ end: "2026-10-01" }), ["NOK", "X", "", "", ""]);
+  assert.deepEqual(marks({ end: "2026-10-14", completed: true }), [
+    "OK",
+    "",
+    "",
+    "",
+    "",
+  ]);
 });
 
 test("Excel export treats special text as strings and rejects empty report", () => {
@@ -459,7 +488,7 @@ test("long and multi-line critical details export losslessly as bounded continua
           .replaceAll("&#13;", "\r"),
       );
     assert(cells.length > 1);
-    assert.equal(cells.join(""), `• ${text} (01.01.2026 – 02.01.2026)`);
+    assert.equal(cells.join(""), text);
     for (const content of cells) {
       assert(content.length <= 32767);
       assert((content.match(/\n/g) || []).length <= 253);

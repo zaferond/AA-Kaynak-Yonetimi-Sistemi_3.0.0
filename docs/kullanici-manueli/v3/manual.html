@@ -112,8 +112,8 @@
     </div>
   </div>
   <table class="meta">
-    <tr><td>Belge sürümü</td><td>3.0</td></tr>
-    <tr><td>Tarih</td><td>23.10.2026</td></tr>
+    <tr><td>Belge sürümü</td><td>3.1</td></tr>
+    <tr><td>Tarih</td><td>24.10.2026</td></tr>
     <tr><td>Uygulama durumu</td><td>main dalı (2a1aa09) ve sonrasındaki arayüz geliştirmeleri</td></tr>
     <tr><td>Önceki sürüme göre</td><td>Yeni yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Proje ve Kaynak Değerlendirme, Haftalık Kritik Konular, Aktivite Raporu Excel çıktısı ve renk bantları. Yeni bölümler <span class="new">YENİ</span> ile işaretlidir.</td></tr>
     <tr><td>Ekran görüntüleri</td><td>Kurgusal test verisiyle alınmıştır; gerçek kişi veya proje bilgisi içermez.</td></tr>
@@ -157,7 +157,7 @@
     <div class="role"><h3>Yönetici</h3>
       <p>Kaynak Planlama'da tüm takımları görür, kendisine verilen liderlik veya takım kapsamında giriş yapar. Kendi liderliklerinin hedef planını ve aylık gerçekleşen yüzdesini girer. Projeleri, kritik konuları ve raporları görüntüler; senaryo taslağı hazırlar.</p></div>
     <div class="role"><h3>Normal Kullanıcı</h3>
-      <p>Kendi aylık aktivitesini ve kişisel izin/eğitim takvimini girer. Kendi takımının Aktivite Raporu'nu ve kendisine görünür projeleri görüntüler.</p></div>
+      <p>Aktivite Giriş'te, çalışan kaydındaki görevine göre kendisinin (ve PO/Lider ise ekibinin) aylık aktivitesini ve izin/eğitim takvimini girer. Kendi takımının Aktivite Raporu'nu ve kendisine görünür projeleri görüntüler.</p></div>
     <div class="role"><h3>Normal-Proje</h3>
       <p>Projeler ve Haftalık Kritik Konular ekranlarında Admin ile aynı yetkilere sahiptir: proje ekler, düzenler, siler, sıralar; aşama, başlık, not ve kilometre taşlarını yönetir; proje görüntüleme yetkisini belirler.</p></div>
   </div>
@@ -176,11 +176,22 @@
     </tbody>
   </table>
   <div class="note"><b>Kaynak rolü ile uygulama rolü farklıdır.</b> Çalışan kaydındaki Lider, Product Owner, Team Member veya CoE bilgisi organizasyondaki görevi gösterir; kendiliğinden uygulama yetkisi vermez. Uygulama rolü, çalışan formundaki <span class="ui">Hesap ve Yetkiler</span> bölümünden atanır.</div>
-  <h2>Yönetici yetki kapsamı</h2>
+  <h2>Aktivite Giriş kimin için yapılır? <span class="new">YENİ</span></h2>
+  <p>Aktivite Giriş uygulama rolüne değil, kişinin <b>çalışan kaydındaki görevine</b> göre çalışır. Görebildiği herkes için aylık aktivite ve izin/eğitim girişi de yapabilir.</p>
+  <table class="grid">
+    <thead><tr><th>Çalışan kaydındaki görev</th><th>Görür, aktivite ve izin girer</th></tr></thead>
+    <tbody>
+      <tr><th>Team Member, CoE</th><td>Yalnız kendisi</td></tr>
+      <tr><th>Product Owner</th><td>Kendisi ve kendi takımındaki herkes</td></tr>
+      <tr><th>Lider</th><td>Kendisi, kendi liderliği, altındaki tüm alt liderlikler ve bunlara bağlı bütün takımlardaki herkes</td></tr>
+      <tr><th>Admin (uygulama rolü)</th><td>Herkes</td></tr>
+    </tbody>
+  </table>
+  <p>Kişi takım değiştirirse önceki takımının PO'su yalnız o kişinin o takımda olduğu ayları görür. Çalışan kaydına bağlı olmayan bir hesap, liderlik yetkisi olsa bile Aktivite Giriş'te kimseyi görmez.</p>
+  <h2>Yönetici planlama yetkisi</h2>
   <ul>
-    <li><b>Liderlik yetkisi:</b> Seçilen liderlik ve altındaki tüm liderlik/takımlar için planlama girişi ve bu birimlerdeki çalışanların aktivite girişi.</li>
-    <li><b>Takım yetkisi:</b> Yalnız seçilen takım için planlama girişi; o takımdaki çalışanların aktivitesini düzenleme hakkı vermez.</li>
-    <li>Yönetici, başka bir çalışanın kişisel izin/eğitim takvimini açamaz.</li>
+    <li><b>Liderlik yetkisi:</b> Seçilen liderlik ve altındaki tüm liderlik/takımlar için Kaynak Planlama girişi.</li>
+    <li><b>Takım yetkisi:</b> Yalnız seçilen takım için Kaynak Planlama girişi.</li>
   </ul>
 </section>
 
@@ -230,6 +241,7 @@
     <li><span class="ui">Görünüm</span>: Ayrıntılı, Kompakt veya 5 Yıllık Genel Bakış. <span class="ui">Görünür Dönem</span> 6 aydan 5 yıla kadar seçilir.</li>
     <li><span class="ui">Haftalık Görünüm</span> aylık aşamaları haftalara yansıtır. <span class="ui">Proje Kodlarını Göster</span> açıksa Excel çıktısına kod sütunu eklenir.</li>
     <li>İndirme (↓) düğmesi proje raporunu Excel olarak indirir.</li>
+    <li><b>İlerleme çubuğu</b> <span class="new">YENİ</span> (Admin ve Yönetici): Proje adının altında son kilitli ayın gerçekleşen yüzdesi dolgu, hedef yüzdesi siyah çizgi olarak görünür; renk sapma durumunu gösterir (mavi ileride, yeşil planda, turuncu geride, kırmızı kritik). Değerlendirmesi olmayan projede çubuk çıkmaz.</li>
   </ul>
   <h2>Proje ekleme ve düzenleme</h2>
   <ol>
@@ -372,11 +384,21 @@
     <figcaption>Durum ve hafta süzgeçleri; gecikmiş konular kırmızı "Gecikti" etiketiyle gösterilir.</figcaption>
   </figure>
   <ul>
-    <li><b>Durum:</b> Tümü, Açık, Gecikmiş, Tamamlandı (yanında sayıları). <b>Hafta:</b> Tüm haftalar, Geçen hafta, Bu hafta, Gelecek hafta; <span class="ui">Hafta ekle</span> ile başka haftalar seçilir. Konunun kapsadığı haftalar W-numaralarıyla yazılır.</li>
+    <li><b>Durum:</b> Tümü, Açık, Gecikmiş, Tamamlandı (yanında sayıları). <b>Hafta:</b> Tüm haftalar, Geçen hafta, Bu hafta, Gelecek hafta; <span class="ui">Hafta ekle</span> ile başka haftalar seçilir. Konunun kapsadığı haftalar W-numaralarıyla yazılır; 8'den fazla hafta kutusu varsa ilk altısı ve bu hafta görünür, kalanlar <span class="ui">+N hafta</span> düğmesinde toplanır (tıklayınca hepsi açılır).</li>
     <li><span class="ui">Başlık Ekle</span> ve <span class="ui">Başlık Düzenle</span> başlıkları; konu satırındaki <span class="ui">Düzenle</span> notu değiştirir. Değişiklikler Projeler ekranına da yansır.</li>
     <li><span class="ui">Tamamlandı</span> notu tamamlandı olarak işaretler (<span class="ui">Geri Al</span> ile kaldırılır); <span class="ui">Çıkar</span> notu yalnız bu listeden çıkarır, silmez.</li>
-    <li><span class="ui">Projeleri Aç / Kapa</span> proje gruplarını açar veya kapatır. İndirme düğmesi listeyi Excel olarak indirir.</li>
+    <li><span class="ui">Projeleri Aç / Kapa</span> proje gruplarını açar veya kapatır.</li>
   </ul>
+  <h2>Excel çıktısı <span class="new">YENİ</span></h2>
+  <p>İndirme düğmesi her konuyu ayrı satır olarak indirir: Proje ve Başlık (aynı proje ve aynı başlığın satırları birleşik), Detay Açıklama, Başlangıç, Hedef Bitiş ve Durum. Sağda <b>5 hafta sütunu</b> vardır: geçen hafta, bu hafta ve sonraki üç hafta.</p>
+  <table class="grid">
+    <thead><tr><th>İşaret</th><th>Anlamı</th></tr></thead>
+    <tbody>
+      <tr><th>X</th><td>Hedef hafta (konunun bitiş tarihinin haftası).</td></tr>
+      <tr><th>NOK</th><td>Hedef haftada tamamlanmadı (kırmızı, üstü çizili). Tamamlanana kadar her geçen hafta NOK olur ve X bu haftaya kayar.</td></tr>
+      <tr><th>OK</th><td>Konu tamamlandı; hedef haftasında yeşil gösterilir.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- 9 -->
@@ -418,8 +440,9 @@
   <p>Çalışanların projelere fiilen ayırdığı süre aylık olarak burada girilir (önceki sürümde "Gerçekleşen Kaynak Dağılımı"). <span class="ui">Görünüm</span>: <b>Proje Bazlı</b> (proje altında kişiler) veya <b>Kişi Bazlı</b> (kişi altında projeler). <span class="ui">Kaynak Dağılım Birimi</span>: Yüzde (%) veya Saat.</p>
   <figure>
     <div class="shot" style="height:82mm"><img src="shots/aktivite-giris.jpg" alt="Aktivite Giriş"></div>
-    <figcaption>Normal Kullanıcı görünümü: giriş kutuları yalnız kendi satırında açıktır. Hücre altındaki çubuk kişinin o ay tüm projelerdeki toplamını gösterir.</figcaption>
+    <figcaption>Team Member görünümü: yalnız kendi satırı görünür. Hücre altındaki çubuk kişinin o ay tüm projelerdeki toplamını gösterir.</figcaption>
   </figure>
+  <p>Kimlerin listelendiği çalışan kaydındaki göreve bağlıdır: Team Member yalnız kendini, Product Owner takımını, Lider liderliğindeki ve alt liderliklerdeki herkesi görür ve düzenler (2. bölüm).</p>
   <h2>Aylık süre girme</h2>
   <ol>
     <li>Filtrelerden kişi, proje ve dönemi seçin; birimi belirleyin.</li>
@@ -442,7 +465,7 @@
     <li>Kayıtlar <b>Kayıtlı İzin ve Eğitimler</b> listesinde <span class="ui">Düzenle</span> veya <span class="ui">Sil</span> ile yönetilir.</li>
   </ol>
   <div class="note"><b>Dönüş günü hesaba katılmaz.</b> 12 Ekim ayrılış, 15 Ekim dönüş için 12, 13 ve 14 Ekim değerlendirilir. Hafta sonları ve tatiller atlanır. İzin çalışma saatinden düşer; eğitim dağıtılan süreye eklenir. Günlük saat 0,5–9 aralığındadır.</div>
-  <p>Kişisel takvimi yalnız çalışanın kendisi ve Admin görür ve düzenler. Admin, tüm kayıtları Organizasyon ekranındaki <b>Çalışan İzin ve Eğitim Kayıtları</b> listesinde de görür.</p>
+  <p>Takvim simgesi, aktivitesini girebildiğiniz herkes için görünür: çalışanın kendisi, takımının PO'su, liderliğinin Lideri ve Admin izin/eğitim kaydı ekleyip değiştirebilir. Admin tüm kayıtları Organizasyon ekranındaki <b>Çalışan İzin ve Eğitim Kayıtları</b> listesinde de görür.</p>
 </section>
 
 <!-- 11 -->
@@ -476,7 +499,7 @@
     <figcaption>Çalışan listesi: statü, plana dahil bilgisi, tarihler, hesap, rol ve yetki kapsamı. Altta Çalışan İzin ve Eğitim Kayıtları.</figcaption>
   </figure>
   <ul>
-    <li>Arama kutusu ad, liderlik, takım, kullanıcı adı veya e-postaya göre süzer. <span class="ui">Sütunlar</span> isteğe bağlı sütunları gizler/gösterir.</li>
+    <li>Arama kutusu ad, liderlik, takım, kullanıcı adı veya e-postaya göre süzer. <span class="ui">Sütunlar</span> isteğe bağlı sütunları gizler/gösterir. Tablo ilk açılışta günlük kullanılan sütunlarla gelir; Kaynak Planına Dahil, İşten Ayrılış Tarihi, E-posta ve Açıklama <span class="ui">Sütunlar → Tümünü Göster</span> ile açılır. Seçiminiz bu tarayıcıda hatırlanır.</li>
     <li>Satırlar seçilip <span class="ui">Seçilenleri Toplu Düzenle</span> veya <span class="ui">Seçilenleri Sil</span> uygulanır; <span class="ui">Filtredeki Tüm Kayıtları Seç</span> tüm sonucu seçer. Liste 50'şer kayıtlık sayfalarla gezilir.</li>
     <li>Yükleme (↑) düğmesi Excel şablonundan kaynak ekler; önce önizleme gösterir, hesap veya yetki oluşturmaz.</li>
     <li>Geçmişi korumak için çalışanı silmek yerine statüsünü <b>İşten Ayrıldı</b> yapın; silme, gerçekleşen kayıtları da kaldırır.</li>
@@ -557,8 +580,7 @@
         <td><span class="s">Görür</span><small>+ Aktif İlanları Dahil Et</small></td><td><span class="s">Görür</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Aktivite Giriş</th>
         <td><span class="y">Düzenler</span><small>Tüm çalışanlar</small></td>
-        <td><span class="p">Kapsamlı</span><small>Kendisi + yetkili liderliklerdeki çalışanlar</small></td>
-        <td><span class="p">Kapsamlı</span><small>Yalnız kendisi</small></td>
+        <td colspan="2"><span class="p">Kapsamlı</span><small>Çalışan kaydındaki göreve göre: Team Member kendisi, PO takımı, Lider liderliği ve alt liderlikleri</small></td>
         <td><span class="n">—</span></td></tr>
       <tr><th>Aktivite Raporu</th>
         <td><span class="s">Görür</span><small>Tümü</small></td>
@@ -580,8 +602,8 @@
     <tbody>
       <tr class="group"><td colspan="5" class="l">Aktivite ve takvim</td></tr>
       <tr><th>Kendi aktivite girişini yapmak</th><td><span class="y">✓</span></td><td><span class="y">✓</span><small>Çalışan kaydı eşleşmişse</small></td><td><span class="y">✓</span></td><td><span class="n">—</span></td></tr>
-      <tr><th>Başka çalışanın aktivite girişi</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Yetkili liderlik ve alt birimleri</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-      <tr><th>Kişisel izin / eğitim takvimi</th><td><span class="y">✓</span><small>Herkesin</small></td><td><span class="p">Kapsamlı</span><small>Yalnız kendi</small></td><td><span class="p">Kapsamlı</span><small>Yalnız kendi</small></td><td><span class="n">—</span></td></tr>
+      <tr><th>Başka çalışanın aktivite girişi</th><td><span class="y">✓</span></td><td colspan="2"><span class="p">Kapsamlı</span><small>Uygulama rolünden bağımsız: PO kendi takımını, Lider liderliğini ve alt liderliklerini</small></td><td><span class="n">—</span></td></tr>
+      <tr><th>Başka çalışanın izin / eğitim takvimi</th><td><span class="y">✓</span></td><td colspan="2"><span class="p">Kapsamlı</span><small>Aktivitesini girebildiği kişiler (PO, Lider)</small></td><td><span class="n">—</span></td></tr>
       <tr><th>Ortak çalışma takvimi</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Planlama ve değerlendirme</td></tr>
       <tr><th>Kaynak planlama girişi</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Verilen liderlik veya takım</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>

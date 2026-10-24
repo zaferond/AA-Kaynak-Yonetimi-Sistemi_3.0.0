@@ -691,3 +691,19 @@ html[data-theme="technical"] .project-progress .progress-card-action {
   font-size: var(--fs-xs);
   font-weight: 600;
 }
+/* Long week lists fold the rest into one button; it opens them all. */
+html[data-theme="technical"]
+  :is(.app.tab-critical, .project-info-topic-dialog)
+  .project-info-week.project-info-week-more {
+  border-style: dashed;
+  background: #fff;
+  color: var(--brand-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+html[data-theme="technical"]
+  :is(.app.tab-critical, .project-info-topic-dialog)
+  .project-info-week.project-info-week-more:hover {
+  background: var(--tbl-row-hover);
+}

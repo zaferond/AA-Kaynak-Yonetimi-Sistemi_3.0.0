@@ -11,19 +11,23 @@ import EmptyState from "../../components/EmptyState";
 const chartValue = (value: number) =>
   value > 0 && value < 0.005 ? "<0,01" : fmt(value);
 
-function projectLabel(name: string) {
+/** Up to three lines that fit one project's column (about 6.5 px per
+ * character at the axis font); longer names end in "…". */
+export function projectLabel(name: string, columnWidth = 160) {
+  const max = Math.max(6, Math.floor((columnWidth - 8) / 6.5));
   const words = name.split(/\s+/);
   const lines = [""];
   for (const word of words) {
     const last = lines.length - 1;
-    if (lines[last].length + word.length > 22 && lines[last]) lines.push(word);
+    if (lines[last].length + word.length + 1 > max && lines[last])
+      lines.push(word);
     else lines[last] += (lines[last] ? " " : "") + word;
   }
   return lines
     .slice(0, 3)
     .map((line, i) =>
-      line.length > 24 || (i === 2 && lines.length > 3)
-        ? line.slice(0, 23) + "…"
+      line.length > max || (i === 2 && lines.length > 3)
+        ? line.slice(0, max - 1) + "…"
         : line,
     );
 }
@@ -227,7 +231,8 @@ export default function ProjectAllocationChart({
                   textAnchor="middle"
                   className="resource-chart-axis"
                 >
-                  {projectLabel(row.project.name).map((line, j) => (
+                  <title>{row.project.name}</title>
+                  {projectLabel(row.project.name, slot).map((line, j) => (
                     <tspan key={j} x={center(i)} dy={j ? 14 : 0}>
                       {line}
                     </tspan>

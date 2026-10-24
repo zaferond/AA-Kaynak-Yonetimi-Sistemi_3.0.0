@@ -52,12 +52,22 @@ export function visibleEmployeeColumns(hidden: readonly string[]) {
 const storageKey = (userId: string) =>
   "aa-kaynak-calisan-sutunlari-v1:" + userId;
 
-function read(userId: string | undefined) {
-  if (!userId) return [];
+/** Hidden until the user chooses otherwise: the table opens on the
+ * columns used day to day. */
+export const DEFAULT_HIDDEN_COLUMNS: EmployeeColumnId[] = [
+  "included",
+  "end",
+  "email",
+  "note",
+];
+
+function read(userId: string | undefined): EmployeeColumnId[] {
+  if (!userId) return DEFAULT_HIDDEN_COLUMNS;
   try {
-    return parseHiddenColumns(localStorage.getItem(storageKey(userId)));
+    const raw = localStorage.getItem(storageKey(userId));
+    return raw === null ? DEFAULT_HIDDEN_COLUMNS : parseHiddenColumns(raw);
   } catch {
-    return [];
+    return DEFAULT_HIDDEN_COLUMNS;
   }
 }
 
