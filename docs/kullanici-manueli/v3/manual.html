@@ -113,8 +113,8 @@
     </div>
   </div>
   <table class="meta">
-    <tr><td>Belge sürümü</td><td>3.1</td></tr>
-    <tr><td>Tarih</td><td>24.10.2026</td></tr>
+    <tr><td>Belge sürümü</td><td>3.2</td></tr>
+    <tr><td>Tarih</td><td>25.10.2026</td></tr>
   </table>
 </section>
 
@@ -124,7 +124,7 @@
   <h2>Sisteme giriş</h2>
   <ol>
     <li>Uygulama adresini tarayıcıda açın. <span class="ui">Oturum Aç</span> formunda imleç <span class="ui">Kullanıcı Adı</span> alanındadır.</li>
-    <li>Kullanıcı adınızı ve <span class="ui">Şifre</span>'nizi yazıp <span class="ui">Giriş Yap</span>'a basın. Göz simgesi şifreyi gösterir; Caps Lock açıksa alanın altında uyarı çıkar. <span class="ui">Beni Hatırla</span> oturumu bu tarayıcıda 30 gün açık tutar (işaretlenmezse 12 saat); ortak bilgisayarda işaretlemeyin.</li>
+    <li>Kullanıcı adınızı ve <span class="ui">Şifre</span>'nizi yazıp <span class="ui">Giriş Yap</span>'a basın. Göz simgesi şifreyi gösterir; Caps Lock açıksa alanın altında uyarı çıkar. Yerel Normal Kullanıcı hesabında <span class="ui">Beni Hatırla</span> en fazla 30 günlük oturum sağlar; seçilmezse üst sınır 12 saattir. Admin, Yönetici ve Normal-Proje hesaplarında üst sınır 8 saattir ve kalıcı hatırlama uygulanmaz. AD hesaplarında, yüksek yetkili hesaplar dışındaki üst sınır 12 saattir. Bütün hesaplarda 30 dakika hareketsizlik oturumu kapatır; ortak bilgisayarda hatırlamayı seçmeyin.</li>
     <li>Active Directory hesabıyla kurum şifrenizi kullanırsınız; hesabınıza ayrıca uygulama rolü tanımlanmış olmalıdır.</li>
   </ol>
   <figure>
@@ -143,6 +143,18 @@
     <div class="shot" style="width:34%"><img src="shots/kullanici-menusu.jpg" alt="Kullanıcı menüsü"></div>
     <figcaption>Kullanıcı menüsü: rol, <span class="ui">Varsayılan sekme</span> (her girişte açılacak ekran, hesabınızda saklanır) ve Admin için veri yedeği işlemleri.</figcaption>
   </figure>
+</section>
+
+<section class="page">
+  <h2>Oturum süresi ve güvenli çalışma</h2>
+  <p>Fare, klavye veya kaydırma ile çalışırken oturum etkinliği yenilenir. Sayfanın açık kalması ve arka planda verilerin otomatik sorgulanması etkinlik sayılmaz.</p>
+  <figure><div class="shot" style="width:85%"><img src="shots/oturum-uyarisi.jpg" alt="Oturum süresi uyarısı"></div><figcaption>Hareketsizlik sınırından beş dakika önce gösterilen uyarı.</figcaption></figure>
+  <ul>
+    <li><b>Oturumu Sürdür:</b> Bağlantı varsa hareketsizlik süresini yeniler. Yenilenemezse ekrandaki hatayı kontrol edin.</li>
+    <li><b>Azami süre:</b> Hesabınızın 8 saat, 12 saat veya 30 günlük üst sınırı uzatılamaz. Uyarıda <span class="ui">Çalışmayı Kaydetmek İçin Dön</span> ile kaydınızı tamamlayıp yeniden giriş yapın.</li>
+    <li><b>Çıkış Yap:</b> Ortak bilgisayarı bırakmadan önce oturumu kapatın. Süre dolması, kaydedilmemiş verilerin kaydedildiği anlamına gelmez.</li>
+  </ul>
+  <div class="note">İlk kurulumda veya parola sıfırlamasından sonra geçici parola kullanıyorsanız, uygulama yeni parola belirlemenizi ister. Yeni parola 10-256 karakter olmalı, en az bir harf ve bir rakam içermeli; yalnız tekrar veya ardışık dizilerden oluşmamalıdır.</div>
 </section>
 
 <!-- 2 -->
@@ -355,7 +367,7 @@
     <li>Onaylı plan değişecekse <span class="ui">Hedef Plan Revize Et</span> ile gerekçeli revizyon hazırlanır; revizyon onaylanana kadar önceki plan geçerlidir. Yeni hedef, girilmiş gerçekleşen yüzdeden düşük olamaz (kilitli ay sınırında düşüşe izin verilir).</li>
     <li>Kayıtlı gerçekleşen değeri ay kilitlenene kadar <span class="ui">Gerçekleşen % Revize Et</span> ile düzeltilir.</li>
   </ol>
-  <p>Durum kutuları kartları süzer: <b>Hedef Plan Giriş Bekleyen</b>, <b>Hedef Plan Onay Bekleyen</b>, <b>Gerçekleşen Plan Giriş Bekleyen</b> ve seçili ayın <b>Değerlendirme Bekliyor</b> sayısı. Hemen altındaki <b>ay satırından</b> seçim yapılır; tüm aylar yıl bazında listelenir. Gelecek aylar ve takip başlamamış dönemler seçilemez. Admin, seçili bekleyen planları <span class="ui">Hedef Planların Tümünü Onayla</span> ile onaylar. <span class="ui">Liderlikleri Aç / Kapa</span> grupları açar veya kapatır.</p>
+  <p>Durum kutuları kartları süzer: <b>Hedef Plan Giriş Bekleyen</b>, <b>Hedef Plan Onay Bekleyen</b>, <b>Gerçekleşen Plan Giriş Bekleyen</b> ve seçili ayın <b>Değerlendirme Bekliyor</b> sayısı. Hemen altındaki <b>ay satırından</b> seçim yapılır; tüm aylar yıl bazında listelenir. Gelecek aylar ve takip başlamamış dönemler seçilemez. İlk açılışta önceki ay seçilir; o ay takip kapsamında değilse seçilebilir son ay kullanılır. Admin, seçili bekleyen planları <span class="ui">Hedef Planların Tümünü Onayla</span> ile onaylar. <span class="ui">Liderlikleri Aç / Kapa</span> grupları açar veya kapatır.</p>
   <div class="note"><b>Ay kilidi (Admin):</b> <span class="ui">[Ay] Ayını Kilitle</span> seçili ayı değişikliğe kapatır ve ayın değerlendirmesini (senaryo uyarılarını) oluşturur. Kilit açılırsa değerlendirme kaldırılır ve girişler yeniden açılır. Yönetici kilitli ayı rozetten görür, kilidi açamaz.</div>
 </section>
 
@@ -369,6 +381,7 @@
     <li>Filtreler: <span class="ui">Liderlik</span>, <span class="ui">Proje Sorumlusu</span>, <span class="ui">Ay</span>, <span class="ui">Proje</span> ve <span class="ui">Değerlendirme</span>. Değerlendirme listesi projeleri karar durumuna göre süzer (Dikkat gerektiren konular, Planın İlerisinde, Planın Gerisinde / Kritik Gecikme, Değerlendirme bekliyor, Fazla kaynak değerlendirilebilir, Tamamlandı vb.); parantezdeki sayı o durumdaki proje sayısıdır.</li>
     <li>Tüm projeler tek tabloda listelenir; tablo aşağı kaydırıldıkça sonraki projeler yüklenir. <span class="ui">Liderlikleri Aç / Kapa</span> liderlik satırlarını açar. İndirme düğmesi raporu Excel'e aktarır.</li>
   </ul>
+  <p><b>Proje toplamı:</b> Liderlik yüzdeleri planlanan kaynak paylarıyla ağırlıklandırılır; kaynak planı tamamen kaldırılmışsa onaylı plandaki kaynak referansı kullanılabilir. Özel ağırlık girmeniz gerekmez. Hedef/gerçekleşen bilgisi veya geçerli kaynak payı olmayan satırın sonucu boş görünebilir; bu durum sıfır ilerleme anlamına gelmez.</p>
   <h2>Senaryo Uyarıları</h2>
   <figure>
     <div class="shot" style="height:34mm"><img src="shots/senaryo-uyarilari.jpg" alt="Senaryo Uyarıları"></div>
@@ -377,6 +390,19 @@
   <p>Ay kilitlendiğinde her proje için ilerleme durumu (Planın İlerisinde, Planda, Planın Gerisinde, Kritik Gecikme) ile kaynak durumu (Planlanmamış, Yetersiz, Yeterli, Fazla) birleştirilir ve S-01…S-09 kurallarından uyan uyarı oluşur (örneğin S-02: "Ek kaynak gerekli veya bitiş tarihi revize edilmeli"). Uyarının durumu <b>Açık → Görüldü → Aksiyon Alındı → Kapandı</b> olarak ilerler; her adımda aksiyon açıklaması zorunludur. <span class="ui">Hesap ve geçmiş</span> hesaplamayı ve aksiyon geçmişini gösterir. Liste Excel veya CSV olarak indirilir.</p>
   <h2>Uyarı Ayarları (Admin)</h2>
   <p>Planın İlerisinde / Gerisinde ve Kritik Gecikme sapma eşikleri (puan), kaynak planı kontrol dönemi (ay), yeterli kaynak karşılama aralığı (%) ve kritik gecikme için ardışık kilitli ay sayısı buradan belirlenir. <span class="ui">Ayarları Kaydet</span> sonrası uyarılar yeniden değerlendirilir; <span class="ui">Varsayılanları Getir</span> ilk değerlere döner. <span class="ui">Senaryo kural tablosu</span> kuralların tamamını gösterir.</p>
+</section>
+
+<section class="page">
+  <h2>Kaydedilmemiş değerlendirme taslağı</h2>
+  <p>Hedef plan veya gerçekleşen alanını değiştirdiğinizde <b>Kaydedilmemiş değişiklikleriniz var</b> uyarısı görünür. Başka bir kullanıcı aynı kaydı değiştirse de açık taslağınız korunur.</p>
+  <figure><div class="shot" style="height:100mm"><img src="shots/degerlendirme-taslagi.jpg" alt="Kaydedilmemiş değerlendirme taslağı ve iptal düğmesi"></div><figcaption>Taslak uyarısı ve Taslağı İptal Et düğmesi. Görseldeki değişiklik kaydedilmemiştir.</figcaption></figure>
+  <ol>
+    <li>Kendi değişikliğinizi kaydetmek için karttaki ilgili kaydetme veya gönderme düğmesini kullanın.</li>
+    <li>Bu sırada kayıt uzaktan değişmişse kaydetme çakışma hatası verir. Girdiğiniz değerler korunur; sunucudaki yeni kaydın üzerine yazılmaz.</li>
+    <li>Gerekli değerleri not edin. <span class="ui">Taslağı İptal Et</span>, yerel değişikliği bırakıp güncel kayda dönmenizi sağlar; ardından güncel kayıtta yeniden düzenleyin.</li>
+    <li>Sekme değiştirme veya çıkış sırasında taslağı bırakma onayı çıkarsa, düzenlemeye dönmek için vazgeçin. Ay seçimi değişikliği mevcut ayın kaydedilmemiş girişini bırakabilir; ay değiştirmeden kaydedin.</li>
+  </ol>
+  <div class="warn">Bir ay siz düzenlerken Admin tarafından kilitlenirse sunucu değişikliği reddeder. Taslağı iptal edip güncel durumu kontrol edin; gerekli düzeltme için Admin'den kilidi açmasını isteyin.</div>
 </section>
 
 <!-- 8 -->
@@ -642,8 +668,8 @@
       <tr><th>Toplu seçim yanlış hücreleri kapsıyor</th><td>Seçili hücrelerden birine Ctrl'siz tıklayın (seçim o hücreye iner) veya <kbd>Esc</kbd> ile seçimi kaldırın.</td></tr>
       <tr><th>Hedef plan kaydedilmiyor</th><td>Yeni hedef, girilmiş gerçekleşen yüzdeden düşük olamaz; ay kilidini ve plan durumunu (Proje Ekibi Onayında ise önce geri çekin) kontrol edin.</td></tr>
       <tr><th>Dağılım sınırı uyarısı</th><td>Kişinin o aydaki tüm proje saatlerini, eğitim ve izinlerini birlikte kontrol edin.</td></tr>
-      <tr><th>"Kayıt başka kullanıcı tarafından değiştirildi"</th><td>Sayfayı yenileyin, güncel değeri kontrol edip yeniden girin.</td></tr>
-      <tr><th>Bağlantı kesildi / sonuç belirsiz</th><td>Aynı işlemi hemen tekrarlamayın; sayfayı yenileyip son durumu kontrol edin.</td></tr>
+      <tr><th>"Kayıt başka kullanıcı tarafından değiştirildi"</th><td>Önce kaydedilmemiş değerlerinizi not edin. Değerlendirme kartında Taslağı İptal Et ile güncel kaydı açın; diğer düzenleyicilerde güncel kaydı yeniden açın. Yeni veri üzerinde düzenleyip kaydedin.</td></tr>
+      <tr><th>Bağlantı kesildi / sonuç belirsiz</th><td>Kaydedilmemiş değerleri not edin. İşlemi hemen tekrarlamayın; bağlantı geldiğinde güncel kaydı kontrol edin. Kaydın ulaşmadığından emin olduktan sonra yeniden deneyin.</td></tr>
       <tr><th>Giriş yapılamıyor</th><td>Tekrarlayan denemeleri durdurun; ekran adı, saat ve hata mesajını IT'ye iletin.</td></tr>
     </tbody>
   </table>

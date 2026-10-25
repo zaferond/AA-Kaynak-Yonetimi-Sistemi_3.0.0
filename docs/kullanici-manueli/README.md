@@ -1,8 +1,8 @@
 # Kullanıcı manueli
 
-## Güncel belge: sürüm 3.1 (24.10.2026)
+## Güncel belge: sürüm 3.2 (25.10.2026)
 
-`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (23 sayfa) güncel arayüzü anlatır: yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi.
+`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (25 sayfa) güncel arayüzü anlatır: yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi.
 
 ### Aktivite yetkileri için kesinleşen kural
 
@@ -25,14 +25,16 @@ Hedef Plan / Gerçekleşen Plan Giriş'te ay, bekleyen iş kutularının altınd
 
 Yönetici, Haftalık Kritik Konular'da görebildiği projelerin kritik başlıklarını, konularını ve tarihlerini düzenleyebilir; Tamamlandı/Çıkar işlemlerini yapabilir. Bu izin proje ekleme/silme, proje adı/genel dönem/aşama veya erişim kurallarını değiştirme yetkisi vermez. Sunucu, kritik konu kaydı güncellenirken proje erişim kurallarını korur.
 
-**3.1 doğrulaması (24.10.2026):** HTML'den PDF yeniden üretildi. PDF 23 sayfa; sürüm, kapaktan kaldırılan satırlar, aktivite yetki metni ve metin sınırları otomatik kontrol edildi. Tüm sayfalar PNG'ye dönüştürülüp görsel olarak incelendi; rol kapsamı ve yetki matrisi ayrıca yakın görünümde kontrol edildi. Güncel uygulamanın doğrulama sonucu 1022/1022 test ve başarılı derleme/dağıtım kontrolüdür; tam UI ve native MSSQL koşuları ayrı takip işidir.
+**3.2 güncellemesi (25.10.2026):** Bütün belge görselleri güncel uygulamadan yeniden alındı. Oturum süreleri (30 dakika hareketsizlik, yüksek yetkili hesaplarda 8 saat), beş dakika önce uyarı, Oturumu Sürdür ve azami sürede kaydetme adımları eklendi. Değerlendirme taslağının uzak güncelleme ve ay kilidinde korunması, çakışmada güvenli kaydetme/iptal adımları açıklandı. Ay seçiminin varsayılanı ve özel ağırlık girişi gerektirmeyen proje toplamı hesabı güncellendi. Mevcut uygulama düzeltmelerinde 1038/1038 test ve 311 tarayıcı kontrolü başarılıdır. Gerçek native MSSQL/Windows kabulü kurum/CI ortamında ayrı yapılmalıdır.
+
+Belge HTML'den PDF olarak yeniden üretilir. Son PDF'nin bütün sayfaları PNG'ye dönüştürülerek sayfa sınırları, Türkçe metin, görseller ve yetki matrisi kontrol edilir. Ön kapakta yalnız belge sürümü ve tarih vardır; uygulama durumu veya ekran görüntüleri satırı eklenmez.
 
 `v3/` klasörü kaynakları içerir:
 
 - `manual.html`: belge metni ve sayfa düzeni (IBM Plex Sans, `frontend/assets/fonts` altından).
 - `shots/`: PDF'de kullanılan ekran görüntüleri (JPEG).
-- `server.mjs`: demo veritabanının **geçici kopyasını** açar, ekran görüntüsü hesaplarını ekler (`sistem.admin`, `proje.ofisi`) ve kopyada `genel.mudur` ile `muhendis.detay` şifrelerini ayarlar. Kopya iş bitince silinir.
-- `shots.mjs`: `server.mjs` ile kopyayı başlatıp tüm ekran görüntülerini PNG olarak alır.
+- `server.mjs`: demo veritabanının **geçici kopyasını** açar, ekran görüntüsü hesaplarını ekler (`sistem.admin`, `proje.ofisi`) ve kopyada `genel.mudur` ile `muhendis.detay` şifrelerini ayarlar. Kopya iş bitince silinir. Oturum uyarısı için yalnız bu kopyanın son etkinlik zamanı ayarlanır.
+- `shots.mjs`: `server.mjs` ile kopyayı başlatıp tüm ekran görüntülerini PNG olarak alır; bir grup başarısızsa komut başarısız sonuç döndürür.
 - `pdf.mjs`: `manual.html` dosyasını Chrome ile A4 PDF'e dönüştürür.
 
 Yeniden üretme (proje kökünde):

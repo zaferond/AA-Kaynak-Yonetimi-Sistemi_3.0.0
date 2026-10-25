@@ -37,6 +37,7 @@ async function login(username) {
   if (response.status() !== 200)
     throw Error(username + " giriş " + response.status());
   const page = await ctx.newPage();
+  page.setDefaultTimeout(10000);
   await page.goto(URL);
   await page.getByRole("button", { name: /^Sol menüyü (aç|kapat)$/ }).waitFor();
   await page.waitForTimeout(800);
@@ -55,15 +56,21 @@ const section = async (page, name) => {
 };
 const shot = async (page, name, opts = {}) => {
   await page.mouse.move(0, viewport.height - 1);
-  await page.screenshot({ path: path.join(out, name + ".png"), ...opts });
+  await page.screenshot({
+    path: path.join(out, name + ".png"),
+    animations: "disabled",
+    ...opts,
+  });
   console.log("ok", name);
 };
+const failures = [];
 const want = (n) => !only || only.includes(n);
 async function run(name, fn) {
   if (!want(name)) return;
   try {
     await fn();
   } catch (e) {
+    failures.push(name);
     console.log("HATA", name, e.message.split("\n")[0]);
   }
 }
@@ -145,6 +152,25 @@ try {
 
     await open(page, "Proje ve Kaynak Değerlendirme");
     await shot(page, "hedef-plan");
+    await page
+      .getByRole("button", { name: "Gerçekleşen % Revize Et", exact: true })
+      .first()
+      .click();
+    const draftField = page
+      .locator('.progress-card input[inputmode="decimal"]:not([disabled])')
+      .first();
+    await draftField.fill("37");
+    await page
+      .locator(".progress-card")
+      .first()
+      .getByLabel(/ · açıklama$/)
+      .fill("Eylül ayı ilerleme taslağı; henüz gönderilmedi.");
+    await page.locator(".progress-draft-notice").first().waitFor();
+    await shot(page, "degerlendirme-taslagi");
+    await page
+      .getByRole("button", { name: "Taslağı İptal Et", exact: true })
+      .first()
+      .click();
     await section(page, "Proje ve Kaynak Değerlendirme Raporu");
     await shot(page, "degerlendirme-raporu");
     await section(page, "Senaryo Uyarıları");
@@ -178,6 +204,21 @@ try {
     await page.waitForTimeout(500);
     await section(page, "Organizasyon Yapısı");
     await shot(page, "organizasyon-yapisi");
+    await page.waitForLoadState("networkidle");
+    await running.showIdleWarning();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    const idleDialog = page
+      .getByRole("dialog")
+      .filter({ hasText: "Oturumunuz sona ermek üzere" });
+    await idleDialog.waitFor();
+    await page.waitForTimeout(350);
+    await shot(page, "oturum-uyarisi", {
+      clip: { x: 350, y: 220, width: 740, height: 430 },
+    });
+    await idleDialog
+      .getByRole("button", { name: "Oturumu Sürdür", exact: true })
+      .click();
+    await idleDialog.waitFor({ state: "detached" });
     await ctx.close();
   });
 
@@ -217,3 +258,6 @@ try {
   await browser.close();
   await running.close();
 }
+
+if (failures.length)
+  throw Error("Ekran görüntüleri tamamlanamadı: " + failures.join(", "));

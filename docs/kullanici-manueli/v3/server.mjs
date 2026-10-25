@@ -78,6 +78,13 @@ export async function startManualServer({ port = 0 } = {}) {
   server.on("request", app);
   return {
     origin,
+    async showIdleWarning() {
+      await store.transaction((c) =>
+        c.query("UPDATE kp_sessions SET last_activity_at=@p0", [
+          new Date(Date.now() - 26 * 60000).toISOString(),
+        ]),
+      );
+    },
     async close() {
       app.locals.close();
       server.closeAllConnections();
