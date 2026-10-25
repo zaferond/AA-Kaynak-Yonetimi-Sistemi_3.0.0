@@ -1,3 +1,4 @@
+import { snapshotMetadataQueryCount } from "../snapshot-metadata.mjs";
 import sql from "mssql";
 import { tableSpec, table, ident, validateRows } from "../tables.mjs";
 function parameterizedRequest(owner, values) {
@@ -202,7 +203,7 @@ export class MssqlAdapter {
     if (
       !Array.isArray(queries) ||
       !queries.length ||
-      queries.length > 16 ||
+      queries.length > snapshotMetadataQueryCount ||
       !Array.from(queries).every(
         (query) =>
           typeof query === "string" &&

@@ -66,7 +66,7 @@ export function actualView(data, user, query, date = currentPlanningDate()) {
       ),
     },
     user,
-    { projectAccessData: data },
+    { projectAccessData: data, date },
   );
   const scope = actualEntryScope(data, user, date);
   const resources = actualViewResources(data, user, teams, currentMonth, date);

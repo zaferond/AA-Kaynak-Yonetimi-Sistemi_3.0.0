@@ -1,4 +1,5 @@
 import { ownValue } from "./records.ts";
+import { currentPlanningDate } from "./resource-dates.ts";
 import { visibleLeaderParents } from "./leadership-hierarchy.ts";
 import type { Data, Resource } from "./model.ts";
 import { actualTeamTotalIndex, createActualTeamIndex } from "./model.ts";
@@ -158,7 +159,13 @@ export function actualReadOwnerScope(
 export function scopeData(
   d: Data,
   u: Principal,
-  { projectAccessData = d }: { projectAccessData?: Data } = {},
+  {
+    projectAccessData = d,
+    date = currentPlanningDate(),
+  }: {
+    projectAccessData?: Data;
+    date?: string;
+  } = {},
 ): Data {
   if (u.role === "admin") return d;
   const canSeeProject = projectVisibility(projectAccessData, u);
@@ -202,7 +209,7 @@ export function scopeData(
     kind: "actual" | "workedHours",
   ) => filterOwnRecords(entries, (key) => canSeeActual(key, kind));
   // Leave days: the person, their PO/Lider (actual-entry-access.ts), admins.
-  const entryScope = actualEntryScope(d, u);
+  const entryScope = actualEntryScope(d, u, date);
   const canSeePersonDay = (key: string) => {
     const [resourceId, day] = key.split("|");
     return canManagePersonalCalendar(d, u, entryScope, resourceId, day || "");

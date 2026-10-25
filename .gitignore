@@ -1,6 +1,7 @@
 node_modules/
-.env
-.env.mssql.test
+.env*
+!.env.example
+!.env.*.example
 data/
 *.log
 frontend/.compiled/

@@ -1,3 +1,4 @@
+import SessionActivity from "./SessionActivity";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
@@ -132,6 +133,7 @@ function App() {
         }
       >
         <Portal key={sessionKey} />
+        <SessionActivity key={"activity:" + sessionKey} />
       </Suspense>
     );
 
@@ -224,6 +226,10 @@ function App() {
           />
           <span>Beni Hatırla</span>
         </label>
+        <p className="auth-hint">
+          Hareketsizlikte 30 dakika sonra oturum kapanır. Yönetim yetkili
+          hesaplarda kalıcı oturum kullanılmaz.
+        </p>
         {error && (
           <p className="auth-error" role="alert">
             {error}

@@ -1,4 +1,9 @@
 import { checkTabTransitions } from "./browser-checks/tab-transitions.mjs";
+import {
+  checkProgressDraftProtection,
+  checkSessionIdleWarning,
+} from "./browser-checks/progress-draft-protection.mjs";
+import { checkScenarioSessionIsolation } from "./browser-checks/scenario-session-isolation.mjs";
 import { checkWorkspaceMenu } from "./browser-checks/workspace-menu.mjs";
 import { checkHeadcountReports } from "./browser-checks/headcount-reports.mjs";
 import { checkTodayLineVisibility } from "./browser-checks/today-line-visibility.mjs";
@@ -73,6 +78,8 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkProgressDraftProtection,
+  checkSessionIdleWarning,
   checkWorkspaceMenu,
   checkHeadcountReports,
   checkTodayLineVisibility,
@@ -101,6 +108,7 @@ for (const check of [
   checkReportOwnerSource,
   checkScheduleScenario,
   checkScheduleScenarioApproval,
+  checkScenarioSessionIsolation,
 ]) {
   const isolated = await fixture();
   try {

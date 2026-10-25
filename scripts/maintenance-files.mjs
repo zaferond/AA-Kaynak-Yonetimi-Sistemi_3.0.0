@@ -29,7 +29,10 @@ const manifestSchema = z
     tableCounts: z.record(z.string().regex(/^kp_[a-z0-9_]+$/), integer),
     before: z.string().datetime().nullable(),
     auditCount: integer,
-    files: z.record(z.enum(["database.sqlite", "audit.ndjson"]), fileSchema),
+    files: z.partialRecord(
+      z.enum(["database.sqlite", "audit.ndjson"]),
+      fileSchema,
+    ),
     recovery: z
       .object({ sessionsRemoved: integer, baseSourceSha256: digestSchema })
       .strict()

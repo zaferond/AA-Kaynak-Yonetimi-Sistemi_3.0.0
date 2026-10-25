@@ -87,7 +87,10 @@ test("old resource roles remain compatible and explicit roles must match real te
       () => validate(fixture(person("p", role, { team }))),
       (e) => e.status === 400,
     );
-  assert.throws(() => validate(fixture(person("p", "admin"))), /Invalid enum/);
+  assert.throws(
+    () => validate(fixture(person("p", "admin"))),
+    /Invalid option/,
+  );
   assert.throws(
     () => validate(fixture(person("p", "productOwner", { lead: "Other" }))),
     /geçerli liderlik/,

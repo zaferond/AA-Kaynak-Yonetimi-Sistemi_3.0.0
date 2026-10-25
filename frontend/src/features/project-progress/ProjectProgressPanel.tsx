@@ -28,7 +28,9 @@ export default function ProjectProgressPanel({
   saving,
   view,
   onSave,
+  onDraftChange,
 }: {
+  onDraftChange?: (id: string, dirty: boolean) => void;
   data: Data;
   actionsHost: HTMLElement | null;
   density: WorkspaceDensity;
@@ -120,6 +122,7 @@ export default function ProjectProgressPanel({
       )}
       {view === "plan" && (
         <PlanAndEntry
+          onDraftChange={onDraftChange}
           actionsHost={actionsHost}
           ctx={ctx}
           responsibleFilter={responsibleFilter}

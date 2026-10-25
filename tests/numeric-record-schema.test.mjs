@@ -1,3 +1,4 @@
+import { validationOptions } from "../shared/validation-options.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { z } from "zod";
@@ -13,10 +14,10 @@ function reference(policy) {
   if (policy.integer) number = number.int();
   number = number.min(0);
   if (policy.max !== undefined) number = number.max(policy.max);
-  return z.record(number);
+  return z.record(z.string(), number);
 }
 function compare(policy, value) {
-  const old = reference(policy).safeParse(value),
+  const old = reference(policy).safeParse(value, validationOptions),
     current = numericRecordSchema(policy).safeParse(value);
   assert.equal(current.success, old.success);
   if (old.success) assert.deepEqual(current.data, old.data);

@@ -19,6 +19,69 @@ import {
   employeeAssignment,
 } from "../shared/employee-directory.ts";
 const date = "2026-10-13";
+
+test("actual entry keeps one date when a database read crosses the Istanbul month boundary", async (t) => {
+  const f = await fixture(t);
+  const key = f.own.id + "|bench-p0|2026-11";
+  await f.store.mutate(f.users.admin, (d) => {
+    d.actualAllocations[key] = 0.2;
+  });
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-10-31T20:59:59Z"),
+  });
+  const raw = f.store.db.raw;
+  let crossed = false;
+  t.mock.method(f.store.db, "raw", function (sql, ...args) {
+    const result = raw.call(this, sql, ...args);
+    if (!crossed && /SELECT.*kp_actual_allocations/is.test(sql)) {
+      crossed = true;
+      t.mock.timers.setTime(new Date("2026-10-31T21:00:01Z").getTime());
+    }
+    return result;
+  });
+  const query = { start: "2026-10", count: 2 };
+  const first = await f.store.actualView(f.users.admin, query);
+  assert(crossed);
+  assert.equal(first.data.actualAllocations[key], undefined);
+  assert.equal(
+    first.monthSummaries[f.own.id + "|2026-11"],
+    undefined,
+    "a request captured in October must not invent a zero November summary",
+  );
+  const next = await f.store.actualView(f.users.admin, query);
+  assert.equal(next.data.actualAllocations[key], 0.2);
+  assert.equal(next.monthSummaries[f.own.id + "|2026-11"].projectFte, 0.2);
+});
+
+test("actual read uses its explicit date for a Product Owner who transfers next month", async (t) => {
+  const f = await fixture(t);
+  await f.store.mutate(f.users.admin, (d) => {
+    const own = d.resources.find((r) => r.id === f.own.id);
+    const other = d.teams.find(
+      (team) =>
+        team.lead &&
+        team.lead !== own.versions[0].lead &&
+        team.kind !== "leadership",
+    );
+    own.versions[0].assignmentRole = "productOwner";
+    own.versions.push({
+      ...own.versions[0],
+      effective: "2026-11",
+      team: other.id,
+      lead: other.lead,
+    });
+  });
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-11-01T09:00:00Z"),
+  });
+  const query = { start: "2026-01", count: 3, projects: [] };
+  assert.deepEqual(
+    await f.scoped("actual", f.users.normal, query),
+    await f.reference("actual", f.users.normal, query),
+  );
+});
 async function fixture(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "aa-report-reads-"));
   const store = new Store({

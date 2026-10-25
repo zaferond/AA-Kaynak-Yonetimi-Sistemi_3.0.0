@@ -1,5 +1,7 @@
 # Test ve Kalite Raporu: 24.10.2026 (güncellendi)
 
+**25.10.2026 güncellemesi:** Son güvenlik/CI düzeltmeleri ve güncel doğrulama sonuçları [düzeltme raporunda](duzeltme-ve-dogrulama-raporu-2026-10-25.md) yer alır. Aşağıdaki sonuçlar önceki sürümün kaydıdır.
+
 Kapsam: tüm proje. İlk inceleme `f02e381` ve o andaki commit edilmemiş değişiklikler üzerinde yapıldı. İkinci inceleme `a0c3a9f` commit'inde yeniden doğrulandı ("Aktivite Raporu kapsamı görev kuralına bağlandı"). Tarih tutarlılığı, test ve Ana Sayfa sadeleştirme değişiklikleri doğrulandı ve `fc8933a` commit'iyle `main` dalından GitHub'a gönderildi. Takım geçmişi ve değerlendirme yüzdeleri düzeltmeleri `160f761` ile main dalına gönderildi. Son tur, bu commit tabanında giriş ekranındaki ay satırını ve Yöneticinin haftalık kritik konu düzenleme yetkisini ekler; bu son değişiklikler bu raporla aynı commit içinde main dalına alınmıştır.
 İlk inceleyenler: kalite mühendisi (salt okunur kod analizi) ve test mühendisi (doğrulama zinciri). Son güncelleme uygulama ve doğrulama sonuçlarını da içerir.
 

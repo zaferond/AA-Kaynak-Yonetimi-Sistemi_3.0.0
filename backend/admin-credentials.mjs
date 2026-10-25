@@ -31,6 +31,9 @@ export function assertAdminPassword(
       name +
         " örnek dosyadaki yer tutucu veya kullanıcı adıyla aynı. Kendi şifrenizi yazın.",
     );
+  if (password.length < 10 || password.length > 256)
+    throw Error(name + " 10–256 karakter olmalıdır.");
+  assertNewPasswordStrength(password, name);
 }
 /** Newly chosen local passwords (POST /api/auth/password): at least one letter
  * and one digit, and not made up only of repeated characters or ascending/

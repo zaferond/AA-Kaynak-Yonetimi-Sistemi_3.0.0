@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import type { Data } from "../../model";
 import { buildCapacityIndex, type Metric } from "../../metrics";
 import {
@@ -30,6 +37,32 @@ function writeSession(key: string, value: unknown) {
     // Still kept in memory for this page.
   }
 }
+function useSessionValue<T>(
+  key: string | null,
+  fallback: () => T,
+  valid: (value: unknown) => value is T,
+): [T, Dispatch<SetStateAction<T>>] {
+  const load = () => ({
+    key,
+    value: (key && readSession(key, valid)) || fallback(),
+  });
+  const [stored, setStored] = useState(load);
+  // Reset before committing a render for another authenticated owner.
+  if (stored.key !== key) setStored(load());
+  useEffect(() => {
+    if (key && stored.key === key) writeSession(key, stored.value);
+  }, [key, stored]);
+  const setValue = useCallback<Dispatch<SetStateAction<T>>>((value) => {
+    setStored((current) => ({
+      ...current,
+      value:
+        typeof value === "function"
+          ? (value as (old: T) => T)(current.value)
+          : value,
+    }));
+  }, []);
+  return [stored.value, setValue];
+}
 const isCards = (value: unknown): value is ShiftScenario[] =>
   Array.isArray(value) &&
   value.length > 0 &&
@@ -59,18 +92,28 @@ export function useScheduleScenarios(
   data: Data | null,
   months: string[],
   currentMonth: string,
+  userId: string | undefined,
 ) {
-  const [scenarios, setScenarios] = useState<ShiftScenario[]>(
-    () =>
-      readSession(CARDS_KEY, isCards) || [
-        newScenario("Senaryo A", currentMonth, 3),
-      ],
+  const owner = userId ? encodeURIComponent(userId) : null;
+  useEffect(() => {
+    // Shared legacy drafts have no trustworthy owner; do not migrate them.
+    try {
+      sessionStorage.removeItem(CARDS_KEY);
+      sessionStorage.removeItem(COMPARED_KEY);
+    } catch {
+      /* Storage may be disabled. */
+    }
+  }, []);
+  const [scenarios, setScenarios] = useSessionValue(
+    owner ? `${CARDS_KEY}:${owner}` : null,
+    () => [newScenario("Senaryo A", currentMonth, 3)],
+    isCards,
   );
-  const [comparedIds, setComparedIds] = useState<string[]>(
-    () => readSession(COMPARED_KEY, isIds) || [],
+  const [comparedIds, setComparedIds] = useSessionValue(
+    owner ? `${COMPARED_KEY}:${owner}` : null,
+    () => [],
+    isIds,
   );
-  useEffect(() => writeSession(CARDS_KEY, scenarios), [scenarios]);
-  useEffect(() => writeSession(COMPARED_KEY, comparedIds), [comparedIds]);
   const [reportScenarioId, setReportScenarioId] = useState<string | null>(null);
   // Saved scenarios taken off the reports for this session ("Senaryoları
   // Sil"); comparing one again opens it as a card and brings it back.

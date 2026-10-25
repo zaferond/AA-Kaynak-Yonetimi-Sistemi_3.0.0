@@ -209,6 +209,14 @@ export async function fixture({ mutationLimits } = {}) {
       });
     }
     async function report(status, cause) {
+      if (cause) {
+        try {
+          const page = contexts.flatMap((context) => context.pages()).at(-1);
+          await page?.screenshot({ path: path.join(dir, "failure.png") });
+        } catch {
+          // The browser may already be closed; retain the original failure.
+        }
+      }
       await fs.writeFile(
         path.join(dir, "result.json"),
         JSON.stringify(
@@ -273,6 +281,10 @@ export async function selectWorkspaceView(page, label) {
 
 /** Entry uses the month strip; the report retains its month select. */
 export async function selectProgressMonth(page, month) {
+  await page
+    .locator(".progress-month-strip:visible, .progress-month select:visible")
+    .first()
+    .waitFor();
   const button = page.locator(
     `.progress-month-strip button[data-month="${month}"]`,
   );

@@ -1,3 +1,4 @@
+import { boundedRecord } from "./bounded-record-schema.ts";
 import {
   warningAssessmentSchema,
   warningConfigSchema,
@@ -116,9 +117,28 @@ const proj = z.object({
   code: z.string().trim().max(100).optional(),
   start: mo,
   end: mo,
-  phases: z.record(z.string().max(3000)),
+  phases: boundedRecord(z.string(), z.string().max(3000)),
   phaseColors: z
-    .record(mo, z.enum(phasePalette.map((x) => x.id) as [string, ...string[]]))
+    .preprocess(
+      (value, ctx) => {
+        // Zod 4 skips __proto__ in records; reject it before that can hide an invalid month key.
+        if (
+          value &&
+          typeof value === "object" &&
+          Object.hasOwn(value, "__proto__")
+        )
+          ctx.addIssue({
+            code: "custom",
+            path: ["__proto__"],
+            message: "Geçersiz ay.",
+          });
+        return value;
+      },
+      z.record(
+        mo,
+        z.enum(phasePalette.map((x) => x.id) as [string, ...string[]]),
+      ),
+    )
     .optional(),
   milestones: z.array(milestone).max(100).optional(),
   access: projectAccess.optional(),
@@ -249,7 +269,7 @@ export const scheduleScenarioSchema = z
     closedAt: z.string().max(40).optional(),
     undo: z
       .object({
-        projects: z.record(proj),
+        projects: boundedRecord(z.string(), proj),
         allocations: numericRecordSchema({ max: 10000 }),
         afterProjectRevisions: numericRecordSchema({ integer: true }),
         afterAllocations: numericRecordSchema({ max: 10000 }),
@@ -363,8 +383,10 @@ export const snapshotSchema = z.object({
     max: MAX_RECORDED_MONTHLY_HOURS,
   }).optional(),
   actualPercentEntries: numericRecordSchema({ max: 10000 }).optional(),
-  workCalendar: z.record(calendarDaySchema.strip()).default({}),
-  personCalendar: z.record(personDaySchema).default({}),
+  workCalendar: boundedRecord(z.string(), calendarDaySchema.strip()).default(
+    {},
+  ),
+  personCalendar: boundedRecord(z.string(), personDaySchema).default({}),
   revisions: numericRecordSchema({ integer: true }),
   leaders: z.array(z.string()).optional(),
   leaderManagers: leaderManagersSchema.default({}),
@@ -383,8 +405,8 @@ export const snapshotSchema = z.object({
           catalog: z.boolean().optional(),
         }),
       ),
-      allocations: z.record(z.number()),
-      resourceTeams: z.record(z.string()),
+      allocations: z.record(z.string(), z.number()),
+      resourceTeams: z.record(z.string(), z.string()),
     })
     .optional(),
 });

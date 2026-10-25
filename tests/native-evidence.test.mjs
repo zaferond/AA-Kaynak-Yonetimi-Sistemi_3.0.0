@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 const expected = () => ({
   commit: "a".repeat(40),
   schema: 35,
-  drivers: { mssql: "12.7.2", tedious: "20.3.8" },
+  drivers: { mssql: "12.7.11", tedious: "20.3.8" },
   sourceHashes: {
     "backend/a.mjs": "b".repeat(64),
     "tests/a.mjs": "c".repeat(64),
@@ -78,7 +78,7 @@ test("native source inventory includes current application, migration, driver lo
     ),
   );
   assert.deepEqual(installedSqlDrivers(root), {
-    mssql: "12.7.2",
+    mssql: "12.7.11",
     tedious: "20.3.8",
   });
 });

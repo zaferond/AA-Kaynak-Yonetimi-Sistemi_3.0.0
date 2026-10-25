@@ -33,13 +33,29 @@ jobs:
             frontend/package-lock.json
       - run: npm ci
       - run: npm --prefix frontend ci
+      - name: Check tracked secrets and environment files
+        run: node scripts/check-secrets.mjs
       - run: npm run verify
       - run: npm run deploy:verify
       - name: Clean release package acceptance (temporary directory, no database)
         run: node scripts/check-deployment-package.mjs
       - run: npx playwright install --with-deps chromium
       - name: Browser security and draft regression checks (synthetic database)
-        run: node scripts/run-browser-checks-isolated.mjs
+        shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: node scripts/run-browser-checks-isolated.mjs 2>&1 | tee "$RUNNER_TEMP/browser-checks.log"
+      - name: Preserve browser regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-checks
+          path: |
+            ${{ runner.temp }}/browser-checks.log
+            ${{ runner.temp }}/aa-browser-checks-*/result.json
+            ${{ runner.temp }}/aa-browser-checks-*/*.png
+          if-no-files-found: warn
+          retention-days: 14
       - run: npm audit --audit-level=moderate
       - run: npm --prefix frontend audit --audit-level=high
   windows-synthetic:

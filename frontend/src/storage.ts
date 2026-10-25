@@ -27,6 +27,22 @@ let writeTail: Promise<unknown> = Promise.resolve();
 let sessionEpoch = 0;
 let sessionContext = 0;
 let sessionIdentity = "";
+let idleExpiresAt = 0;
+let absoluteExpiresAt = 0;
+export const sessionAbsoluteDeadline = () => absoluteExpiresAt;
+export const sessionIdleDeadline = () => idleExpiresAt;
+let activityRequest: Promise<unknown> | null = null;
+export function renewSessionActivity() {
+  if (activityRequest) return activityRequest;
+  const request = api("/auth/activity", {});
+  activityRequest = request;
+  void request
+    .finally(() => {
+      if (activityRequest === request) activityRequest = null;
+    })
+    .catch(() => {});
+  return request;
+}
 let latestView: { data: Data; generation: number; user?: Principal } | null =
   null;
 export class StaleSessionError extends Error {
@@ -53,6 +69,9 @@ function clearSession() {
   principal = null;
   csrf = "";
   sessionIdentity = "";
+  idleExpiresAt = 0;
+  absoluteExpiresAt = 0;
+  activityRequest = null;
   generation = -1;
   latestView = null;
   writeTail = Promise.resolve();
@@ -107,6 +126,29 @@ async function api(path: string, body?: unknown) {
       },
       body === undefined ? REQUEST_DEADLINES.read : REQUEST_DEADLINES.write,
       (response) => {
+        const absolute = response.headers?.get("X-Session-Absolute-Expires-At");
+        if (
+          absolute &&
+          epoch === sessionEpoch &&
+          Number.isFinite(Number(absolute))
+        ) {
+          const serverTime = Date.parse(response.headers?.get("Date") || "");
+          absoluteExpiresAt = Number.isFinite(serverTime)
+            ? Date.now() + Number(absolute) - serverTime
+            : Number(absolute);
+        }
+        const deadline = response.headers?.get("X-Session-Idle-Expires-At");
+        if (
+          deadline &&
+          epoch === sessionEpoch &&
+          Number.isFinite(Number(deadline))
+        ) {
+          const serverTime = Date.parse(response.headers?.get("Date") || "");
+          idleExpiresAt = Number.isFinite(serverTime)
+            ? Date.now() + Number(deadline) - serverTime
+            : Number(deadline);
+          window.dispatchEvent(new Event("session-deadline"));
+        }
         if (epoch !== sessionEpoch) {
           void response.body?.cancel().catch(() => {});
           throw new StaleSessionError();

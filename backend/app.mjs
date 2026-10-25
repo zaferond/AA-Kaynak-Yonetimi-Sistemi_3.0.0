@@ -1,3 +1,9 @@
+import {
+  sessionLifetime,
+  privilegedSession,
+  idleDeadline,
+  SESSION_IDLE_MS,
+} from "./session-policy.mjs";
 import { actualViewQuery } from "./actual-view.mjs";
 import { WORKSPACE_TAB_IDS, HOME_TAB } from "../shared/workspace-tabs.ts";
 import { saveEmployeeRecord } from "./employee-account-command.mjs";
@@ -201,7 +207,7 @@ export function createApp(
       );
       next();
     },
-    express.json({ limit: "4kb" }),
+    express.json({ limit: "4kb", inflate: false }),
     async (req, res) => {
       const body = z
         .object({
@@ -249,20 +255,23 @@ export function createApp(
   async function issueSession(res, u, remember) {
     const raw = token(),
       csrf = token(),
-      age =
-        u.authSource === "ldap"
-          ? 12 * 3600000
-          : (remember ? 30 * 24 : 12) * 3600000;
+      age = sessionLifetime(u, remember);
     await store.createSession({
       _id: digest(raw),
       userId: u._id,
       userVersion: u.version,
       csrf,
       expiresAt: new Date(Date.now() + age),
+      lastActivityAt: new Date(),
     });
+    res.set(
+      "X-Session-Idle-Expires-At",
+      String(Math.min(Date.now() + age, Date.now() + SESSION_IDLE_MS)),
+    );
+    res.set("X-Session-Absolute-Expires-At", String(Date.now() + age));
     res.cookie(sessionCookieName, raw, {
       ...cookieOptions,
-      ...(remember ? { maxAge: age } : {}),
+      ...(remember && !privilegedSession(u) ? { maxAge: age } : {}),
     });
     const identity = sessionIdentity(digest(raw));
     res.set("X-Session-Identity", identity);
@@ -273,8 +282,10 @@ export function createApp(
     if (!raw) fail(401, "Giriş yapın.");
     const s = await store.session(digest(raw));
     const u = s && (await store.findUser({ id: s.userId }));
-    if (!u?.active || u.version !== s.userVersion)
+    if (!u?.active || u.version !== s.userVersion) {
+      res.clearCookie(sessionCookieName, cookieOptions);
       fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
+    }
     if (u.authSource === "ldap") {
       try {
         await directory.ensureActive(u.directoryId);
@@ -294,6 +305,8 @@ export function createApp(
     }
     req.user = u;
     req.session = s;
+    res.set("X-Session-Absolute-Expires-At", String(s.expiresAt.getTime()));
+    res.set("X-Session-Idle-Expires-At", String(idleDeadline(s)));
     req.sessionIdentity = sessionIdentity(s._id);
     res.set("X-Session-Identity", req.sessionIdentity);
     if (
@@ -307,6 +320,7 @@ export function createApp(
     "/auth/me",
     "/auth/logout",
     "/auth/password",
+    "/auth/activity",
   ]);
   app.use("/api", async (req, res, next) => {
     await authenticate(req, res);
@@ -320,8 +334,8 @@ export function createApp(
   const admission = mutationAdmissionMiddleware(mutationGate, authenticate);
   app.use("/api", admission.middleware);
   // Large imports/backups keep their existing allowance, after authentication.
-  const normalJson = express.json({ limit: "2mb" });
-  const bulkJson = express.json({ limit: "20mb" });
+  const normalJson = express.json({ limit: "2mb", inflate: false });
+  const bulkJson = express.json({ limit: "20mb", inflate: false });
   app.use("/api", (req, res, next) => {
     const parser = [
       "/changes",
@@ -414,6 +428,14 @@ export function createApp(
       res.json({ user: publicUser(tab ? { ...rest, defaultTab: tab } : rest) });
     }),
   );
+  app.post("/api/auth/activity", async (req, res) => {
+    if (!(await store.touchSession(req.session._id)))
+      fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
+    const session = await store.session(req.session._id);
+    if (!session) fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
+    res.set("X-Session-Idle-Expires-At", String(idleDeadline(session)));
+    res.json({ idleExpiresAt: idleDeadline(session) });
+  });
   app.post("/api/auth/logout", async (req, res) => {
     await store.deleteSession(req.session._id);
     res.clearCookie(sessionCookieName, cookieOptions);

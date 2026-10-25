@@ -1,3 +1,4 @@
+import { validationOptions } from "../shared/validation-options.ts";
 import { ensureLeadershipUnits } from "../shared/leadership-units.ts";
 import { z } from "zod";
 import { admin, fail } from "./auth.mjs";
@@ -43,7 +44,10 @@ const rowsSchema = z
   .array(
     z.object({
       row: z.number().int(),
-      values: z.record(z.union([z.string(), z.number(), z.boolean()])),
+      values: z.record(
+        z.string(),
+        z.union([z.string(), z.number(), z.boolean()]),
+      ),
       problems: z.array(z.string()),
       date1904: z.boolean(),
     }),
@@ -52,7 +56,7 @@ const rowsSchema = z
   .max(5000);
 export function importRows(d, u, input) {
   admin(u);
-  const rows = prepareImport(d, rowsSchema.parse(input));
+  const rows = prepareImport(d, rowsSchema.parse(input, validationOptions));
   const error = rows.find((r) => r.state === "error");
   if (error)
     fail(400, "Satır " + error.source.row + ": " + error.errors.join(" "));

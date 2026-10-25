@@ -43,7 +43,14 @@ test("HTTP report bounds share both endpoints, preserve other reads, retain disc
     async session(id) {
       for (const userId of ["a", "b", "c"])
         if (id === digest("synthetic-" + userId))
-          return { _id: id, userId, userVersion: 1, csrf: "synthetic" };
+          return {
+            _id: id,
+            userId,
+            userVersion: 1,
+            csrf: "synthetic",
+            expiresAt: new Date(Date.now() + 8 * 3600000),
+            lastActivityAt: new Date(),
+          };
     },
     async findUser({ id }) {
       return {

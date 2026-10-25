@@ -1,3 +1,4 @@
+import { boundedRecord } from "../shared/bounded-record-schema.ts";
 import { ownValue } from "../shared/records.ts";
 import {
   validPlanningMonth,
@@ -33,7 +34,7 @@ const workedHoursSchema = z
   .finite()
   .min(0)
   .max(MAX_RECORDED_MONTHLY_HOURS);
-const calendarSchema = z.record(calendarDaySchema);
+const calendarSchema = boundedRecord(z.string(), calendarDaySchema);
 const effectiveHours = (d, resourceId, month) =>
   effectivePersonHoursInMonth(
     month,

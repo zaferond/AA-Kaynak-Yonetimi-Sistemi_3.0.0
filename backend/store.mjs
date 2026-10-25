@@ -147,6 +147,9 @@ export class Store {
       ? this.db.sessionTransaction(fn)
       : this.transaction(fn);
   }
+  async touchSession(id) {
+    return this.#sessionTransaction((c) => identity.touchSession(c, id));
+  }
   async createSession(s) {
     await this.#sessionTransaction((c) => identity.createSession(c, s));
   }
@@ -217,14 +220,16 @@ export class Store {
       const active = await this.findUser({ id: u._id }, c);
       if (!active?.active || active.version !== u.version)
         fail(401, "Oturum yenilenmeli.");
+      const date = currentPlanningDate();
       const data = await readActualReportData(
         c,
         this.provider,
         publicUser(active),
         query,
         "actual",
+        date,
       );
-      return actualView(data, publicUser(active), query);
+      return actualView(data, publicUser(active), query, date);
     }, true);
   }
   async activityReport(u, query) {

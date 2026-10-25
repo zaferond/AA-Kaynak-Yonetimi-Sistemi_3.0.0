@@ -1,3 +1,4 @@
+import { validationOptions } from "./validation-options.ts";
 import type { Data, Resource } from "./model.ts";
 import { snapshotSchema } from "./snapshot-schema.ts";
 import {
@@ -60,7 +61,7 @@ export function validate(
       new Map(r.versions.map((v) => [v.effective, v])),
     ]),
   );
-  const d = snapshotSchema.parse(input) as Data;
+  const d = snapshotSchema.parse(input, validationOptions) as Data;
   delete d.users;
   validateSnapshotCalendarKeys(d);
   const { teamIds, projectsById } = validateSnapshotCatalogs(d);

@@ -144,7 +144,7 @@ test("a temporary password allows only the password change until it is replaced"
   assert.equal((await request("/data", undefined, next)).status, 200);
 });
 
-test("a password change keeps the session's remember choice", async (t) => {
+test("a privileged password change cannot create a persistent remembered cookie", async (t) => {
   const { request, login } = await setup(t);
   for (const remember of [true, false]) {
     const auth = await login(remember ? TEMPORARY : CHOSEN, remember);
@@ -158,6 +158,6 @@ test("a password change keeps the session's remember choice", async (t) => {
     );
     assert.equal(changed.status, 200, JSON.stringify(changed.json));
     const cookie = changed.response.headers.get("set-cookie");
-    assert.equal(/Max-Age=/i.test(cookie), remember, cookie);
+    assert.equal(/Max-Age=/i.test(cookie), false, cookie);
   }
 });

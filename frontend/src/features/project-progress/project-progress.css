@@ -95,6 +95,19 @@
 /* Risk level: a dot plus the word, never colour alone. */
 
 /* Entry */
+.project-progress .progress-draft-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--brand-border, #ccd6c5);
+  border-radius: 6px;
+  background: #f6f8f2;
+  font-size: 12px;
+}
 
 /* Baseline: one card per project × leadership, open at once. */
 .project-progress .progress-baseline {

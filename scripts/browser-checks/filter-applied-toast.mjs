@@ -61,6 +61,7 @@ export async function checkFilterAppliedToast(f) {
           .getByRole("checkbox", { name: f.teamA.lead, exact: true })
           .check();
         await page.keyboard.press("Escape");
+        await page.locator(".pickerpanel").waitFor({ state: "detached" });
         await toast().waitFor();
         assert.equal(await toast().innerText(), "Liderlik Filtresi Uygulandı");
         assert.equal(await toast().locator("svg").count(), 1);
@@ -132,6 +133,7 @@ export async function checkFilterAppliedToast(f) {
             .getByRole("checkbox", { name, exact: true })
             .check();
           await page.keyboard.press("Escape");
+          await page.locator(".pickerpanel").waitFor({ state: "detached" });
           assert.equal(await toast().innerText(), message);
         }
         await selectWorkspaceTab(page, "Aktivite Giriş");
@@ -141,6 +143,7 @@ export async function checkFilterAppliedToast(f) {
           .getByRole("checkbox", { name: "Browser Employee", exact: true })
           .check();
         await page.keyboard.press("Escape");
+        await page.locator(".pickerpanel").waitFor({ state: "detached" });
         assert.equal(await toast().innerText(), "Kişi Filtresi Uygulandı");
       },
     );

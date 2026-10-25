@@ -163,7 +163,7 @@ test("project milestones survive add, edit, delete and restart", async () => {
             },
           ],
         }),
-      /Invalid enum value|invalid_enum_value/i,
+      /Invalid option|invalid_value/i,
     );
     const fullRanges = Array.from({ length: 19 }, (_, index) => ({
       start: `2027-03-${String(index + 1).padStart(2, "0")}`,

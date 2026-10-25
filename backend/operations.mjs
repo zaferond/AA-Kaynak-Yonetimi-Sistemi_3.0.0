@@ -1,3 +1,4 @@
+import { validationOptions } from "../shared/validation-options.ts";
 import {
   stageWarningConfigChange,
   stageScenarioWarningChange,
@@ -83,7 +84,11 @@ export function applyChanges(d, u, input) {
 // Store.mutate validates the final draft before persistence. Standalone callers
 // use applyChanges above, which retains full validation and normalization.
 export function stageChanges(d, u, input) {
-  return stageParsedChanges(d, u, changesSchema.parse(input));
+  return stageParsedChanges(
+    d,
+    u,
+    changesSchema.parse(input, validationOptions),
+  );
 }
 
 const planningCommands = new WeakMap();
@@ -101,7 +106,7 @@ export function planningCommand(input) {
 export const isPlanningCommand = (command) => planningCommands.has(command);
 
 function parsePlanningChanges(input) {
-  const changes = changesSchema.parse(input);
+  const changes = changesSchema.parse(input, validationOptions);
   if (!changes.every((change) => change.kind === "allocation"))
     fail(400, "Yalnız planlanan kaynak dağılımı işlemleri kullanılabilir.");
   return changes;

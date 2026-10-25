@@ -1,5 +1,5 @@
 import { ScenarioWarningStatus } from "./ScenarioWarningStatus";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Principal } from "../../access";
 import type { Project } from "../../model";
 import type { Change } from "../../../../shared/commands";
@@ -64,7 +64,95 @@ const asText = (targets: Record<string, number>) =>
  * actual % (with a note) is entered on the same grid. A new baseline can be
  * proposed alongside without stopping the monthly entry.
  */
+type CardProps = Parameters<typeof ProgressCardForm>[0];
 export default function ProgressCard({
+  onDraftChange,
+  ...props
+}: CardProps & { onDraftChange?: (id: string, dirty: boolean) => void }) {
+  const id = props.project.id + "|" + props.leader;
+  const [dirty, setDirty] = useState(false);
+  const [reset, setReset] = useState(0);
+  const [opened, setOpened] = useState(props);
+  useLayoutEffect(() => {
+    if (opened.month !== props.month) {
+      setDirty(false);
+      setOpened(props);
+    }
+  }, [props.month, opened.month]);
+  useLayoutEffect(() => {
+    onDraftChange?.(id, dirty);
+    return () => onDraftChange?.(id, false);
+  }, [id, dirty, onDraftChange]);
+  const freeze = () => {
+    if (!dirty) {
+      setOpened(props);
+      setDirty(true);
+    }
+  };
+  const held = dirty ? opened : props;
+  const stale =
+    dirty &&
+    (props.record?.id !== opened.record?.id ||
+      (props.ctx.data.revisions["progress:" + props.record?.id] || 0) !==
+        (opened.ctx.data.revisions["progress:" + opened.record?.id] || 0) ||
+      JSON.stringify(props.ctx.data.progressLocks) !==
+        JSON.stringify(opened.ctx.data.progressLocks));
+  return (
+    <div
+      onChangeCapture={freeze}
+      onClickCapture={(event) => {
+        const button = (event.target as HTMLElement).closest("button");
+        if (
+          button &&
+          /Önerileni Uygula|Hedef Plan Revize Et/.test(button.textContent || "")
+        )
+          freeze();
+        if (
+          button &&
+          /^(Vazgeç|Gerçekleşen Revizyonunu İptal Et)$/.test(
+            (button.textContent || "").trim(),
+          )
+        )
+          setDirty(false);
+      }}
+    >
+      {dirty && (
+        <div
+          className="progress-draft-notice"
+          role={stale ? "alert" : "status"}
+        >
+          {stale
+            ? "Kayıt başka bir işlemde değişti. Taslağınız korunuyor; kaydetmeden önce güncel kaydı kontrol edin."
+            : "Kaydedilmemiş değişiklikleriniz var."}
+          <button
+            type="button"
+            disabled={props.saving}
+            onClick={() => {
+              setDirty(false);
+              setOpened(props);
+              setReset((value) => value + 1);
+            }}
+          >
+            Taslağı İptal Et
+          </button>
+        </div>
+      )}
+      <ProgressCardForm
+        key={reset}
+        {...props}
+        ctx={held.ctx}
+        project={held.project}
+        record={held.record}
+        onSave={async (changes) => {
+          await props.onSave(changes);
+          setDirty(false);
+        }}
+      />
+    </div>
+  );
+}
+
+function ProgressCardForm({
   ctx,
   user,
   project,

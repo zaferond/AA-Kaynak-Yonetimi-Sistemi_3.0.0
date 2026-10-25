@@ -45,7 +45,7 @@ export async function readActualReportData(
     kind === "actual" ? actualViewTeams(data, user, date) : activityScope.teams;
   const resources =
     kind === "actual"
-      ? actualViewResources(data, user, teams, month)
+      ? actualViewResources(data, user, teams, month, date)
       : activityReportResources(data, activityScope, month, reportMonths);
   const owners = resources.map((resource) => resource.id);
   // Legacy separators can change interpretation of composite record keys.

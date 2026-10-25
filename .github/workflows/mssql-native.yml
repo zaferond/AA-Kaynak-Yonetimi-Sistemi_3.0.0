@@ -76,17 +76,19 @@ jobs:
           export TEST_DB_PASSWORD="$MSSQL_SA_PASSWORD"
           args=(--size "$TEST_SIZE" --samples 3 --report native-mssql-report.json)
           if [ "$TEST_CONTENTION" = "true" ]; then args+=(--contention); fi
-          npm run test:db -- "${args[@]}"
+          npm run test:db -- "${args[@]}" 2>&1 | tee native-mssql-test.log
       - name: Verify native evidence against this commit and current sources
         shell: bash
         run: node scripts/verify-native-evidence.mjs --report native-mssql-report.json --commit "$GITHUB_SHA" > native-mssql-verification.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: native-mssql-report
           path: |
             native-mssql-report.json
             native-mssql-verification.json
-          if-no-files-found: error
+            native-mssql-test.log
+          if-no-files-found: warn
           retention-days: 90
       - name: Remove test container
         if: always()

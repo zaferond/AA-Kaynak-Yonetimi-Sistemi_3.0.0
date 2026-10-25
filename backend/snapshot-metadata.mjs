@@ -25,6 +25,9 @@ const metadataQueries = Object.freeze({
     "SELECT * FROM kp_resource_versions ORDER BY effective_month",
 });
 
+// Keep the native batch guard in step with additions to this owned catalog.
+export const snapshotMetadataQueryCount = Object.keys(metadataQueries).length;
+
 export async function snapshotMetadataReader(
   c,
   { batch = false, report } = {},

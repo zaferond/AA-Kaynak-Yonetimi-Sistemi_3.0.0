@@ -1,3 +1,4 @@
+import { SESSION_IDLE_MS } from "./session-policy.mjs";
 // SQL mapping only. The caller owns the connection and transaction.
 const mapUser = (r) =>
   r && {
@@ -120,8 +121,12 @@ export async function deleteUser(c, id, revision) {
 export async function readSession(c, id) {
   const r = (
     await c.query(
-      "SELECT * FROM kp_sessions WHERE token_hash=@p0 AND expires_at>@p1",
-      [id, new Date().toISOString()],
+      "SELECT * FROM kp_sessions WHERE token_hash=@p0 AND expires_at>@p1 AND last_activity_at>@p2",
+      [
+        id,
+        new Date().toISOString(),
+        new Date(Date.now() - SESSION_IDLE_MS).toISOString(),
+      ],
     )
   ).rows[0];
   return (
@@ -131,6 +136,7 @@ export async function readSession(c, id) {
       userVersion: Number(r.user_version),
       csrf: r.csrf,
       expiresAt: new Date(r.expires_at),
+      lastActivityAt: new Date(r.last_activity_at),
     }
   );
 }
@@ -142,6 +148,7 @@ export const createSession = (c, s) =>
       user_version: s.userVersion,
       csrf: s.csrf,
       expires_at: s.expiresAt.toISOString(),
+      last_activity_at: (s.lastActivityAt || new Date()).toISOString(),
     },
   ]);
 export const deleteSession = (c, id) =>
@@ -149,9 +156,13 @@ export const deleteSession = (c, id) =>
 export const revokeUserSessions = (c, id) =>
   c.query("DELETE FROM kp_sessions WHERE user_id=@p0", [id]);
 export const cleanupSessions = (c) =>
-  c.query("DELETE FROM kp_sessions WHERE expires_at<=@p0", [
-    new Date().toISOString(),
-  ]);
+  c.query(
+    "DELETE FROM kp_sessions WHERE expires_at<=@p0 OR last_activity_at<=@p1 OR last_activity_at IS NULL",
+    [
+      new Date().toISOString(),
+      new Date(Date.now() - SESSION_IDLE_MS).toISOString(),
+    ],
+  );
 
 /** The account's opening screen. A preference only: no revision or session
  * change, so it never conflicts with an admin's edit of the account. */
@@ -160,4 +171,14 @@ export async function saveDefaultTab(c, id, tab) {
     tab || null,
     id,
   ]);
+}
+
+export async function touchSession(c, id) {
+  const now = new Date().toISOString();
+  return (
+    await c.query(
+      "UPDATE kp_sessions SET last_activity_at=CASE WHEN last_activity_at<@p0 THEN @p0 ELSE last_activity_at END WHERE token_hash=@p1 AND expires_at>@p0 AND last_activity_at>@p2",
+      [now, id, new Date(Date.now() - SESSION_IDLE_MS).toISOString()],
+    )
+  ).rowCount;
 }

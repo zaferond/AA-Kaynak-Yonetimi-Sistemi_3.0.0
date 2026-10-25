@@ -1,6 +1,7 @@
 type Options = {
   getTab: () => string;
   getLeaveGuard: () => (() => Promise<boolean>) | null;
+  getProgressLeaveGuard?: () => (() => Promise<boolean>) | null;
   canSelectTab: (tab: string) => boolean;
   assertSession: () => void;
   selectTab: (tab: string) => void;
@@ -31,7 +32,11 @@ export function createWorkspaceNavigation(options: Options) {
     try {
       if (!current(opening)) return false;
       const guard =
-        options.getTab() === "risk" ? options.getLeaveGuard() : null;
+        options.getTab() === "risk"
+          ? options.getLeaveGuard()
+          : options.getTab() === "progress"
+            ? options.getProgressLeaveGuard?.()
+            : null;
       const allowed = !guard || (await guard());
       return current(opening) && allowed;
     } catch (error) {

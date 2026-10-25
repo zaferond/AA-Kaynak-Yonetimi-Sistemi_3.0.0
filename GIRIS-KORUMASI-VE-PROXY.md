@@ -1,5 +1,13 @@
 # Giriş koruması ve proxy kurulumu
 
+## Oturum politikası — 25 Ekim 2026
+
+- Tüm hesaplarda sunucuda uygulanan hareketsizlik sınırı **30 dakika**. Sürüm/bildirim sorguları, otomatik veri yenileme ve oturum kontrolü bu süreyi uzatmaz. Gerçek kullanıcı etkileşimi CSRF korumalı etkinlik isteğiyle, en fazla dakikada bir bildirilir.
+- Admin, Yönetici ve Normal-Proje hesaplarında mutlak üst sınır **8 saat**; kalıcı “Beni Hatırla” çerezi verilmez. Diğer LDAP hesaplarında 12 saat; diğer yerel hesaplarda normalde 12 saat, hatırla seçilirse en fazla 30 gün mutlak sınır vardır. “Beni Hatırla” hareketsizlik sonrası yeniden giriş zorunluluğunu kaldırmaz.
+- Süre bitmeden **5 dakika** önce uyarı gösterilir. Hareketsizlik uyarısında oturum sürdürülebilir; mutlak süre uzatılamaz. Mutlak sınıra yaklaşırken uyarıdan çalışmaya dönüp veriyi kaydetmek ve yeniden giriş yapmak gerekir.
+- Migration **46**, son etkinlik alanını ekler ve eski etkinliği bilinmeyen oturumları iptal eder. İş verisi ve kullanıcı/parola kayıtları değiştirilmez. SQL.js yerel başlatmada geçişi transaction ile yapar; MSSQL üretimde bütün uygulama örnekleri durdurulup tam yedek alındıktan sonra migration hesabıyla `npm run db:migrate` çalıştırılmalıdır. Production otomatik DDL açılmaz.
+- Ortam ayarları `.env*` kuralıyla Git dışında tutulur; yalnız `.example` şablonları izlenir. `npm run check:secrets` ve CI kontrolü gerçek ayar dosyalarının izlenmesini ve yaygın anahtar/özel anahtar kalıplarını reddeder; eşleşen sırları günlüğe yazmaz. İlk kurulum ve CLI reset parolaları da uygulama içi yeni parolayla aynı güç denetimini kullanır.
+
 ## Sayaç seçimi
 
 | Kurulum | Sayaç | Sunucu yeniden başladığında | Birden fazla uygulama sunucusu |

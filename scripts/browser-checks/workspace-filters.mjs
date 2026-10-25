@@ -25,7 +25,14 @@ const startInput = (page) =>
 const periodInput = (page) =>
   page.locator(".planning-filterbar .period select");
 
+async function readyReportTables(page) {
+  const tables = page.locator(".remaining-report");
+  await tables.nth(1).waitFor();
+  return tables.all();
+}
+
 async function assertScrollPair(f, page, tables) {
+  assert.equal(tables.length, 2, "both synchronized tables must be rendered");
   const containers = tables.map((table) => table.locator(".."));
   const widths = await Promise.all(
     containers.map((container) =>
@@ -236,11 +243,7 @@ export async function checkWorkspaceFilters(f) {
         await assertScrollPair(f, page, pair());
         await page.goto(f.origin);
         await selectWorkspaceTab(page, "Raporlar");
-        await assertScrollPair(
-          f,
-          page,
-          await page.locator(".remaining-report").all(),
-        );
+        await assertScrollPair(f, page, await readyReportTables(page));
         await selectWorkspaceTab(page, "Projeler");
         await page
           .getByRole("switch", { name: "Haftalık proje görünümü", exact: true })
@@ -257,22 +260,14 @@ export async function checkWorkspaceFilters(f) {
             .isChecked()),
         );
         await selectWorkspaceTab(page, "Raporlar");
-        await assertScrollPair(
-          f,
-          page,
-          await page.locator(".remaining-report").all(),
-        );
+        await assertScrollPair(f, page, await readyReportTables(page));
         await openUserMenu(page);
         await page
           .getByLabel("Varsayılan Sekme", { exact: true })
           .selectOption("overview");
         await page.reload();
         await page.locator(".remaining-report").first().waitFor();
-        await assertScrollPair(
-          f,
-          page,
-          await page.locator(".remaining-report").all(),
-        );
+        await assertScrollPair(f, page, await readyReportTables(page));
         await f.capture(page, "workspace-synchronized-reports");
       },
     );

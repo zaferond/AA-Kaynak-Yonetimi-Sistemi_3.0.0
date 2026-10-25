@@ -34,6 +34,21 @@ test("admin bootstrap accepts an operator-chosen password", () => {
   );
 });
 
+test("bootstrap and CLI reset reject the same weak temporary passwords as interactive changes", () => {
+  for (const password of [
+    "aaaaaaaaaa",
+    "!!!!!!!!!!",
+    "9876543210",
+    "abc123",
+    "abc".repeat(100),
+  ])
+    for (const name of ["ADMIN_PASSWORD", "NEW_ADMIN_PASSWORD"])
+      assert.throws(
+        () => assertAdminPassword(password, "synthetic.root", name),
+        new RegExp(name),
+      );
+});
+
 test("new local passwords need a letter and a digit and must not be a run or a repeat", () => {
   for (const [value, pattern] of [
     ["1231231234", /harf/],

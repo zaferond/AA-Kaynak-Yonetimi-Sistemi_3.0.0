@@ -42,7 +42,13 @@ import {
 import { TabsContent } from "@/components/ui/tabs";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { ClipboardPaste, Copy } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useActualView } from "./features/actual-allocation/useActualView";
 import { useActivityReport } from "./features/activity-report/useActivityReport";
 import ActivePostingPlanningToggle, {
@@ -158,6 +164,19 @@ export default function Portal() {
   const canEditProjects = isAdmin || isProjectEditor(user);
   const isManager = user?.role === "manager";
   const canEditCriticalTopics = canEditProjects || isManager;
+  const progressDrafts = useRef(new Set<string>());
+  const [progressEditing, setProgressEditing] = useState(false);
+  const onProgressDraftChange = useCallback((id: string, dirty: boolean) => {
+    if (dirty) progressDrafts.current.add(id);
+    else progressDrafts.current.delete(id);
+    setProgressEditing(progressDrafts.current.size > 0);
+  }, []);
+  const confirmProgressLeave = useCallback(
+    () =>
+      !progressDrafts.current.size ||
+      window.confirm("Kaydedilmemiş değerlendirme değişiklikleri silinsin mi?"),
+    [],
+  );
   const {
     tab,
     defaultTab,
@@ -170,6 +189,7 @@ export default function Portal() {
     changeTab,
     signOut,
   } = useWorkspaceNavigation({
+    confirmProgressLeave,
     user,
     fullPlan,
     assertSessionRef,
@@ -360,7 +380,7 @@ export default function Portal() {
   }
   usePortalRefresh({
     load,
-    editing: !!editor || directoryEditing || accountEditing,
+    editing: !!editor || directoryEditing || accountEditing || progressEditing,
     saving,
     riskEditing,
     riskEditingRef,
@@ -423,7 +443,12 @@ export default function Portal() {
     projectPage,
     onlyDataRows,
   });
-  const scenarioState = useScheduleScenarios(viewData, months, currentMonth);
+  const scenarioState = useScheduleScenarios(
+    viewData,
+    months,
+    currentMonth,
+    user?.id,
+  );
   // Resource reports drawn for a delay scenario (nothing is saved).
   const reportScenario =
     tab === "overview" && reportView === "resources"
@@ -783,7 +808,10 @@ export default function Portal() {
             setActivityUnit={setActivityUnit}
             progressView={progressView}
             progressActionsRef={setProgressActionsHost}
-            setProgressView={setProgressView}
+            setProgressView={(next) => {
+              if (next === progressView || confirmProgressLeave())
+                setProgressView(next);
+            }}
             projectView={projectView}
             setProjectView={setProjectView}
             pendingProgressApprovals={
@@ -1154,6 +1182,7 @@ export default function Portal() {
               {(isAdmin || isManager) && tab === "progress" && (
                 <TabsContent value="progress">
                   <ProjectProgressPanel
+                    onDraftChange={onProgressDraftChange}
                     actionsHost={progressActionsHost}
                     density={density}
                     view={progressView}

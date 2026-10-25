@@ -241,6 +241,7 @@ export const tables = {
       user_id: "nvarchar(120)",
       user_version: "bigint",
       csrf: "varchar(100)",
+      last_activity_at: "varchar(30)",
       expires_at: "varchar(30)",
     },
   },

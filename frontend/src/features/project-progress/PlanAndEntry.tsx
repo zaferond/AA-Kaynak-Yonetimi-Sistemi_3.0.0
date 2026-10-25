@@ -60,7 +60,9 @@ export default function PlanAndEntry({
   currentMonth,
   saving,
   onSave,
+  onDraftChange,
 }: {
+  onDraftChange?: (id: string, dirty: boolean) => void;
   ctx: ProgressContext;
   actionsHost: HTMLElement | null;
   responsibleFilter: ReactNode;
@@ -406,6 +408,7 @@ export default function PlanAndEntry({
             >
               {items.map((item) => (
                 <ProgressCard
+                  onDraftChange={onDraftChange}
                   key={item.project.id}
                   ctx={ctx}
                   user={user}

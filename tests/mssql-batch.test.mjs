@@ -1,3 +1,7 @@
+import {
+  snapshotMetadataQueryCount,
+  snapshotMetadataReader,
+} from "../backend/snapshot-metadata.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import sql from "mssql";
@@ -50,7 +54,7 @@ test("invalid or partial native metadata batches fail without accepting partial 
   });
   for (const queries of [
     [],
-    Array(17).fill("SELECT 1"),
+    Array(snapshotMetadataQueryCount + 1).fill("SELECT 1"),
     [null],
     ["DELETE FROM kp_settings"],
     ["SELECT 1; DROP TABLE kp_settings"],
@@ -136,4 +140,23 @@ test("session writes take their own shared lock, never the business-data lock", 
     locks.map(([resource]) => resource),
     ["aa_kaynak_sessions", "aa_kaynak_sessions", "aa_kaynak_sessions"],
   );
+});
+
+test("the entire current metadata catalog fits the native driver guard", async (t) => {
+  const db = adapter();
+  let received;
+  t.mock.method(sql.Request.prototype, "query", async function (text) {
+    received = text.split(";\n");
+    return {
+      recordsets: received.map(() => []),
+      rowsAffected: received.map(() => 0),
+    };
+  });
+  const reader = await snapshotMetadataReader(
+    { queryMany: (queries) => db.readMany(db.pool, queries) },
+    { batch: true },
+  );
+  assert.equal(received.length, snapshotMetadataQueryCount);
+  assert.deepEqual(await reader("settings"), { rows: [], rowCount: 0 });
+  assert.deepEqual(await reader("resourceVersions"), { rows: [], rowCount: 0 });
 });

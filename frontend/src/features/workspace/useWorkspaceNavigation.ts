@@ -15,11 +15,13 @@ import { createWorkspaceNavigation } from "./workspace-navigation";
 
 export function useWorkspaceNavigation({
   user,
+  confirmProgressLeave,
   fullPlan,
   assertSessionRef,
   setError,
   setNotice,
 }: {
+  confirmProgressLeave?: () => boolean;
   user: Principal | null;
   fullPlan: boolean;
   assertSessionRef: RefObject<() => void>;
@@ -39,14 +41,18 @@ export function useWorkspaceNavigation({
     riskEditingRef.current = editing;
     setRiskEditing(editing);
   }, []);
-  const latest = useRef({ tab, user, setError });
+  const latest = useRef({ tab, user, setError, confirmProgressLeave });
   useLayoutEffect(() => {
-    latest.current = { tab, user, setError };
+    latest.current = { tab, user, setError, confirmProgressLeave };
   });
   const [navigation] = useState(() =>
     createWorkspaceNavigation({
       getTab: () => latest.current.tab,
       getLeaveGuard: () => riskLeaveGuard.current,
+      getProgressLeaveGuard: () =>
+        latest.current.confirmProgressLeave
+          ? async () => latest.current.confirmProgressLeave!()
+          : null,
       canSelectTab: (next) =>
         allowedDefaultTabs(latest.current.user).includes(next),
       assertSession: () => assertSessionRef.current(),
