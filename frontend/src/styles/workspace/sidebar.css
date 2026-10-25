@@ -90,11 +90,11 @@ html[data-theme] .app:not(.full-plan) > main {
   width: 100%;
   min-width: 0;
   min-height: 0;
-  padding: 0 10px 12px;
+  padding: 0 14px 12px;
   border-right: 1px solid var(--brand-border, #ccd6c5);
-  background: var(--brand-surface, #edf1e8);
+  background: #fff;
   color: var(--brand-text, #293a2d);
-  box-shadow: none;
+  box-shadow: 6px 0 24px #173a6005;
 }
 .app .workspace-menu-panel[data-open="true"] {
   display: flex;
@@ -157,11 +157,11 @@ html[data-theme] .app .workspace-menu-panel .navtabs {
   align-items: stretch;
   justify-content: flex-start;
   flex: 1 1 auto;
-  gap: 4px !important;
+  gap: 7px !important;
   width: 100%;
   min-height: 0;
   margin: 0;
-  padding: 2px;
+  padding: 12px 2px 2px;
   border: 0 !important;
   border-radius: 0;
   background: transparent;
@@ -177,33 +177,72 @@ html[data-theme] .app .workspace-menu-panel .navtabs [role="tab"] {
   flex: none;
   width: 100%;
   height: auto;
-  min-height: 44px;
+  min-height: 48px;
   margin: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 16px;
   gap: 12px;
   white-space: normal;
   text-align: left;
   font-size: var(--fs-sm);
   line-height: 1.4;
+  color: var(--brand-muted, #576473);
+  background: transparent;
+  font-weight: 550;
   box-shadow: none;
+  transition:
+    background-color 180ms,
+    color 180ms,
+    box-shadow 180ms,
+    border-color 180ms;
 }
 html[data-theme] .app .workspace-menu-panel .navtabs [role="tab"] svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.8;
+  color: #65748a;
+  transition:
+    color 180ms,
+    filter 180ms;
 }
 html[data-theme] .app .workspace-menu-panel .navtabs [role="tab"]:hover {
-  background: var(--brand-selected, #e0e9d8);
-  color: var(--brand-text, #293a2d);
+  background: radial-gradient(ellipse at 24% 50%, #3b82f61f, #fff 85%);
+  color: #204d76;
+  box-shadow: 0 4px 15px #315b8c09;
 }
 html[data-theme]
   .app
   .workspace-menu-panel
   .navtabs
   [role="tab"][data-state="active"] {
-  background: var(--brand-primary, #405341);
-  border-color: var(--brand-primary, #405341);
-  color: #fff;
-  box-shadow: none;
+  background: radial-gradient(
+    ellipse at 23% 50%,
+    #3b82f628 0%,
+    #3b82f60c 55%,
+    #fff 100%
+  );
+  border-color: #dce8f5;
+  color: #1e476e;
+  font-weight: 700;
+  box-shadow: 0 5px 17px #305c9210;
+}
+html[data-theme]
+  .app
+  .workspace-menu-panel
+  .navtabs
+  [role="tab"][data-state="active"]
+  svg {
+  color: #397cda;
+  filter: drop-shadow(0 0 7px #3b82f655);
+}
+html[data-theme]
+  .app
+  .workspace-menu-panel
+  .navtabs
+  [role="tab"]:focus-visible {
+  outline: 2px solid var(--brand-focus, #2f6fb0);
+  outline-offset: -2px;
 }
 html[data-theme] .app .workspace-menu-panel .navtabs [data-group-start] {
   margin-top: 9px;
@@ -254,7 +293,9 @@ html[data-theme]
 }
 @media (prefers-reduced-motion: reduce) {
   .app .workspace-menu-panel,
-  .app .workspace-menu-edge {
+  .app .workspace-menu-edge,
+  html[data-theme] .app .workspace-menu-panel .navtabs [role="tab"],
+  html[data-theme] .app .workspace-menu-panel .navtabs [role="tab"] svg {
     transition: none;
   }
 }

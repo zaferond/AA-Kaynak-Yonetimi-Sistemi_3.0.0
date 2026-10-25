@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import { useState } from "react";
 import {
   Dialog,
@@ -185,13 +186,14 @@ function TopicForm({
           >
             Vazgeç
           </button>
-          <button
+          <FlowButton
+            busy={busy}
             type="submit"
             className="button primary"
             disabled={busy || !!problem}
           >
             Kaydet
-          </button>
+          </FlowButton>
         </DialogFooter>
       </form>
     </DialogContent>

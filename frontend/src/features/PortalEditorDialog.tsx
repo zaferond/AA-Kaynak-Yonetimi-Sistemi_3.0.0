@@ -1,3 +1,4 @@
+import FlowButton from "../components/FlowButton";
 import {
   Dialog,
   DialogContent,
@@ -157,14 +158,14 @@ export default function PortalEditorDialog({
               >
                 Değişiklikleri At
               </button>
-              <button
+              <FlowButton
                 type="button"
                 className="button primary"
                 autoFocus
                 onClick={() => setDiscardPrompt(false)}
               >
                 Düzenlemeye Dön
-              </button>
+              </FlowButton>
             </div>
           )}
         </DialogHeader>
@@ -268,14 +269,15 @@ export default function PortalEditorDialog({
                 >
                   Vazgeç
                 </button>
-                <button
+                <FlowButton
+                  busy={saving}
                   type="button"
                   className="button primary"
                   disabled={saving}
                   onClick={submit}
                 >
                   {saving ? "Kaydediliyor…" : "Kaydet"}
-                </button>
+                </FlowButton>
               </div>
             ) : editor.kind === "resource" ? (
               <div className="resource-editor-actions">
@@ -287,14 +289,15 @@ export default function PortalEditorDialog({
                 >
                   Vazgeç
                 </button>
-                <button
+                <FlowButton
+                  busy={saving}
                   type="button"
                   className="button primary"
                   disabled={saving}
                   onClick={submit}
                 >
                   {saving ? "Kaydediliyor…" : "Kaydet"}
-                </button>
+                </FlowButton>
               </div>
             ) : editor.kind === "project" && !editor.isNew ? (
               <div className="project-editor-actions">
@@ -315,14 +318,15 @@ export default function PortalEditorDialog({
                   >
                     Vazgeç
                   </button>
-                  <button
+                  <FlowButton
+                    busy={saving}
                     type="button"
                     className="button primary"
                     disabled={saving}
                     onClick={submit}
                   >
                     {saving ? "Kaydediliyor…" : "Kaydet"}
-                  </button>
+                  </FlowButton>
                 </span>
               </div>
             ) : (
@@ -336,14 +340,15 @@ export default function PortalEditorDialog({
                   >
                     Vazgeç
                   </button>
-                  <button
+                  <FlowButton
+                    busy={saving}
                     type="button"
                     className="button primary"
                     disabled={saving}
                     onClick={submit}
                   >
                     {saving ? "Kaydediliyor…" : "Kaydet"}
-                  </button>
+                  </FlowButton>
                 </span>
               </div>
             )}

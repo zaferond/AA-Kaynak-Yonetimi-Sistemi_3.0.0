@@ -1,7 +1,8 @@
+import FlowButton from "./components/FlowButton";
 import SessionActivity from "./SessionActivity";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { SYSTEM_NAME, UI_THEME } from "./settings";
 import ErrorBoundary from "./ErrorBoundary";
 import PasswordChangeForm from "./PasswordChangeForm";
@@ -226,16 +227,13 @@ function App() {
           />
           <span>Beni Hatırla</span>
         </label>
-        <p className="auth-hint">
-          Hareketsizlikte 30 dakika sonra oturum kapanır. Yönetim yetkili
-          hesaplarda kalıcı oturum kullanılmaz.
-        </p>
         {error && (
           <p className="auth-error" role="alert">
             {error}
           </p>
         )}
-        <button
+        <FlowButton
+          busy={checking || busy}
           className="auth-submit"
           type="submit"
           disabled={checking || busy}
@@ -247,8 +245,7 @@ function App() {
                 ? "Giriş Yapılıyor…"
                 : "Giriş Yap"}
           </span>
-          {!checking && !busy && <ArrowRight size={19} aria-hidden="true" />}
-        </button>
+        </FlowButton>
       </form>
     </AuthLayout>
   );

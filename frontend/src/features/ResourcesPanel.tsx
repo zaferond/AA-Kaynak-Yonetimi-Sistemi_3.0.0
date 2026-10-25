@@ -1,3 +1,4 @@
+import FlowButton from "../components/FlowButton";
 import { planningGrantSummary } from "./access/planning-permission-tree";
 import Badge, { resourceStatusTone } from "../components/Badge";
 import {
@@ -145,14 +146,15 @@ export default function ResourcesPanel({
           <button className="button" disabled={busy} onClick={access.onAudit}>
             Değişiklik Geçmişi
           </button>
-          <button
+          <FlowButton
+            busy={busy}
             className="button primary"
             disabled={busy}
             onClick={() => openResource()}
           >
             <Plus size={17} />
             Kaynak Ekle / Yetki Tanımla
-          </button>
+          </FlowButton>
         </div>
       </div>
       {data.resources.some(
@@ -197,13 +199,14 @@ export default function ResourcesPanel({
           Filtredeki Tüm Kayıtları Seç
         </label>
         <span>{resourceIds.length} kayıt seçildi</span>
-        <button
+        <FlowButton
+          busy={busy}
           className="button primary"
           disabled={busy || !resourceIds.length}
           onClick={openBulk}
         >
           Seçilenleri Toplu Düzenle
-        </button>
+        </FlowButton>
         <button
           className="button deletebutton"
           disabled={busy || !resourceIds.length}

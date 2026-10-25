@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import { useState } from "react";
 import type { Data } from "../../model";
 import type { Change } from "../../../../shared/commands.ts";
@@ -177,9 +178,14 @@ export default function WarningSettingsPanel({
           </p>
         )}
         <div className="scenario-form-actions">
-          <button className="button primary" disabled={saving} type="submit">
+          <FlowButton
+            busy={saving}
+            className="button primary"
+            disabled={saving}
+            type="submit"
+          >
             Ayarları Kaydet
-          </button>
+          </FlowButton>
           <button
             className="button"
             disabled={saving}

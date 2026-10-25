@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from "react";
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { Check, ChevronDown, Funnel, Search, X } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -62,6 +62,7 @@ export function Picker({
   empty = "Tümü",
   compact = false,
   countOnly = false,
+  variant = "field",
 }: {
   label: string;
   value: string[];
@@ -72,6 +73,8 @@ export function Picker({
   compact?: boolean;
   /** Show a count even for one choice; filter bars list names as tokens. */
   countOnly?: boolean;
+  /** Compact table filter styling; editor fields keep their existing layout. */
+  variant?: "field" | "filter";
 }) {
   const [open, setOpen] = useState(false),
     [query, setQuery] = useState(""),
@@ -94,7 +97,8 @@ export function Picker({
       className={
         "pick" +
         (value.length ? " filter-active" : "") +
-        (compact ? " pick-compact" : "")
+        (compact ? " pick-compact" : "") +
+        (variant === "filter" ? " pick-filter" : "")
       }
     >
       <span>{label}</span>
@@ -116,6 +120,13 @@ export function Picker({
             aria-label={label}
             title={selected.map(itemText).join(", ")}
           >
+            {variant === "filter" && (
+              <Funnel
+                className="picker-filter-icon"
+                size={14}
+                aria-hidden="true"
+              />
+            )}
             <span>
               {value.length ? (
                 selected.length === 1 && !countOnly ? (
@@ -136,7 +147,8 @@ export function Picker({
           className={
             "pickerpanel" +
             (single ? " pickerpanel-single" : "") +
-            (compact ? " pickerpanel-compact" : "")
+            (compact ? " pickerpanel-compact" : "") +
+            (variant === "filter" ? " pickerpanel-filter" : "")
           }
           align="start"
           side="bottom"
@@ -177,18 +189,22 @@ export function Picker({
           {!single && (
             <div className="pickeractions">
               <button
+                type="button"
                 onClick={() =>
                   onChange([...new Set([...value, ...shown.map((x) => x.id)])])
                 }
               >
                 Tümünü Seç
               </button>
-              <button onClick={() => onChange([])}>Seçimleri Kaldır</button>
+              <button type="button" onClick={() => onChange([])}>
+                Seçimleri Kaldır
+              </button>
             </div>
           )}
           <div className="pickeroptions">
             {single && (
               <button
+                type="button"
                 className="option"
                 onClick={() => {
                   onChange([]);
@@ -201,6 +217,7 @@ export function Picker({
             {shown.map((i) =>
               single ? (
                 <button
+                  type="button"
                   key={i.id}
                   aria-label={i.name}
                   data-leadership-depth={i.depth}

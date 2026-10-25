@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { RotateCcw, SlidersHorizontal } from "lucide-react";
 
 /** Shares the workspace filter surface, inline labels and reset control. */
 export default function ProgressFilters({
@@ -22,6 +22,7 @@ export default function ProgressFilters({
       <div className="filters">{children}</div>
       <div className="filteractions">
         <button type="button" className="button resetfilters" onClick={onReset}>
+          <RotateCcw size={14} aria-hidden="true" />
           Filtreleri Sıfırla
         </button>
       </div>

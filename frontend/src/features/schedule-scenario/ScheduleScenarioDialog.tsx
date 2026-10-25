@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import {
   useMemo,
   useState,
@@ -342,7 +343,7 @@ export default function ScheduleScenarioDialog({
             />
           ))}
           {scenarios.length < MAX_SCENARIOS && (
-            <button
+            <FlowButton
               type="button"
               className="schedule-scenario-add"
               onClick={() =>
@@ -358,7 +359,7 @@ export default function ScheduleScenarioDialog({
             >
               <Plus size={16} aria-hidden="true" />
               Senaryo Ekle
-            </button>
+            </FlowButton>
           )}
         </section>
         <SavedScenarioList
@@ -423,9 +424,13 @@ export default function ScheduleScenarioDialog({
           Raporlarda Göster
         </button>
         {!embedded && (
-          <button type="button" className="button primary" onClick={onClose}>
+          <FlowButton
+            type="button"
+            className="button primary"
+            onClick={onClose}
+          >
             Kapat
-          </button>
+          </FlowButton>
         )}
       </div>
     </ScenarioContainer>
@@ -572,7 +577,8 @@ function ScenarioCard({
                 />
               </label>
               <div className="schedule-card-buttons">
-                <button
+                <FlowButton
+                  busy={saving}
                   type="button"
                   className="button primary"
                   title={
@@ -586,7 +592,7 @@ function ScenarioCard({
                 >
                   <Plus size={14} aria-hidden="true" />
                   Ekle
-                </button>
+                </FlowButton>
                 {canCopy && (
                   <button
                     type="button"

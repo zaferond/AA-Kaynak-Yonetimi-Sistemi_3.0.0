@@ -48,7 +48,7 @@ html[data-theme="technical"]
 /* Secondary: the default kind. */
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button {
+  .button.button.button:not(.flow-button) {
   height: var(--btn-h);
   min-height: var(--btn-h);
   padding: 0 var(--btn-px);
@@ -68,13 +68,13 @@ html[data-theme="technical"]
 }
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:hover:not(:disabled) {
+  .button.button.button:not(.flow-button):hover:not(:disabled) {
   border-color: var(--btn-border-hover);
   background: var(--btn-hover);
 }
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button
+  .button.button.button:not(.flow-button)
   > svg {
   flex: none;
   width: 14px;
@@ -84,14 +84,17 @@ html[data-theme="technical"]
 /* Primary: one per area, the action the screen exists for. */
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:is(.primary, .project-create) {
+  .button.button.button:not(.flow-button):is(.primary, .project-create) {
   border-color: var(--brand-primary);
   background: var(--brand-primary);
   color: #fff;
 }
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:is(.primary, .project-create):hover:not(:disabled) {
+  .button.button.button:not(.flow-button):is(
+    .primary,
+    .project-create
+  ):hover:not(:disabled) {
   border-color: var(--brand-hover);
   background: var(--brand-hover);
 }
@@ -99,14 +102,18 @@ html[data-theme="technical"]
 /* Danger: outlined, so a destructive action never outweighs saving. */
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:is(.deletebutton, .danger, .access-revoke-button) {
+  .button.button.button:not(.flow-button):is(
+    .deletebutton,
+    .danger,
+    .access-revoke-button
+  ) {
   border-color: var(--btn-danger-border);
   background: #fff;
   color: var(--btn-danger-ink);
 }
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:is(
+  .button.button.button:not(.flow-button):is(
     .deletebutton,
     .danger,
     .access-revoke-button
@@ -118,7 +125,7 @@ html[data-theme="technical"]
 /* Disabled, whatever the kind. */
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:disabled {
+  .button.button.button:not(.flow-button):disabled {
   border-color: var(--btn-disabled-border);
   background: var(--btn-disabled-background);
   color: var(--btn-disabled-ink);
@@ -128,7 +135,7 @@ html[data-theme="technical"]
 
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button:focus-visible {
+  .button.button.button:not(.flow-button):focus-visible {
   outline: 2px solid var(--brand-focus);
   outline-offset: 2px;
 }
@@ -136,7 +143,7 @@ html[data-theme="technical"]
 /* Icon-only buttons are squares of the same height. */
 html[data-theme="technical"]
   :is(.app, [data-slot="dialog-content"])
-  .button.button.button.report-download-button {
+  .button.button.button:not(.flow-button).report-download-button {
   width: var(--btn-h);
   padding: 0;
 }
@@ -171,7 +178,7 @@ html[data-theme="technical"]
 /* A section action takes its own width; full width read as a banner. */
 html[data-theme="technical"]
   [data-slot="dialog-content"]
-  .button.button.button.access-revoke-button {
+  .button.button.button:not(.flow-button).access-revoke-button {
   justify-self: start;
   width: auto;
 }

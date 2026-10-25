@@ -1,3 +1,4 @@
+import { checkGlowFlow } from "./browser-checks/glow-flow.mjs";
 import { checkTabTransitions } from "./browser-checks/tab-transitions.mjs";
 import {
   checkProgressDraftProtection,
@@ -78,6 +79,7 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkGlowFlow,
   checkProgressDraftProtection,
   checkSessionIdleWarning,
   checkWorkspaceMenu,

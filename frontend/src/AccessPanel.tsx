@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import { employeeAssignment } from "../../shared/employee-directory";
 import Badge from "./components/Badge";
 import { currentPlanningMonth } from "../../shared/resource-dates";
@@ -159,13 +160,13 @@ export default function AccessPanel({
         </p>
       )}
       <div className="access-form-actions">
-        <button className="button primary" disabled={busy}>
+        <FlowButton busy={busy} className="button primary" disabled={busy}>
           {busy
             ? "Kaydediliyor…"
             : !selected.active
               ? "Yeniden Yetki Ver"
               : "Kaydet"}
-        </button>
+        </FlowButton>
         {selected.active && selected.id !== ROOT_ADMIN_ID && (
           <button
             type="button"

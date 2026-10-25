@@ -1,8 +1,7 @@
-/* Technical theme filter bar: each filter is one compact "Label  Value ▾"
-   control sized to its content; applied selections sit beneath as tokens. */
+/* Table filters: a white row with dashed, compact selection controls. */
 html[data-theme="technical"] .app .planning-filterbar .filters {
   flex: 1 1 auto;
-  gap: 6px;
+  gap: 10px 14px;
 }
 html[data-theme="technical"]
   .app
@@ -13,58 +12,89 @@ html[data-theme="technical"]
   flex: 0 1 auto;
   flex-direction: row;
   align-items: center;
-  gap: 0;
+  gap: 8px;
   min-width: 0;
-  max-width: 300px;
-  height: 28px;
-  padding-left: 9px;
-  border: 1px solid var(--brand-border);
-  border-radius: 3px;
-  background: #fff;
-}
-html[data-theme="technical"]
-  .app
-  .planning-filterbar
-  .filters
-  > :is(.pick, label.pick):hover {
-  border-color: var(--brand-border-strong);
+  max-width: 340px;
+  height: auto;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 html[data-theme="technical"]
   .app
   .planning-filterbar
   .filters
   > :is(.pick, label.pick):focus-within {
-  border-color: var(--brand-focus);
-  box-shadow: 0 0 0 2px var(--brand-focus-shadow);
+  box-shadow: none;
 }
 html[data-theme="technical"] .app .planning-filterbar .filters > .pick > span {
+  flex: none;
+  color: #68768a;
   font-weight: 500;
 }
 html[data-theme="technical"]
   .app
   .planning-filterbar
   .filters
-  > .pick
-  :is(.pickerbutton, input, select) {
+  .pick
+  :where(.pickerbutton, input, select) {
   width: auto;
-  height: 26px;
-  min-height: 26px;
-  padding: 0 8px;
-  border: 0;
-  background: transparent;
+  min-width: 0;
+  height: 32px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px dashed #c7d1dd;
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--brand-text);
   box-shadow: none;
-  font-weight: 600;
+  font-weight: 550;
+}
+/* Native date/period choices keep their browser keyboard and calendar behavior. */
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  label.pick
+  :is(input, select) {
+  padding-left: 29px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23687789' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16l-6.5 7.5V19l-3-1.5v-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 9px center;
 }
 html[data-theme="technical"]
   .app
   .planning-filterbar
   .filters
-  > .pick
+  .pick
+  :is(.pickerbutton, input, select):hover {
+  border-color: #8fa7c2;
+  background-color: #f8fbff;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  .pick
   :is(.pickerbutton, input, select):focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-focus);
+  outline-offset: 2px;
+  border-color: var(--brand-focus);
 }
 html[data-theme="technical"] .app .planning-filterbar .filters .pickerbutton {
-  gap: 6px;
+  justify-content: flex-start;
+  gap: 7px;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filters
+  .pickerbutton
+  > span {
+  flex: 1;
+  min-width: 0;
 }
 html[data-theme="technical"]
   .app
@@ -72,15 +102,10 @@ html[data-theme="technical"]
   .filters
   .pickerbutton
   > svg {
-  color: var(--brand-muted);
+  color: #687789;
 }
-html[data-theme="technical"]
-  .app
-  .planning-filterbar
-  .filters
-  > .filter-active {
-  border-color: var(--brand-border-strong);
-  background: var(--brand-selected);
+html[data-theme="technical"] .app .planning-filterbar .filters .filter-active {
+  background: transparent;
 }
 html[data-theme="technical"]
   .app
@@ -88,8 +113,25 @@ html[data-theme="technical"]
   .filters
   .filter-active
   .pickerbutton {
-  background: transparent;
+  border-style: solid;
+  border-color: #a9c3df;
+  background: #f2f7fd;
+  color: var(--brand-primary);
   box-shadow: none;
+}
+html[data-theme="technical"]
+  .app
+  .planning-filterbar
+  .filteractions
+  .resetfilters {
+  gap: 6px;
+  min-height: 32px;
+  height: 32px;
+  border-color: #e1e7ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #53677f;
+  font-weight: 550;
 }
 .picker-count {
   display: inline-grid;
@@ -113,8 +155,10 @@ html[data-theme="technical"]
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 14px;
-  padding-top: 8px;
-  border-top: 1px solid var(--brand-border, #d3dae3);
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #f5f7fa;
   font-size: var(--fs-xs);
 }
 .filter-token-group {
@@ -137,7 +181,7 @@ html[data-theme="technical"]
   max-width: 260px;
   padding: 0 6px 0 8px;
   border: 1px solid var(--brand-border-strong, #9aa8b8);
-  border-radius: 2px;
+  border-radius: 7px;
   background: #fff;
   color: var(--brand-text, #18212c);
   font: inherit;
@@ -209,4 +253,107 @@ html[data-theme="technical"]
   background: #fde9b8;
   color: inherit;
   font-weight: 600;
+}
+
+/* The filter variant is scoped to the table toolbar; editor pickers stay unchanged. */
+html[data-theme] .pickerpanel-filter {
+  padding: 8px;
+  border: 1px solid #dce4ee;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow:
+    0 12px 32px #203f6524,
+    0 2px 6px #203f6509;
+}
+html[data-theme] .pickerpanel-filter .pickersearch {
+  gap: 8px;
+  padding: 4px 6px 8px;
+  color: #7b8a9d;
+}
+html[data-theme] .pickerpanel-filter .pickersearch input {
+  height: 32px;
+  min-height: 32px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--fs-sm);
+}
+html[data-theme] .pickerpanel-filter .pickersearch input:focus-visible {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: -2px;
+}
+html[data-theme] .pickerpanel-filter .pickeractions {
+  gap: 8px;
+  padding: 8px 4px;
+}
+html[data-theme] .pickerpanel-filter .pickeractions button {
+  min-height: 28px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #315f88;
+  font-size: var(--fs-xs);
+}
+html[data-theme] .pickerpanel-filter .pickeractions button:hover {
+  background: #eef4fb;
+}
+html[data-theme] .pickerpanel-filter .pickeroptions .option {
+  min-height: 34px;
+  gap: 9px;
+  padding-block: 8px;
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+}
+html[data-theme] .pickerpanel-filter .pickeroptions .option:hover,
+html[data-theme] .pickerpanel-filter .pickeroptions .chosen {
+  background: #edf4fc;
+}
+html[data-theme] .pickerpanel-filter .picker-selected {
+  padding: 8px 4px 2px;
+}
+html[data-theme] .pickerpanel-filter .picker-selected button {
+  border-radius: 6px;
+  background: #eaf2fc;
+  color: #315f88;
+}
+@media (max-width: 650px) {
+  html[data-theme="technical"]
+    .app
+    .planning-filterbar
+    .filters
+    > :is(.pick, label.pick):nth-child(n) {
+    display: grid;
+    grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1.3fr);
+    width: 100%;
+    max-width: none;
+    height: auto;
+    gap: 8px;
+  }
+  html[data-theme="technical"]
+    .app
+    .planning-filterbar
+    .filters
+    > .pick
+    :is(.pickerbutton, input, select) {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+@media (pointer: coarse) {
+  html[data-theme="technical"]
+    .app
+    .planning-filterbar
+    .filters
+    > .pick
+    :is(.pickerbutton, input, select),
+  html[data-theme="technical"]
+    .app
+    .planning-filterbar
+    .filteractions
+    .resetfilters,
+  html[data-theme] .pickerpanel-filter .pickeroptions .option {
+    height: auto;
+    min-height: 44px;
+  }
 }

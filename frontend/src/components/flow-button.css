@@ -1,0 +1,125 @@
+/* A shared primary action. Table tools keep the compact button recipe. */
+html[data-theme]
+  :is(.app, [data-slot="dialog-content"], .auth-panel)
+  .flow-button.flow-button.flow-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: auto;
+  min-height: var(--flow-button-height, max(var(--btn-h, 32px), 36px));
+  max-width: 100%;
+  padding: 4px 6px 4px 16px;
+  border: 1.5px solid #a0b5c8;
+  border-radius: 999px;
+  background: #fff;
+  color: #234c70;
+  box-shadow: 0 3px 8px #204b7410;
+  font: inherit;
+  font-size: var(--btn-fs, var(--fs-sm));
+  font-weight: 650;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    background-color 180ms,
+    border-color 180ms,
+    color 180ms,
+    box-shadow 180ms;
+}
+.flow-button > .flow-button-indicator {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: min(
+    26px,
+    calc(var(--flow-button-height, max(var(--btn-h, 32px), 36px)) - 12px)
+  );
+  height: min(
+    26px,
+    calc(var(--flow-button-height, max(var(--btn-h, 32px), 36px)) - 12px)
+  );
+  border-radius: 50%;
+  background: #edf3f8;
+  transition:
+    transform 180ms,
+    background-color 180ms;
+}
+.flow-button .flow-button-indicator > svg {
+  width: 16px;
+  height: 16px;
+}
+html[data-theme]
+  :is(.app, [data-slot="dialog-content"], .auth-panel)
+  .flow-button.flow-button.flow-button:is(:hover, :focus-visible):not(
+    :disabled
+  ) {
+  border-color: #254e74;
+  background: #254e74;
+  color: #fff;
+  box-shadow: 0 5px 15px #254e7428;
+}
+.flow-button:is(:hover, :focus-visible):not(:disabled)
+  > .flow-button-indicator {
+  background: #ffffff24;
+  transform: translateX(2px);
+}
+html[data-theme]
+  :is(.app, [data-slot="dialog-content"], .auth-panel)
+  .flow-button.flow-button.flow-button:focus-visible {
+  outline: 3px solid var(--brand-focus, #2f6fb0);
+  outline-offset: 3px;
+}
+html[data-theme]
+  :is(.app, [data-slot="dialog-content"], .auth-panel)
+  .flow-button.flow-button.flow-button:disabled {
+  border-color: #e3e8ee;
+  background: #f3f6f9;
+  color: #8a96a3;
+  box-shadow: none;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.flow-button:disabled > .flow-button-indicator {
+  background: #e8edf2;
+  transform: none;
+}
+.flow-button-spinner {
+  animation: flow-button-spin 900ms linear infinite;
+}
+@keyframes flow-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+html[data-theme] .auth-panel .auth-submit.flow-button.flow-button.flow-button {
+  width: 100%;
+  min-height: 48px;
+  padding-block: 8px;
+  --flow-button-height: 48px;
+  font-size: var(--fs-md);
+}
+/* Keep dense toolbar actions aligned with their search and download controls. */
+.resource-toolbar,
+.schedule-card-buttons,
+.bulkbar {
+  --flow-button-height: var(--btn-h, 32px);
+}
+@media (pointer: coarse) {
+  html[data-theme]
+    :is(.app, [data-slot="dialog-content"], .auth-panel)
+    .flow-button.flow-button.flow-button {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-button,
+  .flow-button > .flow-button-indicator {
+    transition: none !important;
+  }
+  .flow-button .flow-button-spinner {
+    animation: none;
+  }
+}

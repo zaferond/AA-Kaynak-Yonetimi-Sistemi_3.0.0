@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import {
   MIN_PLANNING_DATE,
@@ -113,7 +114,8 @@ export default function PersonalCalendarSection({
             />
           </label>
           <div className="work-calendar-form-actions">
-            <button
+            <FlowButton
+              busy={busy}
               type="button"
               className="button primary"
               disabled={busy}
@@ -121,7 +123,7 @@ export default function PersonalCalendarSection({
             >
               {editing ? <Pencil size={14} /> : <Plus size={14} />}
               {editing ? "Güncelle" : "Kaydet"}
-            </button>
+            </FlowButton>
             {editing && (
               <button
                 type="button"

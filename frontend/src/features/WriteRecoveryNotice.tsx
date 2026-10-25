@@ -1,3 +1,4 @@
+import FlowButton from "../components/FlowButton";
 import { useState, useSyncExternalStore } from "react";
 import type { Data } from "../model";
 import {
@@ -73,13 +74,14 @@ export default function WriteRecoveryNotice({
           {busy ? "Kontrol ediliyor…" : "Sunucu Verilerini Kontrol Et"}
         </button>
         {check && (
-          <button
+          <FlowButton
+            busy={busy}
             className="button primary"
             disabled={busy}
             onClick={acknowledge}
           >
             Kontrol Ettim, Devam Et
-          </button>
+          </FlowButton>
         )}
       </div>
     </section>

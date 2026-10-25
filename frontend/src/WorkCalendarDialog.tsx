@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import {
   MIN_PLANNING_YEAR,
   MAX_PLANNING_YEAR,
@@ -107,14 +108,15 @@ export default function WorkCalendarDialog(props: WorkCalendarDialogProps) {
           {mode === "shared" &&
             canEdit &&
             entries.length + Number(dirty) > 0 && (
-              <button
+              <FlowButton
+                busy={busy}
                 type="button"
                 className="button primary"
                 disabled={busy || !dirty || !!editor.editingShared}
                 onClick={() => void save()}
               >
                 {busy ? "Kaydediliyor…" : "Takvimi Kaydet"}
-              </button>
+              </FlowButton>
             )}
         </div>
       </DialogContent>

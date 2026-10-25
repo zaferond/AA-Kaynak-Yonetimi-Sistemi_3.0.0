@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import { ScenarioWarningStatus } from "./ScenarioWarningStatus";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Principal } from "../../access";
@@ -732,7 +733,8 @@ function ProgressCardForm({
             >
               Taslağı Kaydet
             </button>
-            <button
+            <FlowButton
+              busy={saving}
               type="button"
               className="button primary"
               disabled={saving || problems.length > 0}
@@ -744,16 +746,17 @@ function ProgressCardForm({
               }
             >
               Hedef Planı Onaya Gönder
-            </button>
+            </FlowButton>
             {admin && (
-              <button
+              <FlowButton
+                busy={saving}
                 type="button"
                 className="button primary"
                 disabled={saving || problems.length > 0}
                 onClick={() => void send("approved", "Hedef planı onaylandı.")}
               >
                 Hedef Planı Onayla
-              </button>
+              </FlowButton>
             )}
             {rebaseline && (
               <button
@@ -789,14 +792,15 @@ function ProgressCardForm({
               </button>
             )}
             {admin && (
-              <button
+              <FlowButton
+                busy={saving}
                 type="button"
                 className="button primary"
                 disabled={saving || !resourceStart}
                 onClick={() => void send("approved", "Hedef planı onaylandı.")}
               >
                 Hedef Planı Onayla
-              </button>
+              </FlowButton>
             )}
           </>
         )}
@@ -811,14 +815,15 @@ function ProgressCardForm({
           </button>
         )}
         {canEditEntry && (
-          <button
+          <FlowButton
+            busy={saving}
             type="button"
             className="button primary"
             disabled={saving || !entryChanged}
             onClick={() => void submitEntry()}
           >
             Gerçekleşen % Gönder
-          </button>
+          </FlowButton>
         )}
         {canEnter &&
           saved &&

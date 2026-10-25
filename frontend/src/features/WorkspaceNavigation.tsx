@@ -1,3 +1,4 @@
+import FlowButton from "../components/FlowButton";
 import { useEffect, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -342,13 +343,13 @@ export default function WorkspaceNavigation({
                   reportView === "resources" &&
                   reportPostingControl}
                 {tab === "projects" && (isAdmin || projectEditor) && (
-                  <button
+                  <FlowButton
                     className="button project-create"
                     onClick={() => openProject()}
                   >
                     <Plus size={17} />
                     Yeni Proje
-                  </button>
+                  </FlowButton>
                 )}
                 {tab === "actual" && isAdmin && (
                   <button

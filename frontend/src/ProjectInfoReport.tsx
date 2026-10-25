@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import ReportDownloadButton from "./components/ReportDownloadButton";
 import Badge from "./components/Badge";
 import { useMemo, useState } from "react";
@@ -8,6 +9,7 @@ import {
   ChevronRight,
   Pencil,
   Plus,
+  RotateCcw,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -280,6 +282,7 @@ export default function ProjectInfoReport({
                   setWeekKeys(new Set());
                 }}
               >
+                <RotateCcw size={14} aria-hidden="true" />
                 Filtreleri Sıfırla
               </button>
             </div>
@@ -594,13 +597,13 @@ export default function ProjectInfoReport({
               : "Kritik konular Projeler ekranındaki başlıklardan gelir. Bir yönetici notu “Kritik Konulara Ekle” ile işaretlediğinde burada listelenir."}
           </p>
           {onOpenProjects && (
-            <button
+            <FlowButton
               type="button"
               className="button primary"
               onClick={onOpenProjects}
             >
               Projeler ekranına git
-            </button>
+            </FlowButton>
           )}
         </div>
       )}

@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import ReportDownloadButton from "./components/ReportDownloadButton";
 import { useMemo, useState } from "react";
 import type { Data } from "./model";
@@ -288,13 +289,14 @@ export default function ResourceImportPanel({
                 Hatalar düzeltilene kadar hiçbir kayıt eklenmez.
               </p>
             )}
-            <button
+            <FlowButton
+              busy={busy}
               className="button primary"
               disabled={busy || !counts.ready || !!counts.error}
               onClick={save}
             >
               {busy ? "Aktarılıyor…" : counts.ready + " Kaydı İçe Aktar"}
-            </button>
+            </FlowButton>
           </>
         )}
       </div>

@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import {
   useCallback,
   useEffect,
@@ -304,7 +305,7 @@ export default function RiskManagement({
             disabled={exporting || selectedProjects.length === 0}
             onClick={() => void exportRisks()}
           />
-          <button
+          <FlowButton
             type="button"
             className="button primary"
             data-risk-add
@@ -313,7 +314,7 @@ export default function RiskManagement({
           >
             <Plus size={16} />
             Risk Ekle
-          </button>
+          </FlowButton>
           {user.role === "admin" && (
             <button
               type="button"

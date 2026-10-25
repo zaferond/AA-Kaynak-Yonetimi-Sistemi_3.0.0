@@ -1,3 +1,4 @@
+import FlowButton from "./components/FlowButton";
 import { useId, useState } from "react";
 import { changePassword } from "./storage";
 
@@ -97,13 +98,14 @@ export default function PasswordChangeForm({
             {cancelLabel}
           </button>
         )}
-        <button
+        <FlowButton
+          busy={busy}
           type="submit"
           className="button primary"
           disabled={busy || !!problem}
         >
           {busy ? "Kaydediliyor…" : "Şifreyi Değiştir"}
-        </button>
+        </FlowButton>
       </div>
     </form>
   );

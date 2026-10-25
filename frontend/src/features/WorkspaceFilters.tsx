@@ -7,7 +7,7 @@ import {
 import { useMemo } from "react";
 import { selectedLeadershipScope } from "../../../shared/leadership-planning";
 import type { Dispatch, SetStateAction } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { RotateCcw, SlidersHorizontal } from "lucide-react";
 import {
   PLANNING_PERIODS as periods,
   MIN_PLANNING_MONTH,
@@ -117,6 +117,7 @@ export default function WorkspaceFilters({
             <div className="filters" key={filterResetKey}>
               {tab !== "projects" && (
                 <Picker
+                  variant="filter"
                   countOnly
                   label="Liderlik"
                   value={leads}
@@ -126,6 +127,7 @@ export default function WorkspaceFilters({
               )}
               {tab !== "projects" && (
                 <Picker
+                  variant="filter"
                   countOnly
                   label="Takım"
                   value={teamIds}
@@ -137,6 +139,7 @@ export default function WorkspaceFilters({
               )}
               {tab !== "resources" && tab !== "overview" && (
                 <Picker
+                  variant="filter"
                   countOnly
                   label="Proje"
                   value={projectIds}
@@ -148,6 +151,7 @@ export default function WorkspaceFilters({
               )}
               {tab === "actual" && (
                 <Picker
+                  variant="filter"
                   countOnly
                   label="Kişi"
                   value={personIds}
@@ -213,6 +217,7 @@ export default function WorkspaceFilters({
                   notify("reset");
                 }}
               >
+                <RotateCcw size={14} aria-hidden="true" />
                 Filtreleri Sıfırla
               </button>
             </div>

@@ -426,7 +426,7 @@ html[data-theme="technical"]
   border: 0;
   border-bottom: 1px solid var(--tbl-rule);
   border-radius: 0;
-  background: var(--tbl-row-hover);
+  background: #fff;
 }
 html[data-theme="technical"] .app.tab-critical .project-info-toolbar .filters {
   display: flex;

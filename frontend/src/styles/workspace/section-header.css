@@ -45,7 +45,7 @@ html[data-theme]
   .app
   .workspace-section-navigation.with-actions
   .workspace-section-tabs {
-  border-bottom: 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 html[data-theme] .app .workspace-section-navigation .workspace-nav-actions {
   flex: 0 1 auto;
@@ -67,17 +67,17 @@ html[data-theme] .app .workspace-section-tabs {
   align-items: stretch;
   justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 4px;
-  width: 100%;
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
   height: auto;
   min-height: 44px;
   margin: 0;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--brand-border, #ccd6c5);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  padding: 5px;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 5px 14px #213d5e08;
 }
 html[data-theme] .app .workspace-section-tabs [role="tab"] {
   display: inline-flex;
@@ -87,11 +87,10 @@ html[data-theme] .app .workspace-section-tabs [role="tab"] {
   width: auto;
   max-width: 100%;
   height: auto;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 0;
-  border-bottom: 3px solid transparent;
-  border-radius: 0;
+  min-height: 36px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: var(--brand-muted, #60715e);
   background: transparent;
   font-size: var(--fs-sm);
@@ -101,23 +100,28 @@ html[data-theme] .app .workspace-section-tabs [role="tab"] {
   overflow-wrap: anywhere;
   text-align: left;
   box-shadow: none;
+  transition:
+    background-color 180ms,
+    color 180ms,
+    border-color 180ms,
+    box-shadow 180ms;
 }
 html[data-theme] .app .workspace-section-tabs [role="tab"]::after {
   display: none;
 }
 html[data-theme] .app .workspace-section-tabs [role="tab"]:hover {
-  background: var(--brand-surface, #edf1e8);
-  color: var(--brand-primary, #405341);
+  background: radial-gradient(ellipse at 50% 50%, #3b82f619, #fff);
+  color: #215581;
 }
 html[data-theme]
   .app
   .workspace-section-tabs
   [role="tab"][data-state="active"] {
-  background: transparent;
-  border-bottom-color: var(--brand-primary, #405341);
-  color: var(--brand-primary, #405341);
+  background: radial-gradient(ellipse at 25% 50%, #3b82f621, #3b82f606 85%);
+  border-color: #d4e2f2;
+  color: #245987;
   font-weight: 650;
-  box-shadow: none;
+  box-shadow: 0 1px 5px #2f6dac08;
 }
 html[data-theme] .app .workspace-section-tabs [role="tab"]:focus-visible {
   outline: 2px solid var(--brand-focus, #6d855e);
@@ -187,4 +191,10 @@ html[data-theme]
   justify-content: flex-end;
   margin-left: auto;
   max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .app .workspace-section-tabs [role="tab"] {
+    transition: none;
+  }
 }

@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import {
   directoryResponsibilityIndex,
   resourceRole,
@@ -269,7 +270,7 @@ export default function DirectoryManagementDialog({
                         {leaderMode ? "Liderliği Sil" : "Takımı Sil"}
                       </button>
                     )}
-                    <button
+                    <FlowButton
                       type="submit"
                       className="button primary"
                       disabled={!name.trim() || (!isNew && !dirty)}
@@ -280,7 +281,7 @@ export default function DirectoryManagementDialog({
                         : isNew
                           ? "Ekle"
                           : "Değişiklikleri Kaydet"}
-                    </button>
+                    </FlowButton>
                   </div>
                 </fieldset>
               </form>

@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import type { Data, Resource } from "../../model";
 import { phaseChipStyle } from "../../phase-chip";
 import ProjectResponsible from "../../ProjectResponsible";
@@ -85,13 +86,13 @@ export default function ActualAllocationDialogs({
             </DialogDescription>
           </DialogHeader>
           <div className="actual-limit-actions">
-            <button
+            <FlowButton
               type="button"
               className="button primary"
               onClick={limit.close}
             >
               Tamam
-            </button>
+            </FlowButton>
           </div>
         </DialogContent>
       </Dialog>

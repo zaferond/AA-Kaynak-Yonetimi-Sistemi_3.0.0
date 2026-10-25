@@ -1,4 +1,4 @@
-/* Filter controls share the main navigation's calm blue surface and clear selection state. */
+/* Filter controls use a quiet white surface and a clear selection state. */
 .app .planning-filterbar {
   align-items: center;
   flex-wrap: wrap;
@@ -6,9 +6,9 @@
   margin-bottom: 10px;
   padding: 10px 12px;
   border: 1px solid #d3e0ea;
-  border-radius: 9px;
-  background: #eaf1f6;
-  box-shadow: inset 0 1px 2px #1b3e5c0b;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px #213d5e06;
 }
 .app .planning-filterbar .filterbar-title {
   display: flex;

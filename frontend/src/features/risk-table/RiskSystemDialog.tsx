@@ -1,3 +1,4 @@
+import FlowButton from "../../components/FlowButton";
 import { useEffect, useState } from "react";
 import { Layers, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
 import {
@@ -135,7 +136,7 @@ export default function RiskSystemDialog({
                         <Trash2 size={15} /> Tanımı Sil
                       </button>
                     )}
-                    <button
+                    <FlowButton
                       type="submit"
                       className="button primary"
                       disabled={
@@ -148,7 +149,7 @@ export default function RiskSystemDialog({
                         : draft.original
                           ? "Değişiklikleri Kaydet"
                           : "Ekle"}
-                    </button>
+                    </FlowButton>
                   </div>
                 </fieldset>
               </form>
