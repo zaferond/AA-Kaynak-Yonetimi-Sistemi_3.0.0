@@ -171,9 +171,6 @@ export async function checkCriticalProjectFilter(f) {
             ),
             "solid",
           );
-          await manager.page
-            .getByLabel("Hafta gösterimi açıklaması", { exact: true })
-            .waitFor();
           assert.deepEqual(await colors(currentWeek), await colors(oldWeek));
           await entry
             .getByRole("button", { name: "Düzenle", exact: true })

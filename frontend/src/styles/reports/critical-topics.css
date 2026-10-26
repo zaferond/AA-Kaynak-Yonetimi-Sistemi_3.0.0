@@ -402,32 +402,3 @@
   .project-info-week[data-state="cancelled"] {
   border: 1px solid #b42318;
 }
-:is(.app.tab-critical, .project-info-topic-dialog) .project-info-week-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  padding: 6px 12px;
-  color: var(--tbl-head-ink, #2f5f7f);
-  font-size: var(--fs-xs);
-}
-.project-info-week-legend > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.project-info-week-legend i {
-  display: inline-block;
-  width: 16px;
-  height: 12px;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  background: #f1f6fa;
-}
-.project-info-week-legend i[data-kind="history"] {
-  border: 1px solid #b42318;
-  background: #fdecea;
-}
-.project-info-week-legend i[data-kind="late"] {
-  background: #fdecea;
-}

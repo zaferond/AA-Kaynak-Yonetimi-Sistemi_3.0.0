@@ -13,7 +13,7 @@ import type { Project } from "./model";
 import type { ReportTopic } from "./project-info-report";
 import { topicWeeks } from "./project-info-status";
 import { isoWeek, weeksInRange } from "./iso-week";
-import TopicWeeks, { TopicWeekLegend } from "./ProjectInfoWeeks";
+import TopicWeeks from "./ProjectInfoWeeks";
 
 export type TopicEdit = {
   project: Project;
@@ -174,7 +174,6 @@ function TopicForm({
             <span className="project-info-topic-preview-empty">—</span>
           )}
         </div>
-        <TopicWeekLegend />
         {newlyCancelled > 0 && (
           <p className="project-info-topic-note">
             Kaydettiğinizde eski tarihlerin {newlyCancelled} haftası raporda

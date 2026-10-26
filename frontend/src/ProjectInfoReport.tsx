@@ -25,7 +25,7 @@ import { downloadProjectInfoReport } from "./project-info-report-export";
 import ProjectInfoTopicDialog, {
   type TopicEdit,
 } from "./ProjectInfoTopicDialog";
-import TopicWeeks, { TopicWeekLegend } from "./ProjectInfoWeeks";
+import TopicWeeks from "./ProjectInfoWeeks";
 import {
   TOPIC_FILTERS,
   filterReportGroups,
@@ -344,7 +344,6 @@ export default function ProjectInfoReport({
               </FilterSelect>
             </label>
           </div>
-          <TopicWeekLegend />
         </div>
       )}
       {groups.length && !visibleGroups.length ? (

@@ -9,28 +9,6 @@ const COLLAPSE_CURRENT_WEEKS = 9;
 const MAX_VISIBLE_CHIPS = 8;
 const FOLDED_SHOWN = 6;
 
-export function TopicWeekLegend() {
-  return (
-    <div
-      className="project-info-week-legend"
-      aria-label="Hafta gösterimi açıklaması"
-    >
-      <span>
-        <i data-kind="history" aria-hidden="true" />
-        Önceki tarihler
-      </span>
-      <span>
-        <i data-kind="current" aria-hidden="true" />
-        Mevcut tarihler
-      </span>
-      <span>
-        <i data-kind="late" aria-hidden="true" />
-        Gecikmiş hafta
-      </span>
-    </div>
-  );
-}
-
 /** Consecutive weeks in the same state; only very long runs of current
  * weeks collapse. Cancelled weeks stay one red box each, and this week is
  * always its own box so its frame marks that week alone. */
