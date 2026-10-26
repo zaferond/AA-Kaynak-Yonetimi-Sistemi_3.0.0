@@ -53,7 +53,7 @@ export async function checkScheduleScenario(f) {
   const { page } = await f.client("root-admin");
   try {
     await f.check(
-      "scenario: +3 and +5 month delays are compared without saving and export to Excel",
+      "scenario: unsaved selections stay out of tables; added +3 and +5 month scenarios compare and export",
       async () => {
         await openScenario(page);
         const dialog = page.locator(
@@ -64,10 +64,59 @@ export async function checkScheduleScenario(f) {
           .getByLabel("Proje", { exact: true })
           .first()
           .selectOption(pa.id);
+        assert.equal(
+          await dialog.locator(".schedule-summary-table").count(),
+          0,
+        );
+        assert(
+          await dialog
+            .getByRole("button", { name: "Raporlarda Göster" })
+            .isDisabled(),
+        );
         // Copying a scenario adds two months: Senaryo B is +5.
         await dialog
           .getByRole("button", { name: "Senaryo A senaryosunu çoğalt" })
           .click();
+        assert.equal(
+          await dialog.locator(".schedule-summary-table").count(),
+          0,
+        );
+        await dialog
+          .getByRole("button", {
+            name: "Senaryo A senaryosunu ekle",
+            exact: true,
+          })
+          .click();
+        await dialog
+          .locator(".scenario-message")
+          .filter({ hasText: "“Senaryo A” eklendi." })
+          .waitFor();
+        assert.equal(
+          await dialog.locator(".schedule-summary-table thead th").count(),
+          3,
+        );
+        await dialog
+          .getByRole("button", {
+            name: "Senaryo B senaryosunu ekle",
+            exact: true,
+          })
+          .click();
+        await dialog
+          .locator(".scenario-message")
+          .filter({ hasText: "“Senaryo B” eklendi." })
+          .waitFor();
+        const beforeDraftEdit = await dialog
+          .locator(".schedule-summary-table")
+          .innerText();
+        await dialog
+          .getByLabel("Proje", { exact: true })
+          .first()
+          .selectOption(pb.id);
+        await dialog.getByLabel("Süre (Ay)", { exact: true }).first().fill("9");
+        assert.equal(
+          await dialog.locator(".schedule-summary-table").innerText(),
+          beforeDraftEdit,
+        );
         const rows = await dialog
           .locator(".schedule-summary-table tr")
           .evaluateAll((list) =>
@@ -166,7 +215,11 @@ export async function checkScheduleScenario(f) {
           ".schedule-scenario-dialog, .schedule-scenario-page",
         );
         await dialog
-          .getByLabel("Kaydırılacak ay", { exact: true })
+          .getByLabel("Proje", { exact: true })
+          .first()
+          .selectOption(pa.id);
+        await dialog
+          .getByLabel("Süre (Ay)", { exact: true })
           .first()
           .fill("-2");
         await dialog
@@ -182,27 +235,18 @@ export async function checkScheduleScenario(f) {
         const dialog = page.locator(
           ".schedule-scenario-dialog, .schedule-scenario-page",
         );
-        const card = dialog.locator(".schedule-scenario-card").first();
-        await card.getByLabel("Kaydırılacak ay", { exact: true }).fill("3");
-        await card
-          .getByRole("button", { name: "Senaryo A senaryosunu ekle" })
-          .click();
-        await dialog
-          .locator(".scenario-message")
-          .filter({ hasText: "“Senaryo A” eklendi." })
-          .waitFor();
         // The same shifts under a new name, then the saved name: "Ekle" is off.
         const next = dialog.locator(".schedule-scenario-card").first();
         await next.getByLabel("Proje", { exact: true }).selectOption(pa.id);
-        await next.getByLabel("Kaydırılacak ay", { exact: true }).fill("3");
+        await next.getByLabel("Süre (Ay)", { exact: true }).fill("3");
         const add = next.getByRole("button", { name: /senaryosunu ekle$/ });
         assert(await add.isDisabled());
         await next
           .getByRole("alert")
           .filter({ hasText: "Aynı senaryoyu tanımlayamazsınız!" })
           .waitFor();
-        await next.getByLabel("Kaydırılacak ay", { exact: true }).fill("4");
-        await next.getByLabel("Senaryo adı").fill("senaryo a");
+        await next.getByLabel("Süre (Ay)", { exact: true }).fill("4");
+        await next.getByLabel("Senaryo İsmi").fill("senaryo a");
         assert(await add.isDisabled());
         await page.reload();
         await openScenario(page);
@@ -216,7 +260,7 @@ export async function checkScheduleScenario(f) {
           await dialog
             .locator(".schedule-scenario-card")
             .first()
-            .getByLabel("Senaryo adı")
+            .getByLabel("Senaryo İsmi")
             .inputValue(),
           "senaryo a",
         );
@@ -232,6 +276,21 @@ export async function checkScheduleScenario(f) {
           .locator(".scenario-message")
           .filter({ hasText: "silindi" })
           .waitFor();
+        const remaining = dialog
+          .locator(".saved-scenarios li")
+          .filter({ hasText: "Senaryo B" });
+        page.once("dialog", (d) => d.accept());
+        await remaining
+          .getByRole("button", { name: "Sil", exact: true })
+          .click();
+        await f.wait(
+          async () => !(await f.state()).scheduleScenarios?.length,
+          "saved scenarios removed",
+        );
+        assert.equal(
+          await dialog.locator(".schedule-summary-table").count(),
+          0,
+        );
         assert.deepEqual((await f.state()).scheduleScenarios || [], []);
       },
     );
@@ -344,7 +403,7 @@ export async function checkScheduleScenarioApproval(f) {
         );
         // The empty working card does not reuse the saved scenario's name.
         assert.equal(
-          await dialog.getByLabel("Senaryo adı").first().inputValue(),
+          await dialog.getByLabel("Senaryo İsmi").first().inputValue(),
           "Senaryo B",
         );
         // A competing +5 scenario on the same project.
@@ -352,7 +411,7 @@ export async function checkScheduleScenarioApproval(f) {
         await card
           .getByLabel("Proje", { exact: true })
           .selectOption(project.id);
-        await card.getByLabel("Kaydırılacak ay", { exact: true }).fill("5");
+        await card.getByLabel("Süre (Ay)", { exact: true }).fill("5");
         await card.getByLabel("Senaryo B senaryosunu ekle").click();
         await dialog
           .locator(".scenario-message")
@@ -366,6 +425,16 @@ export async function checkScheduleScenarioApproval(f) {
         const item = saved("Senaryo A");
         await item.getByRole("button", { name: "Onayla" }).click();
         await item.getByRole("button", { name: "Takvime Aktar" }).click();
+        await dialog
+          .locator(".scenario-message")
+          .filter({ hasText: "aktarıldı" })
+          .waitFor();
+        await page
+          .getByRole("tab", {
+            name: "Onaylanan Takvim Güncellemeleri",
+            exact: true,
+          })
+          .click();
         await item.getByRole("button", { name: "Geri Al" }).waitFor();
         assert.deepEqual(await months(), [
           "2026-09",
@@ -381,8 +450,7 @@ export async function checkScheduleScenarioApproval(f) {
         assert.match(await item.innerText(), /Aktaran: /);
         // B is closed: hidden as history until asked for, then it says why
         // and offers neither approval nor transfer.
-        assert.equal(await saved("Senaryo B").count(), 0);
-        await dialog.getByLabel(/Geçmişi göster/).check();
+        // Closed alternatives are shown alongside the transfer in the history tab.
         const other = saved("Senaryo B");
         assert.match(await other.innerText(), /Kapatıldı/);
         assert.match(await other.innerText(), /Yerine “Senaryo A” aktarıldı/);
@@ -409,6 +477,10 @@ export async function checkScheduleScenarioApproval(f) {
         });
         // Finished and draft scenarios can be deleted.
         for (const name of ["Senaryo A", "Senaryo B"]) {
+          if (name === "Senaryo B")
+            await page
+              .getByRole("tab", { name: /^Proje Takvimi Güncelle/ })
+              .click();
           await saved(name).getByRole("button", { name: "Sil" }).click();
           await dialog
             .locator(".scenario-message")

@@ -1,3 +1,10 @@
+import {
+  warningPriority,
+  WARNING_PRIORITY_LABELS,
+  warningFinding,
+  warningEvidence,
+  warningRecommendation,
+} from "../../../../shared/calendar-warning-review.ts";
 import type { Data } from "../../model.ts";
 import type { ScenarioWarning } from "../../../../shared/scenario-warnings.ts";
 import { WARNING_LIFECYCLE_LABELS } from "../../../../shared/scenario-warning-policy.ts";
@@ -18,28 +25,43 @@ export function scenarioWarningExportRows(
   return [
     [
       "Proje",
-      "Kod",
-      "1. Uyarı",
-      "2. Uyarı / Aksiyon",
+      "Öncelik",
+      "Tespit",
+      "Dayanak",
+      "Önerilen Aksiyon",
       "Ay",
       "Durum",
+      "Aksiyon Sorumlusu",
+      "Hedef Aksiyon Tarihi",
       "Aksiyon Açıklaması",
       "İşlemi yapan",
       "İşlem tarihi",
+      "Kural Kodu",
     ],
     ...warnings.map((w) => {
       const last = w.history.at(-1)!;
       const action = lastAction(w);
       return [
         names.get(w.projectId) || w.projectId,
-        w.code || "—",
-        w.warning1,
-        w.warning2,
+        warningPriority(w.assessment)
+          ? WARNING_PRIORITY_LABELS[warningPriority(w.assessment)!]
+          : "Normal",
+        warningFinding(w.assessment),
+        warningEvidence(w.assessment),
+        w.assessment.progressState
+          ? warningRecommendation(
+              w.assessment.progressState,
+              w.assessment.resourceState,
+            )
+          : "",
         w.month,
         WARNING_LIFECYCLE_LABELS[w.status],
+        action?.responsible || "",
+        action?.targetDate || "",
         action?.explanation || "",
         last.byName,
         last.at,
+        w.code || "—",
       ];
     }),
   ];
@@ -64,14 +86,14 @@ export function scenarioWarningsWorkbook(
   const rows = scenarioWarningExportRows(data, warnings);
   if (rows.length > EXCEL_MAX_ROWS)
     throw Error("Excel satır sınırı aşıldı; filtreleri daraltın.");
-  const xml = `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="9" width="28" customWidth="1"/><col min="4" max="4" width="65" customWidth="1"/></cols><sheetData>${rows.map((row, i) => `<row r="${i + 1}">${row.map((value, j) => `<c r="${columnName(j)}${i + 1}" s="${i === 0 ? 1 : 0}" t="inlineStr"><is><t xml:space="preserve">${excelCellText(value)}</t></is></c>`).join("")}</row>`).join("")}</sheetData><autoFilter ref="A1:I${rows.length}"/></worksheet>`;
+  const xml = `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="13" width="28" customWidth="1"/><col min="3" max="5" width="65" customWidth="1"/></cols><sheetData>${rows.map((row, i) => `<row r="${i + 1}">${row.map((value, j) => `<c r="${columnName(j)}${i + 1}" s="${i === 0 ? 1 : 0}" t="inlineStr"><is><t xml:space="preserve">${excelCellText(value)}</t></is></c>`).join("")}</row>`).join("")}</sheetData><autoFilter ref="A1:M${rows.length}"/></worksheet>`;
   const styles =
     '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf fontId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf><xf fontId="1" xfId="0" applyFont="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs></styleSheet>';
   return createWorkbook({
-    sheets: [{ name: "Senaryo Uyarıları", xml }],
+    sheets: [{ name: "Proje Takvimi Uyarıları", xml }],
     styles,
     properties: {
-      title: "Senaryo Uyarıları",
+      title: "Proje Takvimi Uyarıları",
       creator: "Kaynak Planlama Sistemi",
     },
   });
@@ -84,7 +106,7 @@ export function downloadScenarioWarnings(
   if (format === "xlsx")
     return downloadWorkbook(
       scenarioWarningsWorkbook(data, warnings),
-      "Senaryo-Uyarilari.xlsx",
+      "Proje-Takvimi-Uyarilari.xlsx",
     );
   const url = URL.createObjectURL(
     new Blob([scenarioWarningsCsv(data, warnings)], {
@@ -94,7 +116,7 @@ export function downloadScenarioWarnings(
   try {
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Senaryo-Uyarilari.csv";
+    a.download = "Proje-Takvimi-Uyarilari.csv";
     a.click();
   } finally {
     setTimeout(() => URL.revokeObjectURL(url), 1000);

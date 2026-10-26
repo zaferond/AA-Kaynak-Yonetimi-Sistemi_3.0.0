@@ -141,8 +141,8 @@ export default function WarningSettingsPanel({
     <section className="scenario-settings" aria-label="Uyarı Ayarları">
       <h3>Uyarı Ayarları</h3>
       <p>
-        Eşikler tüm projeler için geçerlidir. Kaydedildiğinde senaryo uyarıları
-        yeniden değerlendirilir.
+        Eşikler tüm projeler için geçerlidir. Kaydedildiğinde proje takvimi
+        uyarıları yeniden değerlendirilir.
       </p>
       <form
         onSubmit={(event) => {
@@ -200,17 +200,17 @@ export default function WarningSettingsPanel({
         </div>
       </form>
       <details className="progress-process-help">
-        <summary>Senaryo kural tablosu</summary>
+        <summary>Değerlendirme kural tablosu</summary>
         <table className="progress-table compact">
           <thead>
             <tr>
               <th>Kod</th>
               <th>İlerleme</th>
               <th>Kaynak</th>
-              <th>1. Uyarı</th>
-              <th>1. Uyarı Hesabı</th>
-              <th>2. Uyarı / Aksiyon</th>
-              <th>2. Uyarı Hesabı</th>
+              <th>Tespit</th>
+              <th>Tespit Hesabı</th>
+              <th>Önerilen Aksiyon</th>
+              <th>Aksiyonun Dayanağı</th>
             </tr>
           </thead>
           <tbody>
@@ -240,10 +240,11 @@ export default function WarningSettingsPanel({
           <strong>S</strong> (sapma) = son kilitli ayın Gerçekleşen % − Hedef %
           (liderlik ağırlıklarıyla). <strong>K</strong> (kaynak karşılama) =
           kalan ayların planlı kaynağının karşıladığı iş % ÷ (100 − Gerçekleşen
-          %) × 100. 1. Uyarı yalnız S ile, 2. Uyarı S ve K birlikte belirlenir.
+          %) × 100. Tespit yalnız S ile, önerilen aksiyon S ve K birlikte
+          değerlendirilerek belirlenir.
         </p>
         <p>
-          Kritik Gecikme durumunda 1. Uyarı aynı adla gösterilir. Matriste
+          Kritik Gecikme durumunda Tespit aynı adla gösterilir. Matriste
           karşılığı olmayan birleşimlerde yalnız ilerleme durumu gösterilir.
           Tamamlanan projelerde uyarı üretilmez.
         </p>

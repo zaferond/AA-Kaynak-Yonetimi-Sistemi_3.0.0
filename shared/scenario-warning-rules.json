@@ -1,74 +1,95 @@
 [
   {
     "kod": "S-01",
-    "ilerleme": ["behind", "critical"],
+    "ilerleme": [
+      "behind",
+      "critical"
+    ],
     "kaynak": "unplanned",
     "uyari1": "Planın Gerisinde",
-    "uyari2": "Kaynak Planlama Durumu Değerlendirilmeli",
+    "uyari2": "Yakın dönem kaynak planı ve gecikmenin nedenleri birlikte değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-02",
-    "ilerleme": ["behind", "critical"],
+    "ilerleme": [
+      "behind",
+      "critical"
+    ],
     "kaynak": "insufficient",
     "uyari1": "Planın Gerisinde",
-    "uyari2": "Ek kaynak gerekli veya bitiş tarihi revize edilmeli",
+    "uyari2": "Ek kaynak ihtiyacı ve takvim revizyonu seçenekleri proje sorumlusuyla değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-03",
-    "ilerleme": ["behind", "critical"],
+    "ilerleme": [
+      "behind",
+      "critical"
+    ],
     "kaynak": "sufficient",
     "uyari1": "Planın Gerisinde",
-    "uyari2": "Kaynak var ama ilerleme yok, verimlilik/engel analizi yapılmalı",
+    "uyari2": "Kaynak planı mevcut; iş engelleri, bağımlılıklar ve gerçekleşen verileri incelenmeli.",
     "aktif": true
   },
   {
     "kod": "S-04",
-    "ilerleme": ["behind"],
+    "ilerleme": [
+      "behind"
+    ],
     "kaynak": "excess",
     "uyari1": "Planın Gerisinde",
-    "uyari2": "Kaynak dağılımı öne çekilmeli",
+    "uyari2": "Gecikmenin nedenleri ve kaynakların zaman içindeki dağılımı incelenmeli.",
     "aktif": true
   },
   {
     "kod": "S-05",
-    "ilerleme": ["onTrack"],
+    "ilerleme": [
+      "onTrack"
+    ],
     "kaynak": "unplanned",
     "uyari1": "Planda",
-    "uyari2": "Gelecek ay kaynak planı eksik",
+    "uyari2": "Yakın dönem iş devamlılığı için kaynak planının tamamlanması değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-06",
-    "ilerleme": ["onTrack"],
+    "ilerleme": [
+      "onTrack"
+    ],
     "kaynak": "insufficient",
     "uyari1": "Planda",
-    "uyari2": "Mevcut kaynakla hedefe ulaşılamayacak, risk",
+    "uyari2": "Kalan iş ve kaynak varsayımları doğrulanmalı; kaynak veya takvim revizyonu ihtiyacı değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-07",
-    "ilerleme": ["onTrack"],
+    "ilerleme": [
+      "onTrack"
+    ],
     "kaynak": "excess",
     "uyari1": "Planda",
-    "uyari2": "Fazla kaynak başka projeye aktarılabilir",
+    "uyari2": "İş sürekliliği ve proje riskleri incelendikten sonra kaynak dengeleme seçenekleri değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-08",
-    "ilerleme": ["ahead"],
+    "ilerleme": [
+      "ahead"
+    ],
     "kaynak": "excess",
     "uyari1": "Planın İlerisinde",
-    "uyari2": "Kaynak serbest bırakılabilir",
+    "uyari2": "Kalan işler ve proje riskleri doğrulandıktan sonra kaynak dengeleme seçenekleri değerlendirilmeli.",
     "aktif": true
   },
   {
     "kod": "S-09",
-    "ilerleme": ["ahead"],
+    "ilerleme": [
+      "ahead"
+    ],
     "kaynak": "insufficient",
     "uyari1": "Planın İlerisinde",
-    "uyari2": "Bilgi amaçlı, plan güncellenebilir",
+    "uyari2": "İlerleme avantajının korunması için kalan iş ve gelecek kaynak ihtiyacı gözden geçirilmeli.",
     "aktif": true
   }
 ]

@@ -27,18 +27,14 @@ export function matchesTopicFilter(status: TopicStatus, filter: TopicFilter) {
   return status !== "done";
 }
 
-export type WeekState = "current" | "cancelled";
+export type WeekState = "current" | "late" | "cancelled";
 export type TopicWeek = { week: IsoWeek; state: WeekState };
 /** Selected week keys; empty means every week. */
 export type WeekSelection = ReadonlySet<string>;
 
-/**
- * Weeks to show on a topic: its current range, then the weeks it covered
- * under earlier dates that the change dropped ("cancelled"). Weeks inside the
- * current range are never coloured, even once passed: lateness is the
- * topic's status label. A week the new range still covers is not cancelled.
- */
-export function topicWeeks(topic: ReportTopic): TopicWeek[] {
+/** Current dates and historical weeks; unfinished weeks before this week
+ * are late. Historical weeks remain cancelled even after completion. */
+export function topicWeeks(topic: ReportTopic, today: string): TopicWeek[] {
   const current = weeksInRange(topic.start, topic.end);
   const currentKeys = new Set(current.map((week) => week.key));
   const cancelled = [...new Set(topic.weekHistory || [])]
@@ -46,7 +42,13 @@ export function topicWeeks(topic: ReportTopic): TopicWeek[] {
     .sort()
     .flatMap((key) => weekFromKey(key) || []);
   return [
-    ...current.map((week) => ({ week, state: "current" as const })),
+    ...current.map((week) => ({
+      week,
+      state:
+        !topic.completed && week.end < today
+          ? ("late" as const)
+          : ("current" as const),
+    })),
     ...cancelled.map((week) => ({ week, state: "cancelled" as const })),
   ];
 }

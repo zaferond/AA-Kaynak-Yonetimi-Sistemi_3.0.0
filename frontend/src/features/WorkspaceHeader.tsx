@@ -78,13 +78,22 @@ export default function WorkspaceHeader({
   return (
     <header className="mast" ref={mastRef}>
       <div className="mastbrandrow">
-        <img
-          className="mast-company-logo"
-          src="/assets/otokar-logo.svg"
-          alt="Otokar"
-          width={74}
-          height={20}
-        />
+        <button
+          type="button"
+          className="mast-home-link"
+          aria-label="Otokar — Ana Sayfa’ya git"
+          title="Ana Sayfa’ya git"
+          data-risk-leave
+          onClick={() => onOpenTab?.("home")}
+        >
+          <img
+            className="mast-company-logo"
+            src="/assets/otokar-logo.svg"
+            alt="Otokar"
+            width={74}
+            height={20}
+          />
+        </button>
         {location && <span className="mast-location">{location}</span>}
         {onSearch && (
           <button

@@ -24,7 +24,7 @@ export function newScenario(
   name: string,
   fromMonth: string,
   months: number,
-): ShiftScenario {
+): ScenarioDraft {
   return {
     id: crypto.randomUUID(),
     name,
@@ -32,6 +32,9 @@ export function newScenario(
     shifts: [{ projectId: "", months, fromMonth }],
   };
 }
+
+/** Persist the revision at edit-open so background reads cannot rebase a draft. */
+export type ScenarioDraft = ShiftScenario & { editingRevision?: number };
 
 /** First free "Senaryo X" among working and saved scenarios. */
 export function nextScenarioName(existing: { name: string }[]) {

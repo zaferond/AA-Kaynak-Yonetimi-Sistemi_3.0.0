@@ -148,12 +148,30 @@ test("senaryo uyarıları: kilit, plan değişikliği, yetkiler, yaşam döngüs
         }),
         { status: 400 },
       );
+      for (const extra of [
+        {},
+        { responsible: "Sorumlu" },
+        { responsible: "Sorumlu", targetDate: "2026-02-30" },
+      ]) {
+        await assert.rejects(
+          save(users.manager, "scenarioWarning", firstId, {
+            status: "acted",
+            explanation: "Aksiyon",
+            ...extra,
+          }),
+          { status: 400 },
+        );
+      }
       await save(users.manager, "scenarioWarning", firstId, {
         status: "acted",
         explanation: "Kaynak ihtiyacı gözden geçirildi.",
+        responsible: "Proje sorumlusu",
+        targetDate: "2026-10-30",
       });
       const w = (await state()).scenarioWarnings[0];
       assert.equal(w.status, "acted");
+      assert.equal(w.history.at(-1).responsible, "Proje sorumlusu");
+      assert.equal(w.history.at(-1).targetDate, "2026-10-30");
       assert.equal(w.history.at(-1).byId, "manager");
       assert.equal(
         w.history.at(-1).explanation,

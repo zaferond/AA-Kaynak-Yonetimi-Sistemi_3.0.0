@@ -90,7 +90,10 @@ test("dropped weeks are listed as cancelled; the report filters by them", () => 
   ]);
   const [topic] = buildProjectInfoReport([stored])[0].infos[0].topics;
   assert.deepEqual(
-    topicWeeks(topic).map(({ week, state }) => [week.week, state]),
+    topicWeeks(topic, "2026-03-01").map(({ week, state }) => [
+      week.week,
+      state,
+    ]),
     [
       [10, "current"],
       [11, "current"],
@@ -102,18 +105,19 @@ test("dropped weeks are listed as cancelled; the report filters by them", () => 
   );
   // A week the new range still covers is current, not cancelled.
   assert.deepEqual(
-    topicWeeks({ ...topic, weekHistory: ["2026-W10", "2026-W09"] }).map(
-      ({ week, state }) => [week.week, state],
-    ),
+    topicWeeks(
+      { ...topic, weekHistory: ["2026-W10", "2026-W09"] },
+      "2026-03-01",
+    ).map(({ week, state }) => [week.week, state]),
     [
       [10, "current"],
       [11, "current"],
       [9, "cancelled"],
     ],
   );
-  // Passed weeks inside the current range stay uncoloured, even when open.
+  // Current and future weeks stay neutral.
   assert.deepEqual(
-    topicWeeks(topic)
+    topicWeeks(topic, "2026-03-01")
       .slice(0, 2)
       .map(({ state }) => state),
     ["current", "current"],

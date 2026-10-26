@@ -17,7 +17,12 @@ export type ChangeValues = {
   progress: ProjectProgress;
   progressLock: ProgressLock;
   warningConfig: import("./scenario-warnings.ts").WarningConfig;
-  scenarioWarning: { status: "seen" | "acted"; explanation: string };
+  scenarioWarning: {
+    status: "seen" | "acted";
+    explanation: string;
+    responsible?: string;
+    targetDate?: string;
+  };
 };
 export type ChangeKind = keyof ChangeValues;
 export type Change<K extends ChangeKind = ChangeKind> = {

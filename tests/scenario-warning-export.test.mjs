@@ -19,17 +19,23 @@ test("CSV Türkçe metin, açıklama ve kullanıcıyı korur; Excel formül enje
     at: "2026-10-20T10:00:00.000Z",
     byId: "system",
     byName: "Sistem",
+    responsible: "Proje Sorumlusu",
+    targetDate: "2026-10-30",
   });
   const csv = scenarioWarningsCsv(d, d.scenarioWarnings);
   assert.ok(csv.startsWith("\uFEFF"));
-  assert.match(csv, /"Durum";"Aksiyon Açıklaması";"İşlemi yapan"/);
+  assert.match(
+    csv,
+    /"Durum";"Aksiyon Sorumlusu";"Hedef Aksiyon Tarihi";"Aksiyon Açıklaması";"İşlemi yapan"/,
+  );
   assert.match(csv, /"'=SUM\(1,2\) ""Proje"""/);
   assert.match(csv, /"Açıklama; ""Türkçe""\nikinci satır"/);
+  assert.match(csv, /"Proje Sorumlusu";"2026-10-30"/);
   assert.match(csv, /"Sistem";"2026-10-20T10:00:00.000Z"/);
   const entries = zipEntries(
     Buffer.from(scenarioWarningsWorkbook(d, d.scenarioWarnings)),
   );
-  assert.match(entries["xl/workbook.xml"], /Senaryo Uyarıları/);
+  assert.match(entries["xl/workbook.xml"], /Proje Takvimi Uyarıları/);
   assert.match(entries["xl/worksheets/sheet1.xml"], /t="inlineStr"/);
   assert.match(entries["xl/worksheets/sheet1.xml"], /=SUM\(1,2\)/);
   assert.doesNotMatch(entries["xl/worksheets/sheet1.xml"], /<f[ >]/);

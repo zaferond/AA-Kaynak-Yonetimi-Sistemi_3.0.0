@@ -25,7 +25,7 @@ import type { ActualUnit } from "../actual-units";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
 export type WorkspaceDensity = "detail" | "compact" | "overview";
 export type ReportView = "resources" | "headcount";
-export type ProjectView = "projects" | "scenario";
+export type ProjectView = "projects" | "scenario" | "scenarioHistory";
 type Props = {
   sidebarHost: HTMLElement | null;
   menu: WorkspaceMenu;
@@ -177,6 +177,10 @@ export default function WorkspaceNavigation({
               label: "Proje Takvimi Güncelle",
               badge: isAdmin ? pendingScenarios : 0,
             },
+            {
+              value: "scenarioHistory",
+              label: "Onaylanan Takvim Güncellemeleri",
+            },
           ]
         : []),
     ];
@@ -191,7 +195,7 @@ export default function WorkspaceNavigation({
         badge: isAdmin ? pendingProgressApprovals : 0,
       },
       { value: "report", label: "Proje ve Kaynak Değerlendirme Raporu" },
-      { value: "warnings", label: "Senaryo Uyarıları" },
+      { value: "warnings", label: "Proje Takvimi Uyarıları" },
       ...(isAdmin ? [{ value: "settings", label: "Uyarı Ayarları" }] : []),
     ];
     sectionValue = progressView;
@@ -327,7 +331,7 @@ export default function WorkspaceNavigation({
               "risk",
               "progress",
             ].includes(tab) &&
-            !(tab === "projects" && projectView === "scenario") && (
+            !(tab === "projects" && projectView !== "projects") && (
               <div className="workspace-nav-actions">
                 {viewChoice}
                 {tab === "projects" && (

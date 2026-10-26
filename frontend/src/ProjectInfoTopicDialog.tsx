@@ -13,7 +13,7 @@ import type { Project } from "./model";
 import type { ReportTopic } from "./project-info-report";
 import { topicWeeks } from "./project-info-status";
 import { isoWeek, weeksInRange } from "./iso-week";
-import TopicWeeks from "./ProjectInfoWeeks";
+import TopicWeeks, { TopicWeekLegend } from "./ProjectInfoWeeks";
 
 export type TopicEdit = {
   project: Project;
@@ -84,17 +84,20 @@ function TopicForm({
   // weeks into the history, which lists them as cancelled.
   const preview = problem
     ? []
-    : topicWeeks({
-        ...topic,
-        start,
-        end,
-        weekHistory: datesChanged
-          ? [
-              ...(topic.weekHistory || []),
-              ...weeksInRange(topic.start, topic.end).map((week) => week.key),
-            ]
-          : topic.weekHistory,
-      });
+    : topicWeeks(
+        {
+          ...topic,
+          start,
+          end,
+          weekHistory: datesChanged
+            ? [
+                ...(topic.weekHistory || []),
+                ...weeksInRange(topic.start, topic.end).map((week) => week.key),
+              ]
+            : topic.weekHistory,
+        },
+        today,
+      );
   const newlyCancelled = preview.filter(
     ({ week, state }) =>
       state === "cancelled" && !topic.weekHistory?.includes(week.key),
@@ -171,6 +174,7 @@ function TopicForm({
             <span className="project-info-topic-preview-empty">—</span>
           )}
         </div>
+        <TopicWeekLegend />
         {newlyCancelled > 0 && (
           <p className="project-info-topic-note">
             Kaydettiğinizde eski tarihlerin {newlyCancelled} haftası raporda

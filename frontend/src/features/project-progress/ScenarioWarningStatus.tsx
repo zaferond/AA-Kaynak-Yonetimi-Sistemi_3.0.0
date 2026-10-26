@@ -119,11 +119,11 @@ export function WarningCalculationSummary({
           <dd>{percent(a.remaining)}</dd>
         </div>
         <div>
-          <dt>Gelecek Planlı %</dt>
+          <dt>Kaynakla karşılanabilir iş (tahmin)</dt>
           <dd>{percent(a.futurePlanned)}</dd>
         </div>
         <div>
-          <dt>Karşılama</dt>
+          <dt>Kaynak karşılama tahmini</dt>
           <dd>{percent(a.coverage === null ? null : a.coverage * 100)}</dd>
         </div>
         <div>
@@ -141,9 +141,10 @@ export function WarningCalculationSummary({
       )}
       {a.status === "ready" && (
         <p>
-          Gelecek Planlı %, son kilitli aydan proje bitişine kadar ayrılan
-          kaynağın onay anında sabitlenen kaynak/hedef oranıyla hesaplanır.
-          Sonraki {a.horizonMonths} ayda kaynak planı:{" "}
+          Karşılanabilir iş tahmini, son kilitli aydan proje bitişine kadar
+          ayrılan kaynağın onay anında sabitlenen kaynak/hedef oranıyla
+          hesaplanır. Bu oran kaynak verimliliğinin aynı kalacağı varsayımına
+          dayanır. Sonraki {a.horizonMonths} ayda kaynak planı:{" "}
           {a.nextResources > 0 ? "Var" : "Yok"}.
         </p>
       )}

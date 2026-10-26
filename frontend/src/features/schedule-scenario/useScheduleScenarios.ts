@@ -13,7 +13,11 @@ import {
   type ShiftScenario,
 } from "../../../../shared/schedule-shift.ts";
 import { workspaceMetric } from "../workspace/workspace-selectors";
-import { newScenario, nextScenarioName } from "./scenario-comparison";
+import {
+  newScenario,
+  nextScenarioName,
+  type ScenarioDraft,
+} from "./scenario-comparison";
 
 const usable = (scenario: ShiftScenario) =>
   scenario.shifts.some((s) => s.projectId && s.months);
@@ -63,7 +67,7 @@ function useSessionValue<T>(
   }, []);
   return [stored.value, setValue];
 }
-const isCards = (value: unknown): value is ShiftScenario[] =>
+const isCards = (value: unknown): value is ScenarioDraft[] =>
   Array.isArray(value) &&
   value.length > 0 &&
   value.every(
@@ -72,6 +76,8 @@ const isCards = (value: unknown): value is ShiftScenario[] =>
       typeof s.id === "string" &&
       typeof s.name === "string" &&
       typeof s.includeTimeline === "boolean" &&
+      (s.editingRevision === undefined ||
+        (Number.isSafeInteger(s.editingRevision) && s.editingRevision >= 0)) &&
       Array.isArray(s.shifts) &&
       s.shifts.length > 0 &&
       s.shifts.every(
@@ -140,21 +146,18 @@ export function useScheduleScenarios(
       return changed ? next : all;
     });
   }, [saved]);
-  // Working cards plus saved drafts/approved scenarios not open as a card
-  // (a transferred one is already in the data). Only problem-free ones.
+  // Reports use saved, problem-free draft/approved scenarios only.
   const available = useMemo(() => {
     if (!data) return [];
-    const open = new Set(scenarios.map((s) => s.id));
     const savedOpen = (saved || []).filter(
       (s) =>
-        !open.has(s.id) &&
         !hiddenSaved.has(s.id) &&
         (s.status === "draft" || s.status === "approved"),
     );
-    return [...scenarios, ...savedOpen].filter(
+    return savedOpen.filter(
       (s) => usable(s) && !applyScenario(data, s).problems.length,
     );
-  }, [data, scenarios, saved, hiddenSaved]);
+  }, [data, saved, hiddenSaved]);
   const active = available.find((s) => s.id === reportScenarioId) || null;
   const report = useMemo(() => {
     if (!data || !active) return null;

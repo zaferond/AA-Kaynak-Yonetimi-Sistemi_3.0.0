@@ -4,6 +4,7 @@ import {
   filterReportGroups,
   topicFilterCounts,
   topicStatus,
+  topicWeeks,
 } from "../frontend/src/project-info-status.ts";
 
 const topic = (start, end, completed, rangeIndex = 0) => ({
@@ -15,6 +16,40 @@ const topic = (start, end, completed, rangeIndex = 0) => ({
   completed,
 });
 const today = "2026-10-16";
+
+test("unfinished weeks before this week are late; current, future and completed weeks are neutral", () => {
+  const value = {
+    ...topic("2026-10-05", "2026-10-25", false),
+    weekHistory: ["2026-W39", "2026-W41"],
+  };
+  const states = (completed, date) =>
+    topicWeeks({ ...value, completed }, date).map(({ week, state }) => [
+      week.key,
+      state,
+    ]);
+  assert.deepEqual(states(false, "2026-10-18"), [
+    ["2026-W41", "late"],
+    ["2026-W42", "current"],
+    ["2026-W43", "current"],
+    ["2026-W39", "cancelled"],
+  ]);
+  assert.deepEqual(
+    states(false, "2026-10-19")
+      .slice(0, 3)
+      .map(([, state]) => state),
+    ["late", "late", "current"],
+  );
+  assert.deepEqual(
+    states(true, "2026-10-26").map(([, state]) => state),
+    ["current", "current", "current", "cancelled"],
+  );
+  assert.deepEqual(
+    states(false, "2026-10-26")
+      .slice(0, 3)
+      .map(([, state]) => state),
+    ["late", "late", "late"],
+  );
+});
 
 test("critical topic status follows completion and today's date", () => {
   assert.equal(

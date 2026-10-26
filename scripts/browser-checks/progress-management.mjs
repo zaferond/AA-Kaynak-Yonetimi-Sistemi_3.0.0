@@ -186,18 +186,24 @@ export async function checkProgressManagement(f) {
           .first()
           .waitFor();
         await projectA()
-          .getByText("Kaynak serbest bırakılabilir", { exact: true })
+          .getByText(
+            "Kalan işler ve proje riskleri doğrulandıktan sonra kaynak dengeleme seçenekleri değerlendirilmeli.",
+            { exact: true },
+          )
           .waitFor();
         await projectB()
           .getByText("Kritik Gecikme", { exact: true })
           .first()
           .waitFor();
         await projectB()
-          .getByText("Ek kaynak gerekli veya bitiş tarihi revize edilmeli", {
-            exact: true,
-          })
+          .getByText(
+            "Ek kaynak ihtiyacı ve takvim revizyonu seçenekleri proje sorumlusuyla değerlendirilmeli.",
+            {
+              exact: true,
+            },
+          )
           .waitFor();
-        // The calculation lives in Senaryo Uyarıları ("Hesap ve geçmiş");
+        // The calculation lives in Proje Takvimi Uyarıları ("Hesap ve geçmiş");
         // the report column only names the decision.
         assert.equal(
           await matrix.getByText("Hesap ve diğer uyarılar").count(),
@@ -317,7 +323,7 @@ export async function checkProgressManagement(f) {
         assert.match(entries["xl/worksheets/sheet2.xml"], /S-08/);
         assert.match(
           entries["xl/worksheets/sheet2.xml"],
-          /Kaynak serbest bırakılabilir/,
+          /Kalan işler ve proje riskleri doğrulandıktan sonra kaynak dengeleme seçenekleri değerlendirilmeli./,
         );
         assert.match(entries["xl/worksheets/sheet2.xml"], /<v>250<\/v>/);
         assert.match(entries["xl/worksheets/sheet3.xml"], /Kritik Konular/);
@@ -339,20 +345,26 @@ export async function checkProgressManagement(f) {
       "scenario alerts: lifecycle requires an explanation; filters, history, CSV and Excel preserve it",
       async () => {
         await page
-          .getByRole("tab", { name: "Senaryo Uyarıları", exact: true })
+          .getByRole("tab", { name: "Proje Takvimi Uyarıları", exact: true })
           .click();
         const panel = page.getByRole("region", {
-          name: "Senaryo Uyarıları",
+          name: "Proje Takvimi Uyarıları",
           exact: true,
         });
         await panel
           .getByRole("combobox", { name: "Proje", exact: true })
           .selectOption("p-a");
         const row = panel
-          .getByRole("table", { name: "Senaryo uyarı listesi", exact: true })
+          .getByRole("table", {
+            name: "Proje takvimi uyarı listesi",
+            exact: true,
+          })
           .locator("tbody tr");
         assert.equal(await row.count(), 1);
-        await row.getByText("S-08", { exact: true }).waitFor();
+        await row
+          .locator(".calendar-warning-code")
+          .filter({ hasText: "S-08" })
+          .waitFor();
         await row
           .getByRole("button", { name: "Görüldü İşaretle", exact: true })
           .click();
@@ -367,6 +379,12 @@ export async function checkProgressManagement(f) {
         await row
           .getByRole("textbox", { name: "Aksiyon açıklaması", exact: true })
           .fill("Fazla kaynak için ekip değerlendirmesi yapıldı.");
+        await row
+          .getByLabel("Aksiyon sorumlusu", { exact: true })
+          .fill("Proje Sorumlusu");
+        await row
+          .getByLabel("Hedef aksiyon tarihi", { exact: true })
+          .fill("2026-10-30");
         await f.capture(page, "scenario-action-entry");
         await acted.click();
         // The newest action is listed in its own column.
@@ -425,7 +443,7 @@ export async function checkProgressManagement(f) {
           exact: true,
         });
         // The rule table explains each warning with the saved thresholds.
-        await settings.getByText("Senaryo kural tablosu").click();
+        await settings.getByText("Değerlendirme kural tablosu").click();
         const s02 = settings.getByRole("row").filter({ hasText: "S-02" });
         assert.equal(
           await s02.locator(".scenario-rule-formula").first().textContent(),
@@ -491,10 +509,13 @@ export async function checkProgressManagement(f) {
             0,
           );
           await manager.page
-            .getByRole("tab", { name: "Senaryo Uyarıları", exact: true })
+            .getByRole("tab", { name: "Proje Takvimi Uyarıları", exact: true })
             .click();
           await manager.page
-            .getByRole("table", { name: "Senaryo uyarı listesi", exact: true })
+            .getByRole("table", {
+              name: "Proje takvimi uyarı listesi",
+              exact: true,
+            })
             .waitFor();
         } finally {
           await manager.context.close();

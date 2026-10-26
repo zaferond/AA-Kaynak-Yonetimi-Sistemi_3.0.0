@@ -134,12 +134,86 @@ export async function checkCriticalProjectFilter(f) {
           await entry
             .getByText("Manager updated topic", { exact: true })
             .waitFor();
+          const oldWeek = entry.locator(
+            '.project-info-week[data-state="cancelled"]',
+          );
+          assert.equal(await oldWeek.innerText(), "W10");
+          assert.match(
+            await oldWeek.getAttribute("title"),
+            /Önceki tarih aralığı · geçmiş kayıt/,
+          );
+          assert.equal(
+            await oldWeek.evaluate(
+              (element) => getComputedStyle(element).borderStyle,
+            ),
+            "solid",
+          );
+          const colors = (chip) =>
+            chip.evaluate((element) => {
+              const style = getComputedStyle(element);
+              return [style.backgroundColor, style.color];
+            });
+          assert.deepEqual(await colors(oldWeek), [
+            "rgb(253, 236, 234)",
+            "rgb(180, 35, 24)",
+          ]);
+          const currentWeek = entry.locator(
+            '.project-info-week[data-state="late"]',
+          );
+          assert.equal(await currentWeek.innerText(), "W11");
+          assert.match(
+            await currentWeek.getAttribute("title"),
+            /Mevcut tarih aralığı · gecikmiş hafta/,
+          );
+          assert.equal(
+            await currentWeek.evaluate(
+              (element) => getComputedStyle(element).borderStyle,
+            ),
+            "solid",
+          );
+          await manager.page
+            .getByLabel("Hafta gösterimi açıklaması", { exact: true })
+            .waitFor();
+          assert.deepEqual(await colors(currentWeek), await colors(oldWeek));
+          await entry
+            .getByRole("button", { name: "Düzenle", exact: true })
+            .click();
+          await dialog.waitFor();
+          assert.deepEqual(
+            await colors(
+              dialog.locator('.project-info-week[data-state="cancelled"]'),
+            ),
+            await colors(oldWeek),
+          );
+          await dialog
+            .getByRole("button", { name: "Vazgeç", exact: true })
+            .click();
+          await manager.page
+            .getByRole("combobox", { name: "Hafta ekle", exact: true })
+            .selectOption("2026-W10");
+          await manager.page.waitForFunction(() =>
+            document.querySelector(
+              '.project-info-week[data-state="cancelled"][data-selected]',
+            ),
+          );
+          assert.deepEqual(await colors(oldWeek), [
+            "rgb(180, 35, 24)",
+            "rgb(255, 255, 255)",
+          ]);
+          await f.capture(manager.page, "critical-historical-week-colors");
           await entry
             .getByRole("button", { name: "Tamamlandı", exact: true })
             .click();
           await entry
             .getByRole("button", { name: "Geri Al", exact: true })
             .waitFor();
+          assert.equal(
+            await entry
+              .locator('.project-info-week[data-state="late"]')
+              .count(),
+            0,
+          );
+          assert.equal(await oldWeek.count(), 1);
           await entry
             .getByRole("button", { name: "Başlık Düzenle", exact: true })
             .click();

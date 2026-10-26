@@ -1,3 +1,4 @@
+import { warningRecommendation } from "./calendar-warning-review.ts";
 import type { Data, Project } from "./model.ts";
 import {
   isTopLeader,
@@ -53,6 +54,8 @@ export type WarningEvent = {
   at: string;
   byId: string;
   byName: string;
+  responsible?: string;
+  targetDate?: string;
 };
 export type ScenarioWarning = {
   id: string;
@@ -135,7 +138,10 @@ export function evaluateWarning(
         : progressState === "critical"
           ? WARNING_PROGRESS_LABELS.critical
           : rule?.uyari1 || WARNING_PROGRESS_LABELS[progressState],
-    warning2: remaining === 0 ? "" : rule?.uyari2 || "",
+    warning2:
+      remaining === 0
+        ? ""
+        : warningRecommendation(progressState, resourceState),
   };
 }
 

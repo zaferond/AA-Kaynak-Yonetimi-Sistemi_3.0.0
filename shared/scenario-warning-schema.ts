@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validPlanningMonth } from "./planning-dates.ts";
+import { validPlanningDate, validPlanningMonth } from "./planning-dates.ts";
 import {
   warningSettingsSchema,
   warningProgressStates,
@@ -64,6 +64,11 @@ export const scenarioWarningSchema = z
             at: z.string().max(40),
             byId: z.string().max(120),
             byName: z.string().max(200),
+            responsible: z.string().trim().min(1).max(200).optional(),
+            targetDate: z
+              .string()
+              .refine(validPlanningDate, "Geçersiz hedef tarih.")
+              .optional(),
           })
           .strict(),
       )

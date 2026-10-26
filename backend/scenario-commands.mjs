@@ -66,8 +66,6 @@ export function stageScenarioChange(
   const from = existing?.status || "draft";
   if (!existing && next.status !== "draft")
     fail(400, "Yeni senaryo taslak olarak kaydedilir.");
-  if (!existing && duplicateScenario(next, d.scheduleScenarios))
-    fail(409, DUPLICATE_SCENARIO_MESSAGE);
   if (!transitions[from].includes(next.status))
     fail(409, "Senaryo bu duruma geçirilemez.");
   if (next.status !== from && !admin)
@@ -76,6 +74,11 @@ export function stageScenarioChange(
     fail(403, "Yalnız kendi senaryonuzu düzenleyebilirsiniz.");
   if (existing && from !== "draft" && content(next) !== content(existing))
     fail(409, "Onaylanmış senaryonun içeriği değiştirilemez.");
+  if (
+    (!existing || content(next) !== content(existing)) &&
+    duplicateScenario(next, d.scheduleScenarios)
+  )
+    fail(409, DUPLICATE_SCENARIO_MESSAGE);
   if (next.status === "applied" && from !== "applied" && !next.undo)
     fail(400, "Takvime aktarma geri alma bilgisi olmadan kaydedilemez.");
 

@@ -68,3 +68,52 @@ test("the server refuses to add a repeated scenario", () => {
     new RegExp(DUPLICATE_SCENARIO_MESSAGE),
   );
 });
+
+test("editing a draft excludes itself but cannot reuse another scenario's name or shifts", () => {
+  const original = scenario("a", "Senaryo A", 3);
+  const other = scenario("b", "Senaryo B", 5);
+  const user = { _id: "u", role: "admin", name: "U" };
+  for (const value of [
+    scenario("a", "Senaryo B", 4),
+    scenario("a", "Different name", 5),
+  ]) {
+    const data = {
+      projects: [{ id: "p" }],
+      revisions: {},
+      scheduleScenarios: structuredClone([original, other]),
+    };
+    assert.throws(
+      () =>
+        stageScenarioChange(
+          data,
+          user,
+          { id: "a", value },
+          data.scheduleScenarios[0],
+          () => true,
+        ),
+      new RegExp(DUPLICATE_SCENARIO_MESSAGE),
+    );
+    assert.deepEqual(data.scheduleScenarios, [original, other]);
+  }
+  const data = {
+    projects: [{ id: "p" }],
+    revisions: {},
+    scheduleScenarios: structuredClone([original, other]),
+  };
+  stageScenarioChange(
+    data,
+    user,
+    { id: "a", value: scenario("a", "Updated A", 4) },
+    data.scheduleScenarios[0],
+    () => true,
+  );
+  assert.equal(data.scheduleScenarios.length, 2);
+  assert.equal(
+    data.scheduleScenarios.find((item) => item.id === "a").name,
+    "Updated A",
+  );
+  assert.equal(
+    data.scheduleScenarios.find((item) => item.id === "a").createdAt,
+    original.createdAt,
+  );
+});

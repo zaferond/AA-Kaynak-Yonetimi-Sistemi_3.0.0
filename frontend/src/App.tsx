@@ -67,9 +67,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import { mergeNewerActuals } from "./features/actual-allocation/merge-actual-view";
 import type { ProgressView } from "./features/project-progress/ProjectProgressPanel";
 import { useActualLayout } from "./features/actual-allocation/useActualLayout";
-import ProgressBadge, {
-  progressBadgeIndex,
-} from "./features/project-progress/ProgressBadge";
+import { progressBadgeIndex } from "./features/project-progress/ProgressBadge";
 import ProjectResponsible from "./ProjectResponsible";
 import ProjectTimelinePanel from "./features/ProjectTimelinePanel";
 import ResourcesPanel from "./features/ResourcesPanel";
@@ -227,17 +225,11 @@ export default function Portal() {
     const handle = window.setTimeout(() => void preloadPanels(), 300);
     return () => window.clearTimeout(handle);
   }, []);
-  // Read-only scenario status remains visible in critical topics.
   const progressBadges = useMemo(
     () =>
       data && (isAdmin || isManager) ? progressBadgeIndex(data) : new Map(),
     [data, isAdmin, isManager],
   );
-  const progressBadge = progressBadges.size
-    ? (projectId: string) => (
-        <ProgressBadge badge={progressBadges.get(projectId)} />
-      )
-    : undefined;
   const {
     leads,
     setLeads,
@@ -836,7 +828,7 @@ export default function Portal() {
               {tab !== "home" &&
                 tab !== "resources" &&
                 tab !== "progress" &&
-                !(tab === "projects" && projectView === "scenario") &&
+                !(tab === "projects" && projectView !== "projects") &&
                 workspaceFilters}
               {(isAdmin || isManager) && tab === "plan" && (
                 <TabsContent value="plan">
@@ -891,8 +883,9 @@ export default function Portal() {
               )}
               {tab === "projects" && (
                 <TabsContent value="projects">
-                  {projectView === "scenario" && (isAdmin || isManager) ? (
+                  {projectView !== "projects" && (isAdmin || isManager) ? (
                     <ScheduleScenarioDialog
+                      historyOnly={projectView === "scenarioHistory"}
                       embedded
                       open
                       onClose={() => setProjectView("projects")}
@@ -1168,7 +1161,6 @@ export default function Portal() {
                     canEdit={canEditCriticalTopics}
                     onSave={(project) => save("project", project.id, project)}
                     onOpenProjects={() => changeTab("projects")}
-                    progressBadge={progressBadge}
                     onAddInfo={(project) => openMilestone(project)}
                     onEditInfo={(project, infoId) => {
                       const milestone = project.milestones?.find(
@@ -1324,7 +1316,7 @@ export default function Portal() {
       </Dialog>
       {data &&
         (isAdmin || user?.role === "manager") &&
-        !(tab === "projects" && projectView === "scenario") && (
+        !(tab === "projects" && projectView !== "projects") && (
           <ScheduleScenarioDialog
             open={scenarioOpen}
             onClose={() => setScenarioOpen(false)}

@@ -25,30 +25,60 @@ test("senaryo tablosu dokuz benzersiz kural içerir ve her birleşim en fazla bi
 
 test("matris eşleşmeleri istenen kodları ve aynen verilen aksiyonları korur", () => {
   const cases = [
-    ["behind", "unplanned", "S-01", "Kaynak Planlama Durumu Değerlendirilmeli"],
+    [
+      "behind",
+      "unplanned",
+      "S-01",
+      "Yakın dönem kaynak planı ve gecikmenin nedenleri birlikte değerlendirilmeli.",
+    ],
     [
       "behind",
       "insufficient",
       "S-02",
-      "Ek kaynak gerekli veya bitiş tarihi revize edilmeli",
+      "Ek kaynak ihtiyacı ve takvim revizyonu seçenekleri proje sorumlusuyla değerlendirilmeli.",
     ],
     [
       "behind",
       "sufficient",
       "S-03",
-      "Kaynak var ama ilerleme yok, verimlilik/engel analizi yapılmalı",
+      "Kaynak planı mevcut; iş engelleri, bağımlılıklar ve gerçekleşen verileri incelenmeli.",
     ],
-    ["behind", "excess", "S-04", "Kaynak dağılımı öne çekilmeli"],
-    ["onTrack", "unplanned", "S-05", "Gelecek ay kaynak planı eksik"],
+    [
+      "behind",
+      "excess",
+      "S-04",
+      "Gecikmenin nedenleri ve kaynakların zaman içindeki dağılımı incelenmeli.",
+    ],
+    [
+      "onTrack",
+      "unplanned",
+      "S-05",
+      "Yakın dönem iş devamlılığı için kaynak planının tamamlanması değerlendirilmeli.",
+    ],
     [
       "onTrack",
       "insufficient",
       "S-06",
-      "Mevcut kaynakla hedefe ulaşılamayacak, risk",
+      "Kalan iş ve kaynak varsayımları doğrulanmalı; kaynak veya takvim revizyonu ihtiyacı değerlendirilmeli.",
     ],
-    ["onTrack", "excess", "S-07", "Fazla kaynak başka projeye aktarılabilir"],
-    ["ahead", "excess", "S-08", "Kaynak serbest bırakılabilir"],
-    ["ahead", "insufficient", "S-09", "Bilgi amaçlı, plan güncellenebilir"],
+    [
+      "onTrack",
+      "excess",
+      "S-07",
+      "İş sürekliliği ve proje riskleri incelendikten sonra kaynak dengeleme seçenekleri değerlendirilmeli.",
+    ],
+    [
+      "ahead",
+      "excess",
+      "S-08",
+      "Kalan işler ve proje riskleri doğrulandıktan sonra kaynak dengeleme seçenekleri değerlendirilmeli.",
+    ],
+    [
+      "ahead",
+      "insufficient",
+      "S-09",
+      "İlerleme avantajının korunması için kalan iş ve gelecek kaynak ihtiyacı gözden geçirilmeli.",
+    ],
   ];
   for (const [progress, resource, code, action] of cases) {
     const rule = matchWarningRule(progress, resource);

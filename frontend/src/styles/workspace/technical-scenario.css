@@ -1,5 +1,5 @@
 /* Technical theme for Proje Takvimi Güncelle. Each scenario is one full-width
-   row: its name and actions on the left, the shifted projects on the right.
+   card: actions and scenario name above the shifted projects.
    The comparison grows with its content; only the month tables scroll
    sideways, so no table is cut at the bottom. */
 html[data-theme="technical"]
@@ -10,18 +10,21 @@ html[data-theme="technical"]
 }
 html[data-theme="technical"] .schedule-scenario-card {
   display: grid;
-  gap: 6px;
-  padding: 8px 12px;
+  grid-template-columns: 205px 112px minmax(0, 1fr) 24px;
+  gap: 10px;
+  padding: 12px 14px;
   border: 1px solid var(--tbl-frame);
   border-left: 3px solid var(--brand-primary);
   border-radius: 6px;
   background: #fff;
 }
-/* Proje · Ay · Başlangıç Ayı · Senaryo · actions on one line; extra
-   projects repeat the first three fields under it. */
+html[data-theme="technical"] .schedule-scenario-card > * {
+  grid-column: 1 / -1;
+}
+/* Project lines share columns; scenario actions and name sit above them. */
 html[data-theme="technical"] .schedule-shift-row {
-  /* Fixed tracks keep every project line aligned under the first one. */
-  grid-template-columns: minmax(200px, 1fr) 110px 190px 230px auto;
+  /* All project lines share the card's tracks, including the remove control. */
+  grid-template-columns: subgrid;
   align-items: center;
   gap: 6px 16px;
 }
@@ -60,6 +63,7 @@ html[data-theme="technical"] .schedule-card-buttons .button {
   padding: 0 10px;
 }
 html[data-theme="technical"] .schedule-shift-remove {
+  grid-column: 4;
   justify-self: start;
 }
 html[data-theme="technical"] .schedule-scenario-card .icon-button {
@@ -91,8 +95,11 @@ html[data-theme="technical"] .schedule-scenario-card > .negative {
   margin: 0;
 }
 @media (max-width: 1100px) {
-  html[data-theme="technical"] .schedule-shift-row {
+  html[data-theme="technical"] .schedule-scenario-card {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  html[data-theme="technical"] .schedule-shift-remove {
+    grid-column: auto;
   }
 }
 html[data-theme="technical"] .schedule-scenario-add {
@@ -205,4 +212,398 @@ html[data-theme="technical"]
   > .schedule-card-duplicate {
   font-size: var(--fs-xs);
   font-weight: 600;
+}
+
+html[data-theme="technical"] .schedule-card-action-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px 16px;
+  padding-top: 4px;
+}
+html[data-theme="technical"] .schedule-card-action-row .schedule-field-name {
+  grid-column: 2 / span 2;
+  width: 100%;
+  max-width: 400px;
+}
+html[data-theme="technical"] .schedule-card-action-row .schedule-card-buttons {
+  grid-column: 1;
+}
+html[data-theme="technical"]
+  .schedule-card-action-row
+  .schedule-field-name
+  input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--btn-border);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--brand-text);
+}
+html[data-theme]
+  :is(.app, .schedule-scenario-dialog)
+  .schedule-card-options
+  .schedule-project-add.button.button.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #bdd0e1;
+  border-radius: 8px;
+  background: #edf4fb;
+  color: #315f82;
+  font-weight: 650;
+}
+html[data-theme]
+  :is(.app, .schedule-scenario-dialog)
+  .schedule-card-options
+  .schedule-project-add.button.button.button:hover:not(:disabled) {
+  border-color: #8faec8;
+  background: #dfecf7;
+  color: #244e70;
+}
+@media (pointer: coarse) {
+  html[data-theme]
+    :is(.app, .schedule-scenario-dialog)
+    .schedule-card-options
+    .schedule-project-add.button.button.button {
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+html[data-theme="technical"] .schedule-shift-row .schedule-timeline-option {
+  grid-column: 4;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+html[data-theme="technical"]
+  .schedule-shift-row
+  .schedule-timeline-option
+  input {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  min-height: 15px;
+  padding: 0;
+}
+html[data-theme="technical"] .schedule-field-from .date-field {
+  min-width: 120px;
+}
+@media (max-width: 1100px) {
+  html[data-theme="technical"] .schedule-shift-row .schedule-timeline-option {
+    grid-column: auto;
+  }
+}
+@media (max-width: 640px) {
+  html[data-theme="technical"] .schedule-scenario-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  html[data-theme="technical"] .schedule-card-action-row .schedule-field-name {
+    grid-column: 2;
+    max-width: 100%;
+  }
+}
+@media (max-width: 640px) {
+  html[data-theme="technical"] .schedule-card-action-row .schedule-field-name {
+    grid-column: 1;
+  }
+}
+html[data-theme="technical"] .schedule-scenario-card[data-editing] {
+  border-color: #8faec8;
+}
+html[data-theme="technical"] .schedule-editing-label {
+  color: #527895;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+}
+
+/* Keep entry and saved records side by side; reports keep the full width. */
+html[data-theme="technical"] .schedule-scenario-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  > :is(.schedule-scenario-cards, .saved-scenarios) {
+  min-width: 0;
+  min-height: 0;
+  max-height: min(38dvh, 360px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 10px;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 10px;
+  background: #fff;
+}
+html[data-theme="technical"] .schedule-scenario-top .schedule-section-title {
+  margin: 0 0 2px;
+}
+html[data-theme="technical"] .schedule-scenario-top .saved-scenarios-head {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+html[data-theme="technical"] .schedule-scenario-top .saved-scenarios ul {
+  max-height: none;
+  overflow: visible;
+}
+html[data-theme="technical"] .schedule-scenario-top .saved-scenarios li {
+  padding: 10px;
+  gap: 8px;
+}
+html[data-theme="technical"] .schedule-scenario-top .saved-scenario-main {
+  flex: 1 1 100%;
+}
+html[data-theme="technical"] .schedule-scenario-top .saved-scenario-actions {
+  width: 100%;
+  flex-wrap: wrap;
+}
+html[data-theme="technical"]
+  .schedule-scenario-card
+  > .schedule-timeline-option {
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+@media (min-width: 1280px) {
+  html[data-theme="technical"] .schedule-scenario-top .schedule-scenario-card {
+    grid-template-columns: 205px 112px minmax(0, 1fr) 24px;
+    padding: 10px;
+  }
+  html[data-theme="technical"] .schedule-scenario-top .schedule-shift-row,
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-action-row {
+    column-gap: 10px;
+  }
+}
+@media (max-width: 1279px) {
+  html[data-theme="technical"] .schedule-scenario-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    > :is(.schedule-scenario-cards, .saved-scenarios) {
+    max-height: none;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+}
+/* Saved records have a stable viewport; only the record list scrolls. */
+html[data-theme="technical"]
+  .schedule-scenario-top
+  > .saved-scenarios.saved-scenarios {
+  height: var(--scenario-pane-height);
+  max-height: var(--scenario-pane-height);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+html[data-theme="technical"] .schedule-scenario-top > .saved-scenarios > ul {
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 3px;
+  align-content: start;
+}
+@media (min-width: 1280px) {
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    > .schedule-scenario-cards {
+    max-height: var(--scenario-pane-height);
+  }
+}
+/* One compact action line in the entry pane, including the scenario name. */
+html[data-theme="technical"] .schedule-scenario-top .schedule-card-action-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+  --btn-h: 28px;
+  --btn-px: 8px;
+  --btn-fs: var(--fs-xs);
+}
+html[data-theme="technical"] .schedule-scenario-top .schedule-card-buttons {
+  flex: none;
+  flex-wrap: nowrap;
+  gap: 5px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .schedule-card-action-row
+  .schedule-field-name {
+  flex: 1 0 160px;
+  width: auto;
+  max-width: none;
+  min-width: 160px;
+  gap: 6px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .schedule-card-action-row
+  .schedule-field-name
+  input {
+  height: 28px;
+  min-height: 28px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .schedule-card-buttons
+  .button {
+  min-height: 28px;
+  padding-inline: 8px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .schedule-card-buttons
+  .flow-button.flow-button.flow-button {
+  padding: 4px 5px 4px 10px;
+  min-height: 28px;
+  gap: 5px;
+}
+
+@media (min-width: 1280px) {
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-shift-row
+    .schedule-field {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+html[data-theme="technical"] .schedule-scenario-top {
+  --scenario-pane-height: min(46dvh, 440px);
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  > .schedule-scenario-cards.schedule-scenario-cards {
+  height: var(--scenario-pane-height);
+  max-height: var(--scenario-pane-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  scrollbar-gutter: stable;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  > .saved-scenarios:not(:has(.scenario-bulk-actions)) {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  > .saved-scenarios:has(.scenario-bulk-actions) {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.scenario-bulk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #dce6ef;
+}
+.scenario-bulk-actions label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-xs);
+  color: #527895;
+}
+.scenario-bulk-actions input,
+.scenario-row-select {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  accent-color: #315f82;
+}
+.scenario-row-select {
+  align-self: flex-start;
+  margin: 3px 0 0;
+}
+html[data-theme="technical"] .schedule-scenario-top.scenario-history-view {
+  grid-template-columns: minmax(0, 1fr);
+}
+html[data-theme="technical"]
+  .scenario-history-view
+  > .saved-scenarios.saved-scenarios {
+  height: min(70dvh, 700px);
+  max-height: min(70dvh, 700px);
+}
+html[data-theme="technical"] .scenario-history-view .saved-scenario-main {
+  flex: 1 1 400px;
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .saved-scenarios
+  li:has(> .scenario-row-select) {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+}
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .saved-scenarios
+  li:has(> .scenario-row-select)
+  > .saved-scenario-main,
+html[data-theme="technical"]
+  .schedule-scenario-top
+  .saved-scenarios
+  li:has(> .scenario-row-select)
+  > .saved-scenario-actions {
+  grid-column: 2;
+}
+
+/* Compact inline label/control pairs: month, duration, then project. */
+html[data-theme="technical"]
+  .schedule-shift-row
+  .schedule-field-from
+  .date-field {
+  flex: 0 0 120px;
+  width: 120px;
+  min-width: 120px;
+}
+html[data-theme="technical"] .schedule-shift-row .schedule-field-months input {
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 0;
+  padding-inline: 5px;
+}
+html[data-theme="technical"]
+  .schedule-shift-row
+  .schedule-field-project
+  select {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 1101px) {
+  html[data-theme="technical"]
+    .schedule-shift-row:not(:has(.schedule-shift-remove))
+    .schedule-field-project {
+    grid-column: 3 / -1;
+  }
 }

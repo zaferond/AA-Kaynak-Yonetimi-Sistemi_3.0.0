@@ -7,9 +7,9 @@ export async function checkScenarioSessionIsolation(f) {
   const open = async () => {
     await selectWorkspaceTab(page, "Projeler");
     await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
-    await page.getByLabel("Senaryo adı", { exact: true }).first().waitFor();
+    await page.getByLabel("Senaryo İsmi", { exact: true }).first().waitFor();
   };
-  const name = () => page.getByLabel("Senaryo adı", { exact: true }).first();
+  const name = () => page.getByLabel("Senaryo İsmi", { exact: true }).first();
   const switchTo = async (id) => {
     await page.getByRole("button", { name: "Çıkış", exact: true }).click();
     await loginUI(page, id, f.password);
@@ -48,10 +48,7 @@ export async function checkScenarioSessionIsolation(f) {
           .getByLabel("Proje", { exact: true })
           .first()
           .selectOption("p-a");
-        await page
-          .getByLabel("Kaydırılacak ay", { exact: true })
-          .first()
-          .fill("5");
+        await page.getByLabel("Süre (Ay)", { exact: true }).first().fill("5");
         await f.wait(
           async () =>
             (
@@ -91,7 +88,7 @@ export async function checkScenarioSessionIsolation(f) {
         );
         assert.equal(
           await page
-            .getByLabel("Kaydırılacak ay", { exact: true })
+            .getByLabel("Süre (Ay)", { exact: true })
             .first()
             .inputValue(),
           "5",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Badge, { scenarioStatusTone } from "../../components/Badge";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Data } from "../../model";
@@ -10,6 +10,7 @@ import {
 } from "../../../../shared/schedule-shift.ts";
 
 export type SavedScenarioAction =
+  | "edit"
   | "compare"
   | "uncompare"
   | "approve"
@@ -28,10 +29,12 @@ type Props = {
   busy: boolean;
   onAction: (action: SavedScenarioAction, scenario: SavedScenario) => void;
   onDeleteClosed: () => void;
+  onDeleteSelected: (ids: string[]) => void;
+  historyOnly?: boolean;
 };
 
 const day = (iso?: string) => (iso ? fullDateLabel(iso.slice(0, 10)) : "");
-/** Decision order: what needs attention first, history last. */
+/** Status order for badges and records with the same creation time. */
 const ORDER: ScenarioStatus[] = [
   "draft",
   "approved",
@@ -39,7 +42,6 @@ const ORDER: ScenarioStatus[] = [
   "reverted",
   "closed",
 ];
-const HISTORY: ScenarioStatus[] = ["reverted", "closed"];
 
 /** Saved delay scenarios, right under the cards: status summary, the
  * decision trail and the admin actions. History is hidden until asked for. */
@@ -52,23 +54,58 @@ export default function SavedScenarioList({
   busy,
   onAction,
   onDeleteClosed,
+  onDeleteSelected,
+  historyOnly = false,
 }: Props) {
   const [open, setOpen] = useState(true);
-  const [showHistory, setShowHistory] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const selectable = scenarios.filter(
+    (item) =>
+      ["draft", "approved"].includes(item.status) &&
+      (isAdmin || (item.createdBy === userId && item.status === "draft")),
+  );
+  const selected = selectable.filter((item) => selectedIds.has(item.id));
+  const allSelected =
+    selectable.length > 0 && selected.length === selectable.length;
+  useEffect(() => {
+    setSelectedIds((current) => {
+      const valid = new Set(
+        scenarios
+          .filter(
+            (item) =>
+              ["draft", "approved"].includes(item.status) &&
+              (isAdmin ||
+                (item.createdBy === userId && item.status === "draft")),
+          )
+          .map((item) => item.id),
+      );
+      const next = new Set([...current].filter((id) => valid.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [scenarios, isAdmin, userId]);
+  const listRef = useRef<HTMLUListElement>(null);
+  const knownIds = useRef(new Set(scenarios.map((scenario) => scenario.id)));
+  useEffect(() => {
+    const added = scenarios.some(
+      (scenario) => !knownIds.current.has(scenario.id),
+    );
+    knownIds.current = new Set(scenarios.map((scenario) => scenario.id));
+    if (added) {
+      setOpen(true);
+      requestAnimationFrame(() => listRef.current?.scrollTo({ top: 0 }));
+    }
+  }, [scenarios]);
   const projectName = (id: string) =>
     data.projects.find((p) => p.id === id)?.name || "Silinmiş proje";
   const counts = ORDER.map((status) => ({
     status,
     n: scenarios.filter((s) => s.status === status).length,
   })).filter((c) => c.n);
-  const history = scenarios.filter((s) => HISTORY.includes(s.status));
-  const rows = [...scenarios]
-    .filter((s) => showHistory || !HISTORY.includes(s.status))
-    .sort(
-      (a, b) =>
-        ORDER.indexOf(a.status) - ORDER.indexOf(b.status) ||
-        b.createdAt.localeCompare(a.createdAt),
-    );
+  const rows = [...scenarios].sort(
+    (a, b) =>
+      b.createdAt.localeCompare(a.createdAt) ||
+      ORDER.indexOf(a.status) - ORDER.indexOf(b.status),
+  );
   const button = (
     label: string,
     action: SavedScenarioAction,
@@ -98,7 +135,12 @@ export default function SavedScenarioList({
           ) : (
             <ChevronRight size={16} aria-hidden="true" />
           )}
-          <h3>Kayıtlı Senaryolar ({scenarios.length})</h3>
+          <h3>
+            {historyOnly
+              ? "Onaylanan Takvim Güncellemeleri"
+              : "Kayıtlı Senaryolar"}{" "}
+            ({scenarios.length})
+          </h3>
         </button>
         <span className="saved-scenarios-summary">
           {counts.map(({ status, n }) => (
@@ -111,16 +153,6 @@ export default function SavedScenarioList({
             </Badge>
           ))}
         </span>
-        {open && history.length > 0 && (
-          <label className="saved-scenarios-history">
-            <input
-              type="checkbox"
-              checked={showHistory}
-              onChange={(e) => setShowHistory(e.target.checked)}
-            />
-            Geçmişi göster ({history.length})
-          </label>
-        )}
         {open && isAdmin && scenarios.some((s) => s.status === "closed") && (
           <button
             type="button"
@@ -132,17 +164,68 @@ export default function SavedScenarioList({
           </button>
         )}
       </div>
+      {!historyOnly && open && (
+        <div className="scenario-bulk-actions">
+          <label>
+            <input
+              type="checkbox"
+              aria-label="Tüm silinebilir senaryoları seç"
+              checked={allSelected}
+              disabled={busy || !selectable.length}
+              ref={(node) => {
+                if (node)
+                  node.indeterminate = selected.length > 0 && !allSelected;
+              }}
+              onChange={(e) =>
+                setSelectedIds(
+                  e.target.checked
+                    ? new Set(selectable.map((item) => item.id))
+                    : new Set(),
+                )
+              }
+            />
+            Tümünü Seç
+          </label>
+          <button
+            type="button"
+            className="button deletebutton"
+            disabled={busy || !selected.length}
+            onClick={() => onDeleteSelected(selected.map((item) => item.id))}
+          >
+            Seçilenleri Sil ({selected.length})
+          </button>
+        </div>
+      )}
       {open && (
-        <ul>
+        <ul ref={listRef}>
           {rows.map((s) => {
             const canDelete =
               s.status !== "applied" &&
               (isAdmin ||
                 (s.createdBy === userId &&
                   (s.status === "draft" || s.status === "closed")));
+            const canEdit =
+              s.status === "draft" && (isAdmin || s.createdBy === userId);
             const inComparison = comparedIds.includes(s.id);
             return (
               <li key={s.id} data-scenario-status={s.status}>
+                {!historyOnly && canDelete && (
+                  <input
+                    className="scenario-row-select"
+                    type="checkbox"
+                    aria-label={s.name + " senaryosunu seç"}
+                    checked={selectedIds.has(s.id)}
+                    disabled={busy}
+                    onChange={(e) =>
+                      setSelectedIds((current) => {
+                        const next = new Set(current);
+                        if (e.target.checked) next.add(s.id);
+                        else next.delete(s.id);
+                        return next;
+                      })
+                    }
+                  />
+                )}
                 <div className="saved-scenario-main">
                   <strong>{s.name}</strong>
                   <Badge
@@ -189,6 +272,7 @@ export default function SavedScenarioList({
                   {isAdmin &&
                     s.status === "applied" &&
                     button("Geri Al", "revert", s, "deletebutton")}
+                  {canEdit && button("Düzenle", "edit", s)}
                   {canDelete && button("Sil", "delete", s, "textbutton")}
                 </div>
               </li>
@@ -197,8 +281,10 @@ export default function SavedScenarioList({
           {!rows.length && (
             <li className="saved-scenarios-empty">
               {scenarios.length
-                ? "Açık senaryo yok. Kapatılan ve geri alınanlar için “Geçmişi göster”i işaretleyin."
-                : "Henüz kayıtlı senaryo yok. Senaryo Ekleme bölümünde tanımlayıp “Ekle”ye basın."}
+                ? "Bu bölümde gösterilecek kayıt yok."
+                : historyOnly
+                  ? "Henüz takvime aktarılmış güncelleme yok."
+                  : "Henüz kayıtlı senaryo yok. Senaryo Ekleme bölümünde tanımlayıp “Senaryo Ekle”ye basın."}
             </li>
           )}
         </ul>

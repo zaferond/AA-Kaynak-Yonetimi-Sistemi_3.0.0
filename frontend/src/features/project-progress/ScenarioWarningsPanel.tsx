@@ -1,3 +1,13 @@
+import DateField from "../../components/DateField";
+import {
+  WARNING_PRIORITY_LABELS,
+  warningPriority,
+  warningFinding,
+  warningEvidence,
+  warningRecommendation,
+  pendingAssessmentReason,
+  type WarningPriority,
+} from "../../../../shared/calendar-warning-review.ts";
 import FilterSelect from "../../components/FilterSelect";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import {
@@ -19,10 +29,7 @@ import {
   type WarningLifecycleState,
 } from "../../../../shared/scenario-warning-policy.ts";
 import { monthLabel } from "../../format";
-import {
-  WarningCalculationSummary,
-  ScenarioWarningStatus,
-} from "./ScenarioWarningStatus";
+import { WarningCalculationSummary } from "./ScenarioWarningStatus";
 import Badge, { type BadgeTone } from "../../components/Badge";
 import ReportDownloadButton from "../../components/ReportDownloadButton";
 import ProgressFilters from "./ProgressFilters";
@@ -88,6 +95,14 @@ function WarningTimeline({ history }: { history: WarningEvent[] }) {
                 <time dateTime={event.at}>{dateLabel(event.at)}</time> ·{" "}
                 {event.byName}
               </span>
+              {event.responsible && (
+                <p className="scenario-timeline-note">
+                  Sorumlu: {event.responsible} · Hedef:{" "}
+                  {event.targetDate
+                    ? dayLabel(event.targetDate + "T12:00:00")
+                    : "—"}
+                </p>
+              )}
               {event.explanation && (
                 <p className="scenario-timeline-note">{event.explanation}</p>
               )}
@@ -108,16 +123,24 @@ export default function ScenarioWarningsPanel({
   onSave: (changes: Change[]) => Promise<void>;
 }) {
   const [project, setProject] = useState("");
-  const [status, setStatus] = useState<WarningLifecycleState | "">("");
-  const [sort, setSort] = useState("month-desc");
+  const [status, setStatus] = useState<WarningLifecycleState | "" | "active">(
+    "active",
+  );
+  const [priority, setPriority] = useState<WarningPriority | "">("");
+  const [sort, setSort] = useState("priority");
   const [page, setPage] = useState(0);
   const [editing, setEditing] = useState("");
   const [detail, setDetail] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [responsible, setResponsible] = useState("");
+  const [targetDate, setTargetDate] = useState("");
+  const today = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Istanbul",
+  }).format(new Date());
   const [error, setError] = useState("");
   useEffect(() => {
     setPage(0);
-  }, [project, status, sort]);
+  }, [project, status, priority, sort]);
   const projects = useMemo(
     () => new Map(data.projects.map((p) => [p.id, p])),
     [data.projects],
@@ -128,39 +151,83 @@ export default function ScenarioWarningsPanel({
         .filter(
           (w) =>
             projects.has(w.projectId) &&
+            warningPriority(w.assessment) !== null &&
             (!project || w.projectId === project) &&
-            (!status || w.status === status),
+            (!priority || warningPriority(w.assessment) === priority) &&
+            (status === "active"
+              ? w.status !== "closed"
+              : !status || w.status === status) &&
+            (w.status === "closed" ||
+              !pendingAssessmentReason(
+                data.warningAssessments?.find((a) => a.id === w.projectId) ||
+                  w.assessment,
+                today,
+              )),
         )
         .sort((a, b) => {
           const name = (w: ScenarioWarning) =>
             projects.get(w.projectId)?.name || w.projectId;
           const order =
-            sort === "project"
-              ? name(a).localeCompare(name(b), "tr")
-              : sort === "status"
-                ? WARNING_LIFECYCLE_LABELS[a.status].localeCompare(
-                    WARNING_LIFECYCLE_LABELS[b.status],
-                    "tr",
-                  )
-                : sort === "code"
-                  ? (a.code || "").localeCompare(b.code || "")
-                  : sort === "month-asc"
-                    ? a.month.localeCompare(b.month)
-                    : b.month.localeCompare(a.month);
+            sort === "priority"
+              ? { critical: 0, attention: 1, information: 2 }[
+                  warningPriority(a.assessment)!
+                ] -
+                { critical: 0, attention: 1, information: 2 }[
+                  warningPriority(b.assessment)!
+                ]
+              : sort === "project"
+                ? name(a).localeCompare(name(b), "tr")
+                : sort === "status"
+                  ? WARNING_LIFECYCLE_LABELS[a.status].localeCompare(
+                      WARNING_LIFECYCLE_LABELS[b.status],
+                      "tr",
+                    )
+                  : sort === "code"
+                    ? (a.code || "").localeCompare(b.code || "")
+                    : sort === "month-asc"
+                      ? a.month.localeCompare(b.month)
+                      : b.month.localeCompare(a.month);
           return (
             order ||
             name(a).localeCompare(name(b), "tr") ||
             a.id.localeCompare(b.id)
           );
         }),
-    [data.scenarioWarnings, projects, project, status, sort],
+    [
+      data.scenarioWarnings,
+      data.warningAssessments,
+      projects,
+      project,
+      status,
+      priority,
+      sort,
+      today,
+    ],
   );
+  const pending = data.projects.flatMap((p) => {
+    if ((project && p.id !== project) || p.start > today.slice(0, 7)) return [];
+    const a = data.warningAssessments?.find((item) => item.id === p.id);
+    const reason = a
+      ? pendingAssessmentReason(a, today)
+      : "Henüz kilitli bir değerlendirme yok. Hedef, gerçekleşen ve ay kilidi bilgileri bekleniyor.";
+    return reason ? [{ project: p, assessment: a, reason }] : [];
+  });
+  const recommendation = (w: ScenarioWarning) =>
+    w.assessment.progressState
+      ? warningRecommendation(
+          w.assessment.progressState,
+          w.assessment.resourceState,
+        )
+      : "";
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
   async function update(w: ScenarioWarning, next: "seen" | "acted") {
     setError("");
-    if (next === "acted" && !explanation.trim()) {
-      setError("Aksiyon açıklaması zorunludur.");
+    if (
+      next === "acted" &&
+      (!explanation.trim() || !responsible.trim() || !targetDate)
+    ) {
+      setError("Aksiyon açıklaması, sorumlusu ve hedef tarihi zorunludur.");
       return;
     }
     try {
@@ -172,6 +239,9 @@ export default function ScenarioWarningsPanel({
           value: {
             status: next,
             explanation: next === "acted" ? explanation.trim() : "",
+            ...(next === "acted"
+              ? { responsible: responsible.trim(), targetDate }
+              : {}),
           },
         },
       ]);
@@ -190,12 +260,16 @@ export default function ScenarioWarningsPanel({
     }
   }
   return (
-    <section className="scenario-warnings-panel" aria-label="Senaryo Uyarıları">
+    <section
+      className="scenario-warnings-panel"
+      aria-label="Proje Takvimi Uyarıları"
+    >
       <ProgressFilters
         onReset={() => {
           setProject("");
-          setStatus("");
-          setSort("month-desc");
+          setStatus("active");
+          setPriority("");
+          setSort("priority");
         }}
       >
         <label className="pick progress-project-filter">
@@ -218,8 +292,23 @@ export default function ScenarioWarningsPanel({
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
           >
-            <option value="">Tümü</option>
+            <option value="active">Açık takipler</option>
+            <option value="">Geçmiş dahil tümü</option>
             {Object.entries(WARNING_LIFECYCLE_LABELS).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </FilterSelect>
+        </label>
+        <label className="pick">
+          <span>Öncelik</span>
+          <FilterSelect
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as typeof priority)}
+          >
+            <option value="">Tümü</option>
+            {Object.entries(WARNING_PRIORITY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
               </option>
@@ -229,6 +318,7 @@ export default function ScenarioWarningsPanel({
         <label className="pick">
           <span>Sıralama</span>
           <FilterSelect value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="priority">Öncelik: kritik önce</option>
             <option value="month-desc">Ay: yeniden eskiye</option>
             <option value="month-asc">Ay: eskiden yeniye</option>
             <option value="project">Proje adı</option>
@@ -237,6 +327,32 @@ export default function ScenarioWarningsPanel({
           </FilterSelect>
         </label>
       </ProgressFilters>
+      <p className="calendar-warning-method">
+        Son kilitli ayın hedef–gerçekleşen sapması ve kaynak karşılama tahmini
+        esas alınır. Öneriler proje sorumlusunun değerlendirmesi içindir; bitiş
+        tarihi tahmini değildir.
+      </p>
+      {pending.length > 0 && (
+        <details
+          className="calendar-warning-pending"
+          open={rows.length === 0 ? true : undefined}
+        >
+          <summary>Değerlendirme bekliyor ({pending.length})</summary>
+          <ul>
+            {pending.map(({ project: p, assessment, reason }) => (
+              <li key={p.id}>
+                <strong>{p.name}</strong>
+                <span>
+                  {assessment?.month
+                    ? `Son değerlendirme: ${monthLabel(assessment.month)} · `
+                    : ""}
+                  {reason}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       <div className="progress-toolbar">
         <span className="progress-result-count">{rows.length} uyarı</span>
         <ReportDownloadButton
@@ -259,17 +375,18 @@ export default function ScenarioWarningsPanel({
         <div className="scenario-table-scroll">
           <table
             className="progress-table scenario-warning-table"
-            aria-label="Senaryo uyarı listesi"
+            aria-label="Proje takvimi uyarı listesi"
           >
             <thead>
               <tr>
                 <th>Proje</th>
-                <th>Kod</th>
-                <th>1. Uyarı</th>
-                <th>2. Uyarı / Aksiyon</th>
+                <th>Öncelik</th>
+                <th>Tespit</th>
+                <th>Dayanak</th>
+                <th>Önerilen Aksiyon</th>
                 <th>Ay</th>
                 <th>Durum</th>
-                <th>Aksiyon Açıklaması</th>
+                <th>Aksiyon Takibi</th>
                 <th>İşlem</th>
               </tr>
             </thead>
@@ -280,13 +397,32 @@ export default function ScenarioWarningsPanel({
                   <Fragment key={w.id}>
                     <tr data-warning-id={w.id}>
                       <td>{projects.get(w.projectId)?.name || w.projectId}</td>
-                      <td>{w.code || "—"}</td>
                       <td>
-                        <ScenarioWarningStatus
-                          assessment={{ ...w.assessment, warning2: "" }}
-                        />
+                        <Badge
+                          tone={
+                            warningPriority(w.assessment) === "critical"
+                              ? "danger"
+                              : warningPriority(w.assessment) === "attention"
+                                ? "warning"
+                                : "info"
+                          }
+                          variant="status"
+                        >
+                          {
+                            WARNING_PRIORITY_LABELS[
+                              warningPriority(w.assessment)!
+                            ]
+                          }
+                        </Badge>
                       </td>
-                      <td>{w.warning2 || "—"}</td>
+                      <td>
+                        {warningFinding(w.assessment)}
+                        <small className="calendar-warning-code">
+                          Kural: {w.code || "İlerleme / kaynak değerlendirmesi"}
+                        </small>
+                      </td>
+                      <td>{warningEvidence(w.assessment)}</td>
+                      <td>{recommendation(w) || "—"}</td>
                       <td>{monthLabel(w.month)}</td>
                       <td>
                         <Badge
@@ -305,6 +441,15 @@ export default function ScenarioWarningsPanel({
                               <p title={action.explanation}>
                                 {action.explanation}
                               </p>
+                              <span>
+                                Sorumlu: {action.responsible || "Belirtilmemiş"}
+                              </span>
+                              <span>
+                                Hedef tarih:{" "}
+                                {action.targetDate
+                                  ? dayLabel(action.targetDate + "T12:00:00")
+                                  : "Belirtilmemiş"}
+                              </span>
                               <span>
                                 {action.byName} · {dayLabel(action.at)}
                               </span>
@@ -333,6 +478,8 @@ export default function ScenarioWarningsPanel({
                               onClick={() => {
                                 setEditing(w.id);
                                 setExplanation("");
+                                setResponsible("");
+                                setTargetDate("");
                                 setError("");
                               }}
                             >
@@ -356,7 +503,7 @@ export default function ScenarioWarningsPanel({
                     </tr>
                     {editing === w.id && w.status === "seen" && (
                       <tr className="scenario-expanded-row">
-                        <td colSpan={8}>
+                        <td colSpan={9}>
                           <form
                             className="scenario-action-form"
                             aria-label="Aksiyon girişi"
@@ -373,9 +520,10 @@ export default function ScenarioWarningsPanel({
                                 · {w.code || "—"} · {monthLabel(w.month)}
                               </span>
                             </header>
-                            {w.warning2 && (
+                            {recommendation(w) && (
                               <p className="scenario-action-prompt">
-                                <strong>Beklenen aksiyon:</strong> {w.warning2}
+                                <strong>Önerilen aksiyon:</strong>{" "}
+                                {recommendation(w)}
                               </p>
                             )}
                             <label>
@@ -385,10 +533,34 @@ export default function ScenarioWarningsPanel({
                                 autoFocus
                                 maxLength={ACTION_MAX}
                                 value={explanation}
-                                placeholder="Alınan aksiyonu, sorumluyu ve hedef tarihi yazın…"
+                                placeholder="Kararlaştırılan aksiyonu ve kapsamını yazın…"
                                 onChange={(e) => setExplanation(e.target.value)}
                               />
                             </label>
+                            <div className="calendar-warning-tracking-fields">
+                              <label>
+                                Aksiyon sorumlusu
+                                <input
+                                  required
+                                  maxLength={200}
+                                  value={responsible}
+                                  onChange={(e) =>
+                                    setResponsible(e.target.value)
+                                  }
+                                />
+                              </label>
+                              <label>
+                                Hedef aksiyon tarihi
+                                <DateField
+                                  type="date"
+                                  required
+                                  value={targetDate}
+                                  onChange={(e) =>
+                                    setTargetDate(e.target.value)
+                                  }
+                                />
+                              </label>
+                            </div>
                             <div className="scenario-action-foot">
                               <span className="scenario-action-count">
                                 {explanation.length} / {ACTION_MAX}
@@ -408,7 +580,12 @@ export default function ScenarioWarningsPanel({
                                 <button
                                   className="button primary"
                                   type="submit"
-                                  disabled={saving || !explanation.trim()}
+                                  disabled={
+                                    saving ||
+                                    !explanation.trim() ||
+                                    !responsible.trim() ||
+                                    !targetDate
+                                  }
                                 >
                                   Aksiyon Alındı
                                 </button>
@@ -420,7 +597,7 @@ export default function ScenarioWarningsPanel({
                     )}
                     {detail === w.id && (
                       <tr className="scenario-expanded-row">
-                        <td colSpan={8}>
+                        <td colSpan={9}>
                           <div className="scenario-expanded-details">
                             <section className="scenario-detail-card">
                               <WarningCalculationSummary
@@ -442,22 +619,23 @@ export default function ScenarioWarningsPanel({
         </div>
       ) : (
         <EmptyState
-          title="Senaryo uyarısı yok"
+          title="Takip gerektiren uyarı yok"
           action={
-            project || status
+            project || status !== "active" || priority
               ? {
                   label: "Filtreleri Sıfırla",
                   onClick: () => {
                     setProject("");
-                    setStatus("");
+                    setStatus("active");
+                    setPriority("");
                   },
                 }
               : undefined
           }
         >
-          {project || status
+          {project || status !== "active" || priority
             ? "Seçili filtrelere uyan uyarı bulunamadı."
-            : "Uyarılar bir ay kilitlendiğinde oluşur; henüz uyarı yok."}
+            : "Değerlendirilebilen projelerde seçili kapsam için takip gerektiren bir durum bulunmuyor. Eksik veya güncel olmayan kayıtlar değerlendirme bekleyenler bölümündedir."}
         </EmptyState>
       )}
       {pageCount > 1 && (

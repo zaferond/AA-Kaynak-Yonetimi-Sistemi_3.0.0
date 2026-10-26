@@ -1,3 +1,7 @@
+import { checkCalendarWarningReview } from "./browser-checks/calendar-warning-review.mjs";
+import { checkScenarioBulk } from "./browser-checks/scenario-bulk.mjs";
+import { checkScenarioLayout } from "./browser-checks/scenario-layout.mjs";
+import { checkScenarioEditing } from "./browser-checks/scenario-editing.mjs";
 import { checkTopicEditor } from "./browser-checks/topic-editor.mjs";
 import { checkGanttPresentation } from "./browser-checks/gantt-presentation.mjs";
 import { checkDatePickers } from "./browser-checks/date-pickers.mjs";
@@ -82,6 +86,10 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkCalendarWarningReview,
+  checkScenarioBulk,
+  checkScenarioLayout,
+  checkScenarioEditing,
   checkTopicEditor,
   checkGanttPresentation,
   checkDatePickers,

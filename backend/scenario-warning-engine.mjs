@@ -1,3 +1,4 @@
+import { warningPriority } from "../shared/calendar-warning-review.ts";
 import { assessProjectWarning } from "../shared/scenario-warnings.ts";
 import {
   warningAssessmentSchema,
@@ -115,7 +116,7 @@ export function synchronizeScenarioWarnings(data, now = new Date()) {
   if (changed) data.warningAssessments = assessments;
   const active = new Map(
     assessments
-      .filter((a) => a.status === "ready" && a.month)
+      .filter((a) => warningPriority(a) && a.month)
       .map((a) => {
         const ruleKey = a.code || "P-" + a.progressState;
         return [
@@ -137,8 +138,8 @@ export function synchronizeScenarioWarnings(data, now = new Date()) {
           automaticEvent(
             "closed",
             current
-              ? "Senaryo veya değerlendirme ayı değişti."
-              : "Proje tamamlandı veya değerlendirme koşulları artık sağlanmıyor.",
+              ? "Uyarı koşulu veya değerlendirme ayı değişti."
+              : "Proje tamamlandı veya takip gerektiren değerlendirme koşulu artık sağlanmıyor.",
             at,
           ),
         ],

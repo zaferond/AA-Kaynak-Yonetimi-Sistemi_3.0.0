@@ -25,7 +25,7 @@ import { downloadProjectInfoReport } from "./project-info-report-export";
 import ProjectInfoTopicDialog, {
   type TopicEdit,
 } from "./ProjectInfoTopicDialog";
-import TopicWeeks from "./ProjectInfoWeeks";
+import TopicWeeks, { TopicWeekLegend } from "./ProjectInfoWeeks";
 import {
   TOPIC_FILTERS,
   filterReportGroups,
@@ -67,7 +67,6 @@ type Props = {
   onAddInfo: (project: Project) => void;
   onEditInfo: (project: Project, infoId: string) => void;
   onOpenProjects?: () => void;
-  progressBadge?: (projectId: string) => React.ReactNode;
 };
 
 export default function ProjectInfoReport({
@@ -77,7 +76,6 @@ export default function ProjectInfoReport({
   onAddInfo,
   onEditInfo,
   onOpenProjects,
-  progressBadge,
 }: Props) {
   const [editing, setEditing] = useState<Editing | null>(null);
   const [busy, setBusy] = useState(false);
@@ -346,6 +344,7 @@ export default function ProjectInfoReport({
               </FilterSelect>
             </label>
           </div>
+          <TopicWeekLegend />
         </div>
       )}
       {groups.length && !visibleGroups.length ? (
@@ -369,10 +368,6 @@ export default function ProjectInfoReport({
         <div className="project-info-groups">
           {visibleGroups.map((project) => {
             const source = projects.find((item) => item.id === project.id);
-            const projectTopicCount = project.infos.reduce(
-              (count, info) => count + info.topics.length,
-              0,
-            );
             const projectStatuses = project.infos.flatMap((info) =>
               info.topics.map((topic) => topicStatus(topic, today)),
             );
@@ -401,12 +396,7 @@ export default function ProjectInfoReport({
                         )}
                         {project.name}
                       </button>
-                      {progressBadge?.(project.id)}
                     </h3>
-                    <small>
-                      {project.infos.length} kritik konu · {projectTopicCount}{" "}
-                      detay konu
-                    </small>
                   </div>
                   <span className="project-info-project-status">
                     {late > 0 && (
@@ -441,9 +431,6 @@ export default function ProjectInfoReport({
                             {String(info.index + 1).padStart(2, "0")}
                           </span>
                           <h4>{info.name}</h4>
-                          <span className="project-info-entry-count">
-                            {info.topics.length} detay konu
-                          </span>
                         </div>
                         {canEdit && source && (
                           <button
@@ -478,7 +465,7 @@ export default function ProjectInfoReport({
                                       {dateLabel(topic.end)}
                                     </small>
                                     <TopicWeeks
-                                      weeks={topicWeeks(topic)}
+                                      weeks={topicWeeks(topic, today)}
                                       thisWeek={thisWeek}
                                       selected={weekKeys}
                                     />
