@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { openScenarioEntry, selectWorkspaceTab } from "./fixture.mjs";
 
 async function openScenario(page) {
   await selectWorkspaceTab(page, "Projeler");
   await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
+  await openScenarioEntry(page);
 }
 
 export async function checkScheduleScenario(f) {
@@ -95,6 +96,7 @@ export async function checkScheduleScenario(f) {
           await dialog.locator(".schedule-summary-table thead th").count(),
           3,
         );
+        await openScenarioEntry(page);
         await dialog
           .getByRole("button", {
             name: "Senaryo B senaryosunu ekle",
@@ -105,6 +107,7 @@ export async function checkScheduleScenario(f) {
           .locator(".scenario-message")
           .filter({ hasText: "“Senaryo B” eklendi." })
           .waitFor();
+        await openScenarioEntry(page);
         const beforeDraftEdit = await dialog
           .locator(".schedule-summary-table")
           .innerText();
@@ -211,6 +214,7 @@ export async function checkScheduleScenario(f) {
     await f.check(
       "scenario: pulling a project into months before the start month is refused",
       async () => {
+        await openScenarioEntry(page);
         const dialog = page.locator(
           ".schedule-scenario-dialog, .schedule-scenario-page",
         );

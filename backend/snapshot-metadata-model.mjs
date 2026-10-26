@@ -54,6 +54,7 @@ export async function readSnapshotMetadata(c, { batch = false, report } = {}) {
       : {}),
     responsibleName: r.responsible_name || "",
     ...(r.project_code ? { code: r.project_code } : {}),
+    ...(r.completed ? { completed: true } : {}),
     start: r.start_month,
     end: r.end_month,
     phases: {},

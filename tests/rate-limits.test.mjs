@@ -160,6 +160,7 @@ test("database migration 29 preserves model/history, runs once and enforces nonn
     await c.upsert("projects", [
       {
         id: "preserved",
+        completed: 0,
         name: "Türkçe proje",
         responsible_name: "Test",
         start_month: "2026-01",

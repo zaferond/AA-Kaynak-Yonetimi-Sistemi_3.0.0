@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 import { selectWorkspaceTab } from "./fixture.mjs";
 
-export async function checkCalendarWarningReview(f) {
+export async function seedCalendarWarningReview(f) {
   const cases = [
     ["normal", 50],
     ["critical", 20],
@@ -91,6 +91,10 @@ export async function checkCalendarWarningReview(f) {
       },
     ]),
   );
+}
+
+export async function checkCalendarWarningReview(f) {
+  await seedCalendarWarningReview(f);
   const { page, context } = await f.client("root-admin");
   const open = async () => {
     await selectWorkspaceTab(page, "Proje ve Kaynak Değerlendirme");

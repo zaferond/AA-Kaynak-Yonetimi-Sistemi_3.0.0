@@ -198,9 +198,9 @@ export async function checkProjectProgress(f) {
         // Opening 0 %, the remainder follows the planned resource (1 + 1).
         assert.equal(await target("Kas 2026").inputValue(), "66,7");
         assert.equal(await target("Ara 2026").inputValue(), "100");
-        // Editing October above November rebuilds the remaining curve and preview.
+        // Fix October and rebuild the suggested curve on both sides.
         await target("Eki 2026").fill("80");
-        assert.equal(await target("Eyl 2026").inputValue(), "33,3");
+        assert.equal(await target("Eyl 2026").inputValue(), "80");
         assert.equal(await target("Eki 2026").inputValue(), "80");
         assert.equal(await target("Kas 2026").inputValue(), "90");
         assert.equal(await target("Ara 2026").inputValue(), "100");
@@ -246,9 +246,14 @@ export async function checkProjectProgress(f) {
         assert.equal(await target("Kas 2026").inputValue(), "100");
         assert.equal(await target("Ara 2026").inputValue(), "");
         await target("Kas 2026").fill("50");
-        // A falling curve cannot be submitted.
+        // Rebalancing earlier months preserves the edited final value, but the plan must still complete.
         await target("Ara 2026").fill("40");
-        await card.getByText(/önceki hedeften küçük olamaz/).waitFor();
+        assert.equal(await target("Kas 2026").inputValue(), "20");
+        await card
+          .getByText("Hedef en geç bitiş ayında %100'e ulaşmalı.", {
+            exact: true,
+          })
+          .waitFor();
         const submit = card.getByRole("button", {
           name: "Hedef Planı Onaya Gönder",
         });
@@ -617,6 +622,7 @@ export async function checkProjectProgress(f) {
         );
         await actualField.fill("60");
         await noteField.fill("Kaydedilmemiş aylık revizyon");
+        page.once("dialog", (dialog) => dialog.accept());
         await entryFilter.selectOption("");
         await selectProgressMonth(page, "2026-10");
         await f.wait(

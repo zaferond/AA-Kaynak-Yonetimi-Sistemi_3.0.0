@@ -332,3 +332,42 @@ test("HTTP refuses a second concurrent write from the same user without queueing
   // Once the first write has finished the user may write again.
   assert.equal((await f.request("/changes", f.project("third"))).status, 200);
 });
+
+test("running session activity retains its admission lease after client disconnect until the write ends", async (t) => {
+  const f = await fixture(t, { activeLimit: 1, pendingLimit: 0, bodyMs: 1000 });
+  const before = (await f.store.read()).generation;
+  const original = f.store.touchSession.bind(f.store),
+    held = deferred();
+  let active = 0,
+    maxActive = 0;
+
+  f.store.touchSession = async (id) => {
+    active++;
+    maxActive = Math.max(maxActive, active);
+    await held.promise;
+    try {
+      return await original(id);
+    } finally {
+      active--;
+    }
+  };
+  try {
+    const controller = new AbortController();
+    const first = f
+      .request("/auth/activity", {}, { signal: controller.signal })
+      .catch(() => ({ status: "aborted" }));
+    await wait(() => active === 1);
+    controller.abort();
+    await first;
+    await delay(80);
+    assert.equal(f.gate.counts.active, 1);
+    assert.equal((await f.request("/auth/activity", {})).status, 503);
+    assert.equal(maxActive, 1);
+    held.resolve();
+    await wait(() => f.gate.counts.active === 0);
+    assert.equal((await f.request("/auth/activity", {})).status, 200);
+    assert.equal((await f.store.read()).generation, before);
+  } finally {
+    held.resolve();
+  }
+});

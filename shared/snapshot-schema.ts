@@ -110,6 +110,7 @@ const projectAccess = z
   })
   .strict();
 const proj = z.object({
+  completed: z.boolean().optional(),
   id: z.string().min(1),
   name: z.string().trim().min(1).max(200),
   sortOrder: z.number().int().min(0).max(1000000000).optional(),

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { openScenarioEntry, selectWorkspaceTab } from "./fixture.mjs";
 
 export async function checkScenarioLayout(f) {
   await f.store.mutate(f.actor, (d, u) =>
@@ -28,6 +28,7 @@ export async function checkScenarioLayout(f) {
   try {
     await selectWorkspaceTab(page, "Projeler");
     await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
+    await openScenarioEntry(page);
     const top = page.locator(".schedule-scenario-top"),
       left = top.locator(".schedule-scenario-cards"),
       right = top.locator(".saved-scenarios"),
@@ -131,6 +132,7 @@ export async function checkScenarioLayout(f) {
     await f.check(
       "scenario layout: narrow screens stack both panes and keep every action on the same scrollable line",
       async () => {
+        await openScenarioEntry(page);
         await page.setViewportSize({ width: 390, height: 844 });
         await f.wait(async () => {
           const l = await left.boundingBox(),

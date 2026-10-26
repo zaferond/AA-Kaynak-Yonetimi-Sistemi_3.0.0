@@ -62,8 +62,10 @@ export default function PlanAndEntry({
   saving,
   onSave,
   onDraftChange,
+  onBeforeFilterChange = () => true,
 }: {
   onDraftChange?: (id: string, dirty: boolean) => void;
+  onBeforeFilterChange?: () => boolean;
   ctx: ProgressContext;
   actionsHost: HTMLElement | null;
   responsibleFilter: ReactNode;
@@ -95,6 +97,7 @@ export default function PlanAndEntry({
   ];
   const allowedMonths = new Set(months);
   function resetAllFilters() {
+    if (!onBeforeFilterChange()) return;
     setLeader("");
     setPlanFilter("");
     setEntryFilter("");
@@ -226,7 +229,9 @@ export default function PlanAndEntry({
           <span>Liderlik</span>
           <FilterSelect
             value={leader}
-            onChange={(e) => setLeader(e.target.value)}
+            onChange={(e) =>
+              onBeforeFilterChange() && setLeader(e.target.value)
+            }
           >
             <option value="">Tümü</option>
             {leaders.map((name) => (
@@ -241,7 +246,10 @@ export default function PlanAndEntry({
           <span>Hedef Plan</span>
           <FilterSelect
             value={planFilter}
-            onChange={(e) => setPlanFilter(e.target.value as "" | PlanStatus)}
+            onChange={(e) =>
+              onBeforeFilterChange() &&
+              setPlanFilter(e.target.value as "" | PlanStatus)
+            }
           >
             <option value="">Tümü</option>
             {(Object.keys(PLAN_ORDER) as PlanStatus[]).map((status) => (
@@ -255,7 +263,10 @@ export default function PlanAndEntry({
           <span>Gerçekleşen Plan</span>
           <FilterSelect
             value={entryFilter}
-            onChange={(e) => setEntryFilter(e.target.value as "" | EntryStatus)}
+            onChange={(e) =>
+              onBeforeFilterChange() &&
+              setEntryFilter(e.target.value as "" | EntryStatus)
+            }
           >
             <option value="">Tümü</option>
             {(Object.keys(ENTRY_LABELS) as (keyof typeof ENTRY_LABELS)[]).map(
@@ -280,7 +291,7 @@ export default function PlanAndEntry({
           <button
             type="button"
             aria-pressed={!waiting.size}
-            onClick={() => setWaiting(new Set())}
+            onClick={() => onBeforeFilterChange() && setWaiting(new Set())}
           >
             Tümü <span>{items.length}</span>
           </button>
@@ -291,6 +302,7 @@ export default function PlanAndEntry({
               aria-pressed={waiting.has(key)}
               data-waiting={key}
               onClick={() =>
+                onBeforeFilterChange() &&
                 setWaiting((previous) => {
                   const next = new Set(previous);
                   if (next.has(key)) next.delete(key);

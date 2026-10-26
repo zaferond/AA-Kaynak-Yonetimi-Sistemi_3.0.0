@@ -51,6 +51,7 @@ export const tables = {
       start_month: "varchar(7)",
       end_month: "varchar(7)",
       access_restricted: "bit",
+      completed: "bit",
     },
   },
   project_access: {

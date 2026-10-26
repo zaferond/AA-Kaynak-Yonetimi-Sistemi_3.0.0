@@ -1,5 +1,7 @@
 # Son güvenlik, mimari ve frontend incelemesi - 25.10.2026
 
+**Güncel inceleme:** [26.10.2026 güvenlik, mimari, performans ve arayüz raporu](son-guvenlik-mimari-performans-arayuz-incelemesi-2026-10-26.md). Önceki üç bulgu yeniden üretilmiş, üç yeni bulgu eklenmiştir. Aşağıdaki metin 25.10.2026 inceleme kaydıdır.
+
 **Tasarım uygulama güncellemesi:** Kullanıcı onayından sonra Glow menü/sekmeler ve ortak FlowButton yerel uygulamaya eklendi. 1038 otomatik test, biçim/tip/derleme kontrolleri ve hedefli tarayıcı kontrolleri başarılıdır. Kompakt çalışan araç çubuğundaki yükseklik farkı düzeltilip ilgili kontroller yeniden çalıştırıldı. Bu görsel çalışma aşağıdaki üç işlevsel bulgunun düzeltmesi değildir; aşağıdaki inceleme metni tasarım uygulamasından önceki durumun kaydıdır. Filtre satırları da beyaz zemin, kesik çizgili seçim kontrolleri, aramalı açılır listeler ve seçili etiketlerle güncellendi; 27 hedefli filtre tarayıcı kontrolü başarılıdır. Yayında kaynaklarla güncel derleme birlikte alınmalıdır.
 
 ## Kapsam ve sonuç

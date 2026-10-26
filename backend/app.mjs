@@ -11,6 +11,7 @@ import { isResponsibilityConflictCode } from "../shared/resource-roles.ts";
 import { activityQuery } from "./activity-report.mjs";
 import { ReportReadAdmission } from "./report-read-admission.mjs";
 import express from "express";
+import { staticSite } from "./static-site.mjs";
 import { randomUUID } from "node:crypto";
 import {
   assertAdminPassword,
@@ -428,14 +429,17 @@ export function createApp(
       res.json({ user: publicUser(tab ? { ...rest, defaultTab: tab } : rest) });
     }),
   );
-  app.post("/api/auth/activity", async (req, res) => {
-    if (!(await store.touchSession(req.session._id)))
-      fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
-    const session = await store.session(req.session._id);
-    if (!session) fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
-    res.set("X-Session-Idle-Expires-At", String(idleDeadline(session)));
-    res.json({ idleExpiresAt: idleDeadline(session) });
-  });
+  app.post(
+    "/api/auth/activity",
+    admission.handler(async (req, res) => {
+      if (!(await store.touchSession(req.session._id)))
+        fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
+      const session = await store.session(req.session._id);
+      if (!session) fail(401, "Oturum sona erdi. Yeniden giriş yapın.");
+      res.set("X-Session-Idle-Expires-At", String(idleDeadline(session)));
+      res.json({ idleExpiresAt: idleDeadline(session) });
+    }),
+  );
   app.post("/api/auth/logout", async (req, res) => {
     await store.deleteSession(req.session._id);
     res.clearCookie(sessionCookieName, cookieOptions);
@@ -695,19 +699,7 @@ export function createApp(
     path.dirname(fileURLToPath(import.meta.url)),
     "../site",
   );
-  app.use(
-    express.static(site, {
-      index: "index.html",
-      dotfiles: "deny",
-      setHeaders: (res, p) =>
-        res.setHeader(
-          "Cache-Control",
-          p.endsWith(".html")
-            ? "no-cache"
-            : "public, max-age=31536000, immutable",
-        ),
-    }),
-  );
+  app.use(staticSite(site));
   app.use((err, req, res, _next) => {
     admission.releaseUnstarted(req);
     if (res.destroyed) return;

@@ -25,7 +25,8 @@ import type { ActualUnit } from "../actual-units";
 import type { ProgressView } from "./project-progress/ProjectProgressPanel";
 export type WorkspaceDensity = "detail" | "compact" | "overview";
 export type ReportView = "resources" | "headcount";
-export type ProjectView = "projects" | "scenario" | "scenarioHistory";
+export type ProjectView =
+  "projects" | "scenario" | "scenarioHistory" | "completedProjects";
 type Props = {
   sidebarHost: HTMLElement | null;
   menu: WorkspaceMenu;
@@ -183,6 +184,7 @@ export default function WorkspaceNavigation({
             },
           ]
         : []),
+      { value: "completedProjects", label: "Tamamlanan Projeler" },
     ];
     sectionValue = projectView;
     changeSection = (value) => setProjectView(value as ProjectView);
@@ -331,7 +333,10 @@ export default function WorkspaceNavigation({
               "risk",
               "progress",
             ].includes(tab) &&
-            !(tab === "projects" && projectView !== "projects") && (
+            !(
+              tab === "projects" &&
+              ["scenario", "scenarioHistory"].includes(projectView)
+            ) && (
               <div className="workspace-nav-actions">
                 {viewChoice}
                 {tab === "projects" && (

@@ -400,6 +400,19 @@ export default function Portal() {
     secondaryRef: capacityTableRef,
     layoutKey: months.join("|") + ":" + planMonthWidth,
   });
+  const projectWorkspaceData = useMemo(
+    () =>
+      tab === "projects" && viewData
+        ? {
+            ...viewData,
+            projects: viewData.projects.filter(
+              (project) =>
+                !!project.completed === (projectView === "completedProjects"),
+            ),
+          }
+        : viewData,
+    [viewData, tab, projectView],
+  );
   const {
     leaderItems,
     leaderFilterItems,
@@ -421,7 +434,7 @@ export default function Portal() {
     planGroups,
     effectiveProjectPage,
     visiblePlanRows,
-  } = useWorkspaceView(viewData, user, {
+  } = useWorkspaceView(projectWorkspaceData, user, {
     leads,
     teamIds,
     projectIds,
@@ -475,6 +488,7 @@ export default function Portal() {
     visibleProjects: projects,
     active: tab === "projects" && !editor && !phaseDetail,
     selectionKey: JSON.stringify([
+      projectView,
       effectiveProjectPage,
       leads,
       teamIds,
@@ -579,7 +593,7 @@ export default function Portal() {
   const editTeams = data?.teams || [];
   const workspaceFilters = data && (
     <WorkspaceFilters
-      data={viewData || data}
+      data={projectWorkspaceData || data}
       tab={tab}
       leads={leads}
       setLeads={setLeads}
@@ -828,7 +842,10 @@ export default function Portal() {
               {tab !== "home" &&
                 tab !== "resources" &&
                 tab !== "progress" &&
-                !(tab === "projects" && projectView !== "projects") &&
+                !(
+                  tab === "projects" &&
+                  ["scenario", "scenarioHistory"].includes(projectView)
+                ) &&
                 workspaceFilters}
               {(isAdmin || isManager) && tab === "plan" && (
                 <TabsContent value="plan">
@@ -883,7 +900,8 @@ export default function Portal() {
               )}
               {tab === "projects" && (
                 <TabsContent value="projects">
-                  {projectView !== "projects" && (isAdmin || isManager) ? (
+                  {["scenario", "scenarioHistory"].includes(projectView) &&
+                  (isAdmin || isManager) ? (
                     <ScheduleScenarioDialog
                       historyOnly={projectView === "scenarioHistory"}
                       embedded
@@ -1175,6 +1193,7 @@ export default function Portal() {
                 <TabsContent value="progress">
                   <ProjectProgressPanel
                     onDraftChange={onProgressDraftChange}
+                    onBeforeFilterChange={confirmProgressLeave}
                     actionsHost={progressActionsHost}
                     density={density}
                     view={progressView}
@@ -1316,7 +1335,10 @@ export default function Portal() {
       </Dialog>
       {data &&
         (isAdmin || user?.role === "manager") &&
-        !(tab === "projects" && projectView !== "projects") && (
+        !(
+          tab === "projects" &&
+          ["scenario", "scenarioHistory"].includes(projectView)
+        ) && (
           <ScheduleScenarioDialog
             open={scenarioOpen}
             onClose={() => setScenarioOpen(false)}

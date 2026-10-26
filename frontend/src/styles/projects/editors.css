@@ -754,3 +754,15 @@
   flex: none;
   accent-color: var(--brand-primary, #405341);
 }
+
+html[data-theme] .editor .project-completed-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+html[data-theme] .editor .project-completed-field input {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  flex: none;
+}

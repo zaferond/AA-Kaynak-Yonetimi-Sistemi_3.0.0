@@ -30,8 +30,10 @@ export default function ProjectProgressPanel({
   view,
   onSave,
   onDraftChange,
+  onBeforeFilterChange = () => true,
 }: {
   onDraftChange?: (id: string, dirty: boolean) => void;
+  onBeforeFilterChange?: () => boolean;
   data: Data;
   actionsHost: HTMLElement | null;
   density: WorkspaceDensity;
@@ -80,6 +82,7 @@ export default function ProjectProgressPanel({
         <FilterSelect
           value={responsible === null ? "all" : "name:" + responsible}
           onChange={(e) =>
+            onBeforeFilterChange() &&
             setResponsible(
               e.target.value === "all" ? null : e.target.value.slice(5),
             )
@@ -119,7 +122,12 @@ export default function ProjectProgressPanel({
   return (
     <section className="panel project-progress">
       {view === "warnings" && (
-        <ScenarioWarningsPanel data={data} saving={saving} onSave={onSave} />
+        <ScenarioWarningsPanel
+          data={data}
+          saving={saving}
+          onSave={onSave}
+          onDraftChange={onDraftChange}
+        />
       )}
       {view === "settings" && user?.role === "admin" && (
         <WarningSettingsPanel data={data} saving={saving} onSave={onSave} />
@@ -127,6 +135,7 @@ export default function ProjectProgressPanel({
       {view === "plan" && (
         <PlanAndEntry
           onDraftChange={onDraftChange}
+          onBeforeFilterChange={onBeforeFilterChange}
           actionsHost={actionsHost}
           ctx={ctx}
           responsibleFilter={responsibleFilter}

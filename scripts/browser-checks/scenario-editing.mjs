@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { openScenarioEntry, selectWorkspaceTab } from "./fixture.mjs";
 
 export async function checkScenarioEditing(f) {
   const scenario = (id, name, months) => ({
@@ -36,6 +36,7 @@ export async function checkScenarioEditing(f) {
   const open = async () => {
     await selectWorkspaceTab(page, "Projeler");
     await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
+    await openScenarioEntry(page);
   };
   try {
     await f.check(

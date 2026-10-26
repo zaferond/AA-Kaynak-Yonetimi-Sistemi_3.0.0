@@ -52,6 +52,7 @@ export type Milestone = {
   barNotes?: MilestoneNote[];
 };
 export type Project = {
+  completed?: boolean;
   id: string;
   name: string;
   sortOrder?: number;

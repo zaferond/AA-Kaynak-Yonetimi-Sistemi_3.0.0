@@ -73,3 +73,7 @@ Yeni hedef planı onaylarında kaynak/hedef referansı temel planın içine sabi
 ## 45 — Açılış ekranı tercihi
 
 `kp_users.default_tab` (boş olabilir, en çok 40 karakter) eklenir. Kullanıcının sisteme girdiğinde açılacak ekranı tutar; boş değer Ana Sayfa demektir, bu yüzden mevcut hesapların hepsi geçişten sonra Ana Sayfa ile açılır. Kullanıcı tercihi sağ üst menüdeki "Varsayılan sekme" alanından `POST /api/auth/preferences` ile kendisi değiştirir; değer bilinen ekran kimlikleriyle doğrulanır. Bu bir tercih olduğu için hesabın revizyonu ve oturum sürümü değişmez: oturumlar kapanmaz, admin'in hesap düzenlemesiyle çakışmaz. Daha önce tarayıcıda saklanan sekme tercihi kullanılmaz. Üretim MSSQL ortamında dağıtımdan önce `npm run db:migrate` çalıştırılmalıdır.
+
+## 47 — Proje tamamlanma durumu
+
+`kp_projects.completed` bit/boolean alanı, varsayılan 0 ile eklenir. Mevcut projeler aktif kalır; plan, gerçekleşen ve takvim kayıtları değişmez. İşaret Proje Bilgilerini Düzenle ekranından proje düzenleme yetkisiyle değiştirilir. Projeler ve Tamamlanan Projeler aynı takvim görünümünü, ayrı durum kapsamıyla kullanır. SQL.js açılışta yükseltir; MSSQL'de uygulama açılmadan önce yetkili migration hesabıyla `npm run db:migrate` çalıştırılmalıdır. İşlem öncesi tam yedek alınmalıdır.

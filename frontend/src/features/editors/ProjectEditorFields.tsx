@@ -68,6 +68,19 @@ export default function ProjectEditorFields({
           </label>
         ))}
       </div>
+      <label className="project-completed-field">
+        <input
+          type="checkbox"
+          checked={!!editor.value.completed}
+          onChange={(e) =>
+            setEditor({
+              ...editor,
+              value: { ...editor.value, completed: e.target.checked },
+            })
+          }
+        />
+        Tamamlandı
+      </label>
       <ProjectAccessFields
         data={data}
         value={editor.value}

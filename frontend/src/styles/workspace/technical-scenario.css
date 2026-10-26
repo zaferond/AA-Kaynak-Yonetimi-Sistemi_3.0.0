@@ -607,3 +607,7 @@ html[data-theme="technical"]
     grid-column: 3 / -1;
   }
 }
+
+html[data-theme="technical"] .schedule-create-scenario {
+  justify-self: start;
+}

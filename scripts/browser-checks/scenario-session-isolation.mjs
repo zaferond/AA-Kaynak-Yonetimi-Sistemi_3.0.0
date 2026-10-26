@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { openScenarioEntry, selectWorkspaceTab } from "./fixture.mjs";
 import { loginUI } from "./access.mjs";
 
 export async function checkScenarioSessionIsolation(f) {
@@ -7,6 +7,7 @@ export async function checkScenarioSessionIsolation(f) {
   const open = async () => {
     await selectWorkspaceTab(page, "Projeler");
     await page.getByRole("tab", { name: /^Proje Takvimi Güncelle/ }).click();
+    await openScenarioEntry(page);
     await page.getByLabel("Senaryo İsmi", { exact: true }).first().waitFor();
   };
   const name = () => page.getByLabel("Senaryo İsmi", { exact: true }).first();

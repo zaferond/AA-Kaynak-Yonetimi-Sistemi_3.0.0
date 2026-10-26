@@ -1,3 +1,8 @@
+import {
+  checkProgressFilterDraftGuard,
+  checkWarningActionDraftGuard,
+} from "./browser-checks/review-draft-fixes.mjs";
+import { checkProjectCompletion } from "./browser-checks/project-completion.mjs";
 import { checkCalendarWarningReview } from "./browser-checks/calendar-warning-review.mjs";
 import { checkScenarioBulk } from "./browser-checks/scenario-bulk.mjs";
 import { checkScenarioLayout } from "./browser-checks/scenario-layout.mjs";
@@ -86,6 +91,9 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkProgressFilterDraftGuard,
+  checkWarningActionDraftGuard,
+  checkProjectCompletion,
   checkCalendarWarningReview,
   checkScenarioBulk,
   checkScenarioLayout,

@@ -369,6 +369,64 @@ export function suggestRevisionTargets({
   return { ...targets, ...tail };
 }
 
+/** Redistribute a suggested curve around one fixed edit; approved locked
+ * targets remain immutable. Resource weights apply independently on each side. */
+export function recalculateSuggestedTargets({
+  targets,
+  openingMonth,
+  openingPct,
+  month,
+  value,
+  projectEnd,
+  planned,
+  lockedThrough = "",
+}: {
+  targets: ProgressTargets;
+  openingMonth: string;
+  openingPct: number;
+  month: string;
+  value: number;
+  projectEnd: string;
+  planned?: Record<string, number>;
+  lockedThrough?: string;
+}): ProgressTargets | null {
+  const anchor = lockedThrough > openingMonth ? lockedThrough : openingMonth;
+  const frozen = Object.fromEntries(
+    Object.entries(targets).filter(([m]) => m <= anchor),
+  );
+  const previous = Object.keys(frozen).sort().at(-1);
+  const fromPct = previous ? frozen[previous] : openingPct;
+  if (
+    !Number.isFinite(value) ||
+    !Number.isFinite(fromPct) ||
+    value < fromPct ||
+    value > 100 ||
+    month <= anchor ||
+    month > projectEnd
+  )
+    return null;
+  const prefix = suggestTargets(anchor, 0, month, planned);
+  const result: ProgressTargets = { ...frozen };
+  for (const [m, share] of Object.entries(prefix))
+    result[m] = Math.max(
+      fromPct,
+      Math.min(
+        value,
+        Math.round((fromPct + ((value - fromPct) * share) / 100) * 10) / 10,
+      ),
+    );
+  result[month] = value;
+  if (value === 100) return result;
+  const completion =
+    Object.keys(targets)
+      .sort()
+      .find((m) => m > month && targets[m] === 100) || projectEnd;
+  const tail = suggestTargets(month, value, completion, planned);
+  for (const m of Object.keys(tail))
+    if (m < completion) tail[m] = Math.max(value, Math.min(99.9, tail[m]));
+  return { ...result, ...tail };
+}
+
 /** Rebuild a falling tail from the edited month to its existing completion. */
 export function recalculateTargetsAfterEdit(
   targets: ProgressTargets,

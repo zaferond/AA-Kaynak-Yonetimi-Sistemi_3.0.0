@@ -14,6 +14,7 @@ import {
   previousMonth,
   clearAfterComplete,
   recalculateTargetsAfterEdit,
+  recalculateSuggestedTargets,
   proposalProblems,
   suggestRevisionTargets,
   suggestTargets,
@@ -51,6 +52,7 @@ type Form = {
   targets: Record<string, string>;
   reason: string;
   adjustedSuggestion?: ProgressTargets;
+  recalculateOnEdit?: boolean;
 };
 const decimal = (value: number) => String(value).replace(".", ",");
 const num = (value: string) =>
@@ -462,26 +464,40 @@ function ProgressCardForm({
           )
           .map(([m, value]) => [m, num(value)]),
       );
-      const recalculated = recalculateTargetsAfterEdit(
-        numericTargets,
-        month,
-        num(input),
-        project.end,
-        planned,
-      );
+      const recalculated = current.recalculateOnEdit
+        ? recalculateSuggestedTargets({
+            targets: numericTargets,
+            openingMonth: current.openingMonth,
+            openingPct: num(current.openingPct),
+            month,
+            value: num(input),
+            projectEnd: project.end,
+            planned,
+            lockedThrough: baseline ? lockedThrough : undefined,
+          })
+        : recalculateTargetsAfterEdit(
+            numericTargets,
+            month,
+            num(input),
+            project.end,
+            planned,
+          );
       const next = { ...current.targets, [month]: input };
-      const updated = recalculated
-        ? {
-            ...Object.fromEntries(
-              Object.entries(next).filter(([m]) => m <= month),
-            ),
-            ...asText(
-              Object.fromEntries(
-                Object.entries(recalculated).filter(([m]) => m > month),
-              ),
-            ),
-          }
-        : next;
+      const updated =
+        recalculated && current.recalculateOnEdit
+          ? asText(recalculated)
+          : recalculated
+            ? {
+                ...Object.fromEntries(
+                  Object.entries(next).filter(([m]) => m <= month),
+                ),
+                ...asText(
+                  Object.fromEntries(
+                    Object.entries(recalculated).filter(([m]) => m > month),
+                  ),
+                ),
+              }
+            : next;
       // Keep months after completion empty, including an earlier new finish.
       const firstComplete = Object.keys(updated)
         .sort()
@@ -710,6 +726,7 @@ function ProgressCardForm({
                 suggested &&
                 setForm({
                   ...form,
+                  recalculateOnEdit: true,
                   // Months after the curve reaches 100 % stay empty.
                   targets: Object.entries(asText(suggested)).reduce(
                     (out, [m, v]) =>

@@ -390,3 +390,12 @@ export async function openUserMenu(page) {
     await trigger.click();
   await page.locator('[data-slot="popover-content"].user-menu').waitFor();
 }
+
+/** Open the scenario draft only through its explicit create action. */
+export async function openScenarioEntry(page) {
+  const button = page.getByRole("button", {
+    name: "Senaryo Oluştur",
+    exact: true,
+  });
+  if (await button.isVisible()) await button.click();
+}

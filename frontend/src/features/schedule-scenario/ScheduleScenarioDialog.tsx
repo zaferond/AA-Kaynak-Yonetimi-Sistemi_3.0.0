@@ -83,6 +83,7 @@ export default function ScheduleScenarioDialog({
   onSaveChanges,
 }: Props) {
   const [focus, setFocus] = useState(0);
+  const [entryOpen, setEntryOpen] = useState(false);
   const [message, setMessage] = useState<{ text: string; error?: boolean }>();
   const saved = data.scheduleScenarios || [];
   // Only saved scenarios explicitly selected for comparison affect the tables.
@@ -173,6 +174,7 @@ export default function ScheduleScenarioDialog({
       [scenarioChange(value, scenario.editingRevision)],
       `“${value.name}” ${editing ? "güncellendi" : "eklendi"}.`,
       () => {
+        setEntryOpen(false);
         setComparedIds((all) =>
           [...all.filter((id) => id !== value.id), value.id].slice(
             -MAX_SCENARIOS,
@@ -229,6 +231,7 @@ export default function ScheduleScenarioDialog({
           ),
         ]);
       }
+      setEntryOpen(true);
       setMessage(undefined);
       requestAnimationFrame(() => {
         const card = document.getElementById("scenario-card-" + item.id);
@@ -380,63 +383,74 @@ export default function ScheduleScenarioDialog({
               >
                 Senaryo Ekleme
               </h3>
-              {scenarios.map((scenario, index) => (
-                <ScenarioCard
-                  key={scenario.id}
-                  data={data}
-                  scenario={scenario}
-                  problems={draftProblems[index] || []}
-                  duplicate={
-                    !!duplicateScenario(
-                      { ...scenario, name: scenario.name.trim() },
-                      [
-                        ...saved,
-                        // Another card being defined counts as well.
-                        ...scenarios
-                          .filter((_, i) => i < index)
-                          .map((card) => ({
-                            ...card,
-                            status: "draft" as const,
+              {!entryOpen && (
+                <FlowButton
+                  type="button"
+                  className="schedule-create-scenario"
+                  onClick={() => setEntryOpen(true)}
+                >
+                  <Plus size={14} aria-hidden="true" />
+                  Senaryo Oluştur
+                </FlowButton>
+              )}
+              {entryOpen &&
+                scenarios.map((scenario, index) => (
+                  <ScenarioCard
+                    key={scenario.id}
+                    data={data}
+                    scenario={scenario}
+                    problems={draftProblems[index] || []}
+                    duplicate={
+                      !!duplicateScenario(
+                        { ...scenario, name: scenario.name.trim() },
+                        [
+                          ...saved,
+                          // Another card being defined counts as well.
+                          ...scenarios
+                            .filter((_, i) => i < index)
+                            .map((card) => ({
+                              ...card,
+                              status: "draft" as const,
+                            })),
+                        ] as SavedScenario[],
+                      )
+                    }
+                    saving={saving}
+                    onAdd={() => addCard(scenario)}
+                    canCopy={scenarios.length < MAX_SCENARIOS}
+                    onChange={(next) => update(index, next)}
+                    onRemove={() =>
+                      setScenarios((all) => {
+                        const rest = all.filter((_, i) => i !== index);
+                        // Removing the last card leaves an empty one to start over.
+                        return rest.length
+                          ? rest
+                          : [
+                              newScenario(
+                                nextScenarioName(saved),
+                                currentMonth,
+                                3,
+                              ),
+                            ];
+                      })
+                    }
+                    onCopy={() =>
+                      setScenarios((all) => [
+                        ...all,
+                        {
+                          ...structuredClone(scenario),
+                          id: crypto.randomUUID(),
+                          editingRevision: undefined,
+                          name: nextScenarioName([...all, ...saved]),
+                          shifts: scenario.shifts.map((s) => ({
+                            ...s,
+                            months: s.months + 2,
                           })),
-                      ] as SavedScenario[],
-                    )
-                  }
-                  saving={saving}
-                  onAdd={() => addCard(scenario)}
-                  canCopy={scenarios.length < MAX_SCENARIOS}
-                  onChange={(next) => update(index, next)}
-                  onRemove={() =>
-                    setScenarios((all) => {
-                      const rest = all.filter((_, i) => i !== index);
-                      // Removing the last card leaves an empty one to start over.
-                      return rest.length
-                        ? rest
-                        : [
-                            newScenario(
-                              nextScenarioName(saved),
-                              currentMonth,
-                              3,
-                            ),
-                          ];
-                    })
-                  }
-                  onCopy={() =>
-                    setScenarios((all) => [
-                      ...all,
-                      {
-                        ...structuredClone(scenario),
-                        id: crypto.randomUUID(),
-                        editingRevision: undefined,
-                        name: nextScenarioName([...all, ...saved]),
-                        shifts: scenario.shifts.map((s) => ({
-                          ...s,
-                          months: s.months + 2,
-                        })),
-                      },
-                    ])
-                  }
-                />
-              ))}
+                        },
+                      ])
+                    }
+                  />
+                ))}
             </section>
           )}
           <SavedScenarioList

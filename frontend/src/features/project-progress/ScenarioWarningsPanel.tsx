@@ -46,6 +46,12 @@ const dayLabel = (at: string) =>
     month: "short",
     year: "numeric",
   });
+type ActionDraft = {
+  explanation: string;
+  responsible: string;
+  targetDate: string;
+  revision: number;
+};
 const PAGE_SIZE = 30;
 const ACTION_MAX = 3000;
 const LIFECYCLE_TONES: Record<WarningLifecycleState, BadgeTone> = {
@@ -117,7 +123,9 @@ export default function ScenarioWarningsPanel({
   data,
   saving,
   onSave,
+  onDraftChange,
 }: {
+  onDraftChange?: (id: string, dirty: boolean) => void;
   data: Data;
   saving: boolean;
   onSave: (changes: Change[]) => Promise<void>;
@@ -131,9 +139,53 @@ export default function ScenarioWarningsPanel({
   const [page, setPage] = useState(0);
   const [editing, setEditing] = useState("");
   const [detail, setDetail] = useState("");
-  const [explanation, setExplanation] = useState("");
-  const [responsible, setResponsible] = useState("");
-  const [targetDate, setTargetDate] = useState("");
+  const [drafts, setDrafts] = useState<Record<string, ActionDraft>>({});
+  const activeDraft = drafts[editing];
+  const explanation = activeDraft?.explanation || "";
+  const responsible = activeDraft?.responsible || "";
+  const targetDate = activeDraft?.targetDate || "";
+  const patchDraft = (value: Partial<ActionDraft>) =>
+    setDrafts((all) =>
+      all[editing] ? { ...all, [editing]: { ...all[editing], ...value } } : all,
+    );
+  const setExplanation = (value: string) => patchDraft({ explanation: value });
+  const setResponsible = (value: string) => patchDraft({ responsible: value });
+  const setTargetDate = (value: string) => patchDraft({ targetDate: value });
+  const discardDraft = (id: string) =>
+    setDrafts((all) => {
+      const { [id]: removed, ...rest } = all;
+      return rest;
+    });
+  useEffect(() => {
+    onDraftChange?.(
+      "warning-actions",
+      Object.values(drafts).some(
+        (draft) =>
+          !!(draft.explanation || draft.responsible || draft.targetDate),
+      ),
+    );
+  }, [drafts, onDraftChange]);
+  useEffect(
+    () => () => onDraftChange?.("warning-actions", false),
+    [onDraftChange],
+  );
+  function beginAction(w: ScenarioWarning) {
+    setDrafts((all) =>
+      all[w.id]
+        ? all
+        : {
+            ...all,
+            [w.id]: {
+              explanation: "",
+              responsible: "",
+              targetDate: "",
+              revision: data.revisions["scenarioWarning:" + w.id] || 0,
+            },
+          },
+    );
+    setEditing(w.id);
+    setError("");
+  }
   const today = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Europe/Istanbul",
   }).format(new Date());
@@ -227,7 +279,10 @@ export default function ScenarioWarningsPanel({
         {
           kind: "scenarioWarning",
           id: w.id,
-          revision: data.revisions["scenarioWarning:" + w.id] || 0,
+          revision:
+            next === "acted"
+              ? (drafts[w.id]?.revision ?? 0)
+              : data.revisions["scenarioWarning:" + w.id] || 0,
           value: {
             status: next,
             explanation: next === "acted" ? explanation.trim() : "",
@@ -237,8 +292,10 @@ export default function ScenarioWarningsPanel({
           },
         },
       ]);
-      setEditing("");
-      setExplanation("");
+      if (next === "acted") {
+        discardDraft(w.id);
+        setEditing("");
+      }
     } catch (cause) {
       setError((cause as Error).message);
     }
@@ -441,13 +498,7 @@ export default function ScenarioWarningsPanel({
                             <button
                               className="button primary"
                               disabled={saving}
-                              onClick={() => {
-                                setEditing(w.id);
-                                setExplanation("");
-                                setResponsible("");
-                                setTargetDate("");
-                                setError("");
-                              }}
+                              onClick={() => beginAction(w)}
                             >
                               <ClipboardPen size={14} aria-hidden="true" />
                               Aksiyon Gir
@@ -467,7 +518,7 @@ export default function ScenarioWarningsPanel({
                         </div>
                       </td>
                     </tr>
-                    {editing === w.id && w.status === "seen" && (
+                    {editing === w.id && !!activeDraft && (
                       <tr className="scenario-expanded-row">
                         <td colSpan={9}>
                           <form
@@ -486,6 +537,12 @@ export default function ScenarioWarningsPanel({
                                 · {w.code || "—"} · {monthLabel(w.month)}
                               </span>
                             </header>
+                            {w.status !== "seen" && (
+                              <p className="progress-error" role="alert">
+                                Uyarının durumu değişti. Taslağınız korunuyor;
+                                kaydetmeden önce güncel kaydı kontrol edin.
+                              </p>
+                            )}
                             {recommendation(w) && (
                               <p className="scenario-action-prompt">
                                 <strong>Önerilen aksiyon:</strong>{" "}
@@ -495,7 +552,9 @@ export default function ScenarioWarningsPanel({
                             <label>
                               Aksiyon açıklaması
                               <textarea
+                                aria-label="Aksiyon açıklaması"
                                 required
+                                disabled={saving}
                                 autoFocus
                                 maxLength={ACTION_MAX}
                                 value={explanation}
@@ -507,7 +566,9 @@ export default function ScenarioWarningsPanel({
                               <label>
                                 Aksiyon sorumlusu
                                 <input
+                                  aria-label="Aksiyon sorumlusu"
                                   required
+                                  disabled={saving}
                                   maxLength={200}
                                   value={responsible}
                                   onChange={(e) =>
@@ -518,8 +579,10 @@ export default function ScenarioWarningsPanel({
                               <label>
                                 Hedef aksiyon tarihi
                                 <DateField
+                                  aria-label="Hedef aksiyon tarihi"
                                   type="date"
                                   required
+                                  disabled={saving}
                                   value={targetDate}
                                   onChange={(e) =>
                                     setTargetDate(e.target.value)
@@ -537,8 +600,8 @@ export default function ScenarioWarningsPanel({
                                   type="button"
                                   disabled={saving}
                                   onClick={() => {
+                                    discardDraft(w.id);
                                     setEditing("");
-                                    setExplanation("");
                                   }}
                                 >
                                   Vazgeç
@@ -548,6 +611,7 @@ export default function ScenarioWarningsPanel({
                                   type="submit"
                                   disabled={
                                     saving ||
+                                    w.status !== "seen" ||
                                     !explanation.trim() ||
                                     !responsible.trim() ||
                                     !targetDate

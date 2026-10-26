@@ -82,6 +82,7 @@ export default function SessionActivity() {
   return (
     <Dialog open={warning} onOpenChange={() => {}}>
       <DialogContent
+        showCloseButton={false}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
