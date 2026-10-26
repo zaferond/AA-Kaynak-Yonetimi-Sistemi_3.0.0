@@ -1,3 +1,4 @@
+import DateField from "./components/DateField";
 import FlowButton from "./components/FlowButton";
 import { useState } from "react";
 import {
@@ -129,12 +130,14 @@ function TopicForm({
         <div className="project-info-topic-dates">
           <label>
             Başlangıç Tarihi
-            <input
+            <DateField
               type="date"
               aria-label="Kritik detay konu başlangıç tarihi"
               min={min}
               max={max}
               value={start}
+              rangeStart={start}
+              rangeEnd={end}
               onChange={(event) => {
                 // The end follows the start; it can be moved afterwards.
                 setStart(event.target.value);
@@ -144,12 +147,14 @@ function TopicForm({
           </label>
           <label>
             Bitiş Tarihi
-            <input
+            <DateField
               type="date"
               aria-label="Kritik detay konu bitiş tarihi"
               min={min}
               max={max}
               value={end}
+              rangeStart={start}
+              rangeEnd={end}
               onChange={(event) => setEnd(event.target.value)}
             />
           </label>

@@ -192,6 +192,7 @@ export default function PortalEditorDialog({
             )}
             {editor.kind === "milestone" && (
               <MilestoneEditorFields
+                key={editor.projectId + ":" + editor.value.id}
                 editor={editor}
                 setEditor={setEditor}
                 data={data}

@@ -1,3 +1,4 @@
+import FilterSelect from "../../components/FilterSelect";
 import {
   WarningCalculationSummary,
   ScenarioWarningStatus,
@@ -279,7 +280,7 @@ export default function ProgressReport({
       <ProgressFilters onReset={resetAllFilters}>
         <label className="pick">
           <span>Liderlik</span>
-          <select
+          <FilterSelect
             value={leader}
             onChange={(e) => {
               setLeader(e.target.value);
@@ -292,12 +293,12 @@ export default function ProgressReport({
                 {name}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         {responsibleFilter}
         <label className="pick progress-project-filter">
           <span>Proje</span>
-          <select
+          <FilterSelect
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
           >
@@ -307,11 +308,11 @@ export default function ProgressReport({
                 {r.project.name}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         <label className="pick progress-decision-filter">
           <span>Değerlendirme</span>
-          <select
+          <FilterSelect
             value={decision}
             onChange={(e) => setDecision(e.target.value as DecisionFilter)}
           >
@@ -320,7 +321,7 @@ export default function ProgressReport({
                 {FILTER_LABELS[key]} ({count(key)})
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
       </ProgressFilters>
       {error && (

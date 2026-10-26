@@ -1,3 +1,4 @@
+import FilterSelect from "../../components/FilterSelect";
 import { useMemo, useState } from "react";
 import type { Data } from "../../model";
 import type { WorkspaceDensity } from "../WorkspaceNavigation";
@@ -76,7 +77,7 @@ export default function ProjectProgressPanel({
     <>
       <label className="pick progress-responsible-filter">
         <span>Proje Sorumlusu</span>
-        <select
+        <FilterSelect
           value={responsible === null ? "all" : "name:" + responsible}
           onChange={(e) =>
             setResponsible(
@@ -90,18 +91,21 @@ export default function ProjectProgressPanel({
               {name || "Atanmamış"}
             </option>
           ))}
-        </select>
+        </FilterSelect>
       </label>
       {view === "report" && months.length > 0 && (
         <label className="pick progress-month">
           <span>Ay</span>
-          <select value={month} onChange={(e) => setMonth(e.target.value)}>
+          <FilterSelect
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+          >
             {[...months].reverse().map((m) => (
               <option key={m} value={m}>
                 {monthLabel(m)}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
       )}
     </>

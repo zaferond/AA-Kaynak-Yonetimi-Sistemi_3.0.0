@@ -1,3 +1,4 @@
+import DateField from "../../components/DateField";
 import FlowButton from "../../components/FlowButton";
 import {
   useMemo,
@@ -554,7 +555,7 @@ function ScenarioCard({
           </label>
           <label className="schedule-field schedule-field-from">
             <span>Başlangıç Ayı</span>
-            <input
+            <DateField
               type="month"
               aria-label="Kaydırmanın başladığı ay"
               value={shift.fromMonth}

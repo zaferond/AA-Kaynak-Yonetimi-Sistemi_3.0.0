@@ -1,3 +1,5 @@
+import FilterSelect from "../components/FilterSelect";
+import DateField from "../components/DateField";
 import { currentPlanningDate } from "../../../shared/resource-dates";
 import { organizationPickerItems } from "./organization-picker-items";
 import {
@@ -165,7 +167,7 @@ export default function WorkspaceFilters({
                 <>
                   <label className="pick">
                     <span>Başlangıç Ayı</span>
-                    <input
+                    <DateField
                       type="month"
                       min={MIN_PLANNING_MONTH}
                       max={MAX_FILTER_START}
@@ -185,7 +187,7 @@ export default function WorkspaceFilters({
                   </label>
                   <label className="pick period">
                     <span>Görünür Dönem</span>
-                    <select
+                    <FilterSelect
                       value={count}
                       onChange={(e) => {
                         if (Number(e.target.value) === count) return;
@@ -203,7 +205,7 @@ export default function WorkspaceFilters({
                           {n < 12 ? "6 ay" : n / 12 + " yıl (" + n + " ay)"}
                         </option>
                       ))}
-                    </select>
+                    </FilterSelect>
                   </label>
                 </>
               )}

@@ -23,6 +23,8 @@ import type { MilestoneTrackProps } from "./features/project-timeline-types";
 import { useMilestoneDrag } from "./features/useMilestoneDrag";
 import { positionPointerTooltip } from "./features/position-pointer-tooltip";
 
+import "./components/gantt-track.css";
+
 import { dateLabel, barDateLabel } from "./features/timeline-labels";
 
 export default function MilestoneTrack({
@@ -132,8 +134,41 @@ export default function MilestoneTrack({
   const defaultColor =
     phasePalette.find((item) => item.id === (milestone.barColor || "red")) ||
     phasePalette[3];
-  let displayedWeeklyLayout = weeklyLayout;
-  if (weeklyLayout && notePreview?.days && !notePreview.message) {
+  const splitMonthlyRanges = new Set(
+    ranges.flatMap((range, index) =>
+      new Set(
+        rangeNotes(range)
+          .filter((note) => note.text.trim())
+          .map((note) => {
+            const dates = noteDates(note, range);
+            return dates.start + "|" + dates.end;
+          }),
+      ).size > 1
+        ? [index]
+        : [],
+    ),
+  );
+  const noteLayoutForRanges = (values: typeof ranges) => {
+    if (weeklyLayout) return weeklyNoteLayout(values, periods);
+    if (!splitMonthlyRanges.size) return null;
+    const result = weeklyNoteLayout(values, periods);
+    return {
+      ...result,
+      bars: result.bars
+        .filter((note) => splitMonthlyRanges.has(note.rangeIndex))
+        .flatMap((note) => {
+          const position = milestoneBarsForPeriods(
+            [{ ...values[note.rangeIndex], start: note.start, end: note.end }],
+            periods,
+          )[0];
+          return position
+            ? [{ ...note, left: position.left, width: position.width }]
+            : [];
+        }),
+    };
+  };
+  let displayedWeeklyLayout = noteLayoutForRanges(ranges);
+  if (displayedWeeklyLayout && notePreview?.days && !notePreview.message) {
     try {
       const changed = changeMilestoneNoteDates(
         project,
@@ -143,10 +178,7 @@ export default function MilestoneTrack({
         notePreview.mode,
         notePreview.days,
       );
-      displayedWeeklyLayout = weeklyNoteLayout(
-        milestoneRanges(changed),
-        periods,
-      );
+      displayedWeeklyLayout = noteLayoutForRanges(milestoneRanges(changed));
     } catch {
       /* Keep the last valid layout while an invalid drag is shown in the status tooltip. */
     }
@@ -181,7 +213,11 @@ export default function MilestoneTrack({
   const sameDates = new Map<string, number[]>();
   if (!weeklyLayout)
     bars.forEach((bar, index) => {
-      if (bar.range.displayKind === "milestone") return;
+      if (
+        bar.range.displayKind === "milestone" ||
+        splitMonthlyRanges.has(ranges.indexOf(bar.range))
+      )
+        return;
       const key = bar.range.start + "|" + bar.range.end;
       sameDates.set(key, [...(sameDates.get(key) || []), index]);
     });
@@ -191,15 +227,35 @@ export default function MilestoneTrack({
     groupOf.set(members[0], members);
     members.slice(1).forEach((index) => grouped.add(index));
   }
+  const weeklyGroups = new Map<string, WeeklyNoteBar[]>();
+  for (const note of displayedWeeklyLayout?.bars || []) {
+    const key = note.start + "|" + note.end;
+    weeklyGroups.set(key, [...(weeklyGroups.get(key) || []), note]);
+  }
+  const pointLabelGeometry = (left: number, width: number) => {
+    const center = ((left + width / 2) * trackWidth) / 100;
+    const side = center > trackWidth / 2 ? "left" : "right";
+    const available = side === "left" ? center - 22 : trackWidth - center - 22;
+    return { center, side, width: Math.min(240, Math.max(0, available)) };
+  };
   const items: TimelineItem[] = bars.flatMap((bar, index) => {
     if (grouped.has(index)) return [];
     const id = "range:" + index;
     const left = (bar.left * trackWidth) / 100;
     if (bar.range.displayKind === "milestone") {
-      const center = ((bar.left + bar.width / 2) * trackWidth) / 100;
-      return [{ id, left: center - 15, right: center + 15, minimumHeight: 30 }];
+      const label = pointLabelGeometry(bar.left, bar.width);
+      return [
+        {
+          id,
+          left:
+            label.center - 15 - (label.side === "left" ? label.width + 8 : 0),
+          right:
+            label.center + 15 + (label.side === "right" ? label.width + 8 : 0),
+          minimumHeight: 56,
+        },
+      ];
     }
-    return weeklyLayout
+    return weeklyLayout || splitMonthlyRanges.has(ranges.indexOf(bar.range))
       ? []
       : [
           {
@@ -210,13 +266,15 @@ export default function MilestoneTrack({
           },
         ];
   });
-  for (const note of displayedWeeklyLayout?.bars || [])
+  for (const entries of weeklyGroups.values()) {
+    const note = entries[0];
     items.push({
       id: `note:${note.rangeIndex}.${note.noteIndex}`,
       left: (note.left * trackWidth) / 100 + 2,
       right: ((note.left + note.width) * trackWidth) / 100 - 2,
-      minimumHeight: 39,
+      minimumHeight: 39 * entries.length + (entries.length > 1 ? 26 : 0),
     });
+  }
   const layout = timelineItemLayout(items, itemHeights);
   const dragStatus = notePreview || preview;
   return (
@@ -304,10 +362,21 @@ export default function MilestoneTrack({
               key={index}
               data-timeline-item={"range:" + index}
               className={"milestone-point" + (dragging ? " dragging" : "")}
-              style={{
-                left: displayed.left + displayed.width / 2 + "%",
-                top: layout.centers["range:" + index],
-              }}
+              style={
+                {
+                  left: displayed.left + displayed.width / 2 + "%",
+                  top: layout.centers["range:" + index],
+                  "--point-label-width":
+                    pointLabelGeometry(displayed.left, displayed.width).width +
+                    "px",
+                } as CSSProperties
+              }
+              data-label-side={
+                pointLabelGeometry(displayed.left, displayed.width).side
+              }
+              data-completed={
+                !!rangeNotes(bar.range)[0]?.completed || undefined
+              }
               aria-label={
                 "Milestone: " +
                 (rangeNotes(bar.range)[0]?.text || milestone.name) +
@@ -373,9 +442,18 @@ export default function MilestoneTrack({
                 style={bar.range.diamondStyle}
                 completed={!!rangeNotes(bar.range)[0]?.completed}
               />
+              <span className="milestone-point-label">
+                <strong>
+                  {rangeNotes(bar.range)[0]?.completed && "✓ "}
+                  {rangeNotes(bar.range)[0]?.text || milestone.name}
+                </strong>
+                <time dateTime={displayed.range.start}>
+                  {barDateLabel(displayed.range.start)}
+                </time>
+              </span>
             </button>
           );
-        if (weeklyLayout) return null;
+        if (weeklyLayout || splitMonthlyRanges.has(rangeIndex)) return null;
         return (
           <button
             type="button"
@@ -388,6 +466,9 @@ export default function MilestoneTrack({
               (dragging && preview?.rangeIndex === rangeIndex
                 ? " dragging"
                 : "")
+            }
+            data-completed={
+              entries.every((entry) => entry.completed) || undefined
             }
             style={barStyle}
             title={`${milestone.name} · ${dateLabel(displayed.range.start)} – ${dateLabel(displayed.range.end)}\n${details.join("\n")}${isAdmin ? (shared ? "\nTıklayın: düzenle" : "\nTıklayın: düzenle · Basılı tutup sürükleyin: taşı · Uçlardan sürükleyin: daralt / genişlet") : ""}`}
@@ -414,13 +495,23 @@ export default function MilestoneTrack({
               onMilestoneContextMenu(event, milestone, rangeIndex);
             }}
           >
+            {entries.length > 1 && (
+              <div className="gantt-group-heading">
+                {barDateLabel(displayed.range.start)} →{" "}
+                {barDateLabel(displayed.range.end)}
+                <span>{entries.length} detay not</span>
+              </div>
+            )}
             <ul className="gantt-note-list">
               {entries.map((entry, noteIndex) => (
                 <li
                   key={noteIndex}
                   className={entry.completed ? "completed" : undefined}
                 >
-                  <strong className="gantt-note-text">{entry.text}</strong>
+                  <strong className="gantt-note-text">
+                    {entry.completed ? "✓ " : "○ "}
+                    {entry.text}
+                  </strong>
                   <small className="gantt-note-dates">
                     <time dateTime={entry.start}>
                       {barDateLabel(entry.start)}
@@ -465,7 +556,24 @@ export default function MilestoneTrack({
           </button>
         );
       })}
-      {displayedWeeklyLayout?.bars.map((note) => {
+      {[...weeklyGroups.values()].map((entries) => {
+        const note = entries[0];
+        const shared = entries.length > 1;
+        const tooltipNote = {
+          ...note,
+          text: entries
+            .map(
+              (entry) =>
+                (entry.completed ? "✓ " : "") +
+                entry.text +
+                " · " +
+                barDateLabel(entry.start) +
+                " – " +
+                barDateLabel(entry.end),
+            )
+            .join("\n"),
+          completed: entries.every((entry) => entry.completed),
+        };
         const color =
           phasePalette.find((item) => item.id === note.color) || defaultColor;
         const active =
@@ -478,8 +586,9 @@ export default function MilestoneTrack({
             data-timeline-item={`note:${note.rangeIndex}.${note.noteIndex}`}
             className={
               "weekly-note-box " +
+              (!weeklyLayout ? "gantt-bar " : "") +
               visibleMilestoneBarStyle(milestone.barStyle) +
-              (note.completed ? " completed" : "") +
+              (entries.every((entry) => entry.completed) ? " completed" : "") +
               (isAdmin ? " editable" : "") +
               (active ? " dragging" : "")
             }
@@ -495,11 +604,13 @@ export default function MilestoneTrack({
                 "--gantt-ink": color.ink,
               } as CSSProperties
             }
-            aria-label={`${note.text} · ${dateLabel(note.start)} – ${dateLabel(note.end)}${note.completed ? " · Tamamlandı" : ""}`}
+            aria-label={tooltipNote.text}
+            data-note-count={entries.length}
+            title={shared ? "Tıklayın: tüm açıklamaları düzenle" : undefined}
             onMouseEnter={(event) => {
               if (isNoteDragging()) return;
               notePointerRef.current = { x: event.clientX, y: event.clientY };
-              setHoveredNote(note);
+              setHoveredNote(tooltipNote);
             }}
             onMouseMove={(event) => {
               if (isNoteDragging()) return;
@@ -518,7 +629,7 @@ export default function MilestoneTrack({
                 x: rect.left + rect.width / 2,
                 y: rect.bottom,
               };
-              setHoveredNote(note);
+              setHoveredNote(tooltipNote);
             }}
             onBlur={() => setHoveredNote(null)}
             onClick={() => {
@@ -537,16 +648,41 @@ export default function MilestoneTrack({
               setHoveredNote(null);
               onMilestoneContextMenu(event, milestone, note.rangeIndex);
             }}
-            onPointerDown={(event) => beginNoteDrag(event, note, "move")}
+            onPointerDown={(event) => {
+              if (!shared) beginNoteDrag(event, note, "move");
+            }}
             onPointerMove={moveNoteDrag}
             onPointerUp={endNoteDrag}
             onPointerCancel={cancelNoteDrag}
           >
-            <span className="weekly-note-text">{note.text}</span>
-            <small>
-              {barDateLabel(note.start)} – {barDateLabel(note.end)}
-            </small>
+            {shared && (
+              <div className="gantt-group-heading">
+                {barDateLabel(note.start)} → {barDateLabel(note.end)}
+                <span>{entries.length} detay not</span>
+              </div>
+            )}
+            <ul className="gantt-note-list">
+              {entries.map((entry) => (
+                <li
+                  key={`${entry.rangeIndex}.${entry.noteIndex}`}
+                  className={entry.completed ? "completed" : undefined}
+                >
+                  <strong className="weekly-note-text">
+                    {entry.completed ? "✓ " : "○ "}
+                    {entry.text}
+                  </strong>
+                  <small className="gantt-note-dates">
+                    <time dateTime={entry.start}>
+                      {barDateLabel(entry.start)}
+                    </time>{" "}
+                    –{" "}
+                    <time dateTime={entry.end}>{barDateLabel(entry.end)}</time>
+                  </small>
+                </li>
+              ))}
+            </ul>
             {isAdmin &&
+              !shared &&
               (["start", "end"] as const).map((edge) => (
                 <span
                   key={edge}

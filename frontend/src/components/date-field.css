@@ -1,0 +1,193 @@
+html[data-theme] :is(.app, [data-slot="dialog-content"]) .date-field {
+  display: inline-flex;
+  position: relative;
+  flex: 1 1 auto;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 0;
+}
+html[data-theme] :is(.app, [data-slot="dialog-content"]) .date-field > input {
+  width: 100%;
+  min-width: 0;
+  padding-right: 34px;
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme] .date-field > input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+html[data-theme] :is(.app, [data-slot="dialog-content"]) .date-field-toggle {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6287a6;
+  cursor: pointer;
+}
+html[data-theme] .date-field-toggle:hover:not(:disabled) {
+  background: #eaf2f9;
+}
+html[data-theme] .date-field-toggle:focus-visible {
+  outline: 2px solid #497aa5;
+  outline-offset: -2px;
+}
+html[data-theme] .date-field-toggle:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+html[data-theme] .planning-filterbar .filters .pick > .date-field {
+  flex: 0 1 180px;
+  width: 180px;
+}
+html[data-theme] .date-calendar {
+  width: min(
+    320px,
+    calc(var(--radix-popper-available-width) / var(--popover-page-scale, 1))
+  );
+  max-height: calc(
+    var(--radix-popper-available-height) / var(--popover-page-scale, 1)
+  );
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid #d8e2ec;
+  border-radius: 13px;
+  background: #fff;
+  color: #294966;
+  box-shadow: 0 10px 27px #23466626;
+  font-family: inherit;
+  font-size: 13px;
+  z-index: 100;
+}
+.date-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.date-calendar .date-calendar-head :is(button, select) {
+  width: auto;
+  min-width: 0;
+  height: 34px;
+  min-height: 34px;
+  padding: 4px 8px;
+  border: 1px solid #dce5ee;
+  border-radius: 7px;
+  background: #fff;
+  color: #294966;
+  font: inherit;
+  font-weight: 650;
+}
+.date-calendar .date-calendar-head button {
+  display: grid;
+  place-items: center;
+  border-color: transparent;
+}
+.date-day-grid > [role="row"] {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  margin-bottom: 4px;
+}
+.date-month-grid > [role="row"] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.date-calendar .date-weekdays {
+  text-align: center;
+  padding-bottom: 8px;
+  color: #8494a4;
+  font-size: 11px;
+}
+.date-calendar [role="gridcell"] > button {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: #fff;
+  color: #344e64;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.date-calendar .date-month-grid [role="gridcell"] > button {
+  height: 44px;
+  background: #f5f8fb;
+}
+.date-calendar [role="gridcell"] > button[data-outside] {
+  color: #8e9fae;
+}
+.date-calendar [role="gridcell"] > button[data-range] {
+  background: #e7f0f8;
+}
+.date-calendar [role="gridcell"] > button[data-today] {
+  box-shadow: inset 0 0 0 1px #497aa5;
+}
+.date-calendar [role="gridcell"] > button[data-selected] {
+  background: #295879;
+  color: #fff;
+  font-weight: 700;
+}
+.date-calendar
+  [role="gridcell"]
+  > button:hover:not(:disabled):not([data-selected]) {
+  background: #eaf2f9;
+}
+.date-calendar :is(button, select):focus-visible {
+  outline: 2px solid #497aa5;
+  outline-offset: 1px;
+}
+.date-calendar button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.date-calendar-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  border-top: 1px solid #e9eef4;
+  padding-top: 10px;
+}
+.date-calendar .date-calendar-footer button {
+  border: 0;
+  padding: 5px;
+  background: none;
+  color: #47769c;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.date-calendar-value {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #edf5fa;
+  color: #4c7896;
+  font-size: 12px;
+}
+@media (pointer: coarse) {
+  .date-calendar [role="gridcell"] > button {
+    height: 44px;
+  }
+  .date-calendar .date-calendar-head :is(button, select) {
+    min-height: 44px;
+  }
+}
+html[data-theme] .app .planning-filterbar .filters .pick .date-field > input {
+  width: 100%;
+  padding-right: 34px;
+}

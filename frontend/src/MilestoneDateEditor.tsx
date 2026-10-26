@@ -1,3 +1,4 @@
+import DateField from "./components/DateField";
 import { Plus, Trash2 } from "lucide-react";
 import MilestoneDiamond from "./MilestoneDiamond";
 import type { CSSProperties } from "react";
@@ -159,7 +160,7 @@ export default function MilestoneDateEditor({
                   <div className="milestone-range-date-card milestone-point-date-card">
                     <label>
                       Milestone Tarihi
-                      <input
+                      <DateField
                         type="date"
                         min={min}
                         max={max}
@@ -307,7 +308,7 @@ export default function MilestoneDateEditor({
                       <div className="milestone-note-dates">
                         <label>
                           Başlangıç
-                          <input
+                          <DateField
                             type="date"
                             min={min}
                             max={max}
@@ -326,7 +327,7 @@ export default function MilestoneDateEditor({
                         </label>
                         <label>
                           Bitiş
-                          <input
+                          <DateField
                             type="date"
                             min={noteDates(note, range).start || min}
                             max={max}

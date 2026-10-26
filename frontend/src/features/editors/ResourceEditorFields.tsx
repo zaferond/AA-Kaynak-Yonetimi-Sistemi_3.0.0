@@ -1,3 +1,4 @@
+import DateField from "../../components/DateField";
 import { directoryEmployeeName } from "../access/employee-access-draft";
 import { organizationPickerItems } from "../organization-picker-items";
 import { currentPlanningDate } from "../../../../shared/resource-dates";
@@ -201,7 +202,7 @@ export default function ResourceEditorFields({
           <div className="resource-date-grid">
             <label>
               {startDateLabel}
-              <input
+              <DateField
                 type="date"
                 value={editor.version.start}
                 onChange={(e) => setVersion({ start: e.target.value })}
@@ -210,7 +211,7 @@ export default function ResourceEditorFields({
             {editor.version.status === "İşten Ayrıldı" && (
               <label>
                 İşten Ayrılış Tarihi
-                <input
+                <DateField
                   type="date"
                   value={editor.version.end}
                   onChange={(e) => setVersion({ end: e.target.value })}

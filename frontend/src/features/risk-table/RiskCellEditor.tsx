@@ -1,3 +1,4 @@
+import DateField from "../../components/DateField";
 import { Trash2 } from "lucide-react";
 import {
   riskCategories,
@@ -159,7 +160,7 @@ export default function RiskCellEditor({
     case "date": {
       const key = column.key;
       return (
-        <input
+        <DateField
           type="date"
           {...common}
           value={risk[key]}

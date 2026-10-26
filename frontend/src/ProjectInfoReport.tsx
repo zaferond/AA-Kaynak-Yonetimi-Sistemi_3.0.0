@@ -1,3 +1,4 @@
+import FilterSelect from "./components/FilterSelect";
 import FlowButton from "./components/FlowButton";
 import ReportDownloadButton from "./components/ReportDownloadButton";
 import Badge from "./components/Badge";
@@ -218,42 +219,6 @@ export default function ProjectInfoReport({
             </div>
             <div className="filters">
               <div
-                className="project-info-project-filter"
-                data-active={projectId ? "true" : undefined}
-              >
-                <label className="pick">
-                  <span>Proje</span>
-                  <select
-                    aria-label="Proje süzgeci"
-                    value={projectId}
-                    onChange={(event) => {
-                      const id = event.target.value;
-                      setProjectFilter(id);
-                      // A chosen project is always shown expanded.
-                      if (id) toggleProject(id, true);
-                    }}
-                  >
-                    <option value="">Tüm projeler ({allGroups.length})</option>
-                    {allGroups.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name} ({groupTopicCount(project)})
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {projectId && (
-                  <button
-                    type="button"
-                    className="project-info-project-clear"
-                    aria-label="Proje süzgecini kaldır"
-                    title="Tüm projeleri göster"
-                    onClick={() => setProjectFilter("")}
-                  >
-                    <X size={13} aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-              <div
                 className="project-info-filter"
                 role="group"
                 aria-label="Konu durumu"
@@ -269,6 +234,42 @@ export default function ProjectInfoReport({
                     {label} <span>{counts[value]}</span>
                   </button>
                 ))}
+              </div>
+              <div
+                className="project-info-project-filter"
+                data-active={projectId ? "true" : undefined}
+              >
+                <label className="pick">
+                  <span>Proje</span>
+                  <FilterSelect
+                    aria-label="Proje süzgeci"
+                    value={projectId}
+                    onChange={(event) => {
+                      const id = event.target.value;
+                      setProjectFilter(id);
+                      // A chosen project is always shown expanded.
+                      if (id) toggleProject(id, true);
+                    }}
+                  >
+                    <option value="">Tüm projeler ({allGroups.length})</option>
+                    {allGroups.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name} ({groupTopicCount(project)})
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </label>
+                {projectId && (
+                  <button
+                    type="button"
+                    className="project-info-project-clear"
+                    aria-label="Proje süzgecini kaldır"
+                    title="Tüm projeleri göster"
+                    onClick={() => setProjectFilter("")}
+                  >
+                    <X size={13} aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </div>
             <div className="filteractions">
@@ -326,7 +327,7 @@ export default function ProjectInfoReport({
             ))}
             <label className="project-info-week-add">
               <CalendarPlus size={14} aria-hidden="true" />
-              <select
+              <FilterSelect
                 aria-label="Hafta ekle"
                 value=""
                 onChange={(event) => {
@@ -342,7 +343,7 @@ export default function ProjectInfoReport({
                       {count})
                     </option>
                   ))}
-              </select>
+              </FilterSelect>
             </label>
           </div>
         </div>

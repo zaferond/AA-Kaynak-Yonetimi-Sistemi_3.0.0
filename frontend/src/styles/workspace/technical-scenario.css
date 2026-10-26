@@ -21,7 +21,7 @@ html[data-theme="technical"] .schedule-scenario-card {
    projects repeat the first three fields under it. */
 html[data-theme="technical"] .schedule-shift-row {
   /* Fixed tracks keep every project line aligned under the first one. */
-  grid-template-columns: minmax(200px, 1fr) 110px 190px 230px 250px;
+  grid-template-columns: minmax(200px, 1fr) 110px 190px 230px auto;
   align-items: center;
   gap: 6px 16px;
 }
@@ -50,9 +50,12 @@ html[data-theme="technical"] .schedule-field-name input {
 }
 html[data-theme="technical"] .schedule-card-buttons {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
 }
 html[data-theme="technical"] .schedule-card-buttons .button {
+  flex: none;
   min-height: 32px;
   padding: 0 10px;
 }

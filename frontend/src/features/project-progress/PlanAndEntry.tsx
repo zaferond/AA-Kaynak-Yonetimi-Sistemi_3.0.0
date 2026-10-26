@@ -1,3 +1,4 @@
+import FilterSelect from "../../components/FilterSelect";
 import { useId, useState, type ReactNode } from "react";
 import Badge from "../../components/Badge";
 import { createPortal } from "react-dom";
@@ -223,19 +224,22 @@ export default function PlanAndEntry({
       <ProgressFilters onReset={resetAllFilters}>
         <label className="pick">
           <span>Liderlik</span>
-          <select value={leader} onChange={(e) => setLeader(e.target.value)}>
+          <FilterSelect
+            value={leader}
+            onChange={(e) => setLeader(e.target.value)}
+          >
             <option value="">Tümü</option>
             {leaders.map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         {responsibleFilter}
         <label className="pick progress-status-filter">
           <span>Hedef Plan</span>
-          <select
+          <FilterSelect
             value={planFilter}
             onChange={(e) => setPlanFilter(e.target.value as "" | PlanStatus)}
           >
@@ -245,11 +249,11 @@ export default function PlanAndEntry({
                 {PLAN_LABELS[status]} ({planCount(status)})
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         <label className="pick progress-status-filter">
           <span>Gerçekleşen Plan</span>
-          <select
+          <FilterSelect
             value={entryFilter}
             onChange={(e) => setEntryFilter(e.target.value as "" | EntryStatus)}
           >
@@ -262,7 +266,7 @@ export default function PlanAndEntry({
                 </option>
               ),
             )}
-          </select>
+          </FilterSelect>
         </label>
       </ProgressFilters>
       <div

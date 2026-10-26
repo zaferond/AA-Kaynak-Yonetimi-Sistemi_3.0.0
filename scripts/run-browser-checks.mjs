@@ -1,3 +1,6 @@
+import { checkTopicEditor } from "./browser-checks/topic-editor.mjs";
+import { checkGanttPresentation } from "./browser-checks/gantt-presentation.mjs";
+import { checkDatePickers } from "./browser-checks/date-pickers.mjs";
 import { checkGlowFlow } from "./browser-checks/glow-flow.mjs";
 import { checkTabTransitions } from "./browser-checks/tab-transitions.mjs";
 import {
@@ -79,6 +82,9 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkTopicEditor,
+  checkGanttPresentation,
+  checkDatePickers,
   checkGlowFlow,
   checkProgressDraftProtection,
   checkSessionIdleWarning,

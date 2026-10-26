@@ -60,6 +60,20 @@ export async function checkCriticalProjectFilter(f) {
         await selectWorkspaceTab(page, "Haftalık Kritik Konular");
         await page.getByText("QA Topic Alpha", { exact: true }).waitFor();
         assert.equal(await groups.count(), 2);
+        const statusBox = await page
+          .locator(".project-info-filter")
+          .boundingBox();
+        const projectBox = await page
+          .locator(".project-info-project-filter")
+          .boundingBox();
+        assert(
+          statusBox &&
+            projectBox &&
+            statusBox.x + statusBox.width <= projectBox.x,
+        );
+        assert(
+          statusBox && projectBox && Math.abs(statusBox.y - projectBox.y) < 4,
+        );
         assert.deepEqual(await picker.locator("option").allTextContents(), [
           "Tüm projeler (2)",
           "Browser Project A (1)",

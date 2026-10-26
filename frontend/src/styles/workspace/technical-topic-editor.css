@@ -177,7 +177,7 @@ html[data-theme="technical"] .timeline-editor-form .timeline-editor-actions {
 }
 html[data-theme="technical"]
   .timeline-editor-actions
-  .button.button.button.primary {
+  .button.button.button.primary:not(.flow-button) {
   border-color: var(--brand-primary);
   background: var(--brand-primary);
 }

@@ -1,3 +1,4 @@
+import DateField from "../../components/DateField";
 import FlowButton from "../../components/FlowButton";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import {
@@ -56,12 +57,14 @@ export default function PersonalCalendarSection({
             {personalType === "leave"
               ? "İzin Ayrılış Tarihi"
               : "Eğitim Başlangıç Tarihi"}
-            <input
+            <DateField
               disabled={busy}
               type="date"
               min={MIN_PLANNING_DATE}
               max={MAX_PLANNING_DATE}
               value={personalFrom}
+              rangeStart={personalFrom}
+              rangeEnd={personalTo}
               onChange={(event) => setPersonalStart(event.target.value)}
             />
           </label>
@@ -69,12 +72,14 @@ export default function PersonalCalendarSection({
             {personalType === "leave"
               ? "İzin Dönüş Tarihi"
               : "Eğitim Dönüş Tarihi"}
-            <input
+            <DateField
               disabled={busy}
               type="date"
               min={personalFrom || MIN_PLANNING_DATE}
               max={MAX_PLANNING_DATE}
               value={personalTo}
+              rangeStart={personalFrom}
+              rangeEnd={personalTo}
               onChange={(event) => update("to", event.target.value)}
             />
           </label>

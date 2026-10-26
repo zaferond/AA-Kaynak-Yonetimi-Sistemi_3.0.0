@@ -1,3 +1,4 @@
+import DateField from "../../components/DateField";
 import type { EditorFieldProps } from "./editor-field-props";
 import type { Data } from "../../model";
 import ProjectAccessFields from "./ProjectAccessFields";
@@ -54,7 +55,7 @@ export default function ProjectEditorFields({
         {(["start", "end"] as const).map((k) => (
           <label key={k}>
             {k === "start" ? "Başlangıç Ayı" : "Bitiş Ayı"}
-            <input
+            <DateField
               type="month"
               value={editor.value[k]}
               onChange={(e) =>

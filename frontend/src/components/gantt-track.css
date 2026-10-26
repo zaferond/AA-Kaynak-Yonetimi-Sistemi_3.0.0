@@ -1,0 +1,221 @@
+/* Gantt presentation stays on the existing date, permission and drag model. */
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-bar, .weekly-note-box) {
+  border: 1px solid color-mix(in srgb, var(--gantt-color) 38%, white);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gantt-soft) 78%, white);
+  color: var(--gantt-ink);
+  box-shadow: 0 2px 5px #24466310;
+  padding: 7px 11px;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-bar, .weekly-note-box).outline {
+  background: #fff;
+  border-color: var(--gantt-color);
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-bar[data-completed], .weekly-note-box.completed) {
+  background: #edf6f0;
+  border-color: #b8d8c4;
+  color: #376d4d;
+}
+html[data-theme] .app .projectmatrix .milestone-track .gantt-note-list {
+  display: block;
+}
+html[data-theme] .app .projectmatrix .milestone-track .gantt-note-list li {
+  display: block;
+  white-space: normal;
+  padding: 2px 0;
+  line-height: 1.5;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  .gantt-note-list
+  li::before {
+  content: none;
+}
+html[data-theme] .app .projectmatrix .milestone-track .gantt-note-list li + li {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #bacede70;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-note-text, .weekly-note-text) {
+  display: block;
+  font-weight: 650;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  .gantt-note-list
+  li.completed {
+  color: #48715a;
+  background: #edf6f080;
+  border-radius: 4px;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  .gantt-note-list
+  li.completed
+  :is(.gantt-note-text, .weekly-note-text) {
+  opacity: 1;
+  text-decoration: none;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-note-dates, .weekly-note-box small) {
+  display: block;
+  margin: 4px 0 0;
+  color: #567085;
+  font-weight: 500;
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+  white-space: normal;
+}
+html[data-theme] .app .projectmatrix .milestone-track .gantt-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 2px 0 7px;
+  margin-bottom: 7px;
+  border-bottom: 1px solid #bacede80;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  text-align: left;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  .gantt-group-heading
+  > span {
+  padding: 1px 6px;
+  border-radius: 12px;
+  background: #ffffffa0;
+  white-space: nowrap;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-resize-handle, .weekly-note-resize) {
+  width: 7px;
+  background: transparent;
+  opacity: 0.3;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-resize-handle, .weekly-note-resize)::after {
+  background: var(--gantt-color);
+  width: 2px;
+  height: 13px;
+  box-shadow: 3px 0 var(--gantt-color);
+}
+html[data-theme] .app .projectmatrix .milestone-point-label {
+  position: absolute;
+  left: 34px;
+  width: var(--point-label-width);
+  display: block;
+  color: #365b79;
+  background: #ffffffed;
+  padding: 3px 5px;
+  border-radius: 4px;
+  text-align: left;
+  pointer-events: auto;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-point[data-label-side="left"]
+  .milestone-point-label {
+  left: auto;
+  right: 34px;
+  text-align: right;
+}
+html[data-theme] .app .projectmatrix .milestone-point-label strong {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html[data-theme] .app .projectmatrix .milestone-point-label time {
+  display: block;
+  color: #567085;
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+  font-weight: 500;
+  white-space: nowrap;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-point[data-completed]
+  .milestone-point-label {
+  color: #376d4d;
+}
+html[data-theme] .app .projectmatrix .milestone-point .milestone-diamond {
+  box-shadow: 0 0 0 3px #eaf1f8;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-point[data-completed]
+  .milestone-diamond {
+  background: #518567;
+  border-color: #518567;
+  box-shadow: 0 0 0 3px #edf6f0;
+}
+html[data-theme] .app .projectmatrix .milestone-point:focus-visible {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: 3px;
+  border-radius: 5px;
+}
+.weekly-note-tooltip > strong {
+  white-space: pre-line;
+}
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  .gantt-bar:is(.start, .end, .start.end) {
+  border-radius: 8px;
+}
+/* Older compact bars hid their whole note list below 88px. Dates remain readable. */
+html[data-theme]
+  .app
+  .projectmatrix
+  .milestone-track
+  :is(.gantt-bar, .weekly-note-box)
+  .gantt-note-list {
+  visibility: visible;
+}

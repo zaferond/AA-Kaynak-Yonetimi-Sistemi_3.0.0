@@ -1,3 +1,4 @@
+import FilterSelect from "../../components/FilterSelect";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
@@ -199,18 +200,21 @@ export default function ScenarioWarningsPanel({
       >
         <label className="pick progress-project-filter">
           <span>Proje</span>
-          <select value={project} onChange={(e) => setProject(e.target.value)}>
+          <FilterSelect
+            value={project}
+            onChange={(e) => setProject(e.target.value)}
+          >
             <option value="">Tümü</option>
             {data.projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         <label className="pick">
           <span>Durum</span>
-          <select
+          <FilterSelect
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
           >
@@ -220,17 +224,17 @@ export default function ScenarioWarningsPanel({
                 {label}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </label>
         <label className="pick">
           <span>Sıralama</span>
-          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+          <FilterSelect value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="month-desc">Ay: yeniden eskiye</option>
             <option value="month-asc">Ay: eskiden yeniye</option>
             <option value="project">Proje adı</option>
             <option value="code">Kod</option>
             <option value="status">Durum</option>
-          </select>
+          </FilterSelect>
         </label>
       </ProgressFilters>
       <div className="progress-toolbar">

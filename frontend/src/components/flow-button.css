@@ -107,6 +107,13 @@ html[data-theme] .auth-panel .auth-submit.flow-button.flow-button.flow-button {
 .bulkbar {
   --flow-button-height: var(--btn-h, 32px);
 }
+html[data-theme]
+  :is(.app, [data-slot="dialog-content"])
+  .schedule-card-buttons
+  .flow-button.flow-button.flow-button {
+  gap: 6px;
+  white-space: nowrap;
+}
 @media (pointer: coarse) {
   html[data-theme]
     :is(.app, [data-slot="dialog-content"], .auth-panel)
