@@ -106,7 +106,7 @@ export async function checkCalendarWarningReview(f) {
   try {
     await open();
     await f.check(
-      "calendar warnings: priorities, evidence and pending data are separate; healthy projects do not produce warnings",
+      "calendar warnings: priorities and evidence are shown; healthy and incomplete projects do not produce warnings",
       async () => {
         await rows.first().waitFor();
         assert.equal(await rows.count(), 3);
@@ -125,11 +125,6 @@ export async function checkCalendarWarningReview(f) {
           await panel
             .getByRole("columnheader", { name: label, exact: true })
             .waitFor();
-        await panel.locator(".calendar-warning-pending summary").click();
-        await panel
-          .locator(".calendar-warning-pending")
-          .getByText("Review missing", { exact: true })
-          .waitFor();
         assert.match(
           await rows.first().innerText(),
           /Hedef %50 · Gerçekleşen %20 · Sapma -30 puan/,
@@ -194,7 +189,7 @@ export async function checkCalendarWarningReview(f) {
       },
     );
     await f.check(
-      "calendar warnings: outdated evaluations move to pending without erasing action history",
+      "calendar warnings: outdated evaluations are excluded without erasing action history",
       async () => {
         await page.clock.setFixedTime(new Date("2026-11-02T09:00:00Z"));
         await page.reload();
@@ -203,14 +198,6 @@ export async function checkCalendarWarningReview(f) {
           .getByText("Takip gerektiren uyarı yok", { exact: true })
           .waitFor();
         assert.equal(await rows.count(), 0);
-        await panel
-          .locator(".calendar-warning-pending")
-          .getByText("Review critical", { exact: true })
-          .waitFor();
-        assert.match(
-          await panel.locator(".calendar-warning-pending").innerText(),
-          /güncel değil/,
-        );
         assert.equal(
           (await f.state()).scenarioWarnings
             .find((w) => w.projectId === "review-critical")

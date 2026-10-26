@@ -204,14 +204,6 @@ export default function ScenarioWarningsPanel({
       today,
     ],
   );
-  const pending = data.projects.flatMap((p) => {
-    if ((project && p.id !== project) || p.start > today.slice(0, 7)) return [];
-    const a = data.warningAssessments?.find((item) => item.id === p.id);
-    const reason = a
-      ? pendingAssessmentReason(a, today)
-      : "Henüz kilitli bir değerlendirme yok. Hedef, gerçekleşen ve ay kilidi bilgileri bekleniyor.";
-    return reason ? [{ project: p, assessment: a, reason }] : [];
-  });
   const recommendation = (w: ScenarioWarning) =>
     w.assessment.progressState
       ? warningRecommendation(
@@ -327,32 +319,6 @@ export default function ScenarioWarningsPanel({
           </FilterSelect>
         </label>
       </ProgressFilters>
-      <p className="calendar-warning-method">
-        Son kilitli ayın hedef–gerçekleşen sapması ve kaynak karşılama tahmini
-        esas alınır. Öneriler proje sorumlusunun değerlendirmesi içindir; bitiş
-        tarihi tahmini değildir.
-      </p>
-      {pending.length > 0 && (
-        <details
-          className="calendar-warning-pending"
-          open={rows.length === 0 ? true : undefined}
-        >
-          <summary>Değerlendirme bekliyor ({pending.length})</summary>
-          <ul>
-            {pending.map(({ project: p, assessment, reason }) => (
-              <li key={p.id}>
-                <strong>{p.name}</strong>
-                <span>
-                  {assessment?.month
-                    ? `Son değerlendirme: ${monthLabel(assessment.month)} · `
-                    : ""}
-                  {reason}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
       <div className="progress-toolbar">
         <span className="progress-result-count">{rows.length} uyarı</span>
         <ReportDownloadButton
@@ -635,7 +601,7 @@ export default function ScenarioWarningsPanel({
         >
           {project || status !== "active" || priority
             ? "Seçili filtrelere uyan uyarı bulunamadı."
-            : "Değerlendirilebilen projelerde seçili kapsam için takip gerektiren bir durum bulunmuyor. Eksik veya güncel olmayan kayıtlar değerlendirme bekleyenler bölümündedir."}
+            : "Seçili kapsam için takip gerektiren güncel bir uyarı bulunmuyor."}
         </EmptyState>
       )}
       {pageCount > 1 && (

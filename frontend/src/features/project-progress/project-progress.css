@@ -1405,40 +1405,9 @@
 .project-progress .scenario-warning-table th:nth-child(9) {
   width: 12%;
 }
-.calendar-warning-method {
-  color: var(--brand-muted);
-  font-size: var(--fs-xs);
-  margin: 10px 0;
-}
 .calendar-warning-code {
   display: block;
   margin-top: 6px;
-  color: var(--brand-muted);
-  font-size: var(--fs-xs);
-}
-.calendar-warning-pending {
-  margin-block: 12px;
-  padding: 12px;
-  border: 1px solid var(--tbl-frame);
-  border-radius: 8px;
-  background: #f7f9fc;
-}
-.calendar-warning-pending summary {
-  cursor: pointer;
-  font-weight: 600;
-}
-.calendar-warning-pending ul {
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.calendar-warning-pending li {
-  display: grid;
-  gap: 4px;
-  padding-block: 8px;
-  border-top: 1px solid var(--tbl-frame);
-}
-.calendar-warning-pending li span {
   color: var(--brand-muted);
   font-size: var(--fs-xs);
 }
