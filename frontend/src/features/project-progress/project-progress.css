@@ -1369,6 +1369,9 @@
 .project-progress .scenario-warning-table .scenario-row-actions .button {
   min-height: 28px;
   padding: 4px 6px;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .project-progress .scenario-warning-table {
@@ -1376,7 +1379,7 @@
   min-width: 1200px;
 }
 .project-progress .scenario-warning-table th:nth-child(1) {
-  width: 12%;
+  width: 11%;
 }
 .project-progress .scenario-warning-table th:nth-child(2) {
   width: 9%;
@@ -1400,7 +1403,7 @@
   width: 14%;
 }
 .project-progress .scenario-warning-table th:nth-child(9) {
-  width: 11%;
+  width: 12%;
 }
 .calendar-warning-method {
   color: var(--brand-muted);

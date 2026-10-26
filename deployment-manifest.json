@@ -1,7 +1,7 @@
 {
   "format": "aa-deployment-v1",
   "version": "3.0.0",
-  "commit": "3ea73b79d05a5951600e6f74513efc992316a818",
+  "commit": "e70137a88d20e34585e97945246192ff2c7d6139",
   "sources": {
     "backend/active-directory.mjs": "3664ad7f8903dab2e832c09ae9553f2008510f34470f76ef3886d5e780cdf08f",
     "backend/activity-report.mjs": "34216f736e4c37369e1941d4b3b32112e85ddbd5769bf97144b6ff259147dbf5",
@@ -280,7 +280,7 @@
     "frontend/src/features/project-progress/ProgressProcessHelp.tsx": "b76a87bc48fee0a4ac21fa59b6d38a64b656fc088037f4e9704487f9b5efba91",
     "frontend/src/features/project-progress/ProgressReport.tsx": "feab283df83cf14b541dc28eb7881141625f2f13a8f2dcef89ab89786e201ff6",
     "frontend/src/features/project-progress/ProgressTopicCells.tsx": "1ff905fed776d3e4c5a6e623fcd09c4f042a0174a80d6370cb298de149f7b0e8",
-    "frontend/src/features/project-progress/project-progress.css": "1e852da522e8fd435e9cff779a67197abb1845411105398de14a7a136e1a2507",
+    "frontend/src/features/project-progress/project-progress.css": "08f18bffb9a0db55c82ffed33c0ec07dea671422052bfa334f8309afcfd481ae",
     "frontend/src/features/project-progress/ProjectProgressLine.tsx": "a5fdf1d5669a904d1faaea3fa2689207a7222c4971bdf582612e0d034f723f09",
     "frontend/src/features/project-progress/ProjectProgressPanel.tsx": "d65fb8f2f7f2d9ffa5870883f86cadf5287c8596771981147e4b4ffe58546cbe",
     "frontend/src/features/project-progress/scenario-warning-export.ts": "4a1ec01ccc06aeb445e1b3b721c6f7aa3565c1617c961bd79e4838139794f4c2",
@@ -841,6 +841,8 @@
     "site/assets/app.65bcdfde508a.js.gz": "b79f8c9283d6a5eaa038e3300968a2eacfcfcc666724e73802612996519707af",
     "site/assets/app.698796f60ccb.js": "698796f60ccbe2b2e1f233c351c147a1a112ceddb23fa21603890c37255dabdb",
     "site/assets/app.698796f60ccb.js.gz": "017c0e12f16b379f774f6d5f69b80f9efce1ef3340bae1d60471155427defd2c",
+    "site/assets/app.69e3ca6cd081.css": "69e3ca6cd0819c6004f5c22d69edbaa10ac55d08962aa7ccde7803580441b479",
+    "site/assets/app.69e3ca6cd081.css.gz": "500ad0393ba85f524a3f2f0152ef4b5f75bae99d4c9bdea84035a69af6f2ea31",
     "site/assets/app.6bd08f165ae3.js": "55c6a92ab69fe83b638d35f9d793deee016e0fa6a9cfb0264968c05a5e29e40e",
     "site/assets/app.6bd08f165ae3.js.gz": "5f0008b4d2d16b73ec06b34f8590f26e9f8df3176b5df314549dd5a7a38f6515",
     "site/assets/app.6cbf86a980b3.css": "6cbf86a980b3800a2b9e625f9050c2dff4fdcca46359602c831fccc0906f7c5c",
@@ -3990,12 +3992,12 @@
     "site/assets/login-vehicle-cobra-2.1f6f20790725.jpg": "1f6f20790725e08003f31d80c862fd5662e3d9aa05285d11b1b7510a731d0f6c",
     "site/assets/login-vehicle-tulpar.a65fa090f8c1.jpg": "a65fa090f8c1ee228ecd2a67fb16685cb571e8b8a2de20015b3d3467f2989392",
     "site/assets/otokar-logo.svg": "486de40ba4120bd86b887036af3920b218cad55899f686f5f6b70c6c6feb3b38",
-    "site/index.html": "77f26c5ec1f222a697dc73f3f39c56e399de2ed6d9112778eb00b4a268815ce6",
-    "site/index.html.gz": "a28458e252ef100fa49c0ed9620d0de71be48da4f71c8838b4b419c826eec92e"
+    "site/index.html": "382553c7a935dca19b1de7fd26caaf40940db2ee3692dba4433e610ed712a836",
+    "site/index.html.gz": "5d67045a59c03f9b573cbb1ef566dc41daa5cb38bd10899073fb85624120a69a"
   },
   "releaseArtifacts": {
-    "site/assets/app.23de19a2d54d.css": "23de19a2d54d04378f94b2de6664ce0b7c072a2b4b0150a1a2860e01e7ac0b69",
-    "site/assets/app.23de19a2d54d.css.gz": "36b2fa35cec7427facd722310ddd70adf80117df5e125cc70f20a78186b7941e",
+    "site/assets/app.69e3ca6cd081.css": "69e3ca6cd0819c6004f5c22d69edbaa10ac55d08962aa7ccde7803580441b479",
+    "site/assets/app.69e3ca6cd081.css.gz": "500ad0393ba85f524a3f2f0152ef4b5f75bae99d4c9bdea84035a69af6f2ea31",
     "site/assets/app.79aee48a5d9e.js": "9c35ef521deafa5913d13983a992c0b73e9f7e75e1700049ddb89a85b4753344",
     "site/assets/app.79aee48a5d9e.js.gz": "f64935ddeff5dd252f445d6558f81a3d95b1ee296bc3361a9b6a8dca461c217c",
     "site/assets/chunk.120358654b52.js": "50d500e2a121a3bb880fb27e063b532abe2cc102da923c89d86acfc47b64a335",
@@ -4068,7 +4070,7 @@
     "site/assets/login-vehicle-cobra-2.1f6f20790725.jpg": "1f6f20790725e08003f31d80c862fd5662e3d9aa05285d11b1b7510a731d0f6c",
     "site/assets/login-vehicle-tulpar.a65fa090f8c1.jpg": "a65fa090f8c1ee228ecd2a67fb16685cb571e8b8a2de20015b3d3467f2989392",
     "site/assets/otokar-logo.svg": "486de40ba4120bd86b887036af3920b218cad55899f686f5f6b70c6c6feb3b38",
-    "site/index.html": "77f26c5ec1f222a697dc73f3f39c56e399de2ed6d9112778eb00b4a268815ce6",
-    "site/index.html.gz": "a28458e252ef100fa49c0ed9620d0de71be48da4f71c8838b4b419c826eec92e"
+    "site/index.html": "382553c7a935dca19b1de7fd26caaf40940db2ee3692dba4433e610ed712a836",
+    "site/index.html.gz": "5d67045a59c03f9b573cbb1ef566dc41daa5cb38bd10899073fb85624120a69a"
   }
 }
