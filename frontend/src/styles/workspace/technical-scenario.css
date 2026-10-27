@@ -434,12 +434,11 @@ html[data-theme="technical"] .schedule-scenario-top > .saved-scenarios > ul {
 /* One compact action line in the entry pane, including the scenario name. */
 html[data-theme="technical"] .schedule-scenario-top .schedule-card-action-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  overflow: visible;
   padding-bottom: 2px;
   --btn-h: 28px;
   --btn-px: 8px;
@@ -454,10 +453,10 @@ html[data-theme="technical"]
   .schedule-scenario-top
   .schedule-card-action-row
   .schedule-field-name {
-  flex: 1 0 160px;
+  flex: 1 1 150px;
   width: auto;
   max-width: none;
-  min-width: 160px;
+  min-width: 150px;
   gap: 6px;
 }
 html[data-theme="technical"]
@@ -467,6 +466,8 @@ html[data-theme="technical"]
   input {
   height: 28px;
   min-height: 28px;
+  width: 0;
+  min-width: 0;
 }
 html[data-theme="technical"]
   .schedule-scenario-top
@@ -484,6 +485,58 @@ html[data-theme="technical"]
   gap: 5px;
 }
 
+@media (max-width: 640px) {
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-action-row {
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 4px;
+    overflow-x: visible;
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-action-row
+    .schedule-field-name {
+    flex: 1 1 68px;
+    min-width: 68px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-field-name
+    > span {
+    font-size: 10px;
+  }
+  html[data-theme="technical"] .schedule-scenario-top .schedule-card-buttons {
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-action-row
+    .schedule-field-name
+    input {
+    flex: none;
+    width: 100%;
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-buttons
+    .button {
+    padding-inline: 6px;
+  }
+  html[data-theme="technical"]
+    .schedule-scenario-top
+    .schedule-card-buttons
+    .flow-button-indicator {
+    display: none;
+  }
+}
+
 @media (min-width: 1280px) {
   html[data-theme="technical"]
     .schedule-scenario-top
@@ -492,6 +545,15 @@ html[data-theme="technical"]
     flex-direction: row;
     align-items: center;
     gap: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  html[data-theme="technical"] .schedule-scenario-top .schedule-card-buttons {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
   }
 }
 

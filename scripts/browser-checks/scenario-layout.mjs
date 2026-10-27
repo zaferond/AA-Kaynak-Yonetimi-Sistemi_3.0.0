@@ -130,7 +130,7 @@ export async function checkScenarioLayout(f) {
       },
     );
     await f.check(
-      "scenario layout: narrow screens stack both panes and keep every action on the same scrollable line",
+      "scenario layout: narrow screens stack both panes and show the name and actions without horizontal form scrolling",
       async () => {
         await openScenarioEntry(page);
         await page.setViewportSize({ width: 390, height: 844 });
@@ -143,11 +143,17 @@ export async function checkScenarioLayout(f) {
             .locator(".schedule-card-buttons")
             .boundingBox(),
           name = await card.getByLabel("Senaryo İsmi").boundingBox();
-        assert(Math.abs(buttons.y - name.y) < 3);
+        assert(buttons && name);
         assert(
-          await card
-            .locator(".schedule-card-action-row")
-            .evaluate((el) => getComputedStyle(el).overflowX === "auto"),
+          await card.locator(".schedule-card-action-row").evaluate((el) => {
+            const field = el.querySelector("input").getBoundingClientRect();
+            const box = el.getBoundingClientRect();
+            return (
+              el.scrollWidth <= el.clientWidth + 1 &&
+              field.x >= box.x - 1 &&
+              field.right <= box.right + 1
+            );
+          }),
         );
         for (const pane of [left, right])
           assert(

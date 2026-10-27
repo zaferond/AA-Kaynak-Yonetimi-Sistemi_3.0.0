@@ -12,6 +12,7 @@ import { activityQuery } from "./activity-report.mjs";
 import { ReportReadAdmission } from "./report-read-admission.mjs";
 import express from "express";
 import { staticSite } from "./static-site.mjs";
+import { createHealthCheck } from "./health-check.mjs";
 import { randomUUID } from "node:crypto";
 import {
   assertAdminPassword,
@@ -179,23 +180,11 @@ export function createApp(
     const raw = part?.slice(sessionCookieName.length + 1);
     return raw && /^[a-zA-Z0-9_-]+$/.test(raw) ? raw : undefined;
   };
-  // For IT monitoring and service restarts: no session, no details. 503 when
-  // the database does not answer within 5 seconds.
+  // One shared DB job; an HTTP timeout never releases its in-flight slot.
+  const healthCheck = createHealthCheck(store);
   app.get("/api/health", async (_req, res) => {
-    let timeout;
-    try {
-      await Promise.race([
-        store.generation(),
-        new Promise((_, reject) => {
-          timeout = setTimeout(() => reject(Error("timeout")), 5000);
-        }),
-      ]);
-      res.json({ status: "ok" });
-    } catch {
-      res.status(503).json({ status: "unavailable" });
-    } finally {
-      clearTimeout(timeout);
-    }
+    if (await healthCheck()) res.json({ status: "ok" });
+    else res.status(503).json({ status: "unavailable" });
   });
   const dummy = hashPassword(token());
   app.post(

@@ -54,6 +54,44 @@ test("health reports 503 when the database does not answer", async (t) => {
   assert.deepEqual(await response.json(), { status: "unavailable" });
 });
 
+test("health bursts share one DB job even after timeout or client disconnect, then recover", async (t) => {
+  let release,
+    calls = 0;
+  const held = new Promise((resolve) => {
+    release = resolve;
+  });
+  t.after(() => release());
+  const origin = await serve(t, {
+    generation: () => {
+      calls++;
+      return held;
+    },
+    cleanupSessions: async () => {},
+  });
+  const controller = new AbortController();
+  const disconnected = fetch(origin + "/api/health", {
+    signal: controller.signal,
+  }).catch(() => null);
+  const requests = Array.from({ length: 12 }, () =>
+    fetch(origin + "/api/health"),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  controller.abort();
+  await disconnected;
+  const responses = await Promise.all(requests);
+  assert(responses.every((response) => response.status === 503));
+  assert.equal(calls, 1);
+  const later = await Promise.all(
+    Array.from({ length: 12 }, () => fetch(origin + "/api/health")),
+  );
+  assert(later.every((response) => response.status === 503));
+  assert.equal(calls, 1);
+  release();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal((await fetch(origin + "/api/health")).status, 200);
+  assert.equal(calls, 1);
+});
+
 test("slow API requests are logged without their query text", async (t) => {
   const lines = [];
   const store = {

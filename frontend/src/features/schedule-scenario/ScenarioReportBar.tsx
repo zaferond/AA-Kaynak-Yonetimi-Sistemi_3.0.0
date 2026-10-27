@@ -97,7 +97,7 @@ export default function ScenarioReportBar({
           }}
         >
           <Trash2 size={14} aria-hidden="true" />
-          Senaryoları Sil
+          Kaldır
         </button>
       </div>
     </div>

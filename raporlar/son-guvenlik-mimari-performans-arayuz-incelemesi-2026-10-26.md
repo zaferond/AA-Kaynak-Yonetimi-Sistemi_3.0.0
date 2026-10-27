@@ -1,5 +1,7 @@
 # Güvenlik, mimari, performans ve arayüz incelemesi — 26.10.2026
 
+Güncel inceleme: [27.10.2026 raporu](son-guvenlik-mimari-performans-arayuz-incelemesi-2026-10-27.md).
+
 ## Düzeltme durumu — 26.10.2026
 
 S-02 (oturum kotası), L-01 (değerlendirme filtreleri), L-02 (aksiyon taslağı), U-01 (kapatma simgesi) ve P-01 (gzip sunumu) düzeltildi. Ayrıntılar ve güncel doğrulama sonuçları [düzeltme raporunda](duzeltme-ve-dogrulama-raporu-2026-10-26.md).

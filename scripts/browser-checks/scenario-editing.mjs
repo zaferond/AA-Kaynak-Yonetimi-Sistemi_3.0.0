@@ -40,6 +40,126 @@ export async function checkScenarioEditing(f) {
   };
   try {
     await f.check(
+      "scenario editing: name remains visible and editable beside actions on desktop, tablet and phone without horizontal scrolling",
+      async () => {
+        await open();
+        await saved()
+          .getByRole("button", { name: "Düzenle", exact: true })
+          .click();
+        const name = card().getByLabel("Senaryo İsmi", { exact: true });
+        for (const width of [1600, 1366, 1280, 1024, 768, 390, 320]) {
+          await page.setViewportSize({ width, height: 900 });
+          const closeMenu = page.getByRole("button", {
+            name: "Sol menüyü kapat",
+            exact: true,
+          });
+          if (width < 1100 && (await closeMenu.isVisible()))
+            await closeMenu.click();
+          await card()
+            .locator(".schedule-card-action-row")
+            .evaluate((row) => {
+              row.scrollLeft = 0;
+            });
+          const geometry = await card()
+            .locator(".schedule-card-action-row")
+            .evaluate((row) => {
+              const input = row.querySelector("input").getBoundingClientRect();
+              const buttons = row
+                .querySelector(".schedule-card-buttons")
+                .getBoundingClientRect();
+              const box = row.getBoundingClientRect();
+              return {
+                input: {
+                  x: input.x,
+                  y: input.y,
+                  width: input.width,
+                  right: input.right,
+                },
+                buttons: { y: buttons.y, right: buttons.right },
+                left: box.x,
+                right: box.right,
+                clientWidth: row.clientWidth,
+                scrollWidth: row.scrollWidth,
+              };
+            });
+          assert(
+            geometry.input.width >= 60,
+            `name usable at ${width}: ${JSON.stringify(geometry)}`,
+          );
+          assert(
+            geometry.input.x >= geometry.left - 1 &&
+              geometry.input.right <= geometry.right + 1,
+            `name within card at ${width}: ${JSON.stringify(geometry)}`,
+          );
+          assert(
+            geometry.buttons.right <= geometry.right + 1,
+            `actions within card at ${width}`,
+          );
+          assert(
+            geometry.scrollWidth <= geometry.clientWidth + 1,
+            `no horizontal form scroll at ${width}: ${JSON.stringify(geometry)}`,
+          );
+          if (width >= 390)
+            assert(
+              Math.abs(geometry.input.y - geometry.buttons.y) < 3,
+              `single row at ${width}: ${JSON.stringify(geometry)}`,
+            );
+          if (width === 390)
+            await f.capture(page, "scenario-editing-phone-name");
+          await name.fill("Editable A");
+        }
+        // Browser/page scaling can make a desktop half-pane narrower than a
+        // phone layout. Measure before typing/focus can scroll hidden content.
+        for (const zoom of [1, 1.1, 1.25]) {
+          await page.locator(".app").evaluate((el, value) => {
+            el.style.zoom = String(value);
+          }, zoom);
+          for (const width of [1366, 1280, 768, 390, 320]) {
+            await page.setViewportSize({ width, height: 900 });
+            const bounds = await card().evaluate((element) => {
+              const field = element.querySelector(
+                'input[aria-label="Senaryo İsmi"]',
+              );
+              const row = field.closest(".schedule-card-action-row");
+              row.scrollLeft = 0;
+              const input = field.getBoundingClientRect(),
+                box = element.getBoundingClientRect();
+              return {
+                x: input.x,
+                right: input.right,
+                width: input.width,
+                cardX: box.x,
+                cardRight: box.right,
+                rowWidth: row.clientWidth,
+                rowContent: row.scrollWidth,
+              };
+            });
+            assert(
+              bounds.width >= 60 &&
+                bounds.x >= bounds.cardX &&
+                bounds.right <= bounds.cardRight &&
+                bounds.right <= width,
+              `visible name at ${width}/${zoom}: ${JSON.stringify(bounds)}`,
+            );
+            assert(
+              bounds.rowContent <= bounds.rowWidth + 1,
+              `no hidden name at ${width}/${zoom}: ${JSON.stringify(bounds)}`,
+            );
+          }
+        }
+        await page.locator(".app").evaluate((el) => {
+          el.style.zoom = "";
+        });
+        await card()
+          .getByRole("button", {
+            name: "Editable A senaryo düzenlemesini iptal et",
+            exact: true,
+          })
+          .click();
+        await page.setViewportSize({ width: 1600, height: 1000 });
+      },
+    );
+    await f.check(
       "scenario editing: Edit precedes Delete, opens all fields, saves the same record and preserves its creator",
       async () => {
         await open();
