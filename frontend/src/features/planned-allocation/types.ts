@@ -39,6 +39,8 @@ export type PlannedAllocationProps = {
   actualTotals: Record<string, number>;
   onlyDataRows: boolean;
   onOnlyDataRowsChange: (only: boolean) => void;
+  showCompletedProjects: boolean;
+  onShowCompletedProjectsChange: (show: boolean) => void;
   showAllActual: boolean;
   onShowAllActualChange: (show: boolean) => void;
   expandedActualTeams: string[];

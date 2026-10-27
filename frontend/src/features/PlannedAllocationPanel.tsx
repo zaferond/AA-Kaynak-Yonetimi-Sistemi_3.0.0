@@ -1,4 +1,9 @@
 import { Switch } from "@/components/ui/switch";
+import { useMemo, useState } from "react";
+import {
+  completedPlanningCount,
+  visiblePlanningProjects,
+} from "./planned-allocation/completed-projects";
 import EmptyState from "../components/EmptyState";
 import PlannedCapacitySummary from "./planned-allocation/PlannedCapacitySummary";
 import PlannedAllocationTable from "./planned-allocation/PlannedAllocationTable";
@@ -7,6 +12,37 @@ import { useViewportWorkspace } from "./workspace/useViewportWorkspace";
 export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
   const { teams, projects, groups, onlyDataRows } = props;
   const viewportRef = useViewportWorkspace();
+  const [visibilityError, setVisibilityError] = useState("");
+  const completedCount = useMemo(
+    () =>
+      completedPlanningCount({
+        allocations: props.data.allocations,
+        projects,
+        teamIds: teams.map((team) => team.id),
+        months: props.months,
+        onlyDataRows,
+      }),
+    [props.data.allocations, projects, teams, props.months, onlyDataRows],
+  );
+  const visibleProjects = visiblePlanningProjects(
+    projects,
+    props.showCompletedProjects,
+  );
+  function changeCompletedVisibility(show: boolean) {
+    if (
+      !show &&
+      props.planTableRef.current?.querySelector(
+        '[data-completed-project="true"] [data-window-keep="true"]',
+      )
+    ) {
+      setVisibilityError(
+        "Tamamlanan projedeki değişikliği kaydedin veya Escape ile iptal edin; ardından projeleri gizleyebilirsiniz.",
+      );
+      return;
+    }
+    setVisibilityError("");
+    props.onShowCompletedProjectsChange(show);
+  }
   return (
     <section className="panel workspace-dock" ref={viewportRef}>
       <PlannedCapacitySummary {...props} />
@@ -31,23 +67,56 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
           />
           Sadece veri olanlar
         </label>
+        <div className="completed-planning-control">
+          <label>
+            <Switch
+              size="sm"
+              aria-label="Tamamlanan projeleri göster"
+              checked={props.showCompletedProjects}
+              onCheckedChange={changeCompletedVisibility}
+            />
+            Tamamlanan projeleri göster
+          </label>
+          {completedCount > 0 && (
+            <span className="completed-planning-count">
+              {completedCount} tamamlanan proje{" "}
+              {props.showCompletedProjects ? "gösteriliyor" : "gizli"}
+            </span>
+          )}
+        </div>
       </div>
+      {visibilityError && (
+        <p className="completed-planning-error negative" role="alert">
+          {visibilityError}
+        </p>
+      )}
       <PlannedAllocationTable {...props} />
-      {(!teams.length || !projects.length) && (
+      {(!teams.length || !visibleProjects.length) && (
         <EmptyState
-          title="Gösterilecek plan yok"
+          title={
+            teams.length && completedCount > 0 && !props.showCompletedProjects
+              ? "Tamamlanan projeler gizli"
+              : "Gösterilecek plan yok"
+          }
           action={
-            props.onResetFilters && {
-              label: "Filtreleri Sıfırla",
-              onClick: props.onResetFilters,
-            }
+            teams.length && completedCount > 0 && !props.showCompletedProjects
+              ? {
+                  label: "Tamamlanan projeleri göster",
+                  onClick: () => changeCompletedVisibility(true),
+                }
+              : props.onResetFilters && {
+                  label: "Filtreleri Sıfırla",
+                  onClick: props.onResetFilters,
+                }
           }
         >
-          Seçili filtrelere uyan takım veya proje bulunamadı.
+          {teams.length && completedCount > 0 && !props.showCompletedProjects
+            ? "Seçili filtrelerde yalnız tamamlanan projeler var. Görünüm seçeneğini açarak kayıtları inceleyebilirsiniz."
+            : "Seçili filtrelere uyan takım veya proje bulunamadı."}
         </EmptyState>
       )}
       {!!teams.length &&
-        !!projects.length &&
+        !!visibleProjects.length &&
         onlyDataRows &&
         !groups.length && (
           <EmptyState

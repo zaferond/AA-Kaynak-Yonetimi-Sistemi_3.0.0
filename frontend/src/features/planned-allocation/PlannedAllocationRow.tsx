@@ -5,6 +5,7 @@ import type { Team, Project } from "../../model";
 import { fmt, monthLabel } from "../../format";
 import Cell from "../../components/AllocationCell";
 import ProjectResponsible from "../../ProjectResponsible";
+import CompletedProjectBadge from "./CompletedProjectBadge";
 import PlannedPhaseButton from "./PlannedPhaseButton";
 import {
   actualRowsVisible,
@@ -106,6 +107,7 @@ export default function PlannedAllocationRow({
             : undefined
         }
         data-planning-owner={t.id}
+        data-completed-project={p.completed || undefined}
         data-hierarchy-depth={planningUnitHierarchy(data, t).depth}
       >
         <TableCell className="rowname">
@@ -113,7 +115,10 @@ export default function PlannedAllocationRow({
           {view === "team" && <span className="indent">↳</span>}
           {view === "team" ? (
             <span className="project-row-label">
-              <span>{p.name}</span>
+              <span className="planning-project-title">
+                <span>{p.name}</span>
+                <CompletedProjectBadge project={p} />
+              </span>
               <ProjectResponsible project={p} />
             </span>
           ) : (

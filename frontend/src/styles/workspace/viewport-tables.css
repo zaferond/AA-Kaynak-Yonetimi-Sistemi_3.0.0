@@ -48,6 +48,61 @@
 }
 
 /* Compact controls stay visible between the filter summary and scrolling grid. */
+.app .completed-planning-control,
+.app .completed-planning-control > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.app .completed-planning-control {
+  flex-wrap: wrap;
+}
+.app .completed-planning-control > label {
+  min-height: 24px;
+  margin: 0;
+  color: var(--brand-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.app .completed-planning-count {
+  padding: 3px 7px;
+  border: 1px solid var(--tbl-frame);
+  border-radius: 5px;
+  background: var(--tbl-row-hover);
+  color: var(--brand-muted);
+  font-size: var(--fs-xs);
+}
+.app .completed-planning-error {
+  margin: 8px 12px;
+}
+html[data-theme="technical"]
+  .app.tab-plan
+  .allocation-grid
+  :is(.project-group-name, .project-row-label)
+  > .planning-project-title {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  .app.tab-plan
+  .allocation-grid
+  .planning-project-title
+  > .completed-planning-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--brand-muted);
+}
 .app .workspace-view-options {
   display: flex;
   align-items: center;

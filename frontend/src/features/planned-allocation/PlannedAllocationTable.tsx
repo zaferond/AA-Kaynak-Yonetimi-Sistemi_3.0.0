@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { fmt, monthLabel } from "../../format";
 import ProjectResponsible from "../../ProjectResponsible";
+import CompletedProjectBadge from "./CompletedProjectBadge";
 import PlannedTableHeaders from "./PlannedTableHeaders";
 import PlannedTeamHeader from "./PlannedTeamHeader";
 import PlannedPhaseButton from "./PlannedPhaseButton";
@@ -135,6 +136,7 @@ export default function PlannedAllocationTable(
                   data-window-key={key}
                   className="project-row-group"
                   data-project-group={p.id}
+                  data-completed-project={p.completed || undefined}
                 >
                   {first && (
                     <TableRow
@@ -142,7 +144,10 @@ export default function PlannedAllocationTable(
                       data-project-heading={p.id}
                     >
                       <TableCell className="project-group-name">
-                        <strong>{p.name}</strong>
+                        <span className="planning-project-title">
+                          <strong>{p.name}</strong>
+                          <CompletedProjectBadge project={p} />
+                        </span>
                         <ProjectResponsible project={p} />
                         <span>
                           {monthLabel(p.start)} → {monthLabel(p.end)}

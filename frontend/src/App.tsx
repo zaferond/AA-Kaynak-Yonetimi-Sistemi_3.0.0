@@ -28,6 +28,7 @@ import WorkspaceNavigation, {
 } from "./features/WorkspaceNavigation";
 import WorkspaceFilters from "./features/WorkspaceFilters";
 import PlannedAllocationPanel from "./features/PlannedAllocationPanel";
+import { visiblePlanningProjects } from "./features/planned-allocation/completed-projects";
 import { useOnlyDataRows } from "./features/workspace/useOnlyDataRows";
 import { isProjectEditor } from "../../shared/project-access.ts";
 import { useProjectMenus } from "./features/useProjectMenus";
@@ -117,6 +118,8 @@ export default function Portal() {
   const [organizationView, setOrganizationView] = useState("employees");
   const [reportView, setReportView] = useState<ReportView>("resources");
   const [projectView, setProjectView] = useState<ProjectView>("projects");
+  const [showCompletedPlanProjects, setShowCompletedPlanProjects] =
+    useState(false);
   const [progressActionsHost, setProgressActionsHost] =
     useState<HTMLDivElement | null>(null);
   const [progressView, setProgressView] = useState<ProgressView>("plan");
@@ -447,6 +450,7 @@ export default function Portal() {
     planPage,
     projectPage,
     onlyDataRows,
+    hideCompletedPlanProjects: tab === "plan" && !showCompletedPlanProjects,
   });
   const scenarioState = useScheduleScenarios(
     viewData,
@@ -543,7 +547,10 @@ export default function Portal() {
     reportView,
     todayDate,
     teams,
-    projects,
+    projects:
+      tab === "plan"
+        ? visiblePlanningProjects(projects, showCompletedPlanProjects)
+        : projects,
     months,
     density,
     projectWeekly: timelineWeekly,
@@ -874,6 +881,12 @@ export default function Portal() {
                     actualTotals={actualTotals}
                     onlyDataRows={onlyDataRows}
                     onOnlyDataRowsChange={setOnlyDataRows}
+                    showCompletedProjects={showCompletedPlanProjects}
+                    onShowCompletedProjectsChange={(show) => {
+                      setShowCompletedPlanProjects(show);
+                      setCells([]);
+                      setPlanMenu(null);
+                    }}
                     showAllActual={showAllActual}
                     onShowAllActualChange={(show) => {
                       setShowAllActual(show);

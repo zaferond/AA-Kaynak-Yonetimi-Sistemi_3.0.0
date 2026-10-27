@@ -15,6 +15,7 @@ type ViewFilters = WorkspaceFilterValues & {
   planPage: number;
   projectPage: number;
   onlyDataRows?: boolean;
+  hideCompletedPlanProjects?: boolean;
 };
 export function useWorkspaceView(
   data: Data | null,
@@ -33,6 +34,7 @@ export function useWorkspaceView(
     planPage,
     projectPage,
     onlyDataRows,
+    hideCompletedPlanProjects,
   } = filters;
   const scope = useMemo(
     () => selectWorkspaceScope(data, user, filters),
@@ -56,19 +58,30 @@ export function useWorkspaceView(
     [data],
   );
   const allocations = data?.allocations;
+  const completedIds = useMemo(
+    () =>
+      new Set(
+        scope.projects
+          .filter((project) => project.completed)
+          .map((project) => project.id),
+      ),
+    [scope.projects],
+  );
   const pages = useMemo(
     () =>
       selectWorkspacePages(
         scope.teams,
         scope.projects,
         filters,
-        onlyDataRows
+        onlyDataRows || hideCompletedPlanProjects
           ? (teamId, projectId) =>
-              months.some(
-                (month) =>
-                  (allocations?.[teamId + "|" + projectId + "|" + month] ||
-                    0) !== 0,
-              )
+              (!hideCompletedPlanProjects || !completedIds.has(projectId)) &&
+              (!onlyDataRows ||
+                months.some(
+                  (month) =>
+                    (allocations?.[teamId + "|" + projectId + "|" + month] ||
+                      0) !== 0,
+                ))
           : undefined,
       ),
     [
@@ -79,6 +92,8 @@ export function useWorkspaceView(
       planPage,
       projectPage,
       onlyDataRows,
+      hideCompletedPlanProjects,
+      completedIds,
       onlyDataRows && allocations,
       onlyDataRows && months,
     ],
