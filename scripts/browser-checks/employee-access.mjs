@@ -222,26 +222,24 @@ export async function checkEmployeeAccess(f) {
             exact: true,
           })
           .click();
-        await dialog()
-          .getByLabel("Ad Soyad", { exact: true })
-          .fill("Manual name to replace");
         await choose("Takım", f.teamA.name);
-        await dialog()
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("new-ad");
+        assert.equal(
+          await dialog()
+            .getByLabel("Hesap Eşleştirmesi", { exact: true })
+            .inputValue(),
+          "Active Directory",
+        );
+        assert.equal(
+          await dialog()
+            .locator('select[aria-label="Hesap Eşleştirmesi"]')
+            .count(),
+          0,
+        );
         const mainName = dialog()
           .getByLabel("Ad Soyad", { exact: true })
           .first();
         assert.equal(await mainName.inputValue(), "");
         assert.equal(await mainName.getAttribute("readonly"), "");
-        await dialog()
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("");
-        assert.equal(await mainName.inputValue(), "Manual name to replace");
-        assert.equal(await mainName.getAttribute("readonly"), null);
-        await dialog()
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("new-ad");
         const accountFields = dialog().locator(".resource-account-section");
         assert.equal(
           await accountFields
@@ -253,7 +251,7 @@ export async function checkEmployeeAccess(f) {
           .getByLabel("Kullanıcı Ara", { exact: true })
           .fill("new.manager");
         await accountFields
-          .getByRole("button", { name: "Ara / Yenile", exact: true })
+          .getByRole("button", { name: "Kullanıcı Ara", exact: true })
           .click();
         await accountFields
           .getByRole("button", {

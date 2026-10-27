@@ -1,4 +1,4 @@
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, chooseTestDirectoryUser } from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 export async function checkResourceRoles(f) {
@@ -24,7 +24,9 @@ export async function checkResourceRoles(f) {
   async function save(status = 200) {
     const response = page.waitForResponse(
       (r) =>
-        r.url().endsWith("/api/changes") && r.request().method() === "POST",
+        (r.url().endsWith("/api/changes") ||
+          r.url().endsWith("/api/employees/save")) &&
+        r.request().method() === "POST",
     );
     await dialog().getByRole("button", { name: "Kaydet", exact: true }).click();
     assert.equal((await response).status(), status);
@@ -35,7 +37,7 @@ export async function checkResourceRoles(f) {
     await page
       .getByRole("button", { name: "Kaynak Ekle / Yetki Tanımla", exact: true })
       .click();
-    await dialog().getByLabel("Ad Soyad", { exact: true }).fill(name);
+    await chooseTestDirectoryUser(f, page, name);
     assert.deepEqual(
       await dialog()
         .getByLabel("Kaynak Rolü", { exact: true })
@@ -174,7 +176,10 @@ export async function checkResourceRoles(f) {
           true,
         );
         assert.equal(
-          await dialog().getByLabel("Ad Soyad", { exact: true }).inputValue(),
+          await dialog()
+            .getByLabel("Ad Soyad", { exact: true })
+            .first()
+            .inputValue(),
           "Synthetic Duplicate Leader",
         );
         assert.deepEqual(await f.state(), before);
@@ -219,7 +224,10 @@ export async function checkResourceRoles(f) {
         const before = await f.state();
         await expectPopup(() => save(400), "Synthetic Competing Leader", true);
         assert.equal(
-          await dialog().getByLabel("Ad Soyad", { exact: true }).inputValue(),
+          await dialog()
+            .getByLabel("Ad Soyad", { exact: true })
+            .first()
+            .inputValue(),
           "Synthetic Stale Leader",
         );
         assert.deepEqual(await f.state(), before);
@@ -239,7 +247,10 @@ export async function checkResourceRoles(f) {
           original.name,
         );
         assert.equal(
-          await dialog().getByLabel("Ad Soyad", { exact: true }).inputValue(),
+          await dialog()
+            .getByLabel("Ad Soyad", { exact: true })
+            .first()
+            .inputValue(),
           "Synthetic Duplicate Owner",
         );
         assert.deepEqual(await f.state(), before);
@@ -276,7 +287,10 @@ export async function checkResourceRoles(f) {
         state = await f.state();
         await expectPopup(() => save(400), original.name);
         assert.equal(
-          await dialog().getByLabel("Ad Soyad", { exact: true }).inputValue(),
+          await dialog()
+            .getByLabel("Ad Soyad", { exact: true })
+            .first()
+            .inputValue(),
           "Synthetic Stale Owner",
         );
         assert.deepEqual(await f.state(), state);

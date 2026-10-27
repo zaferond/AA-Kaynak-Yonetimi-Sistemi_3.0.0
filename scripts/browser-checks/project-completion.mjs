@@ -13,6 +13,27 @@ export async function checkProjectCompletion(f) {
           name: "Proje Bilgilerini Düzenle",
           exact: true,
         });
+        const status = editor.getByRole("group", {
+          name: "Proje Durumu",
+          exact: true,
+        });
+        const layout = await status
+          .locator(".project-completed-field")
+          .evaluate((label) => {
+            const check = label.querySelector("input").getBoundingClientRect(),
+              text = label.querySelector("span").getBoundingClientRect();
+            return {
+              horizontal:
+                check.right <= text.x &&
+                Math.abs(
+                  check.y + check.height / 2 - text.y - text.height / 2,
+                ) < 2,
+              framed:
+                getComputedStyle(label.closest("fieldset")).borderTopStyle ===
+                "solid",
+            };
+          });
+        assert(layout.horizontal && layout.framed);
         await editor
           .getByRole("checkbox", { name: "Tamamlandı", exact: true })
           .check();

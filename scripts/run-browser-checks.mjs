@@ -1,3 +1,4 @@
+import { checkResourceAccountStatus } from "./browser-checks/resource-account-status.mjs";
 import {
   checkProgressFilterDraftGuard,
   checkWarningActionDraftGuard,
@@ -91,6 +92,7 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkResourceAccountStatus,
   checkProgressFilterDraftGuard,
   checkWarningActionDraftGuard,
   checkProjectCompletion,

@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import http from "node:http";
 import { once } from "node:events";
+import { createHash } from "node:crypto";
 import { chromium } from "playwright";
 import { Store } from "../../backend/store.mjs";
 import { createApp } from "../../backend/app.mjs";
@@ -11,7 +12,7 @@ import { hashPassword } from "../../backend/auth.mjs";
 import { syntheticDirectory } from "../../tests/directory-fixture.mjs";
 import { applyChanges } from "../../backend/operations.mjs";
 
-export async function fixture({ mutationLimits } = {}) {
+export async function fixture({ mutationLimits, directoryUsers = [] } = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "aa-browser-checks-"));
   // Deliberately never read .env, DB_* or an application database/URL argument.
   const store = new Store({
@@ -138,6 +139,7 @@ export async function fixture({ mutationLimits } = {}) {
       name: "Directory New Account",
       email: "new.manager@example.test",
     });
+    for (const user of directoryUsers) directory.add(user);
     app = createApp(store, { origin, mutationLimits, directory });
     server.on("request", app);
     const options = { headless: true };
@@ -235,6 +237,7 @@ export async function fixture({ mutationLimits } = {}) {
       dir,
       store,
       actor,
+      addDirectoryUser: (user) => directory.add(user),
       teamA,
       teamB,
       password,
@@ -253,6 +256,27 @@ export async function fixture({ mutationLimits } = {}) {
     await close();
     throw error;
   }
+}
+
+/** Select an isolated AD identity through the same UI as a new employee. */
+export async function chooseTestDirectoryUser(f, page, name) {
+  const id = createHash("sha256").update(name).digest("hex").slice(0, 32);
+  f.addDirectoryUser({
+    id,
+    name,
+    username: "qa." + id.slice(0, 12),
+    email: "qa." + id.slice(0, 12) + "@example.test",
+  });
+  const fields = page.locator(
+    ".employee-access-editor .resource-account-section",
+  );
+  await fields.getByLabel("Kullanıcı Ara", { exact: true }).fill(name);
+  await fields
+    .getByRole("button", { name: "Kullanıcı Ara", exact: true })
+    .click();
+  await fields
+    .getByRole("button", { name: name + " kullanıcısını seç", exact: true })
+    .click();
 }
 
 /** Ensure the docked menu is visible. It is already open in a fresh session. */

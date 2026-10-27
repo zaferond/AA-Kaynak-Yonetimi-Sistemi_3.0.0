@@ -28,9 +28,6 @@ export async function checkAdAdminRole(f) {
             exact: true,
           })
           .click();
-        await dialog()
-          .getByLabel("Ad Soyad", { exact: true })
-          .fill("QA AD Administrator");
         // A Team Member's leadership follows the chosen team.
         await dialog()
           .getByRole("button", { name: "Takım", exact: true })
@@ -44,15 +41,18 @@ export async function checkAdAdminRole(f) {
           await dialog().getByLabel("Liderlik", { exact: true }).inputValue(),
           f.teamA.lead,
         );
-        await dialog()
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("new-ad");
+        assert.equal(
+          await dialog()
+            .getByLabel("Hesap Eşleştirmesi", { exact: true })
+            .inputValue(),
+          "Active Directory",
+        );
         const fields = dialog().locator(".resource-account-section");
         await fields
           .getByLabel("Kullanıcı Ara", { exact: true })
           .fill("new.manager");
         await fields
-          .getByRole("button", { name: "Ara / Yenile", exact: true })
+          .getByRole("button", { name: "Kullanıcı Ara", exact: true })
           .click();
         await fields
           .getByRole("button", {

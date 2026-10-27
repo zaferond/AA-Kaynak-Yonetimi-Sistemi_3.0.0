@@ -57,8 +57,30 @@ export default function ResourceEditorFields({
         currentPlanningDate(),
       )
     : { leaders: [], teams: [] };
-  const setVersion = (version: Partial<Version>) =>
-    setEditor({ ...editor, version: { ...editor.version, ...version } });
+  const setVersion = (version: Partial<Version>) => {
+    const next = { ...editor.version, ...version };
+    const form = editor.account?.form;
+    const previousLeaders = editor.version.lead ? [editor.version.lead] : [];
+    const defaultScope =
+      form &&
+      !form.id &&
+      !form.directoryUser &&
+      !form.planningTeams?.length &&
+      form.leaders.length === previousLeaders.length &&
+      form.leaders.every((lead, index) => lead === previousLeaders[index]);
+    setEditor({
+      ...editor,
+      version: next,
+      ...(defaultScope && next.lead !== editor.version.lead
+        ? {
+            account: {
+              ...editor.account!,
+              form: { ...form, leaders: next.lead ? [next.lead] : [] },
+            },
+          }
+        : {}),
+    });
+  };
   return (
     <>
       <div className="resource-form-heading">

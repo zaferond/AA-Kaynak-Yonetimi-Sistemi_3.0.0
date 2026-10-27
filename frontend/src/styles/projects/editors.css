@@ -755,14 +755,25 @@
   accent-color: var(--brand-primary, #405341);
 }
 
-html[data-theme] .editor .project-completed-field {
-  display: flex;
+[data-slot="dialog-content"] .project-status .project-completed-field {
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
+  width: fit-content;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
 }
-html[data-theme] .editor .project-completed-field input {
+[data-slot="dialog-content"] .project-status .project-completed-field span {
+  white-space: nowrap;
+}
+[data-slot="dialog-content"] .project-status .project-completed-field input {
   width: 16px;
   height: 16px;
-  min-height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
   flex: none;
+  accent-color: var(--brand-primary, #405341);
 }

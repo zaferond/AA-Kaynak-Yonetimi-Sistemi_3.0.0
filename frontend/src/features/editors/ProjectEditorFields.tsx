@@ -68,19 +68,22 @@ export default function ProjectEditorFields({
           </label>
         ))}
       </div>
-      <label className="project-completed-field">
-        <input
-          type="checkbox"
-          checked={!!editor.value.completed}
-          onChange={(e) =>
-            setEditor({
-              ...editor,
-              value: { ...editor.value, completed: e.target.checked },
-            })
-          }
-        />
-        Tamamlandı
-      </label>
+      <fieldset className="project-access project-status">
+        <legend>Proje Durumu</legend>
+        <label className="project-completed-field">
+          <input
+            type="checkbox"
+            checked={!!editor.value.completed}
+            onChange={(e) =>
+              setEditor({
+                ...editor,
+                value: { ...editor.value, completed: e.target.checked },
+              })
+            }
+          />
+          <span>Tamamlandı</span>
+        </label>
+      </fieldset>
       <ProjectAccessFields
         data={data}
         value={editor.value}

@@ -115,7 +115,7 @@ export default function AccessPermissionFields({
                 void directory.search(directoryQuery);
               }}
             >
-              Ara / Yenile
+              Kullanıcı Ara
             </button>
           </div>
           {directory.busy && (
@@ -126,6 +126,13 @@ export default function AccessPermissionFields({
           {directory.error && (
             <p className="negative" role="alert">
               {directory.error}
+            </p>
+          )}
+          {!directory.busy && !directory.error && !directory.configured && (
+            <p className="access-admin-note" role="status">
+              Active Directory bağlantısı henüz yapılandırılmamış. Kullanıcı
+              seçebilmek için sistem yöneticinizin bağlantıyı etkinleştirmesi
+              gerekir.
             </p>
           )}
           {directory.configured &&
@@ -189,6 +196,7 @@ export default function AccessPermissionFields({
                         ) : (
                           <Plus size={16} aria-hidden="true" />
                         )}
+                        {chosen ? "Seçildi" : "Seç"}
                       </button>
                     </div>
                   );
@@ -199,7 +207,7 @@ export default function AccessPermissionFields({
             <small className="access-directory-hint">
               {directory.hasMore
                 ? "İlk 50 sonuç gösteriliyor. Kullanıcı adı, ad veya e-posta ile aramayı daraltın."
-                : "Kullanıcıyı + ile seçin."}
+                : "Hesap eşleştirmesi için kullanıcı satırındaki Seç düğmesine basın."}
             </small>
           )}
           <label className="access-field">

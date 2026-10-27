@@ -1,7 +1,7 @@
 import { statuses } from "../../shared/model.ts";
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, chooseTestDirectoryUser } from "./fixture.mjs";
 
 export async function checkTeamOnlyResource(f) {
   const independent = {
@@ -173,7 +173,7 @@ export async function checkTeamOnlyResource(f) {
               (await firstField.innerText()).split("\n")[0],
               "Statü",
             );
-            await dialog().getByLabel("Ad Soyad", { exact: true }).fill(name);
+            await chooseTestDirectoryUser(f, page, name);
             await dialog()
               .getByLabel("Kaynak Rolü", { exact: true })
               .selectOption(role);
@@ -216,7 +216,8 @@ export async function checkTeamOnlyResource(f) {
             await page.keyboard.press("Escape");
             const response = page.waitForResponse(
               (r) =>
-                r.url().endsWith("/api/changes") &&
+                (r.url().endsWith("/api/changes") ||
+                  r.url().endsWith("/api/employees/save")) &&
                 r.request().method() === "POST",
             );
             await dialog()
@@ -256,7 +257,10 @@ export async function checkTeamOnlyResource(f) {
           };
           await chooseStatus(status);
           assert.equal(
-            await dialog().getByLabel("Ad Soyad", { exact: true }).count(),
+            await dialog()
+              .locator(".employee-resource-fields")
+              .getByLabel("Ad Soyad", { exact: true })
+              .count(),
             0,
           );
           assert.equal(
@@ -277,7 +281,10 @@ export async function checkTeamOnlyResource(f) {
           // Changing back to an employee restores the fields and employee defaults.
           await chooseStatus("Aktif Çalışan");
           assert.equal(
-            await dialog().getByLabel("Ad Soyad", { exact: true }).count(),
+            await dialog()
+              .locator(".employee-resource-fields")
+              .getByLabel("Ad Soyad", { exact: true })
+              .count(),
             1,
           );
           assert.equal(
@@ -344,7 +351,8 @@ export async function checkTeamOnlyResource(f) {
           await page.keyboard.press("Escape");
           const response = page.waitForResponse(
             (r) =>
-              r.url().endsWith("/api/changes") &&
+              (r.url().endsWith("/api/changes") ||
+                r.url().endsWith("/api/employees/save")) &&
               r.request().method() === "POST",
           );
           await dialog()

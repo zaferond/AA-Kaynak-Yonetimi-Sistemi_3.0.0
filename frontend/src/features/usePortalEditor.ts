@@ -1,6 +1,7 @@
 import {
   accountForm,
   employeePermission,
+  newDirectoryForm,
 } from "./access/employee-access-draft";
 import type { EmployeePermission } from "../../../shared/employee-account";
 import { isResponsibilityConflict } from "../../../shared/resource-roles";
@@ -248,22 +249,27 @@ export function usePortalEditor({
         };
     const workStart =
       !v.start && isWorkingStatus(v.status) ? currentYearStartDate() : v.start;
+    const value = r
+      ? structuredClone(r)
+      : { id: crypto.randomUUID(), name: "", note: "", versions: [] };
+    const linkedForm = r
+      ? accountForm(
+          data,
+          data.users?.find((u) => u.resourceId === r.id)?.id || "",
+        )
+      : null;
+    const posting = v.status === "Aktif İlan" || v.status === "Pasif İlan";
     setEditor({
       kind: "resource",
       account: {
-        form: r
-          ? accountForm(
-              data,
-              data.users?.find((u) => u.resourceId === r.id)?.id || "",
-            )
-          : null,
-        changed: false,
+        form:
+          linkedForm ||
+          (posting ? null : newDirectoryForm(value.id, v.lead || "")),
+        changed: !posting && !linkedForm,
       },
       baseRevisions: captureEditorRevisions(data),
       isNew: !r,
-      value: r
-        ? structuredClone(r)
-        : { id: crypto.randomUUID(), name: "", note: "", versions: [] },
+      value,
       version: {
         ...v,
         start: workStart,
@@ -282,8 +288,22 @@ export function usePortalEditor({
     const previousPosting =
       editor.version.status === "Aktif İlan" ||
       editor.version.status === "Pasif İlan";
+    const linked = data?.users?.find((u) => u.resourceId === editor.value.id);
+    const account = posting
+      ? data && linked
+        ? editor.account?.revoke
+          ? editor.account
+          : { form: accountForm(data, linked.id), changed: false }
+        : { form: null, changed: false }
+      : editor.account?.form
+        ? editor.account
+        : {
+            form: newDirectoryForm(editor.value.id, editor.version.lead || ""),
+            changed: true,
+          };
     setEditor({
       ...editor,
+      account,
       version: {
         ...editor.version,
         status,
@@ -315,14 +335,14 @@ export function usePortalEditor({
     if (!data || !editor) return;
     setFormError("");
     try {
-      const changes = prepareEditorChanges(data, editor, {
-        start,
-        resourceIds,
-      });
       const permission =
         editor.kind === "resource"
           ? employeePermission(editor.account, editor.value.id, data)
           : undefined;
+      const changes = prepareEditorChanges(data, editor, {
+        start,
+        resourceIds,
+      });
       if (permission) await saveEmployee(changes, permission);
       else await batch(changes);
       setEditor(null);

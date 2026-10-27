@@ -48,6 +48,56 @@ html[data-theme="technical"]
 }
 
 /* One field label. */
+/* Directory selection follows the current blue/grey form palette. */
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-results {
+  border-color: var(--tbl-frame);
+  border-radius: 6px;
+  background: #fff;
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-result {
+  border-bottom-color: var(--tbl-rule);
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-result:not(.is-selected):hover {
+  background: var(--tbl-row-hover);
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-result.is-selected {
+  background: var(--tbl-selected);
+  box-shadow: inset 3px 0 var(--brand-primary);
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-identity
+  strong {
+  color: var(--brand-text);
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  :is(
+    .access-directory-identity span,
+    .access-directory-identity small,
+    .access-directory-hint,
+    .resource-account-heading span
+  ) {
+  color: var(--brand-muted);
+}
+html[data-theme="technical"]
+  :is(.app, [data-slot="dialog-content"])
+  .access-directory-result.is-selected
+  .access-directory-select.button.button.button:disabled {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
+  opacity: 1;
+}
+
 html[data-theme="technical"]
   [data-slot="dialog-content"]
   label:has(

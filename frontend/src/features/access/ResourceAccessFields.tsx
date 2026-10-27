@@ -21,10 +21,10 @@ export default function ResourceAccessFields({
     form = draft.form;
   const [leaderQuery, setLeaderQuery] = useState(""),
     [directoryQuery, setDirectoryQuery] = useState("");
-  const directory = useDirectoryUsers(!!form && !form.id);
+  const posting = editor.version.status.includes("İlan");
+  const directory = useDirectoryUsers(!posting && !!form && !form.id);
   const selected = data.users?.find((u) => u.id === form?.id);
   const linked = data.users?.find((u) => u.resourceId === editor.value.id);
-  const posting = editor.version.status.includes("İlan");
   function update(form: PermissionForm | null, revoke = false) {
     setEditor({ ...editor, account: { form, changed: !!form, revoke } });
   }
@@ -32,57 +32,28 @@ export default function ResourceAccessFields({
     <section className="resource-account-section">
       <div className="resource-account-heading">
         <h3>Hesap ve Yetkiler</h3>
-        <span>{linked ? linked.username : "Hesap eşleştirilmedi"}</span>
+        <span>
+          {posting
+            ? "Hesap tanımlanmaz"
+            : linked
+              ? linked.username
+              : form?.directoryUser
+                ? `${form.directoryUser.username} · Henüz kaydedilmedi`
+                : "AD kullanıcısı seçin"}
+        </span>
       </div>
-      {posting && !form ? (
+      {posting ? (
         <p className="access-admin-note">İlan kaydına hesap tanımlanamaz.</p>
       ) : (
         <>
           {!linked && (
             <label className="access-field">
               Hesap Eşleştirmesi
-              <select
+              <input
                 aria-label="Hesap Eşleştirmesi"
-                disabled={busy}
-                value={form ? form.id || "new-ad" : ""}
-                onChange={(e) => {
-                  if (!e.target.value) {
-                    update(null);
-                    return;
-                  }
-                  const next =
-                    e.target.value === "new-ad"
-                      ? {
-                          id: "",
-                          role: "normal" as const,
-                          resourceId: editor.value.id,
-                          leaders: editor.version.lead
-                            ? [editor.version.lead]
-                            : [],
-                          planningTeams: [],
-                          revision: 0,
-                        }
-                      : accountForm(data, e.target.value);
-                  update(
-                    next && {
-                      ...next,
-                      resourceId: editor.value.id,
-                      leaders: editor.version.lead ? [editor.version.lead] : [],
-                    },
-                  );
-                }}
-              >
-                <option value="">Hesap tanımlama</option>
-                <option value="new-ad">Active Directory</option>
-                {data.users
-                  ?.filter((u) => !u.resourceId && u.role !== "admin")
-                  .map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} · {u.username}
-                      {!u.active ? " · Yetki kaldırılmış" : ""}
-                    </option>
-                  ))}
-              </select>
+                readOnly
+                value="Active Directory"
+              />
             </label>
           )}
           {form && !draft.revoke && (
@@ -101,43 +72,41 @@ export default function ResourceAccessFields({
               boundResource
             />
           )}
-          {linked && form && (
-            <button
-              type="button"
-              className={
-                "button" + (!draft.revoke ? " access-revoke-button" : "")
-              }
-              disabled={busy}
-              onClick={() => {
-                if (draft.revoke) {
-                  setEditor({
-                    ...editor,
-                    account: {
-                      form: accountForm(data, linked.id),
-                      changed: false,
-                    },
-                  });
-                  return;
-                }
-                if (
-                  window.confirm(
-                    `${linked.name} için uygulama yetkisi Kaydet ile kaldırılacak ve açık oturumları kapatılacak. Onaylıyor musunuz?`,
-                  )
-                )
-                  update(form, true);
-              }}
-            >
-              {draft.revoke
-                ? "Yetki Kaldırmayı Geri Al"
-                : "Uygulama Yetkisini Kaldır"}
-            </button>
-          )}
-          {draft.revoke && (
-            <p role="status" className="access-admin-note">
-              Kaydedildiğinde hesap yetkisi kaldırılacak. Çalışan kaydı korunur.
-            </p>
-          )}
         </>
+      )}
+      {linked && form && (
+        <button
+          type="button"
+          className={"button" + (!draft.revoke ? " access-revoke-button" : "")}
+          disabled={busy}
+          onClick={() => {
+            if (draft.revoke) {
+              setEditor({
+                ...editor,
+                account: {
+                  form: accountForm(data, linked.id),
+                  changed: false,
+                },
+              });
+              return;
+            }
+            if (
+              window.confirm(
+                `${linked.name} için uygulama yetkisi Kaydet ile kaldırılacak ve açık oturumları kapatılacak. Onaylıyor musunuz?`,
+              )
+            )
+              update(form, true);
+          }}
+        >
+          {draft.revoke
+            ? "Yetki Kaldırmayı Geri Al"
+            : "Uygulama Yetkisini Kaldır"}
+        </button>
+      )}
+      {draft.revoke && (
+        <p role="status" className="access-admin-note">
+          Kaydedildiğinde hesap yetkisi kaldırılacak. Çalışan kaydı korunur.
+        </p>
       )}
     </section>
   );

@@ -484,13 +484,15 @@
   font-size: var(--fs-xs);
 }
 .access-directory-select {
-  flex: 0 0 32px;
-  width: 32px;
+  flex: none;
+  min-width: 72px;
+  width: auto;
   height: 32px;
-  padding: 0;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
 }
 
 .employee-access-editor .resource-editor-actions {

@@ -312,9 +312,12 @@ export async function checkAccess(f) {
           .click();
         const form = page.locator('[data-slot="dialog-content"]');
         const accountForm = form.locator(".resource-account-section");
-        await accountForm
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("new-ad");
+        assert.equal(
+          await accountForm
+            .getByLabel("Hesap Eşleştirmesi", { exact: true })
+            .inputValue(),
+          "Active Directory",
+        );
         await accountForm
           .getByRole("button", {
             name: "Directory New Account kullanıcısını seç",
@@ -420,13 +423,12 @@ export async function checkAccess(f) {
           })
           .click();
         const form = page.locator('[data-slot="dialog-content"]');
-        const directoryResponse = page.waitForResponse((response) =>
-          response.url().includes("/api/directory/users?"),
+        assert.equal(
+          await form
+            .getByLabel("Hesap Eşleştirmesi", { exact: true })
+            .inputValue(),
+          "Active Directory",
         );
-        await form
-          .getByLabel("Hesap Eşleştirmesi", { exact: true })
-          .selectOption("new-ad");
-        await directoryResponse;
         await form
           .getByRole("status")
           .filter({ hasText: "AD kullanıcıları yükleniyor…" })
@@ -440,7 +442,7 @@ export async function checkAccess(f) {
         assert.equal(await form.locator(".access-directory-select").count(), 0);
         assert.equal(await form.locator('input[type="password"]').count(), 0);
         await form
-          .getByRole("button", { name: "Ara / Yenile", exact: true })
+          .getByRole("button", { name: "Kullanıcı Ara", exact: true })
           .click();
         const assigned = form.getByRole("button", {
           name: "Directory New Account kullanıcısını seç",
