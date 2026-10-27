@@ -25,6 +25,7 @@ export type Account = {
   resourceId?: string;
   authSource?: "local" | "ldap";
   directoryId?: string;
+  employeeNumber?: string;
   email?: string;
   leaders: string[];
   planningTeams?: string[];

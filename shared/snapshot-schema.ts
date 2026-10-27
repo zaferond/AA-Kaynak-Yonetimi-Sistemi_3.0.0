@@ -190,6 +190,7 @@ const accountSchema = z
       .string()
       .regex(/^[a-f0-9]{32}$/)
       .optional(),
+    employeeNumber: z.string().max(512).optional(),
     email: z.string().max(320).optional(),
     name: z.string().trim().min(1).max(150),
     role: z.enum(["admin", "manager", "normal"]),

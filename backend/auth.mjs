@@ -61,7 +61,12 @@ export const publicUser = (u) => ({
   role: u.role,
   resourceId: u.resourceId || "",
   ...(u.authSource === "ldap"
-    ? { authSource: "ldap", directoryId: u.directoryId, email: u.email || "" }
+    ? {
+        authSource: "ldap",
+        directoryId: u.directoryId,
+        email: u.email || "",
+        ...(u.employeeNumber ? { employeeNumber: u.employeeNumber } : {}),
+      }
     : {}),
   leaders: u.leaders,
   planningTeams: u.planningTeams || [],

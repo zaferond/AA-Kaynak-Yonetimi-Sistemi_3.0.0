@@ -19,7 +19,8 @@ export async function authenticateDirectoryAccount(
   if (
     user.username !== person.username ||
     user.name !== person.name ||
-    user.email !== person.email
+    user.email !== person.email ||
+    (person.employeeNumber && user.employeeNumber !== person.employeeNumber)
   ) {
     user = await store.mutate(
       user,
@@ -35,11 +36,23 @@ export async function authenticateDirectoryAccount(
             409,
             "Kurumsal kullanıcı adı başka bir hesapla çakışıyor. Sistem yöneticinizle görüşün.",
           );
+        if (person.employeeNumber) {
+          const sameEmployee = await store.findUser(
+            { employeeNumber: person.employeeNumber },
+            session,
+          );
+          if (sameEmployee && sameEmployee._id !== active._id)
+            fail(
+              409,
+              "Bu Sicil No başka bir hesaba bağlı. Sistem yöneticinizle görüşün.",
+            );
+        }
         const updated = {
           ...active,
           username: person.username,
           name: person.name,
           email: person.email,
+          employeeNumber: person.employeeNumber || active.employeeNumber,
           revision: active.revision + 1,
           version: active.version + 1,
         };

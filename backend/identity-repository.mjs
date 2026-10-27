@@ -1,3 +1,7 @@
+import { createHash } from "node:crypto";
+import { normalizeEmployeeNumber } from "../shared/directory-identity.ts";
+const employeeKey = (value) =>
+  createHash("sha256").update(normalizeEmployeeNumber(value)).digest("hex");
 import { SESSION_IDLE_MS } from "./session-policy.mjs";
 // SQL mapping only. The caller owns the connection and transaction.
 const mapUser = (r) =>
@@ -9,6 +13,7 @@ const mapUser = (r) =>
     resourceId: r.resource_id || "",
     authSource: r.auth_source || "local",
     directoryId: r.directory_id || "",
+    employeeNumber: r.employee_number || "",
     email: r.email || "",
     active: !!r.active,
     // "Normal-Proje": a normal account with admin rights on project screens.
@@ -48,10 +53,16 @@ export async function findUser(c, filter) {
       ? "id"
       : filter.directoryId !== undefined
         ? "directory_id"
-        : "username";
+        : filter.employeeNumber !== undefined
+          ? "employee_number_key"
+          : "username";
   const r = (
     await c.query(`SELECT * FROM kp_users WHERE [${col}]=@p0`, [
-      filter.id ?? filter.directoryId ?? filter.username,
+      filter.id ??
+        filter.directoryId ??
+        (filter.employeeNumber !== undefined
+          ? employeeKey(filter.employeeNumber)
+          : filter.username),
     ])
   ).rows[0];
   if (!r) return null;
@@ -80,6 +91,14 @@ export async function saveUser(c, u) {
       resource_id: u.resourceId || null,
       auth_source: u.authSource || "local",
       directory_id: u.directoryId || null,
+      employee_number:
+        u.authSource === "ldap"
+          ? normalizeEmployeeNumber(u.employeeNumber) || null
+          : null,
+      employee_number_key:
+        u.authSource === "ldap" && normalizeEmployeeNumber(u.employeeNumber)
+          ? employeeKey(u.employeeNumber)
+          : null,
       email: u.email || "",
       active: u.active,
       project_editor: u.role === "normal" && u.projectEditor ? 1 : 0,

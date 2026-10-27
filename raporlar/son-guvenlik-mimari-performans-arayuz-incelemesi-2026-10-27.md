@@ -1,5 +1,7 @@
 # Güvenlik, mimari, performans ve arayüz incelemesi — 27.10.2026
 
+> Güncel yeniden inceleme: [Son kontrol — güvenlik, mimari ve tasarım](son-kontrol-guvenlik-mimari-tasarim-2026-10-27.md).
+
 ## Düzeltme durumu — 27.10.2026
 
 D-01 sağlık kontrolü ve T-01 senaryo ismi görünürlüğü kullanıcı talebiyle düzeltildi. [Düzeltme ve doğrulama raporu](saglik-kontrolu-senaryo-duzenleme-duzeltmeleri-2026-10-27.md). G-01 ve B-01 açık kalır. Aşağıdaki inceleme ve yeniden üretim bilgileri düzeltme öncesindeki durumu kaydeder.

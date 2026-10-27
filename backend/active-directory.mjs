@@ -65,7 +65,14 @@ export function activeDirectoryConfig(env = {}) {
       throw Error(key + " tanımlanmalıdır.");
   const groupDN = env.AD_GROUP_DN || "";
   if (groupDN.length > 2000) throw Error("AD_GROUP_DN çok uzun.");
+  const employeeNumberAttribute =
+    env.AD_EMPLOYEE_NUMBER_ATTRIBUTE || "employeeID";
+  if (!/^[a-zA-Z][a-zA-Z0-9-]{0,99}$/.test(employeeNumberAttribute))
+    throw Error(
+      "AD_EMPLOYEE_NUMBER_ATTRIBUTE geçerli bir AD alan adı olmalıdır.",
+    );
   return {
+    employeeNumberAttribute,
     url: url.href,
     baseDN: env.AD_BASE_DN,
     bindDN: env.AD_BIND_DN,
@@ -85,7 +92,7 @@ const attributes = [
 ];
 const one = (value) =>
   Array.isArray(value) ? (value.length === 1 ? value[0] : undefined) : value;
-function profile(entry, now) {
+function profile(entry, now, employeeNumberAttribute) {
   const guid = one(entry.objectGUID),
     flags = String(one(entry.userAccountControl) ?? ""),
     computed = String(one(entry["msDS-User-Account-Control-Computed"]) ?? "0");
@@ -113,6 +120,7 @@ function profile(entry, now) {
     username,
     name: one(entry.displayName) || username,
     email: one(entry.mail) || "",
+    employeeNumber: one(entry[employeeNumberAttribute]) || "",
   });
   return parsed.success && typeof entry.dn === "string" && entry.dn
     ? { ...parsed.data, dn: entry.dn }
@@ -147,7 +155,7 @@ export class ActiveDirectory {
     now = Date.now,
     { activeLimit = 4, pendingLimit = 32, waitMs = 3000 } = {},
   ) {
-    this.#config = config;
+    this.#config = { employeeNumberAttribute: "employeeID", ...config };
     this.#createClient = createClient;
     this.#now = now;
     this.#limits = { activeLimit, pendingLimit, waitMs };
@@ -229,14 +237,18 @@ export class ActiveDirectory {
       const result = await client.search(this.#config.baseDN, {
         scope: "sub",
         filter: this.#filter(term),
-        attributes,
+        attributes: [...attributes, this.#config.employeeNumberAttribute],
         explicitBufferAttributes: ["objectGUID"],
         sizeLimit: 2,
         timeLimit: 5,
       });
       if (result.searchReferences?.length || result.searchEntries.length !== 1)
         return null;
-      return profile(result.searchEntries[0], this.#now());
+      return profile(
+        result.searchEntries[0],
+        this.#now(),
+        this.#config.employeeNumberAttribute,
+      );
     });
   }
   async listUsers(query = "") {
@@ -252,7 +264,7 @@ export class ActiveDirectory {
       for await (const result of client.searchPaginated(this.#config.baseDN, {
         scope: "sub",
         filter: this.#filter(term),
-        attributes,
+        attributes: [...attributes, this.#config.employeeNumberAttribute],
         explicitBufferAttributes: ["objectGUID"],
         paged: { pageSize: 51 },
         timeLimit: 5,
@@ -261,7 +273,9 @@ export class ActiveDirectory {
         return {
           users: result.searchEntries
             .slice(0, 50)
-            .map((r) => profile(r, this.#now()))
+            .map((r) =>
+              profile(r, this.#now(), this.#config.employeeNumberAttribute),
+            )
             .filter(Boolean)
             .map(publicProfile),
           hasMore: result.searchEntries.length >= 51,

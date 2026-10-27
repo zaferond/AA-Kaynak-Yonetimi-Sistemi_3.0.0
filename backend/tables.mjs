@@ -215,6 +215,8 @@ export const tables = {
       role: "varchar(10)",
       resource_id: "nvarchar(120)",
       directory_id: "varchar(32)",
+      employee_number: "nvarchar(512)",
+      employee_number_key: "varchar(64)",
       email: "nvarchar(320)",
       auth_source: "varchar(10)",
       active: "bit",

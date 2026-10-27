@@ -140,6 +140,20 @@ export default function ResourceEditorFields({
           </label>
         )}
       </div>
+      {!posting && directoryManaged && (
+        <label>
+          Sicil No
+          <input
+            readOnly
+            value={
+              editor.account?.form?.directoryUser?.employeeNumber ||
+              data?.users?.find((user) => user.id === editor.account?.form?.id)
+                ?.employeeNumber ||
+              ""
+            }
+          />
+        </label>
+      )}
       {!posting && (
         <label>
           Ad Soyad

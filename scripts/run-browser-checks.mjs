@@ -1,3 +1,4 @@
+import { checkDirectoryEmployeeNumber } from "./browser-checks/directory-employee-number.mjs";
 import { checkCompletedPlanning } from "./browser-checks/completed-planning.mjs";
 import { checkResourceAccountStatus } from "./browser-checks/resource-account-status.mjs";
 import {
@@ -95,6 +96,7 @@ import { checkProgressManagement } from "./browser-checks/progress-management.mj
 for (const check of [
   checkCompletedPlanning,
   checkResourceAccountStatus,
+  checkDirectoryEmployeeNumber,
   checkProgressFilterDraftGuard,
   checkWarningActionDraftGuard,
   checkProjectCompletion,

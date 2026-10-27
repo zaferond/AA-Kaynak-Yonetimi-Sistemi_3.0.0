@@ -4874,3 +4874,228 @@ test("a leave crossing the PO's month boundary is refused naming the out-of-scop
     200,
   );
 });
+
+test("Sicil No: authoritative AD identity prevents duplicate bindings across GUIDs and revoked accounts", async (t) => {
+  const directory = syntheticDirectory("Synthetic-sicil-only-735!");
+  const first = {
+    id: "a".repeat(32),
+    username: "sicil.first",
+    name: "Synthetic First",
+    email: "first@example.invalid",
+    employeeNumber: "00123",
+  };
+  const second = {
+    ...first,
+    id: "b".repeat(32),
+    username: "sicil.second",
+    name: "Synthetic Second",
+    employeeNumber: " ００１２３ ",
+  };
+  const missing = {
+    ...first,
+    id: "c".repeat(32),
+    username: "sicil.missing",
+    employeeNumber: "",
+  };
+  for (const person of [first, second, missing]) directory.add(person);
+  const f = await setup(t, { directory });
+  const team = (await f.state()).data.teams.find(
+    (team) => team.lead && team.kind !== "leadership",
+  );
+  const body = (id, person) => ({
+    changes: [
+      {
+        kind: "resource",
+        id,
+        revision: 0,
+        value: {
+          id,
+          name: "Client name",
+          note: "",
+          versions: [
+            {
+              effective: "2026-01",
+              team: team.id,
+              lead: team.lead,
+              status: "Aktif Çalışan",
+              included: true,
+              start: "2026-01-01",
+              end: "",
+              amount: 1,
+              assignmentRole: "member",
+            },
+          ],
+        },
+      },
+    ],
+    permission: {
+      action: "create",
+      directoryId: person.id,
+      role: "normal",
+      leaders: [],
+      resourceId: id,
+    },
+  });
+  const send = (id, person) =>
+    f.request("/employees/save", body(id, person), f.admin);
+  const created = await send("sicil-first", first);
+  assert.equal(created.status, 200, JSON.stringify(created.json));
+  const account = created.json.data.users.find(
+    (user) => user.directoryId === first.id,
+  );
+  assert.equal(
+    account.employeeNumber,
+    "00123",
+    "Leading zeros survive AD -> DB -> API",
+  );
+  assert.equal(
+    (await f.store.findUser({ employeeNumber: " ００１２３ " }))._id,
+    account.id,
+  );
+  const duplicate = await send("sicil-second", second);
+  assert.equal(duplicate.status, 409, JSON.stringify(duplicate.json));
+  assert.match(JSON.stringify(duplicate.json), /Sicil No/);
+  assert(
+    !(await f.state()).data.resources.some((r) => r.id === "sicil-second"),
+    "Duplicate account rejection rolls back employee creation",
+  );
+  assert.equal((await send("sicil-missing", missing)).status, 400);
+  const forged = body("sicil-forged", second);
+  forged.permission.employeeNumber = "99999";
+  assert.equal(
+    (await f.request("/employees/save", forged, f.admin)).status,
+    400,
+    "Client cannot override AD number",
+  );
+  await f.store.transaction(async (c) => {
+    const user = await f.store.findUser({ id: account.id }, c);
+    await f.store.saveUser({ ...user, active: false }, c);
+  });
+  assert.equal(
+    (await send("sicil-revoked", second)).status,
+    409,
+    "Revocation does not release the employee number",
+  );
+  const uniqueA = {
+    ...first,
+    id: "d".repeat(32),
+    username: "sicil.race.a",
+    employeeNumber: "00999",
+  };
+  const uniqueB = { ...uniqueA, id: "e".repeat(32), username: "sicil.race.b" };
+  directory.add(uniqueA);
+  directory.add(uniqueB);
+  const races = await Promise.all([
+    send("sicil-race-a", uniqueA),
+    send("sicil-race-b", uniqueB),
+  ]);
+  assert.deepEqual(races.map((r) => r.status).sort(), [200, 409]);
+  const saved = await f.store.findUser({ employeeNumber: "00999" });
+  await assert.rejects(
+    f.store.transaction(async (c) => {
+      await f.store.saveUser(
+        {
+          ...saved,
+          _id: "sicil-direct-duplicate",
+          username: "sicil.direct",
+          directoryId: "f".repeat(32),
+          resourceId: "",
+        },
+        c,
+      );
+    }),
+    /UNIQUE|unique/i,
+    "Unique SQL index is a second line of defence",
+  );
+});
+
+test("Sicil No: legacy AD accounts must synchronize before new provisioning; login backfills authoritative number", async (t) => {
+  const password = "Synthetic-legacy-sicil-only-829!";
+  const directory = syntheticDirectory(password);
+  const old = {
+    id: "a".repeat(32),
+    username: "sicil.legacy",
+    name: "Legacy Synthetic",
+    email: "legacy@example.invalid",
+    employeeNumber: "00001",
+  };
+  const next = {
+    ...old,
+    id: "b".repeat(32),
+    username: "sicil.next",
+    employeeNumber: "00002",
+  };
+  directory.add(old);
+  directory.add(next);
+  const f = await setup(t, { directory });
+  await f.store.bootstrapUser({
+    _id: "sicil-legacy",
+    ...old,
+    employeeNumber: undefined,
+    authSource: "ldap",
+    directoryId: old.id,
+    role: "normal",
+    leaders: [],
+    active: true,
+    password: await hashPassword(password),
+    version: 1,
+    revision: 1,
+  });
+  const team = (await f.state()).data.teams.find(
+    (team) => team.lead && team.kind !== "leadership",
+  );
+  await f.write([
+    {
+      kind: "resource",
+      id: "sicil-next-resource",
+      value: {
+        id: "sicil-next-resource",
+        name: "Synthetic Next",
+        note: "",
+        versions: [
+          {
+            effective: "2026-01",
+            team: team.id,
+            lead: team.lead,
+            status: "Aktif Çalışan",
+            included: true,
+            start: "2026-01-01",
+            end: "",
+            amount: 1,
+            assignmentRole: "member",
+          },
+        ],
+      },
+    },
+  ]);
+  const input = {
+    directoryId: next.id,
+    role: "normal",
+    leaders: [],
+    resourceId: "sicil-next-resource",
+  };
+  const blocked = await f.request("/users/create", input, f.admin);
+  assert.equal(blocked.status, 409, JSON.stringify(blocked.json));
+  assert.match(JSON.stringify(blocked.json), /Sicil No eşleştirmesi eksik/);
+  const login = await f.request("/auth/login", {
+    username: old.username,
+    password,
+  });
+  assert.equal(login.status, 200, JSON.stringify(login.json));
+  assert.equal(
+    (await f.store.findUser({ id: "sicil-legacy" })).employeeNumber,
+    "00001",
+  );
+  assert.equal((await f.request("/users/create", input, f.admin)).status, 200);
+  directory.update(old.id, { employeeNumber: "00002" });
+  const collision = await f.request("/auth/login", {
+    username: old.username,
+    password,
+  });
+  assert.equal(collision.status, 409);
+  assert.equal(
+    (await f.store.findUser({ id: "sicil-legacy" })).employeeNumber,
+    "00001",
+    "A conflicting AD change cannot silently rebind identity",
+  );
+});

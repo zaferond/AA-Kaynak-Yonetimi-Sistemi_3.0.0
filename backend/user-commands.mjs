@@ -140,6 +140,24 @@ export async function createEmployeeAccount(
       409,
       "Bu kullanıcı adı zaten kullanılıyor. Mevcut hesabı otomatik olarak AD hesabına dönüştürme işlemi yapılmadı.",
     );
+  if (!person.employeeNumber)
+    fail(400, "AD kaydında Sicil No bulunamadı. Sistem yöneticinizle görüşün.");
+  if (await store.findUser({ employeeNumber: person.employeeNumber }, session))
+    fail(
+      409,
+      "Bu Sicil No ile zaten hesap eşleştirilmiş. Mevcut hesabı Düzenle ekranından yönetin.",
+    );
+  if (
+    (
+      await session.query(
+        "SELECT id FROM kp_users WHERE auth_source='ldap' AND (employee_number IS NULL OR employee_number='')",
+      )
+    ).rows.length
+  )
+    fail(
+      409,
+      "Mevcut AD hesaplarının Sicil No eşleştirmesi eksik. Hesap sahipleri AD ile giriş yaptıktan sonra yeniden deneyin.",
+    );
   const id = "user-" + token();
   const { resourceId } = await checkScope(d, session, input, id, "ldap");
   await store.saveUser(
@@ -150,6 +168,7 @@ export async function createEmployeeAccount(
       email: person.email,
       authSource: "ldap",
       directoryId: person.id,
+      employeeNumber: person.employeeNumber,
       role: input.role,
       leaders: input.role === "admin" ? [] : input.leaders,
       planningTeams: input.role === "manager" ? input.planningTeams || [] : [],
