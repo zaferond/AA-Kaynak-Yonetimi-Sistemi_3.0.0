@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  activeProgressRecords,
   entryMonths,
   defaultEntryMonth,
 } from "../frontend/src/features/project-progress/progress-months.ts";
@@ -26,4 +27,15 @@ test("entry selection respects tracking start and has no phantom month before th
   assert.deepEqual(entryMonths("2026-09", records, true), []);
   assert.deepEqual(entryMonths("2026-10", records, true), ["2026-09"]);
   assert.deepEqual(entryMonths("2026-08", records, true), []);
+});
+test("completed projects no longer reach back the month strip", () => {
+  const data = {
+    projects: [{ id: "old", completed: true }, { id: "live" }],
+    projectProgress: [
+      { projectId: "old", baselines: [{ openingMonth: "2026-03" }] },
+      { projectId: "live", baselines: [{ openingMonth: "2029-05" }] },
+    ],
+  };
+  const records = activeProgressRecords(data);
+  assert.deepEqual(entryMonths("2030-02", records, true)[0], "2029-06");
 });

@@ -19,6 +19,7 @@ import {
   type ProgressItem,
 } from "./progress-scope";
 import {
+  activeProgressRecords,
   progressChange,
   defaultEntryMonth,
   type ProgressContext,
@@ -96,6 +97,16 @@ export default function PlanAndEntry({
     ]),
   ];
   const allowedMonths = new Set(months);
+  // Only this and last year stay open; older years sit behind a toggle so the
+  // strip keeps one height however long a project has been tracked.
+  const [showOlderYears, setShowOlderYears] = useState(false);
+  const recentFrom = String(Number(currentMonth.slice(0, 4)) - 1);
+  const olderYears = monthYears.filter(
+    (year) => year < recentFrom && year !== month.slice(0, 4),
+  );
+  const shownYears = showOlderYears
+    ? monthYears
+    : monthYears.filter((year) => !olderYears.includes(year));
   function resetAllFilters() {
     if (!onBeforeFilterChange()) return;
     onLeaderChange("");
@@ -242,7 +253,10 @@ export default function PlanAndEntry({
                 const next = waiting === key ? null : key;
                 if (next === "evaluation")
                   onMonthChange(
-                    defaultEntryMonth(currentMonth, ctx.data.projectProgress),
+                    defaultEntryMonth(
+                      currentMonth,
+                      activeProgressRecords(ctx.data),
+                    ),
                   );
                 setWaiting(next);
               }}
@@ -287,7 +301,7 @@ export default function PlanAndEntry({
           role="group"
           aria-label="Ay seçimi"
         >
-          {monthYears.map((year) => (
+          {shownYears.map((year) => (
             <div className="progress-month-year" key={year}>
               <strong>{year}</strong>
               <div className="progress-waiting-filter progress-month-filter">
@@ -321,6 +335,21 @@ export default function PlanAndEntry({
               </div>
             </div>
           ))}
+          {olderYears.length > 0 && (
+            <button
+              type="button"
+              className="progress-older-years"
+              aria-expanded={showOlderYears}
+              onClick={() => setShowOlderYears((open) => !open)}
+            >
+              {showOlderYears ? (
+                <ChevronDown size={14} aria-hidden />
+              ) : (
+                <ChevronRight size={14} aria-hidden />
+              )}
+              Önceki yıllar ({olderYears.length})
+            </button>
+          )}
         </div>
       )}
       {groups.length ? (

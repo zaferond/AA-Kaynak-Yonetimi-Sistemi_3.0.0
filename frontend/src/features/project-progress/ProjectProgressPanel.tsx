@@ -12,6 +12,7 @@ import { currentPlanningMonth } from "../../resource-dates";
 import PlanAndEntry from "./PlanAndEntry";
 import ProgressReport from "./ProgressReport";
 import {
+  activeProgressRecords,
   defaultEntryMonth,
   entryMonths,
   progressContext,
@@ -48,15 +49,12 @@ export default function ProjectProgressPanel({
   onSave: (changes: Change[]) => Promise<void>;
 }) {
   const currentMonth = currentPlanningMonth().slice(0, 7);
-  const months = entryMonths(
-    currentMonth,
-    data.projectProgress,
-    view === "plan",
-  );
+  const activeRecords = useMemo(() => activeProgressRecords(data), [data]);
+  const months = entryMonths(currentMonth, activeRecords, view === "plan");
   const [selectedMonth, setMonth] = useState(() =>
-    defaultEntryMonth(currentMonth, data.projectProgress),
+    defaultEntryMonth(currentMonth, activeRecords),
   );
-  const preferredMonth = defaultEntryMonth(currentMonth, data.projectProgress);
+  const preferredMonth = defaultEntryMonth(currentMonth, activeRecords);
   const month = months.includes(selectedMonth)
     ? selectedMonth
     : months.includes(preferredMonth)
@@ -85,7 +83,7 @@ export default function ProjectProgressPanel({
   );
   const ctx = useMemo(() => progressContext(progressData), [progressData]);
   // Entry-tab work counts must never include an unfinished report month.
-  const completedMonths = entryMonths(currentMonth, data.projectProgress, true);
+  const completedMonths = entryMonths(currentMonth, activeRecords, true);
   const workMonth = completedMonths.includes(month)
     ? month
     : completedMonths.at(-1) || "";
@@ -149,7 +147,7 @@ export default function ProjectProgressPanel({
   function resetSharedFilters() {
     setResponsible(null);
     setLeader("");
-    setMonth(defaultEntryMonth(currentMonth, data.projectProgress));
+    setMonth(defaultEntryMonth(currentMonth, activeRecords));
   }
 
   return (

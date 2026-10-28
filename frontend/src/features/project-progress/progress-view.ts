@@ -135,7 +135,11 @@ export const canLead = (user: Principal | null, leader: string) =>
   user?.role === "admin" ||
   (user?.role === "manager" && user.leaders.includes(leader));
 
-export { entryMonths, defaultEntryMonth } from "./progress-months.ts";
+export {
+  activeProgressRecords,
+  entryMonths,
+  defaultEntryMonth,
+} from "./progress-months.ts";
 
 export type LeaderRow = LeaderProgress & {
   signals: RiskSignal[];
