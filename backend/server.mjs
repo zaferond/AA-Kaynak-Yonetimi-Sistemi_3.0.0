@@ -58,7 +58,12 @@ try {
       revision: 1,
       version: 1,
     });
-  }
+  } else if (String(env.ADMIN_PASSWORD || "").trim())
+    // Only the first start reads it; leaving it behind keeps a known root
+    // password on disk and recreates it after a database reset.
+    console.warn(
+      "Uyarı: Yönetici hesabı zaten var; .env içindeki ADMIN_PASSWORD satırı artık kullanılmıyor. Satırı silin.",
+    );
   const { synchronizeProgressStarts } = await import("./progress-commands.mjs");
   const { captureLegacyResourceReferences, synchronizeScenarioWarnings } =
     await import("./scenario-warning-engine.mjs");

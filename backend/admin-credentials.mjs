@@ -9,6 +9,15 @@ const PASSWORD_PLACEHOLDERS = new Set(
     "yeni-sifreniz",
   ].map((value) => value.toLowerCase()),
 );
+// Literal passwords that were committed in tests; they stay in git history, so
+// they must never be accepted for a real account. Tests now generate theirs.
+const EXPOSED_PASSWORDS = new Set(
+  [
+    "Kurum-2026!Planlama",
+    "Temporary-password-test-1!",
+    "Chosen-password-test-2!",
+  ].map((value) => value.toLowerCase()),
+);
 /** Rejects empty, placeholder or username-equal admin passwords from .env. */
 export function assertAdminPassword(
   password,
@@ -30,6 +39,10 @@ export function assertAdminPassword(
     throw Error(
       name +
         " örnek dosyadaki yer tutucu veya kullanıcı adıyla aynı. Kendi şifrenizi yazın.",
+    );
+  if (EXPOSED_PASSWORDS.has(lower))
+    throw Error(
+      name + " kaynak kodda açıkça yer almış bir değer. Kendi şifrenizi yazın.",
     );
   if (password.length < 10 || password.length > 256)
     throw Error(name + " 10–256 karakter olmalıdır.");

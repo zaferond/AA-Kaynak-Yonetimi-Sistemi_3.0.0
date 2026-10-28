@@ -4,12 +4,14 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import http from "node:http";
+import { randomUUID } from "node:crypto";
 import { Store } from "../backend/store.mjs";
 import { createApp } from "../backend/app.mjs";
 import { hashPassword, verifyPassword } from "../backend/auth.mjs";
 
-const TEMPORARY = "Temporary-password-test-1!";
-const CHOSEN = "Chosen-password-test-2!";
+// Generated per run: a committed literal could end up as a real password.
+const TEMPORARY = "Gecici-" + randomUUID() + "-1!";
+const CHOSEN = "Secilen-" + randomUUID() + "-2!";
 
 async function setup(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "aa-password-http-"));

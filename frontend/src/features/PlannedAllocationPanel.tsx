@@ -28,17 +28,31 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
     projects,
     props.showCompletedProjects,
   );
-  function changeCompletedVisibility(show: boolean) {
+  // Changing which rows render can unmount a dirty, pending or failed cell and
+  // drop its unsaved draft; every row-visibility switch goes through here.
+  function changeVisibleRows(view: string, apply: () => void) {
     if (
       props.planTableRef.current?.querySelector('[data-window-keep="true"]')
     ) {
       setVisibilityError(
-        "Değişiklikleri kaydedin veya Escape ile iptal edin; ardından tamamlanan proje görünümünü değiştirebilirsiniz.",
+        "Değişiklikleri kaydedin veya Escape ile iptal edin; ardından " +
+          view +
+          " görünümünü değiştirebilirsiniz.",
       );
       return;
     }
     setVisibilityError("");
-    props.onShowCompletedProjectsChange(show);
+    apply();
+  }
+  function changeCompletedVisibility(show: boolean) {
+    changeVisibleRows("tamamlanan proje", () =>
+      props.onShowCompletedProjectsChange(show),
+    );
+  }
+  function changeOnlyDataRows(only: boolean) {
+    changeVisibleRows("Sadece Veri Olanlar", () =>
+      props.onOnlyDataRowsChange(only),
+    );
   }
   return (
     <section className="panel workspace-dock" ref={viewportRef}>
@@ -60,7 +74,7 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
           <Switch
             size="sm"
             checked={onlyDataRows}
-            onCheckedChange={props.onOnlyDataRowsChange}
+            onCheckedChange={changeOnlyDataRows}
           />
           Sadece Veri Olanlar
         </label>
@@ -120,7 +134,7 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
             title="Veri olan satır yok"
             action={{
               label: "Tüm Satırları Göster",
-              onClick: () => props.onOnlyDataRowsChange(false),
+              onClick: () => changeOnlyDataRows(false),
             }}
           >
             Seçili dönemde planlanan dağılımı olan satır bulunmuyor.

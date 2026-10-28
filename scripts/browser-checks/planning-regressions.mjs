@@ -122,6 +122,44 @@ export async function checkPlanningDraftVisibility(f) {
         assert.equal(await toggle.getAttribute("aria-checked"), "true");
       },
     );
+    await f.check(
+      "planning draft: Sadece Veri Olanlar keeps a failed draft on a row without saved data",
+      async () => {
+        const onlyData = page.getByRole("switch", {
+          name: "Sadece Veri Olanlar",
+          exact: true,
+        });
+        assert.equal(await onlyData.getAttribute("aria-checked"), "false");
+        await revealTableItem(container, input);
+        await input.fill("0,4");
+        await page.route(
+          "**/api/changes",
+          (route) =>
+            route.fulfill({
+              status: 503,
+              contentType: "application/json",
+              body: JSON.stringify({ error: "Synthetic only-data rejection" }),
+            }),
+          { times: 1 },
+        );
+        await input.press("Enter");
+        await input
+          .locator("..")
+          .getByText("Synthetic only-data rejection", { exact: true })
+          .waitFor();
+        await onlyData.click();
+        assert.equal(await onlyData.getAttribute("aria-checked"), "false");
+        assert.equal(await input.inputValue(), "0,4");
+        await page
+          .getByRole("alert")
+          .getByText(/Sadece Veri Olanlar görünümünü/)
+          .waitFor();
+        await input.press("Escape");
+        await onlyData.click();
+        assert.equal(await onlyData.getAttribute("aria-checked"), "true");
+        await onlyData.click();
+      },
+    );
   } finally {
     await context.close();
   }

@@ -1,4 +1,5 @@
 import test from "node:test";
+import { randomUUID } from "node:crypto";
 import assert from "node:assert/strict";
 import {
   assertAdminPassword,
@@ -30,8 +31,21 @@ test("admin bootstrap rejects empty, example and username-equal passwords", () =
 
 test("admin bootstrap accepts an operator-chosen password", () => {
   assert.doesNotThrow(() =>
-    assertAdminPassword("Kurum-2026!Planlama", "admin.kurum"),
+    assertAdminPassword("Kurum-" + randomUUID() + "!", "admin.kurum"),
   );
+});
+
+test("passwords once committed in tests are rejected for every account path", () => {
+  for (const value of [
+    "Kurum-2026!Planlama",
+    "temporary-password-test-1!",
+    " Chosen-password-test-2! ",
+  ])
+    for (const name of ["ADMIN_PASSWORD", "NEW_ADMIN_PASSWORD", "Yeni şifre"])
+      assert.throws(
+        () => assertAdminPassword(value, "admin.kurum", name),
+        /kaynak kodda/,
+      );
 });
 
 test("bootstrap and CLI reset reject the same weak temporary passwords as interactive changes", () => {
@@ -60,6 +74,6 @@ test("new local passwords need a letter and a digit and must not be a run or a r
     ["hgfedcba987", /ardışık/],
   ])
     assert.throws(() => assertNewPasswordStrength(value), pattern, value);
-  for (const value of ["Kurum-2026!Planlama", "Temporary-password-test-1!"])
+  for (const value of ["Kurum-" + randomUUID() + "!", "Gecici-sifre-ornek-7!"])
     assert.doesNotThrow(() => assertNewPasswordStrength(value));
 });

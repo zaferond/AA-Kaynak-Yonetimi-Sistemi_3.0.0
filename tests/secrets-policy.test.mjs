@@ -41,3 +41,26 @@ test("shared ignore policy protects real env variants and keeps examples trackab
     "a failed check must never echo its matched secret",
   );
 });
+
+test("check fails when the local .env admin password appears in a tracked file, without echoing it", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "aa-secrets-env-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  execFileSync("git", ["init", "--quiet"], { cwd: root });
+  const secret = "Synthetic-root-" + Date.now() + "!";
+  await fs.writeFile(path.join(root, ".gitignore"), ".env\n");
+  await fs.writeFile(
+    path.join(root, ".env"),
+    'ADMIN_PASSWORD="' + secret + '"\n',
+  );
+  await fs.writeFile(path.join(root, "notes.md"), "no secret here\n");
+  execFileSync("git", ["add", ".gitignore", "notes.md"], { cwd: root });
+  assert.deepEqual(await checkSecrets(root), []);
+  await fs.writeFile(
+    path.join(root, "fixture.mjs"),
+    "const p = " + JSON.stringify(secret),
+  );
+  execFileSync("git", ["add", "fixture.mjs"], { cwd: root });
+  const issues = await checkSecrets(root);
+  assert(issues.some((issue) => issue.file === "fixture.mjs"));
+  assert(!JSON.stringify(issues).includes(secret));
+});
