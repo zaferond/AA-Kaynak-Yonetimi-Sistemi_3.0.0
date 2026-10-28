@@ -13,6 +13,7 @@ import {
   topLeaderResourceByMonth,
   lastLockedMonth,
   changedLockedMonth,
+  lastActualEntryMonth,
 } from "../shared/project-progress.ts";
 import { currentPlanningDate } from "../shared/resource-dates.ts";
 
@@ -206,7 +207,11 @@ export function stageProgressChange(
     if (!first) fail(409, "Gerçekleşen girmeden önce temel plan onaylanmalı.");
     if (month <= first.openingMonth)
       fail(400, "Takip başlamadan önceki aylara giriş yapılamaz.");
-    if (month > current) fail(400, "Gelecek aylara gerçekleşen girilemez.");
+    if (month > lastActualEntryMonth(current))
+      fail(
+        400,
+        "Gerçekleşen yalnız tamamlanmış aylara girilir; içinde bulunulan ay sonraki ayın başında açılır.",
+      );
     if (locked.has(month))
       fail(409, `${month} kilitli; değişiklik için admin kilidi açmalı.`);
     if (!entry) {

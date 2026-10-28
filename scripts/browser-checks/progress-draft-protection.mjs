@@ -189,13 +189,9 @@ export async function checkProgressDraftProtection(f) {
               kind: "progress",
               id: record.id,
               revision: d.revisions["progress:" + record.id],
-              value: {
-                ...record,
-                actuals: {
-                  ...record.actuals,
-                  "2026-10": { pct: 35, note: "Remote October entry" },
-                },
-              },
+              // Any remote edit bumps the revision; the weight does not depend
+              // on today's date (actuals only open for finished months).
+              value: { ...record, weight: 3 },
             },
           ]);
         });
@@ -227,8 +223,8 @@ export async function checkProgressDraftProtection(f) {
         assert.equal(
           (await f.state()).projectProgress.find(
             (r) => r.id === "protected-progress",
-          ).actuals["2026-10"].pct,
-          35,
+          ).weight,
+          3,
         );
         page.off("request", observe);
       },

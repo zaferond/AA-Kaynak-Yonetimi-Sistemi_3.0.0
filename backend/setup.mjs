@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import { constants } from "node:fs";
 import { createInterface } from "node:readline/promises";
 import { Writable } from "node:stream";
-import { assertAdminPassword } from "./admin-credentials.mjs";
 const file = new URL("../.env", import.meta.url);
 let exists = false;
 try {
@@ -49,30 +48,6 @@ try {
       .trim()
       .toLowerCase();
   } while (!/^[a-z0-9._@+-]{3,100}$/.test(username));
-  let password;
-  while (true) {
-    password = await ask(
-      "Giriş şifreniz (en az 10 karakter; yazarken görünmez): ",
-      true,
-    );
-    if (
-      password.length < 10 ||
-      password.length > 256 ||
-      /[\r\n\x00]/.test(password) ||
-      password.includes("'")
-    ) {
-      console.log("10–256 karakter girin; tek tırnak kullanmayın.");
-      continue;
-    }
-    try {
-      assertAdminPassword(password, username, "Şifre");
-    } catch (error) {
-      console.log(error.message);
-      continue;
-    }
-    if (password === (await ask("Aynı şifreyi tekrar yazın: ", true))) break;
-    console.log("Şifreler uyuşmadı. Tekrar deneyin.");
-  }
   const content = `DB_PROVIDER=sqljs
 SQLJS_FILE=data/planlama.sqlite
 DB_AUTO_MIGRATE=false
@@ -81,12 +56,12 @@ HOST=127.0.0.1
 PORT=3000
 NODE_ENV=development
 ADMIN_USERNAME=${username}
-ADMIN_PASSWORD='${password}'
 `;
   await fs.writeFile(file, content, { flag: "wx", mode: 0o600 });
   console.log(
     "\nAyarlar hazır. Yerel sql.js modu hazır; Docker gerekmez. Giriş adınız: " +
-      username,
+      username +
+      "\nŞifre .env dosyasına yazılmaz: sunucu ilk açılışta konsola tek kullanımlık kurulum kodu basar; bu kodla girip kendi şifrenizi belirleyin.",
   );
 } finally {
   rl.close();

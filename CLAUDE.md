@@ -31,4 +31,6 @@ Requires Node.js ≥ 24 (backend imports `shared/*.ts` directly via Node's type 
 - **`frontend/`** — React 19 + Vite + Tailwind/Radix (shadcn-style components in `frontend/components`), built by `frontend/build.mjs` into `site/`, served statically by the backend. Entry: `frontend/src/App.tsx`.
 - **`tests/`** — `node:test` files; most spin up a sql.js Store with synthetic data. `scripts/` holds maintenance, packaging, and CI helpers.
 
+Deliberate product decisions (things that look like bugs but are not) are listed in `docs/URUN-KARARLARI.md`; check it before reporting or changing such behavior, and update it together with code and the user manual.
+
 The many dated `*.md` files at the repo root (MIMARI-*, N3-*, M*-…) are design/verification records for past changes; consult the relevant one when modifying that area.

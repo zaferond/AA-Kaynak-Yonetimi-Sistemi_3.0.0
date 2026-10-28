@@ -13,7 +13,7 @@ Bu paket iki mod içerir:
 2. **Node.js 24 veya daha yenisi** kurulu olmalı. Docker Desktop açmanız gerekmez.
 3. Çıkan klasörde **baslat-windows.cmd** dosyasına çift tıklayın.
 4. İlk çalıştırmada yönetici kullanıcı adı sorulur. Kendi kullanıcı adınızı veya e-postanızı yazın.
-5. En az 10 karakterlik kendi şifrenizi belirleyin; istenince tekrar yazın. Yazarken görünmez; bu normaldir. Bu kurulum aracında tek tırnak karakteri kullanmayın.
+5. Şifre sorulmaz. Sistem ilk açıldığında pencerede **Tek kullanımlık kurulum kodu** yazar. İlk girişte bu kodu şifre olarak kullanın; ardından en az 10 karakterlik kendi şifrenizi belirleyin.
 6. Paketlerin internetten indirilmesini bekleyin. **Sistem hazır: http://localhost:3000** mesajı geldiğinde tarayıcıda bu adresi açın.
 
 Pencere açık kalmalıdır. Sonraki açılışlarda aynı `baslat-windows.cmd` dosyasını çalıştırın; veriler ve şifre korunur.
@@ -69,7 +69,7 @@ Eski tek HTML sürümünün şifreli yedeği için `IT-MSSQL-GECIS.md` dosyasın
 | İndirme hatası | İnternet/proxy ayarlarını kontrol edip komutu tekrar çalıştırın. |
 | Eski veriler kaybolmuş gibi | Aynı proje klasörünü ve aynı `.env` ayarını kullandığınızı kontrol edin. |
 
-Şifre değiştirmek için sistemi durdurun, `.env` içine geçici `NEW_ADMIN_PASSWORD='<yeni şifreniz>'` ekleyin, `npm.cmd run admin:password` çalıştırın (Mac'te `npm run admin:password`). Sonra geçici satırı kaldırıp uygulamayı yeniden başlatın.
+Yönetici şifresini sıfırlamak için sistemi durdurun ve `npm.cmd run admin:password` çalıştırın (Mac'te `npm run admin:password`). Ardından uygulamayı başlatın; pencerede görünen tek kullanımlık kurulum koduyla girip yeni şifrenizi belirleyin. `.env` içine şifre yazmanız gerekmez.
 
 ## Canlıya geçiş
 

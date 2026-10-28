@@ -2,12 +2,12 @@ import { ROOT_ADMIN_ID } from "../shared/access.ts";
 import { httpConfig } from "./http-config.mjs";
 import { Store } from "./store.mjs";
 import { createApp } from "./app.mjs";
-import { hashPassword } from "./auth.mjs";
-import { assertAdminPassword } from "./admin-credentials.mjs";
+import { ensureRootAdmin } from "./root-admin-bootstrap.mjs";
 import { fileURLToPath } from "node:url";
 import { verifyDeployment } from "../scripts/deployment-manifest.mjs";
 import { mutationAdmissionConfig } from "./mutation-admission.mjs";
 const env = process.env;
+
 // Validate public HTTP settings before opening or bootstrapping any database.
 const { origin, port, host, trustedProxies } = httpConfig(env);
 const mutationLimits = mutationAdmissionConfig(env);
@@ -37,33 +37,7 @@ try {
     "Giriş sayacı:",
     store.provider === "mssql" ? "ortak MSSQL deposu" : "yerel süreç belleği",
   );
-  if (!(await store.findUser({ id: ROOT_ADMIN_ID }))) {
-    const username = (env.ADMIN_USERNAME || "").trim().toLowerCase();
-    if (!/^[a-z0-9._@+-]{3,100}$/.test(username))
-      throw Error(
-        "ADMIN_USERNAME boş veya geçersiz. Yerelde npm run setup çalıştırın; MSSQL kurulumunda .env içine ilk yönetici kullanıcı adını yazın.",
-      );
-    assertAdminPassword(env.ADMIN_PASSWORD, username);
-    await store.bootstrapUser({
-      _id: ROOT_ADMIN_ID,
-      username,
-      name: "Sistem Yöneticisi",
-      role: "admin",
-      leaders: [],
-      active: true,
-      password: await hashPassword(env.ADMIN_PASSWORD),
-      // The .env password is known to whoever set up the server: the first
-      // login must replace it inside the application.
-      mustChangePassword: true,
-      revision: 1,
-      version: 1,
-    });
-  } else if (String(env.ADMIN_PASSWORD || "").trim())
-    // Only the first start reads it; leaving it behind keeps a known root
-    // password on disk and recreates it after a database reset.
-    console.warn(
-      "Uyarı: Yönetici hesabı zaten var; .env içindeki ADMIN_PASSWORD satırı artık kullanılmıyor. Satırı silin.",
-    );
+  await ensureRootAdmin(store, env);
   const { synchronizeProgressStarts } = await import("./progress-commands.mjs");
   const { captureLegacyResourceReferences, synchronizeScenarioWarnings } =
     await import("./scenario-warning-engine.mjs");

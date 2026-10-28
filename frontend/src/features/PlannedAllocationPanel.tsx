@@ -1,5 +1,5 @@
 import { Switch } from "@/components/ui/switch";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   completedPlanningCount,
   visiblePlanningProjects,
@@ -9,10 +9,12 @@ import PlannedCapacitySummary from "./planned-allocation/PlannedCapacitySummary"
 import PlannedAllocationTable from "./planned-allocation/PlannedAllocationTable";
 import type { PlannedAllocationProps } from "./planned-allocation/types";
 import { useViewportWorkspace } from "./workspace/useViewportWorkspace";
+import { useViewChangeGuard } from "./workspace/useViewChangeGuard";
 export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
   const { teams, projects, groups, onlyDataRows } = props;
   const viewportRef = useViewportWorkspace();
-  const [visibilityError, setVisibilityError] = useState("");
+  const { error: visibilityError, guard: changeVisibleRows } =
+    useViewChangeGuard(props.planTableRef);
   const completedCount = useMemo(
     () =>
       completedPlanningCount({
@@ -28,22 +30,6 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
     projects,
     props.showCompletedProjects,
   );
-  // Changing which rows render can unmount a dirty, pending or failed cell and
-  // drop its unsaved draft; every row-visibility switch goes through here.
-  function changeVisibleRows(view: string, apply: () => void) {
-    if (
-      props.planTableRef.current?.querySelector('[data-window-keep="true"]')
-    ) {
-      setVisibilityError(
-        "Değişiklikleri kaydedin veya Escape ile iptal edin; ardından " +
-          view +
-          " görünümünü değiştirebilirsiniz.",
-      );
-      return;
-    }
-    setVisibilityError("");
-    apply();
-  }
   function changeCompletedVisibility(show: boolean) {
     changeVisibleRows("tamamlanan proje", () =>
       props.onShowCompletedProjectsChange(show),

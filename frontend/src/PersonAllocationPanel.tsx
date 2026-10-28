@@ -20,6 +20,7 @@ import ActualAllocationDialogs from "./features/actual-allocation/ActualAllocati
 import { useActualAllocationView } from "./features/actual-allocation/useActualAllocationView";
 import { useActualCellSelection } from "./features/actual-allocation/useActualCellSelection";
 import { useActualCapacityDialog } from "./features/actual-allocation/useActualCapacityDialog";
+import { useViewChangeGuard } from "./features/workspace/useViewChangeGuard";
 import type {
   PersonAllocationPanelProps,
   ActualCalendarMode,
@@ -45,7 +46,8 @@ export default function PersonAllocationPanel(
     unit,
   } = props;
   const panelRef = useRef<HTMLElement | null>(null);
-  const [visibilityError, setVisibilityError] = useState("");
+  const { error: visibilityError, guard: changeVisibleRows } =
+    useViewChangeGuard(panelRef);
   const projects = useMemo(
     () =>
       visibleProjectsByCompletion(props.projects, props.showCompletedProjects),
@@ -94,15 +96,14 @@ export default function PersonAllocationPanel(
         )),
   ).length;
   function changeCompletedVisibility(show: boolean) {
-    // Both directions can remount/re-group rows. Protect every dirty/in-flight cell.
-    if (panelRef.current?.querySelector('[data-window-keep="true"]')) {
-      setVisibilityError(
-        "Kaydedilmemiş veya tamamlanmamış girişi kaydedin ya da Escape ile iptal edin; ardından proje görünümünü değiştirin.",
-      );
-      return;
-    }
-    setVisibilityError("");
-    props.onShowCompletedProjectsChange(show);
+    changeVisibleRows("tamamlanan proje", () =>
+      props.onShowCompletedProjectsChange(show),
+    );
+  }
+  function changeOnlyDataRows(only: boolean) {
+    changeVisibleRows("Sadece Veri Olanlar", () =>
+      props.onOnlyDataRowsChange(only),
+    );
   }
   const limit = useActualCapacityDialog();
   const { openLimit } = limit;
@@ -202,7 +203,7 @@ export default function PersonAllocationPanel(
           <Switch
             size="sm"
             checked={props.onlyDataRows}
-            onCheckedChange={props.onOnlyDataRowsChange}
+            onCheckedChange={changeOnlyDataRows}
           />
           Sadece Veri Olanlar
         </label>
@@ -324,7 +325,7 @@ export default function PersonAllocationPanel(
           title="Veri olan satır yok"
           action={{
             label: "Tüm Satırları Göster",
-            onClick: () => props.onOnlyDataRowsChange(false),
+            onClick: () => changeOnlyDataRows(false),
           }}
         >
           Seçili dönemde gerçekleşen değeri girilmiş satır bulunmuyor.

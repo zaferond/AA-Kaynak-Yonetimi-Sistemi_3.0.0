@@ -52,9 +52,9 @@ Normal-Proje hesabı proje/haftalık kritik konu ekranlarını yönetir; aktivit
 
 1. `node docs/kullanici-manueli/v3/shots.mjs tmp/manuel-shots` ile ekran görüntülerini alın. İstenirse son argümanda `giris,admin,yonetici,normal,normalproje,baslik,degerlendirme,aktivite,hesap,planlama,kritik` grupları seçilebilir.
 2. PNG'leri JPEG'e dönüştürüp `v3/shots/` altına koyun (örneğin macOS `sips -s format jpeg -s formatOptions 88 <kaynak.png> --out <hedef.jpg>`).
-3. `node docs/kullanici-manueli/v3/build-matrix.mjs` çalıştırın.
-4. `node docs/kullanici-manueli/v3/pdf.mjs <manuel.pdf>` ve `node docs/kullanici-manueli/v3/pdf.mjs <matris.pdf> yetki-matrisi.html` çalıştırın.
-5. PDF sayfalarını PNG olarak render edip sayfa sonlarını ve bütün tabloları kontrol edin; sonra paylaşım kopyalarını yenileyin.
+3. Kapaktaki **Belge sürümü** ve **Tarih** satırlarını güncelleyin; üstbilgi ve yetki matrisi sürümü buradan okunur.
+4. `npm run docs:manual` çalıştırın. Komut yetki matrisini çıkarır, iki PDF'i üretir ve `output/pdf` altındaki sürümlü paylaşım kopyalarını yeniler. Her `.page` bölümü tek sayfaya sığmalıdır; sığmayan bölüm olursa komut bölüm başlıklarıyla hata verir.
+5. PDF sayfalarını görsel olarak gözden geçirin (görsel kırpması, tablo okunurluğu).
 
 `server.mjs`, `data/demo-sunum.sqlite` dosyasının **geçici kopyasını** kullanır. Ekran görüntüsü hesapları ve AD örnekleri yalnız bu kopyaya eklenir; kurumsal LDAP bağlantısı kurulmaz. Giriş parolaları ve oturum uyarısı zamanı yalnız kopyada değişir. İş bitince kopya silinir. Canlı demo ve asıl planlama dosyalarına yazılmaz. Başka bir demo kaynağı için `MANUAL_DB=<dosya.sqlite>` kullanılabilir.
 

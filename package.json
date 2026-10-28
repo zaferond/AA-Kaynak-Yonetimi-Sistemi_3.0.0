@@ -32,7 +32,8 @@
     "db:prepare-recovery": "node scripts/data-maintenance.mjs prepare-recovery",
     "audit:archive": "node scripts/data-maintenance.mjs archive",
     "audit:retention": "node scripts/data-maintenance.mjs retention",
-    "deploy:package": "node scripts/package-deployment.mjs"
+    "deploy:package": "node scripts/package-deployment.mjs",
+    "docs:manual": "node docs/kullanici-manueli/v3/build-all.mjs"
   },
   "dependencies": {
     "express": "^5.3.0",

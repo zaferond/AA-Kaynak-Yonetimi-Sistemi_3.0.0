@@ -1,4 +1,5 @@
 // Dependency-free: setup.mjs imports this before npm packages are installed.
+import { randomInt } from "node:crypto";
 // Placeholders that shipped in example files or guides; a copied example must
 // never become a publicly known root admin password.
 const PASSWORD_PLACEHOLDERS = new Set(
@@ -70,4 +71,20 @@ export function assertNewPasswordStrength(password, name = "Yeni şifre") {
       name +
         " yalnız tekrar eden karakterlerden veya ardışık dizilerden (ör. aaaa, 1234, abcd) oluşamaz.",
     );
+}
+// No 0/O, 1/I/L: the code is read off a console and typed once.
+const SETUP_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+/** One-time root admin code, printed to the server console only. It never
+ * lives in .env; the first login replaces it (mustChangePassword). */
+export function generateSetupCode() {
+  while (true) {
+    const groups = Array.from({ length: 4 }, () =>
+      Array.from(
+        { length: 5 },
+        () => SETUP_ALPHABET[randomInt(SETUP_ALPHABET.length)],
+      ).join(""),
+    );
+    const code = "Kurulum-" + groups.join("-");
+    if (/\d/.test(code)) return code;
+  }
 }

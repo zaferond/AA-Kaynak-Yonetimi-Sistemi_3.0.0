@@ -1,13 +1,23 @@
 import { ROOT_ADMIN_ID } from "../shared/access.ts";
 import { Store } from "./store.mjs";
 import { hashPassword } from "./auth.mjs";
-import { assertAdminPassword } from "./admin-credentials.mjs";
-assertAdminPassword(
-  process.env.NEW_ADMIN_PASSWORD,
-  process.env.ADMIN_USERNAME,
-  "NEW_ADMIN_PASSWORD",
-);
-const password = await hashPassword(process.env.NEW_ADMIN_PASSWORD),
+import {
+  assertAdminPassword,
+  generateSetupCode,
+} from "./admin-credentials.mjs";
+// Without NEW_ADMIN_PASSWORD the account is reset to an unknown random code;
+// the next server start prints a fresh one-time code to its console.
+const chosen = String(process.env.NEW_ADMIN_PASSWORD || "").trim();
+if (chosen)
+  assertAdminPassword(
+    process.env.NEW_ADMIN_PASSWORD,
+    process.env.ADMIN_USERNAME,
+    "NEW_ADMIN_PASSWORD",
+  );
+const code = chosen ? "" : generateSetupCode();
+const password = await hashPassword(
+    chosen ? process.env.NEW_ADMIN_PASSWORD : code,
+  ),
   s = new Store();
 try {
   await s.connect();
@@ -28,7 +38,9 @@ try {
     await s.revokeUser(u._id, c);
   });
   console.log(
-    "Şifre değiştirildi. NEW_ADMIN_PASSWORD satırını .env dosyasından silin.",
+    code
+      ? "Yönetici şifresi sıfırlandı. Sunucuyu başlatın; konsolda görünen tek kullanımlık kurulum koduyla girip yeni şifrenizi belirleyin."
+      : "Şifre değiştirildi. NEW_ADMIN_PASSWORD satırını .env dosyasından silin.",
   );
 } finally {
   await s.close();

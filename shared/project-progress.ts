@@ -131,6 +131,11 @@ export function previousMonth(month: string) {
   const [y, m] = month.split("-").map(Number);
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
+/** Actuals describe a finished month: the latest month open for an actual
+ * entry is the one before `current` (October opens on 1 November). */
+export function lastActualEntryMonth(current: string) {
+  return previousMonth(current);
+}
 /** Months after `from` up to and including `to`. */
 export function monthsAfter(from: string, to: string) {
   const out: string[] = [];

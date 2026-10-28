@@ -208,6 +208,49 @@ export async function checkCompletedActual(f) {
       },
     );
     await f.check(
+      "completed actual: Sadece Veri Olanlar is blocked by a failed draft until it is cancelled",
+      async () => {
+        const onlyData = page.getByRole("switch", {
+          name: "Sadece Veri Olanlar",
+          exact: true,
+        });
+        const initial = await onlyData.getAttribute("aria-checked");
+        await page.route(
+          "**/api/changes",
+          (r) =>
+            r.fulfill({
+              status: 503,
+              contentType: "application/json",
+              body: JSON.stringify({ error: "Synthetic only-data draft" }),
+            }),
+          { times: 1 },
+        );
+        await amount("A").fill("15");
+        await amount("A").press("Enter");
+        await amount("A").locator("..").getByRole("alert").waitFor();
+        await onlyData.click();
+        assert.equal(await onlyData.getAttribute("aria-checked"), initial);
+        assert.equal(await amount("A").inputValue(), "%15");
+        await page
+          .locator(".completed-planning-error")
+          .getByText(/Sadece Veri Olanlar görünümünü/)
+          .waitFor();
+        await amount("A").press("Escape");
+        await f.wait(
+          async () =>
+            !(await page
+              .locator('.person-allocation [data-window-keep="true"]')
+              .count()),
+          "Activity draft cancelled",
+        );
+        await onlyData.click();
+        assert.notEqual(await onlyData.getAttribute("aria-checked"), initial);
+        await onlyData.click();
+        assert.equal(await onlyData.getAttribute("aria-checked"), initial);
+        assert.deepEqual((await f.state()).actualAllocations, original);
+      },
+    );
+    await f.check(
       "completed actual: a completed-only filter offers a clear reveal action and reload resets visibility",
       async () => {
         await toggle().click();

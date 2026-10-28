@@ -385,9 +385,16 @@ test("monthly actuals: past months only, with a note, and never in a locked mont
     enter({ "2026-11": { pct: 47, note: "y" } }, users.admin),
     status(409),
   );
-  // Other months stay open; an unchanged locked month is not touched.
-  await enter({ "2026-12": { pct: 52, note: "Aralık" } });
-  saved = await f.record();
+  // The running month (December on 3 December) is not finished yet: shared
+  // lastActualEntryMonth closes it on the server as in the entry screen.
+  await assert.rejects(
+    enter({ "2026-12": { pct: 52, note: "Aralık" } }),
+    /tamamlanmış aylara/,
+  );
+  await assert.rejects(
+    enter({ "2026-12": { pct: 52, note: "Aralık" } }, users.admin),
+    status(400),
+  );
   await f.lock(users.admin, "2026-11", "delete");
   await enter({ "2026-11": { pct: 47, note: "Düzeltme" } });
   assert.equal((await f.record()).actuals["2026-11"].pct, 47);

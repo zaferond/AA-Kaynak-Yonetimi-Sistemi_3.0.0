@@ -172,3 +172,17 @@ Kalite mühendisi rolüyle (`ajanlar/kalite mühendisi.md`) salt okunur tam ince
 Yeni dışarıdan yetki aşımı, LDAP enjeksiyonu veya CSRF açığı doğrulanmadı.
 
 **Açık kalan: G-01.** Kod tarafı kapandı. Ancak kayıtlı gerçek yönetici parolaları değiştirilmedi. Yerel `.env` içinde ADMIN_PASSWORD bulunmadığından yeni kontrol veritabanındaki parolayı göremez. İki ortamda farklı yeni parolalar elle belirlenmelidir.
+
+## Tasarım önerileri uygulaması - 28.10.2026
+
+Kullanıcı, menüden şifre değiştirme önerisini reddetti; sistem testler dışında yerel hesapla kullanılmayacak. Diğer öneriler uygulandı. Kararlar `docs/URUN-KARARLARI.md` dosyasında toplandı.
+
+| Öneri | Sonuç |
+|---|---|
+| Gerçekleşen ay kuralı sunucuda | `shared/project-progress.ts` `lastActualEntryMonth`. Arayüz ve sunucu aynı kuralı kullanıyor; içinde bulunulan aya API'den de gerçekleşen girilemiyor. |
+| Ortak taslak koruması | `useViewChangeGuard`, Kaynak Planlama ve Aktivite Giriş'te kullanılıyor. Aktivite Giriş'teki korumasız Sadece Veri Olanlar anahtarı da bu turda kapatıldı; tarayıcı regresyonu eklendi. |
+| Tek seferlik kurulum kodu | `backend/root-admin-bootstrap.mjs`. Şifre `.env` dosyasına yazılmıyor. Kod yalnız konsolda görünüyor ve şifre belirlenene kadar her açılışta yenileniyor. `admin:password`, parola verilmezse hesabı kurulum koduna sıfırlıyor. |
+| Manuel üretimi | `npm run docs:manual` komutu matrisi, iki PDF'i ve paylaşım kopyalarını üretiyor. Her bölüm tek sayfaya sığmazsa komut hata veriyor; sürüm kapaktan okunuyor. |
+| Ürün kararları | `docs/URUN-KARARLARI.md` oluşturuldu; CLAUDE.md'den bağlantı verildi. |
+
+G-01 için gerçek ortamlardaki parola yenilemesi hâlâ gerekli. Yeni akışta `npm run admin:password` (NEW_ADMIN_PASSWORD olmadan) ve ardından sunucunun bastığı kodla giriş yeterlidir.

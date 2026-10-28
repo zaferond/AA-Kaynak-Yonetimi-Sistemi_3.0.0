@@ -133,6 +133,7 @@ test("server rejects HTTP configuration before constructing the database store",
     "trusted-proxies.mjs",
     "mutation-admission.mjs",
     "admin-credentials.mjs",
+    "root-admin-bootstrap.mjs",
   ])
     await fs.copyFile(
       new URL("../backend/" + name, import.meta.url),

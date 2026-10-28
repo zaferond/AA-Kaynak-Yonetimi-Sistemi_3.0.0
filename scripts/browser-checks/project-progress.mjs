@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { applyChanges } from "../../backend/operations.mjs";
 import { selectWorkspaceTab, selectProgressMonth } from "./fixture.mjs";
+import { setServerTime } from "./server-clock.mjs";
 
 // Proje İlerlemesi: a leader sees the projects of the leaderships granted in
 // "Kaynak Planlama Yetkisi" grouped by leadership, proposes a baseline, an
@@ -37,10 +38,12 @@ export async function checkProjectProgress(f) {
       },
     ]),
   );
+  // Exercise September and October as completed entry months on both the
+  // pages and the server (actuals open only once a month has finished).
+  setServerTime("2026-11-02T09:00:00Z");
   const leader = await f.client("manager");
   const admin = await f.client("root-admin");
   const employee = await f.client("employee");
-  // Exercise September and October as completed entry months.
   for (const client of [leader, admin]) {
     await client.page.clock.setFixedTime(new Date("2026-11-02T09:00:00Z"));
     await client.page.reload();
@@ -911,6 +914,7 @@ export async function checkProjectProgress(f) {
     });
   } finally {
     await Promise.all([leader, admin, employee].map((c) => c.context.close()));
+    setServerTime(null);
     // Leave the shared fixture as it was for the checks that follow.
     await f.store.mutate(f.actor, (d, u) =>
       applyChanges(d, u, [

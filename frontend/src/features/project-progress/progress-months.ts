@@ -1,5 +1,6 @@
 import {
   earliestOpening,
+  lastActualEntryMonth,
   monthsAfter,
   previousMonth,
   type ProjectProgress,
@@ -25,7 +26,7 @@ export function entryMonths(
 ) {
   return monthsAfter(
     earliestOpening(records, current),
-    completedOnly ? previousMonth(current) : current,
+    completedOnly ? lastActualEntryMonth(current) : current,
   );
 }
 export function defaultEntryMonth(

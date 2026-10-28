@@ -3,6 +3,12 @@ import fs from "node:fs/promises";
 const here = new URL("./", import.meta.url);
 const text = await fs.readFile(new URL("manual.html", here), "utf8");
 const head = text.slice(0, text.indexOf("<body>") + "<body>".length);
+// Version and date come from the manual's cover table only.
+const cover = (label) =>
+  new RegExp("<td>" + label + "</td><td>([^<]+)</td>").exec(text)?.[1];
+const version = cover("Belge sürümü"),
+  date = cover("Tarih");
+if (!version || !date) throw Error("Kapakta sürüm veya tarih bulunamadı.");
 const start = text.indexOf("<!-- 13 -->"),
   end = text.indexOf("<!-- 14 -->");
 const scope = text.indexOf(
@@ -19,7 +25,7 @@ const matrix = text
   .replace("13.2 İşlem yetkileri", "2. İşlem yetkileri")
   .replace(
     "<h1>Yetki Matrisi</h1>",
-    "<h1>Yetki Matrisi</h1><p>Belge sürümü 3.4 · 28.10.2026. Uygulama rolü ekran erişimini; kaynak görevi aktivite kişi kapsamını belirler.</p>",
+    `<h1>Yetki Matrisi</h1><p>Belge sürümü ${version} · ${date}. Uygulama rolü ekran erişimini; kaynak görevi aktivite kişi kapsamını belirler.</p>`,
   );
 const activity = text
   .slice(activityStart, activityEnd)
