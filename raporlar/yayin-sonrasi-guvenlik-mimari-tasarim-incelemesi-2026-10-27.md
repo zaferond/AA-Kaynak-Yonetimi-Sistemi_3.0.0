@@ -154,3 +154,21 @@ Hedef/gerçekleşen testleri tek seçimli bekleyen iş filtrelerine, yeni adlara
 Çalışma ortamı yeniden başladığı için önceki yarım koşu başarı sayılmadı; tam paket 28.10.2026 tarihinde yeniden çalıştırılıp tamamlandı. Kayıtlar `tmp/final-ui-20261028.log`, `tmp/final-verify-20261028.log` ve `tmp/final-validation-20261028.json` içinde tutulur. Gerçek kurumsal AD ve native Windows/MSSQL kabulü bu yerel test kapsamına dahil değildir.
 
 **Açık kalan bulgu: G-01.** Gerçek yönetici parolaları bu düzeltme kapsamında değiştirilmedi; parola yenileme gerekliliği devam ediyor.
+
+## Kalite incelemesi turu - 28.10.2026
+
+Kalite mühendisi rolüyle (`ajanlar/kalite mühendisi.md`) salt okunur tam inceleme yapıldı. Ardından kullanıcı onayıyla aşağıdaki düzeltmeler uygulandı.
+
+| Öncelik | Bulgu | Sonuç |
+|---|---|---|
+| Yüksek / G-01a | Testlerde açık duran parolalar yeni şifre olarak seçilebiliyordu; `check:secrets` `.env` parolasını izlenen dosyalarla karşılaştırmıyordu | Kapandı (`85f5a64`): bu değerler kurulum, sıfırlama ve parola değişiminde reddediliyor; testler parolayı rastgele üretiyor; `check:secrets` `.env` parolası izlenen dosyada geçerse değeri yazdırmadan hata veriyor. |
+| Orta / G-01b | Yönetici hesabı varken `.env` içindeki ADMIN_PASSWORD sessizce kalıyordu | Kapandı (`85f5a64`): açılışta satırın silinmesi için uyarı veriliyor. |
+| Orta / M-04 | Kaynak Planlama'da Sadece Veri Olanlar, hata almış kaydedilmemiş taslağı siliyordu (M-01 ile aynı sınıf) | Kapandı (`85f5a64`): iki görünüm anahtarı aynı korumayı kullanıyor; tarayıcı regresyonu eklendi. |
+| Düşük / Q-02 | Ay şeridi yıl hesabı bileşen içindeydi ve test edilmiyordu | Kapandı: `monthStripYears` saf fonksiyona taşındı; eski yıl, seçili eski ay, yıl devri ve yalnız tamamlanan proje durumları test ediliyor. |
+| Bilgi | Tamamlanan projeler ilerleme ay şeridini genişletmez | Ürün kararı; kullanıcı manueli 3.4'te belgelendi. |
+| Bilgi | `projectProgress`/`progressLocks` tüm Yönetici hesaplarına liderlikten bağımsız okunur | Ürün kararı: değerlendirme raporu portföy görünümüdür. Yazma sunucuda `user.leaders` ile sınırlı (`progress-commands.mjs`); yetki matrisiyle uyumlu. |
+| Bilgi | App düzeyi filtre değişimlerinde taslak kaybı şüphesi | Tarayıcıda sınandı: Görünür Dönem değişimi ve Filtreleri Sıfırla hata almış taslağı ve mesajını koruyor. |
+
+Yeni dışarıdan yetki aşımı, LDAP enjeksiyonu veya CSRF açığı doğrulanmadı.
+
+**Açık kalan: G-01.** Kod tarafı kapandı. Ancak kayıtlı gerçek yönetici parolaları değiştirilmedi. Yerel `.env` içinde ADMIN_PASSWORD bulunmadığından yeni kontrol veritabanındaki parolayı göremez. İki ortamda farklı yeni parolalar elle belirlenmelidir.

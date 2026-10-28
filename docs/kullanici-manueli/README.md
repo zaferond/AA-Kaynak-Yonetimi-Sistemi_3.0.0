@@ -1,14 +1,20 @@
 # Kullanıcı manueli ve yetki matrisi
 
-## Güncel belge: sürüm 3.3 (27.10.2026)
+## Güncel belge: sürüm 3.4 (28.10.2026)
 
 - **Kullanıcı Manueli ve Yetki Matrisi:** `AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf`, 30 sayfa.
 - **Ayrı Yetki Matrisi:** `AA-Kaynak-Planlama-Sistemi-Yetki-Matrisi.pdf`, 3 sayfa. Aynı HTML kaynağından üretilir; ekran erişimi, işlem yetkileri ve aktivite kişi kapsamını içerir.
-- Paylaşım kopyaları: proje kökündeki `output/pdf/AA-Kullanici-Manueli-ve-Yetki-Matrisi-3.3.pdf` ve `output/pdf/AA-Yetki-Matrisi-3.3.pdf`.
+- Paylaşım kopyaları: proje kökündeki `output/pdf/AA-Kullanici-Manueli-ve-Yetki-Matrisi-3.4.pdf` ve `output/pdf/AA-Yetki-Matrisi-3.4.pdf`.
 
 Güncel uygulamadan alınan **34 ekran görüntüsü** kullanılır. Kaynak, yayımlanan `46131ab` üzerine kullanıcı isteğiyle yapılan hedef/gerçekleşen filtre ve sekme sayacı geliştirmelerini de kapsar. Belge güncellemesi uygulamadaki açık inceleme bulgularını kapatmaz; [yeniden inceleme raporu](../../raporlar/yayin-sonrasi-guvenlik-mimari-tasarim-incelemesi-2026-10-27.md) esas alınır.
 
 ### Kapsanan son değişiklikler
+
+3.4 sürümünde eklenenler (`85f5a64`):
+- Kaynak Planlama'da kaydedilmemiş, kaydı süren veya hata almış hücre varken Sadece Veri Olanlar ve Tamamlanan Projeleri Göster görünümü değiştirmez; kaydetme veya Escape ile iptal istenir.
+- Hedef/gerçekleşen ay satırında yalnız bu yıl ve önceki yıl açık görünür; eski yıllar Önceki yıllar (n) düğmesindedir. Tamamlanan projeler ay satırını genişletmez.
+- Geçici parola notuna kullanıcı adı ve belgelerde/kaynak kodda yer almış değerlerin kabul edilmediği eklendi.
+- Yetki matrisinde yetki değişikliği yoktur; yalnız sürüm ve tarih güncellendi. Ekran görüntüleri 3.3 ile aynıdır.
 
 - AD kullanıcı seçimi ve otomatik hesap eşleştirmesi. Tekrar kayıt kontrolü kullanıcı adı üzerinden yapılır; aynı AD kimliği de ikinci hesaba bağlanamaz.
 - Aktif/Pasif İlan'da hesap tanımlanmaması, bekleyen AD seçiminin ilan statüsünde temizlenmesi.
@@ -38,7 +44,7 @@ Normal-Proje hesabı proje/haftalık kritik konu ekranlarını yönetir; aktivit
 
 İki PDF'nin tüm sayfaları PNG'ye dönüştürülüp gözden geçirildi. Taşan tek satırlı sayfalar ve bölünen matris düzeltildi; Türkçe karakterler, görsel dosyaları, sürüm/tarih ve 30/3 sayfalık son düzen doğrulandı. Kapakta yalnız belge sürümü ve tarih vardır; uygulama durumu/önceki sürüm/ekran görüntüsü satırları eklenmez.
 
-Son uygulama doğrulaması (28.10.2026): 1062/1062 otomatik test ve tam pakette 366/366 tarayıcı kontrolü başarılı. M-01 taslak koruması, M-02 AD/takım seçim sırası ve Q-01 eski test akışı bulguları kapandı. Altı yeni planlama regresyonu tam pakete dahildir. Gerçek kurumsal AD ve native Windows/MSSQL kabulü bu yerel doğrulamadan ayrıdır; G-01 parola yenileme bulgusu inceleme raporunda açık kalır.
+3.4 doğrulaması (28.10.2026): 1065/1065 otomatik test ve 3/3 Kaynak Planlama taslak koruması tarayıcı kontrolü başarılı; 30 ve 3 sayfalık PDF'lerin tüm sayfaları görsel olarak incelendi. Önceki uygulama doğrulaması: 1062/1062 otomatik test ve tam pakette 366/366 tarayıcı kontrolü başarılı. M-01 taslak koruması, M-02 AD/takım seçim sırası ve Q-01 eski test akışı bulguları kapandı. Altı yeni planlama regresyonu tam pakete dahildir. Gerçek kurumsal AD ve native Windows/MSSQL kabulü bu yerel doğrulamadan ayrıdır; G-01 parola yenileme bulgusu inceleme raporunda açık kalır.
 
 ### Kaynaklar ve yeniden üretme
 

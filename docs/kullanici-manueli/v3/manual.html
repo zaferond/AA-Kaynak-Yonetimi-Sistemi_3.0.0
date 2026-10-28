@@ -114,8 +114,8 @@
     </div>
   </div>
   <table class="meta">
-    <tr><td>Belge sürümü</td><td>3.3</td></tr>
-    <tr><td>Tarih</td><td>27.10.2026</td></tr>
+    <tr><td>Belge sürümü</td><td>3.4</td></tr>
+    <tr><td>Tarih</td><td>28.10.2026</td></tr>
   </table>
 </section>
 
@@ -155,7 +155,7 @@
     <li><b>Azami süre:</b> Hesabınızın 8 saat, 12 saat veya 30 günlük üst sınırı uzatılamaz. Uyarıda <span class="ui">Çalışmayı Kaydetmek İçin Dön</span> ile kaydınızı tamamlayıp yeniden giriş yapın.</li>
     <li><b>Çıkış Yap:</b> Ortak bilgisayarı bırakmadan önce oturumu kapatın. Süre dolması, kaydedilmemiş verilerin kaydedildiği anlamına gelmez.</li>
   </ul>
-  <div class="note">Yerel hesapta ilk kurulumda veya parola sıfırlamasından sonra geçici parola kullanıyorsanız, uygulama yeni parola belirlemenizi ister. Yeni parola 10-256 karakter olmalı, en az bir harf ve bir rakam içermeli; yalnız tekrar veya ardışık dizilerden oluşmamalıdır.</div>
+  <div class="note">Yerel hesapta ilk kurulumda veya parola sıfırlamasından sonra geçici parola kullanıyorsanız, uygulama yeni parola belirlemenizi ister. Yeni parola 10-256 karakter olmalı, en az bir harf ve bir rakam içermeli; yalnız tekrar veya ardışık dizilerden oluşmamalıdır. Kullanıcı adınız ve örnek belgelerde ya da kaynak kodda yer almış değerler de kabul edilmez.</div>
 </section>
 
 <!-- 2 -->
@@ -375,8 +375,9 @@
       <tr><th>Seçimi kaldırmak</th><td><kbd>Esc</kbd> veya tablo dışına tıklama.</td></tr>
     </tbody>
   </table>
-  <p><span class="ui">Tamamlanan Projeleri Göster</span>, filtre satırında <span class="ui">Sadece Veri Olanlar</span> yanında bulunur ve ilk açılışta kapalıdır. Açıldığında tamamlanan projelerin kayıtları da gösterilir; bu seçim mevcut dağılımları değiştirmez. Filtre değiştirmeden önce açık hücre girişlerini kaydedin.</p>
+  <p><span class="ui">Tamamlanan Projeleri Göster</span>, filtre satırında <span class="ui">Sadece Veri Olanlar</span> yanında bulunur ve ilk açılışta kapalıdır. Açıldığında tamamlanan projelerin kayıtları da gösterilir; bu seçim mevcut dağılımları değiştirmez.</p>
   <p><span class="ui">Gerçekleşen Dağılım Göster</span> plan değerlerinin yanında gerçekleşenleri de gösterir; <span class="ui">Sadece Veri Olanlar</span> boş satırları gizler.</p>
+  <p>Tabloda kaydedilmemiş, kaydı süren veya hata almış bir hücre varsa <span class="ui">Sadece Veri Olanlar</span> ve <span class="ui">Tamamlanan Projeleri Göster</span> görünümü değiştirmez; <i>"Değişiklikleri kaydedin veya Escape ile iptal edin…"</i> uyarısı çıkar. Girdiğiniz değer ve hata mesajı yerinde kalır. Kaydedin veya <kbd>Esc</kbd> ile taslağı iptal edip seçimi yeniden yapın.</p>
   <div class="warn">Tüm planı temizleyen <span class="ui">Tüm Kaynak Dağılımlarını Sıfırla</span> bu ekranda değil, yalnız Admin'in açabildiği Organizasyon &amp; Çalışan &amp; Yetki ekranındadır (12. bölüm).</div>
 </section>
 
@@ -403,6 +404,7 @@
   <h2>Ay seçimi, hedef plan ve gerçekleşen girişi</h2>
   <figure><div class="shot" style="height:78mm"><img src="shots/hedef-plan-aylar.jpg" alt="Gerçekleşen giriş filtresinde açılan yıl ve ay satırı"></div><figcaption>Ay satırı yalnız Gerçekleşen Plan-Yönetici Girişi Bekleyen veya Değerlendirme Bekliyor seçiminde açılır.</figcaption></figure>
   <p><b>Değerlendirme Bekliyor</b> seçildiğinde işlemdeki varsayılan ay seçilir: önceki ay; takip kapsamına girmiyorsa seçilebilir son ay. Yıl altındaki aylardan başka bir dönem seçebilirsiniz. İçinde bulunulan ay, gelecek aylar ve takip başlamamış dönemler seçilemez. Örneğin Ekim, 1 Kasım’da seçime açılır; değerlendirme raporunun mevcut ay görünümü korunur.</p>
+  <p>Ay satırında içinde bulunulan yıl ve önceki yıl açık görünür. Daha eski yıllar <span class="ui">Önceki yıllar (n)</span> düğmesiyle açılıp kapanır; seçili ay eski bir yıldaysa o yıl görünür kalır. Tamamlanan projelerin kayıtları ay satırını geriye doğru genişletmez.</p>
   <ol>
     <li>Hedef plan kartında başlangıç yüzdesini ve aylık hedefleri hazırlayın, taslağı kaydedip proje ekibi onayına gönderin. Sıra: Yönetici Girişi Bekleniyor → Taslak → Proje Ekibi Onayında → Proje Ekibi Onayladı.</li>
     <li>Onaylı planda, o aya kadar tamamlanan toplam payı (%) ve açıklamayı girin. %45, ay sonuna kadar işin %45'inin tamamlandığını gösterir.</li>

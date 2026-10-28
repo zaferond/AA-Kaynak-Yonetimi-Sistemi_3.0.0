@@ -22,6 +22,7 @@ import {
   activeProgressRecords,
   progressChange,
   defaultEntryMonth,
+  monthStripYears,
   type ProgressContext,
 } from "./progress-view";
 import { monthLabel, monthName } from "../../format";
@@ -90,23 +91,14 @@ export default function PlanAndEntry({
     error?: boolean;
   }>();
   const groupId = useId();
-  const monthYears = [
-    ...new Set([
-      ...months.map((value) => value.slice(0, 4)),
-      currentMonth.slice(0, 4),
-    ]),
-  ];
   const allowedMonths = new Set(months);
-  // Only this and last year stay open; older years sit behind a toggle so the
-  // strip keeps one height however long a project has been tracked.
   const [showOlderYears, setShowOlderYears] = useState(false);
-  const recentFrom = String(Number(currentMonth.slice(0, 4)) - 1);
-  const olderYears = monthYears.filter(
-    (year) => year < recentFrom && year !== month.slice(0, 4),
+  const { olderYears, shownYears } = monthStripYears(
+    months,
+    currentMonth,
+    month,
+    showOlderYears,
   );
-  const shownYears = showOlderYears
-    ? monthYears
-    : monthYears.filter((year) => !olderYears.includes(year));
   function resetAllFilters() {
     if (!onBeforeFilterChange()) return;
     onLeaderChange("");

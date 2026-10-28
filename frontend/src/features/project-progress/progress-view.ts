@@ -139,6 +139,7 @@ export {
   activeProgressRecords,
   entryMonths,
   defaultEntryMonth,
+  monthStripYears,
 } from "./progress-months.ts";
 
 export type LeaderRow = LeaderProgress & {

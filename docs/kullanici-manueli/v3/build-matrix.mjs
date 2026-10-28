@@ -19,7 +19,7 @@ const matrix = text
   .replace("13.2 İşlem yetkileri", "2. İşlem yetkileri")
   .replace(
     "<h1>Yetki Matrisi</h1>",
-    "<h1>Yetki Matrisi</h1><p>Belge sürümü 3.3 · 27.10.2026. Uygulama rolü ekran erişimini; kaynak görevi aktivite kişi kapsamını belirler.</p>",
+    "<h1>Yetki Matrisi</h1><p>Belge sürümü 3.4 · 28.10.2026. Uygulama rolü ekran erişimini; kaynak görevi aktivite kişi kapsamını belirler.</p>",
   );
 const activity = text
   .slice(activityStart, activityEnd)
