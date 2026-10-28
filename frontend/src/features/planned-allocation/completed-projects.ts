@@ -1,7 +1,6 @@
 import type { Data, Project } from "../../model.ts";
 
-export const visiblePlanningProjects = (projects: Project[], show: boolean) =>
-  show ? projects : projects.filter((project) => !project.completed);
+export { visibleProjectsByCompletion as visiblePlanningProjects } from "../../../../shared/project-completion.ts";
 
 /** Count projects in the visible filter scope without changing allocation data. */
 export function completedPlanningCount({

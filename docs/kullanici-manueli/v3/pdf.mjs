@@ -9,12 +9,22 @@ const { chromium } = await import(
   path.join(root, "node_modules/playwright/index.mjs")
 );
 const out = process.argv[2];
+const source = process.argv[3] || "manual.html";
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 const page = await browser.newPage();
-await page.goto(pathToFileURL(path.join(here, "manual.html")).href, {
+await page.goto(pathToFileURL(path.join(here, source)).href, {
   waitUntil: "networkidle",
 });
 await page.evaluate(() => document.fonts.ready);
+const missingImages = await page
+  .locator("img")
+  .evaluateAll((images) =>
+    images
+      .filter((image) => !image.complete || !image.naturalWidth)
+      .map((image) => image.getAttribute("src")),
+  );
+if (missingImages.length)
+  throw Error("Belge görselleri eksik: " + missingImages.join(", "));
 const font =
   "font-family:'IBM Plex Sans',Arial;font-size:7.5pt;color:#7b8794;width:100%;padding:0 15mm";
 await page.pdf({
@@ -23,7 +33,7 @@ await page.pdf({
   printBackground: true,
   preferCSSPageSize: true,
   displayHeaderFooter: true,
-  headerTemplate: `<div style="${font}">Askeri Araçlar Kaynak Yönetimi Sistemi · Kullanıcı Manueli ve Yetki Matrisi · Sürüm 3.2</div>`,
+  headerTemplate: `<div style="${font}">Askeri Araçlar Kaynak Yönetimi Sistemi · Kullanıcı Manueli ve Yetki Matrisi · Sürüm 3.3</div>`,
   footerTemplate: `<div style="${font};text-align:right"><span class="pageNumber"></span> / <span class="totalPages"></span></div>`,
 });
 await browser.close();

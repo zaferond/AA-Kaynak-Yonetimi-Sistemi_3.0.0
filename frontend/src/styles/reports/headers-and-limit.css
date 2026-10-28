@@ -63,22 +63,6 @@
 .app.tab-actual .actual-cell-load.actual-total-full {
   background: #2f6b4f;
 }
-.app.tab-actual .actual-view-bar .actual-load-legend {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex: none;
-  padding-right: 14px;
-  color: var(--brand-muted, #60715e);
-  font-size: var(--fs-xs);
-}
-.app.tab-actual .actual-view-bar .actual-load-legend i {
-  display: inline-block;
-  width: 26px;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(to right, #7f9f86 60%, #dde6d8 60%);
-}
 
 .actual-limit-dialog {
   max-width: 430px;

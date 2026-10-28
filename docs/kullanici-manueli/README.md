@@ -1,49 +1,56 @@
-# Kullanıcı manueli
+# Kullanıcı manueli ve yetki matrisi
 
-## Güncel belge: sürüm 3.2 (25.10.2026)
+## Güncel belge: sürüm 3.3 (27.10.2026)
 
-`AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf` (25 sayfa) güncel arayüzü anlatır: yan menü ve ekran adları, Ana Sayfa, Ctrl+K arama, bildirimler, Projeler ve Proje Takvimi Güncelle (senaryo), Kaynak Planlama, Proje ve Kaynak Değerlendirme (hedef/gerçekleşen plan, ay kilidi, senaryo uyarıları, uyarı ayarları), Haftalık Kritik Konular, Raporlar ve Head Count, Aktivite Giriş, Aktivite Raporu (renk bantları, Excel çıktısı), Organizasyon & Çalışan & Yetki ve rol bazlı yetki matrisi.
+- **Kullanıcı Manueli ve Yetki Matrisi:** `AA-Kaynak-Planlama-Sistemi-Kullanici-Manueli-ve-Yetki-Matrisi.pdf`, 30 sayfa.
+- **Ayrı Yetki Matrisi:** `AA-Kaynak-Planlama-Sistemi-Yetki-Matrisi.pdf`, 3 sayfa. Aynı HTML kaynağından üretilir; ekran erişimi, işlem yetkileri ve aktivite kişi kapsamını içerir.
+- Paylaşım kopyaları: proje kökündeki `output/pdf/AA-Kullanici-Manueli-ve-Yetki-Matrisi-3.3.pdf` ve `output/pdf/AA-Yetki-Matrisi-3.3.pdf`.
 
-### Aktivite yetkileri için kesinleşen kural
+Güncel uygulamadan alınan **34 ekran görüntüsü** kullanılır. Kaynak, yayımlanan `46131ab` üzerine kullanıcı isteğiyle yapılan hedef/gerçekleşen filtre ve sekme sayacı geliştirmelerini de kapsar. Belge güncellemesi uygulamadaki açık inceleme bulgularını kapatmaz; [yeniden inceleme raporu](../../raporlar/yayin-sonrasi-guvenlik-mimari-tasarim-incelemesi-2026-10-27.md) esas alınır.
 
-Uygulama rolü, aktivite ekranlarının açılabilmesini belirler. Admin dışındaki hesaplarda kişi kapsamı, hesaba bağlı çalışanın organizasyon görevinden gelir; Yönetici (`manager`) rolü veya planlama liderliği atamaları (`user.leaders`) bu kapsamı genişletmez.
+### Kapsanan son değişiklikler
+
+- AD kullanıcı seçimi ve otomatik hesap eşleştirmesi. Tekrar kayıt kontrolü kullanıcı adı üzerinden yapılır; aynı AD kimliği de ikinci hesaba bağlanamaz.
+- Aktif/Pasif İlan'da hesap tanımlanmaması, bekleyen AD seçiminin ilan statüsünde temizlenmesi.
+- Proje Durumu / Tamamlandı, Tamamlanan Projeler sekmesi ve Kaynak Planlama'da tamamlanan projelerin isteğe bağlı gösterilmesi.
+- Senaryo Oluştur ile açılan kart, Senaryo Ekle sonrası kapanma, kayıtlı senaryoyu Düzenle/Kaydet, toplu silme, Onaylanan Takvim Güncellemeleri ve Raporlar'daki Kaldır ayrımı.
+- Başlık ve Detaylar / Görünüm yan paneli, ayrı detay tarihleri, milestone ve güncel haftalık kritik konu görünümü. Hafta seçimleri: Tüm Haftalar, Geçen Hafta, Bu Hafta, Gelecek Hafta ve Hafta Ekle.
+- Kaynak Planlama ve Aktivite Giriş seçimleri: Sadece Veri Olanlar ve Tamamlanan Projeleri Göster.
+- Aktivite Giriş'te tamamlanan projelerin varsayılan gizlenmesi, isteğe bağlı gösterilmesi; Proje/Kişi Bazlı görünüm ve Excel uyumu, aylık toplam/kapasitenin korunması.
+- Hedef/gerçekleşen girişinde tek seçimli bekleyen iş filtreleri; yalnız gerçekleşen giriş ve değerlendirme seçiminde açılan ay satırı. Değerlendirme seçimi varsayılan işlem ayına döner. Giriş sekmesinde yalnız tamamlanmış aylar seçilir: Ekim, 1 Kasım’da açılır; raporda mevcut ay seçimi korunur.
+- Giriş sekmesinin yanındaki turuncu hedef plan ve mavi gerçekleşen giriş sayıları; büyük özet kartları kullanılmaz. Sayılar yetkili birim, liderlik/proje sorumlusu ve ay kapsamında hesaplanır.
+- Önerilen hedef uygulandıktan sonra bir ay değişirse o ay dışındaki önceki/sonraki düzenlenebilir ayların yeniden hesaplanması; kilitli ayların korunması.
+
+### Yetki ayrımı
+
+Uygulama rolü ekran erişimini belirler. Admin dışındaki hesaplarda aktivite kişi kapsamı kaynak görevinden gelir; Yönetici (`manager`) rolü ve planlama liderliği (`user.leaders`) bu kapsamı genişletmez.
 
 | Çalışan görevi | Aktivite Giriş ve izin/eğitim | Aktivite Raporu |
 |---|---|---|
-| Team Member / CoE | Yalnız kendisi | Kendi takımı |
-| Product Owner | Kendisi ve kendi takımı | Kendisi ve kendi takımı |
-| Lider | Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar | Aynı kapsam |
-| Admin (uygulama rolü) | Herkes | Herkes |
+| Team Member / CoE | Kendisi | Kendi takımı |
+| Product Owner | Kendi takımı ve kendisi | Kendi takımı ve kendisi |
+| Lider | Kendi liderliği, alt liderlikler, bağlı takımlar ve kendisi | Aynı kapsam |
+| Admin (uygulama rolü) | Tüm çalışanlar | Tüm çalışanlar |
 
-Çalışan kaydıyla eşleşmemiş Admin dışındaki hesaplar, Yönetici rolünde ve planlama için liderlik yetkisi olsa da her iki aktivite ekranında boş sonuç görür. Bu durum bir yetki hatası değildir. Admin, hesap-çalışan eşleşmesini ve organizasyon görevini kontrol etmelidir.
+Normal-Proje hesabı proje/haftalık kritik konu ekranlarını yönetir; aktivite ekranlarını açmaz. Tamamlandı işaretleme ve yeniden aktif yapma Admin/Normal-Proje; AD/kullanıcı adı ile hesap eşleştirme yalnız Admin işlemidir. Yeni hesaplarda tekrar kontrolü kullanıcı adına göre yapılır; numara bilgisi toplanmaz. AD bağlantısını IT yapılandırır; kimlik bilgileri kurumsal dizinden alınır.
 
-**Takım geçmişi:** Kullanıcının yetkisi bugünkü organizasyon görevinden, rapor satırının takımı ilgili aydaki görevlendirmeden gelir. Bir çalışan A'dan B'ye geçtiğinde A'nın PO/Lideri yalnız A'daki aylarını, B'nin PO/Lideri yalnız B'deki aylarını görür. Çalışan kendi geçmişini tüm takımları altında görür; bu istisna eski takım arkadaşlarına erişim vermez. Aynı ay iki kez toplanmaz. Aktivite Giriş'in yazma yetkileri bu rapor değişikliğinden etkilenmez.
+### Görsel ve içerik doğrulaması
 
-PDF'nin kapak tablosunda yalnız belge sürümü ve tarih bulunur. Ana Sayfa görseli, kartların detay açıklamaları kaldırılmış haliyle güncellenmiştir.
+İki PDF'nin tüm sayfaları PNG'ye dönüştürülüp gözden geçirildi. Taşan tek satırlı sayfalar ve bölünen matris düzeltildi; Türkçe karakterler, görsel dosyaları, sürüm/tarih ve 30/3 sayfalık son düzen doğrulandı. Kapakta yalnız belge sürümü ve tarih vardır; uygulama durumu/önceki sürüm/ekran görüntüsü satırları eklenmez.
 
-Hedef Plan / Gerçekleşen Plan Giriş'te ay, bekleyen iş kutularının altındaki yıl/ay satırından seçilir; giriş ekranının üst filtresindeki ay listesi kaldırılmıştır. Rapor ekranı kendi ay listesini kullanmaya devam eder. Gelecek ve takip öncesi aylar görünür, ancak giriş için seçilemez.
+Son uygulama doğrulaması (28.10.2026): 1062/1062 otomatik test ve tam pakette 366/366 tarayıcı kontrolü başarılı. M-01 taslak koruması, M-02 AD/takım seçim sırası ve Q-01 eski test akışı bulguları kapandı. Altı yeni planlama regresyonu tam pakete dahildir. Gerçek kurumsal AD ve native Windows/MSSQL kabulü bu yerel doğrulamadan ayrıdır; G-01 parola yenileme bulgusu inceleme raporunda açık kalır.
 
-Yönetici, Haftalık Kritik Konular'da görebildiği projelerin kritik başlıklarını, konularını ve tarihlerini düzenleyebilir; Tamamlandı/Çıkar işlemlerini yapabilir. Bu izin proje ekleme/silme, proje adı/genel dönem/aşama veya erişim kurallarını değiştirme yetkisi vermez. Sunucu, kritik konu kaydı güncellenirken proje erişim kurallarını korur.
+### Kaynaklar ve yeniden üretme
 
-**3.2 güncellemesi (25.10.2026):** Bütün belge görselleri güncel uygulamadan yeniden alındı. Oturum süreleri (30 dakika hareketsizlik, yüksek yetkili hesaplarda 8 saat), beş dakika önce uyarı, Oturumu Sürdür ve azami sürede kaydetme adımları eklendi. Değerlendirme taslağının uzak güncelleme ve ay kilidinde korunması, çakışmada güvenli kaydetme/iptal adımları açıklandı. Ay seçiminin varsayılanı ve özel ağırlık girişi gerektirmeyen proje toplamı hesabı güncellendi. Mevcut uygulama düzeltmelerinde 1038/1038 test ve 311 tarayıcı kontrolü başarılıdır. Gerçek native MSSQL/Windows kabulü kurum/CI ortamında ayrı yapılmalıdır.
+`v3/manual.html` güncel ana kaynaktır. `v3/build-matrix.mjs` aynı kaynaktan `yetki-matrisi.html` üretir; `v3/pdf.mjs` PDF'ye çevirir. `v3/shots/` kullanılan JPEG görsellerini içerir. `v2/` ve aşağıdaki 1.1 belgeleri arşivdir.
 
-Belge HTML'den PDF olarak yeniden üretilir. Son PDF'nin bütün sayfaları PNG'ye dönüştürülerek sayfa sınırları, Türkçe metin, görseller ve yetki matrisi kontrol edilir. Ön kapakta yalnız belge sürümü ve tarih vardır; uygulama durumu veya ekran görüntüleri satırı eklenmez.
+1. `node docs/kullanici-manueli/v3/shots.mjs tmp/manuel-shots` ile ekran görüntülerini alın. İstenirse son argümanda `giris,admin,yonetici,normal,normalproje,baslik,degerlendirme,aktivite,hesap,planlama,kritik` grupları seçilebilir.
+2. PNG'leri JPEG'e dönüştürüp `v3/shots/` altına koyun (örneğin macOS `sips -s format jpeg -s formatOptions 88 <kaynak.png> --out <hedef.jpg>`).
+3. `node docs/kullanici-manueli/v3/build-matrix.mjs` çalıştırın.
+4. `node docs/kullanici-manueli/v3/pdf.mjs <manuel.pdf>` ve `node docs/kullanici-manueli/v3/pdf.mjs <matris.pdf> yetki-matrisi.html` çalıştırın.
+5. PDF sayfalarını PNG olarak render edip sayfa sonlarını ve bütün tabloları kontrol edin; sonra paylaşım kopyalarını yenileyin.
 
-`v3/` klasörü kaynakları içerir:
-
-- `manual.html`: belge metni ve sayfa düzeni (IBM Plex Sans, `frontend/assets/fonts` altından).
-- `shots/`: PDF'de kullanılan ekran görüntüleri (JPEG).
-- `server.mjs`: demo veritabanının **geçici kopyasını** açar, ekran görüntüsü hesaplarını ekler (`sistem.admin`, `proje.ofisi`) ve kopyada `genel.mudur` ile `muhendis.detay` şifrelerini ayarlar. Kopya iş bitince silinir. Oturum uyarısı için yalnız bu kopyanın son etkinlik zamanı ayarlanır.
-- `shots.mjs`: `server.mjs` ile kopyayı başlatıp tüm ekran görüntülerini PNG olarak alır; bir grup başarısızsa komut başarısız sonuç döndürür.
-- `pdf.mjs`: `manual.html` dosyasını Chrome ile A4 PDF'e dönüştürür.
-
-Yeniden üretme (proje kökünde):
-
-1. `node docs/kullanici-manueli/v3/shots.mjs <çıktı-klasörü>` (başka bir demo dosyası için önüne `MANUAL_DB=<dosya.sqlite>` ekleyin).
-2. Görüntüleri JPEG'e çevirip `v3/shots/` altına koyun (macOS: `sips -s format jpeg -s formatOptions 82 x.png --out v3/shots/x.jpg`).
-3. `node docs/kullanici-manueli/v3/pdf.mjs <çıktı.pdf>`.
-
-Gerçek veritabanına (`data/planlama.sqlite`) ve canlı demo dosyasına bu adımlarda yazılmaz. `v2/` önceki sürüm 2.x kaynaklarıdır.
+`server.mjs`, `data/demo-sunum.sqlite` dosyasının **geçici kopyasını** kullanır. Ekran görüntüsü hesapları ve AD örnekleri yalnız bu kopyaya eklenir; kurumsal LDAP bağlantısı kurulmaz. Giriş parolaları ve oturum uyarısı zamanı yalnız kopyada değişir. İş bitince kopya silinir. Canlı demo ve asıl planlama dosyalarına yazılmaz. Başka bir demo kaynağı için `MANUAL_DB=<dosya.sqlite>` kullanılabilir.
 
 ## Önceki belge: sürüm 1.1
 

@@ -1,4 +1,3 @@
-import { normalizeEmployeeNumber } from "../../../../shared/directory-identity";
 import {
   planningPermissionRows,
   planningRowState,
@@ -155,9 +154,8 @@ export default function AccessPermissionFields({
                   const assigned = data.users?.find(
                     (user) =>
                       user.directoryId === person.id ||
-                      (!!person.employeeNumber &&
-                        normalizeEmployeeNumber(user.employeeNumber) ===
-                          normalizeEmployeeNumber(person.employeeNumber)),
+                      user.username.trim().toLowerCase() ===
+                        person.username.trim().toLowerCase(),
                   );
                   const chosen = form.directoryUser?.id === person.id;
                   return (
@@ -171,23 +169,15 @@ export default function AccessPermissionFields({
                       <div className="access-directory-identity">
                         <strong>{person.name}</strong>
                         <span>
-                          {person.employeeNumber
-                            ? "Sicil No: " + person.employeeNumber + " · "
-                            : ""}
                           {person.username}
                           {person.email ? " · " + person.email : ""}
                         </span>
-                        {!person.employeeNumber && (
-                          <small role="alert">
-                            AD kaydında Sicil No eksik; hesap eşleştirilemez.
-                          </small>
-                        )}
                         {assigned && (
                           <small>
                             {assigned.active
                               ? "Yetki tanımlı"
                               : "Yetki kaldırılmış"}{" "}
-                            · Bu kullanıcı veya Sicil No zaten eşleştirilmiş.
+                            · Bu kullanıcı adı veya AD hesabı zaten kayıtlı.
                             Mevcut kaydı Düzenle ekranından yönetin.
                           </small>
                         )}
@@ -200,9 +190,7 @@ export default function AccessPermissionFields({
                           (chosen ? " seçildi" : " kullanıcısını seç")
                         }
                         title={chosen ? "Seçildi" : "Kullanıcıyı seç"}
-                        disabled={
-                          busy || !!assigned || chosen || !person.employeeNumber
-                        }
+                        disabled={busy || !!assigned || chosen}
                         onClick={() =>
                           setForm({ ...form, directoryUser: person })
                         }
@@ -226,10 +214,6 @@ export default function AccessPermissionFields({
                 : "Hesap eşleştirmesi için kullanıcı satırındaki Seç düğmesine basın."}
             </small>
           )}
-          <label className="access-field">
-            Sicil No
-            <input readOnly value={form.directoryUser?.employeeNumber || ""} />
-          </label>
           <label className="access-field">
             Ad Soyad
             <input readOnly value={form.directoryUser?.name || ""} />
@@ -273,7 +257,6 @@ export default function AccessPermissionFields({
       )}
       {!creating && selected?.authSource === "ldap" && (
         <p className="access-admin-note">
-          Sicil No: {selected.employeeNumber || "AD ile girişte güncellenir"} ·
           Active Directory · {selected.email || "AD kaydında e-posta yok"}.
           Kullanıcı bilgileri kurumsal dizinden alınır.
         </p>
@@ -307,6 +290,7 @@ export default function AccessPermissionFields({
               onClick={() =>
                 setForm({
                   ...form,
+                  planningScopeEdited: true,
                   leaders: [...(data.leaders || [])],
                   planningTeams: data.teams
                     .filter((team) => !team.lead)
@@ -321,7 +305,12 @@ export default function AccessPermissionFields({
               className="button"
               disabled={busy || !selectedCount}
               onClick={() =>
-                setForm({ ...form, leaders: [], planningTeams: [] })
+                setForm({
+                  ...form,
+                  planningScopeEdited: true,
+                  leaders: [],
+                  planningTeams: [],
+                })
               }
             >
               Seçimi Temizle
@@ -360,6 +349,7 @@ export default function AccessPermissionFields({
                     onChange={(event) =>
                       setForm({
                         ...form,
+                        planningScopeEdited: true,
                         ...togglePlanningRow(
                           data,
                           form,

@@ -306,6 +306,15 @@ export async function selectWorkspaceView(page, label) {
 /** Entry uses the month strip; the report retains its month select. */
 export async function selectProgressMonth(page, month) {
   await page
+    .locator(".progress-baseline:visible, .progress-report:visible")
+    .first()
+    .waitFor();
+  // In entry mode, expose the month strip without leaving a task filter active.
+  const entryMode = await page.locator(".progress-baseline").count();
+  const opened =
+    entryMode && !(await page.locator(".progress-month-strip").count());
+  if (opened) await page.locator('[data-waiting="actualEntry"]').click();
+  await page
     .locator(".progress-month-strip:visible, .progress-month select:visible")
     .first()
     .waitFor();
@@ -317,6 +326,7 @@ export async function selectProgressMonth(page, month) {
     await page
       .getByRole("combobox", { name: "Ay", exact: true })
       .selectOption(month);
+  if (opened) await page.locator('[data-waiting="actualEntry"]').click();
 }
 
 export async function selectWorkspaceTab(page, name) {

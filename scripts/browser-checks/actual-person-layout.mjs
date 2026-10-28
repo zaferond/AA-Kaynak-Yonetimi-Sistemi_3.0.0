@@ -54,7 +54,7 @@ export async function checkActualPersonLayout(f) {
       "actual person layout: + opens a project row that saves; rows fold and search narrows",
       async () => {
         await page
-          .getByRole("switch", { name: "Sadece veri olanlar", exact: true })
+          .getByRole("switch", { name: "Sadece Veri Olanlar", exact: true })
           .click();
         assert.equal(await projectRow("p-b").count(), 0);
         await heading()

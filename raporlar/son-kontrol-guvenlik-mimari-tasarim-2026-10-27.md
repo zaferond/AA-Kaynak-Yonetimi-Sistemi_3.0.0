@@ -1,5 +1,7 @@
 # Son kontrol: güvenlik, mimari ve tasarım — 27.10.2026
 
+> Bu belge ilk inceleme kaydıdır. M-01/M-02 düzeltmeleri ve diğer bulguların güncel durumu: [yeniden inceleme ve belge güncellemesi](yayin-sonrasi-guvenlik-mimari-tasarim-incelemesi-2026-10-27.md).
+
 ## Kapsam ve sonuç
 
 İnceleme başlangıcı: geliştirme deposu `main` / `cf5ea7478b8c94b6955b5dbc1c0e8492f82efae2`; önceki çalıştırma deposu sürümü `45a773124150d49108a1e23b4658dcc2b73aba30`. Bu raporda sonradan kullanıcı isteğiyle eklenen Sicil No geliştirmesi ayrıca belirtilmiştir; henüz commit/push yapılmamıştır.

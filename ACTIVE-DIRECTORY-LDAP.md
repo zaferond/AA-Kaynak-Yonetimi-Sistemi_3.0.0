@@ -2,7 +2,7 @@
 
 ## Kullanım
 
-Çalışan & Yetki Tanımlama → **AD Kullanıcısına Yetki Tanımla** ile kurumsal dizinden kullanıcı seçilir. Sicil No, kullanıcı adı, ad soyad ve e-posta salt okunurdur. Sicil No, Ad Soyad alanının üzerinde gösterilir. Admin uygulamadaki çalışan kaydını, Normal Kullanıcı/Yönetici rolünü ve liderlik kapsamını eşleştirir. Yöneticinin kendi gerçekleşen dağılımı, izin ve eğitim kayıtları çalışan eşleştirmesiyle korunur. Yeni yetkilendirme yalnız admin tarafından yapılabilir; mevcut yetkiler revision denetimiyle güncellenir.
+Çalışan & Yetki Tanımlama → **Kaynak Ekle / Yetki Tanımla** ile kurumsal dizinden kullanıcı seçilir. Kullanıcı adı, ad soyad ve e-posta salt okunurdur. Admin uygulamadaki çalışan kaydını, Normal Kullanıcı/Yönetici rolünü ve liderlik kapsamını eşleştirir. Yöneticinin kendi gerçekleşen dağılımı, izin ve eğitim kayıtları çalışan eşleştirmesiyle korunur. Yeni yetkilendirme yalnız admin tarafından yapılabilir; mevcut yetkiler revision denetimiyle güncellenir.
 
 AD bağlantısı tanımlı değilken kullanıcı listesi ve yeni yetkilendirme kapalıdır. Sahte/örnek dizin kullanıcıları uygulamada gösterilmez. Arama ilk 50 uygun sonucu getirir; daha fazla sonuç varsa ad, kullanıcı adı veya e-posta ile daraltılır. Kontrol karakterleri, geçersiz kimlik/e-posta veya uygulamanın 150 karakterlik ad sınırını aşan AD kayıtları listelenmez. Çalışan kaydı ayrıca seçilir; isim eşitliğiyle otomatik eşleştirme yapılmaz.
 
@@ -14,8 +14,6 @@ Gerçek değerleri sürüm kontrolü dışında, yalnız yetkili servis hesabın
 
 ```dotenv
 AD_ENABLED=true
-# Kurumdaki Sicil No alanı: employeeID (varsayılan), employeeNumber veya özel alan.
-AD_EMPLOYEE_NUMBER_ATTRIBUTE=employeeID
 AD_LDAP_URL=ldaps://dc.example.internal:636
 AD_BASE_DN=OU=Employees,DC=example,DC=internal
 AD_BIND_DN=CN=ReadOnlyService,OU=ServiceAccounts,DC=example,DC=internal
@@ -85,12 +83,10 @@ Kaynak girişindeki **Kaynak Rolü**: Lider için yalnız liderlik seçilir; Tak
 - AD sorgusu SQL kilidi alınmadan yapılır. AD kimliğinin tekilliği, çalışan bağlantısı, liderlik kapsamı ve kayıt sürümleri işlem içinde yeniden denetlenir. Başka çalışana bağlı hesap bu formdan taşınamaz.
 - Bağlı liderlikler üst liderliğin altında girintili gösterilir; görsel değişiklik erişim kapsamını veya kapasite hesabını değiştirmez.
 
-## Sicil No ile tekil hesap eşleştirmesi (şema 48)
+## Kullanıcı adı ile tekil hesap eşleştirmesi
 
-Sicil No sunucunun AD sorgusundan alınır; istemci bu değeri gönderemez veya değiştiremez. `AD_EMPLOYEE_NUMBER_ATTRIBUTE` varsayılanı `employeeID` alanıdır; IT, kurumdaki gerçek alanı ve servis hesabının okuma iznini doğrulamalıdır. `employeeID` ve `employeeNumber` AD'de ayrı alanlardır ([Microsoft AD nesne modeli](https://github.com/MicrosoftDocs/windows-powershell-docs/blob/main/docset/winserver2022-ps/ActiveDirectory/About/about_ActiveDirectory_ObjectModel.md)). Gerçek kurumsal AD bağlantısıyla doğrulama yerel sentetik testlerin yerine ayrıca yapılmalıdır.
+AD'den alınan kullanıcı adı boşluklardan temizlenip küçük harfle saklanır. Aynı kullanıcı adıyla ikinci hesap eşleştirmesi yapılamaz; mevcut hesap pasif veya yerel hesap olsa da kullanıcı adı rezerve kalır. Arama sonucunda tekrar kayıt uyarısı gösterilir ve Seç kapalı olur. Sunucu kullanıcıyı AD'den yeniden okur, transaction içinde kullanıcı adını tekrar kontrol eder; SQL'deki tekil kullanıcı adı kısıtı da korunur. İstemci kimlik adını değiştirerek bu kontrolü aşamaz.
 
-Sicil No boşsa yeni hesap eşleştirilmez. Aynı AD kimliği, aynı kullanıcı adı veya aynı Sicil No ikinci bir hesapta kullanılamaz. Yetkisi kaldırılmış hesapların numarası da saklanır; yeni hesap oluşturmak yerine mevcut hesap düzenlenir. Baştaki sıfırlar korunur; kenar boşlukları, Unicode uyumlu karakterler ve harf büyüklüğü karşılaştırmada birleştirilir. 512 karakter sınırı uygulanır. Tekil SHA-256 anahtarı her iki veritabanında aynı karşılaştırmayı sağlar ve MSSQL indeks boyutu sınırını aşmaz; açık numara ayrıca görüntüleme için saklanır. Uygulama kontrolü, tekil SQL indeksi ve çalışan/hesap işleminin atomikliği eşzamanlı talepleri de korur.
+Değişmez AD kimliği (objectGUID) kontrolü ek koruma olarak sürer: AD'de kullanıcı adı değişse de aynı kişi başka hesaba bağlanamaz. Mevcut hesap Düzenle ekranından yönetilir. AD kullanıcı adı başka bir uygulama hesabıyla çakışırsa otomatik hesap dönüştürme/birleştirme yapılmaz; admin sorunu çözmelidir.
 
-Eski AD hesaplarında henüz Sicil No yoksa başarılı AD girişinde kurumsal değer kayda alınır. Bu eşleştirmeler tamamlanana kadar yeni hesap oluşturma güvenli biçimde engellenir; AD'den gelen numara başka hesaba bağlıysa giriş sırasında otomatik kimlik değişikliği yapılmaz ve yöneticiye yönlendiren hata döner. Kullanımdan kalkmış ve giriş yapamayan eski hesaplar varsa IT, AD kayıtlarını doğrulayarak veri eşleştirmesini tamamlamalıdır. Yerel yönetici hesaplarının Sicil No zorunluluğu yoktur.
-
-Geçişten önce yedek alınmalıdır. SQL.js otomatik şema güncellemesiyle 48'e geçer; üretim MSSQL için IT `npm run db:migrate` çalıştırmalıdır. Mevcut kullanıcı parolaları ve iş kayıtları değiştirilmez.
+Kullanıcı kararı doğrultusunda Sicil No formdan, AD alan sorgusundan ve eşleştirme zorunluluğundan kaldırıldı. Önceden Sicil No'su doldurulmamış pasif AD hesapları artık benzersiz kullanıcı adıyla yeni hesap açılmasını engellemez. `AD_EMPLOYEE_NUMBER_ATTRIBUTE` ayarı kullanılmaz. Şema 48'in tarihsel migration dosyaları ve boş bırakılan eski kolonları, mevcut kurulumların/yedeklerin şema uyumluluğu için korunur; şema geçmişi geriye alınmaz. Kullanıcı adı ve AD kimliğinin tekilliği bu eski kolonlara bağlı değildir.

@@ -128,6 +128,7 @@ export async function checkActivityReport(f) {
       .locator('.planning-filterbar input[type="month"]')
       .fill("2026-01");
     await page.locator(".planning-filterbar .period select").selectOption("12");
+    await page.locator(".monthly-activity-report").waitFor();
     await f.check(
       "activity report: tab placement, planned filters and Görünüm at the right above the filters",
       async () => {

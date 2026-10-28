@@ -2,7 +2,10 @@ import type { Data } from "../../model";
 import type { UserInput } from "../../storage";
 import type { DirectoryUser } from "../../../../shared/directory-identity";
 import type { EmployeePermission } from "../../../../shared/employee-account";
-export type PermissionForm = UserInput & { directoryUser?: DirectoryUser };
+export type PermissionForm = UserInput & {
+  directoryUser?: DirectoryUser;
+  planningScopeEdited?: boolean;
+};
 export type EmployeeAccessDraft = {
   form: PermissionForm | null;
   changed: boolean;

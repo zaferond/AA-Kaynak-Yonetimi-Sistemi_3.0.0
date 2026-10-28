@@ -8,16 +8,13 @@ import { topLeader } from "../../../../shared/leadership-hierarchy.ts";
 import type { Principal } from "../../access";
 import type { Change } from "../../../../shared/commands";
 import {
-  earliestOpening,
   currentBaseline,
   leaderProgress,
   isTopLeader,
   topLeaderResourceByMonth,
   lateTopicSignal,
   missingEntrySignal,
-  monthsAfter,
   nextMonth,
-  previousMonth,
   scenarioSignal,
   shortageSignal,
   underPlanSignal,
@@ -138,18 +135,7 @@ export const canLead = (user: Principal | null, leader: string) =>
   user?.role === "admin" ||
   (user?.role === "manager" && user.leaders.includes(leader));
 
-/** Months that can carry an actual entry: after the earliest plan opening. */
-export function entryMonths(current: string, records?: ProjectProgress[]) {
-  return monthsAfter(earliestOpening(records, current), current);
-}
-export const defaultEntryMonth = (
-  current: string,
-  records?: ProjectProgress[],
-) => {
-  const months = entryMonths(current, records);
-  const previous = previousMonth(current);
-  return months.includes(previous) ? previous : months.at(-1) || "";
-};
+export { entryMonths, defaultEntryMonth } from "./progress-months.ts";
 
 export type LeaderRow = LeaderProgress & {
   signals: RiskSignal[];

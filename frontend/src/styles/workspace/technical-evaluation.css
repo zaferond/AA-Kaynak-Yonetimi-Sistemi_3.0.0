@@ -757,3 +757,27 @@ html[data-theme="technical"]
   .project-info-week.project-info-week-more:hover {
   background: var(--tbl-row-hover);
 }
+
+/* Long work-category labels wrap into visible rows on narrow screens. */
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-strip
+  > .progress-waiting-filter {
+  height: auto;
+  min-height: 32px;
+  overflow: visible;
+  border: 0;
+  gap: 5px;
+}
+html[data-theme="technical"]
+  .app.tab-progress
+  .progress-waiting-strip
+  .progress-waiting-filter
+  button {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--btn-border);
+  border-radius: 3px;
+  text-align: left;
+  line-height: 1.3;
+}

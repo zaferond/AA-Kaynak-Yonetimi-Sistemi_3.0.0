@@ -70,14 +70,34 @@ export async function startManualServer({ port = 0 } = {}) {
     role: "normal",
     projectEditor: true,
   });
+  // Screenshot-only AD identities, never a corporate LDAP connection.
+  const { syntheticDirectory } = await import(
+    path.join(root, "tests/directory-fixture.mjs")
+  );
+  const directory = syntheticDirectory(PASSWORD);
+  directory.add({
+    id: "1".repeat(32),
+    username: "deniz.aksoy",
+    name: "Deniz Aksoy",
+    email: "deniz.aksoy@example.invalid",
+  });
+  directory.add({
+    id: "2".repeat(32),
+    username: "selin.yilmaz",
+    name: "Selin Yılmaz",
+    email: "selin.yilmaz@example.invalid",
+  });
   const server = http.createServer();
   server.listen(port, "127.0.0.1");
   await once(server, "listening");
   const origin = "http://127.0.0.1:" + server.address().port;
-  const app = createApp(store, { origin });
+  const app = createApp(store, { origin, directory });
   server.on("request", app);
   return {
     origin,
+    completedProjectName: (await store.read()).data.projects.find(
+      (project) => project.completed,
+    )?.name,
     async showIdleWarning() {
       await store.transaction((c) =>
         c.query("UPDATE kp_sessions SET last_activity_at=@p0", [

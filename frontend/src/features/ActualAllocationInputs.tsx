@@ -88,7 +88,10 @@ export function WorkedHours({
     }
   }
   return (
-    <span className="worked-hours-input">
+    <span
+      className="worked-hours-input"
+      data-window-keep={busy || dirty || !!error ? "true" : undefined}
+    >
       <input
         ref={inputRef}
         aria-label={resource.name + " / " + month + " çalışılan saat"}

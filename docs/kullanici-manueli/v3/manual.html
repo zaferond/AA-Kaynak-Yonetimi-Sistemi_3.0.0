@@ -62,7 +62,8 @@
   table.grid thead th { background: var(--brand); color: #fff; font-weight: 600; }
   table.grid tbody th { background: #f3f6f9; font-weight: 600; width: 56mm; }
   table.grid tr { break-inside: avoid; }
-  table.operation-matrix th, table.operation-matrix td { padding: 1.1mm 2mm; }
+  table.operation-matrix { font-size: 8.5pt; }
+  table.operation-matrix th, table.operation-matrix td { padding: .65mm 1.7mm; }
   table.grid tr.group td { background: #dfe7ef; font-weight: 700; color: var(--brand); padding: 1.1mm 2mm; }
   .m td { text-align: center; }
   .m td.l { text-align: left; }
@@ -99,7 +100,7 @@
         <li>Roller ve menüler</li>
         <li>Ana Sayfa, arama ve bildirimler</li>
         <li>Projeler</li>
-        <li>Proje Takvimi Güncelle (senaryo)</li>
+        <li>Proje Takvimi Güncelle</li>
         <li>Kaynak Planlama</li>
         <li>Proje ve Kaynak Değerlendirme</li>
         <li>Haftalık Kritik Konular</li>
@@ -113,8 +114,8 @@
     </div>
   </div>
   <table class="meta">
-    <tr><td>Belge sürümü</td><td>3.2</td></tr>
-    <tr><td>Tarih</td><td>25.10.2026</td></tr>
+    <tr><td>Belge sürümü</td><td>3.3</td></tr>
+    <tr><td>Tarih</td><td>27.10.2026</td></tr>
   </table>
 </section>
 
@@ -125,7 +126,7 @@
   <ol>
     <li>Uygulama adresini tarayıcıda açın. <span class="ui">Oturum Aç</span> formunda imleç <span class="ui">Kullanıcı Adı</span> alanındadır.</li>
     <li>Kullanıcı adınızı ve <span class="ui">Şifre</span>'nizi yazıp <span class="ui">Giriş Yap</span>'a basın. Göz simgesi şifreyi gösterir; Caps Lock açıksa alanın altında uyarı çıkar. Yerel Normal Kullanıcı hesabında <span class="ui">Beni Hatırla</span> en fazla 30 günlük oturum sağlar; seçilmezse üst sınır 12 saattir. Admin, Yönetici ve Normal-Proje hesaplarında üst sınır 8 saattir ve kalıcı hatırlama uygulanmaz. AD hesaplarında, yüksek yetkili hesaplar dışındaki üst sınır 12 saattir. Bütün hesaplarda 30 dakika hareketsizlik oturumu kapatır; ortak bilgisayarda hatırlamayı seçmeyin.</li>
-    <li>Active Directory hesabıyla kurum şifrenizi kullanırsınız; hesabınıza ayrıca uygulama rolü tanımlanmış olmalıdır.</li>
+    <li>Active Directory hesabıyla kurum şifrenizi kullanırsınız; hesabınıza ayrıca uygulama rolü tanımlanmış olmalıdır. AD şifresi uygulamada yenilenmez; kurumsal parola süresi ve kuralları IT tarafından yönetilir.</li>
   </ol>
   <figure>
     <div class="shot" style="height:50mm;width:80%"><img src="shots/giris.jpg" alt="Giriş ekranı" style="margin-top:-16mm"></div>
@@ -134,7 +135,7 @@
   <h2>Ekranın bölümleri</h2>
   <ul>
     <li><b>Sol menü:</b> Rolünüzün açabildiği ekranlar gruplar halinde listelenir (Ana Sayfa · planlama ve projeler · raporlar · aktivite · yönetim). Menü başlığındaki düğme menüyü daraltır veya açar.</li>
-    <li><b>Üst çubuk:</b> Otokar logosu, açık ekranın adı, <span class="ui">Ara…</span> kutusu (<kbd>Ctrl</kbd>+<kbd>K</kbd>), bildirim çanı, kullanıcı menüsü ve <span class="ui">Çıkış</span>. Üst çubuk sayfa kaydırılsa da görünür kalır.</li>
+    <li><b>Üst çubuk:</b> Ana Sayfa’ya döndüren Otokar logosu, açık ekranın adı, <span class="ui">Ara…</span> kutusu (<kbd>Ctrl</kbd>+<kbd>K</kbd>), bildirim çanı, kullanıcı menüsü ve <span class="ui">Çıkış</span>. Üst çubuk sayfa kaydırılsa da görünür kalır.</li>
     <li><b>Ekran başlığı ve alt sekmeler:</b> Bazı ekranlarda başlığın altında alt sekmeler bulunur (örneğin Projeler → <span class="ui">Proje Takvimi Güncelle</span>). Sağda <span class="ui">Görünüm</span> seçimi, ekrana özel düğmeler ve indirme (↓) düğmesi yer alır.</li>
     <li><b>Filtreler:</b> Liderlik, Takım, Proje, Kişi, Başlangıç Ayı ve Görünür Dönem gibi seçimler. Tek bir değer seçildiğinde adı, birden fazla seçildiğinde sayısı görünür. <span class="ui">Filtreleri Sıfırla</span> varsayılana döndürür. Filtre yalnız görünümü daraltır, yetki vermez.</li>
     <li><b>Kısa bildirimler:</b> "Veritabanına kaydedildi" gibi mesajlar sağ altta birkaç saniye görünür; hata mesajları ekranda kalır.</li>
@@ -154,7 +155,7 @@
     <li><b>Azami süre:</b> Hesabınızın 8 saat, 12 saat veya 30 günlük üst sınırı uzatılamaz. Uyarıda <span class="ui">Çalışmayı Kaydetmek İçin Dön</span> ile kaydınızı tamamlayıp yeniden giriş yapın.</li>
     <li><b>Çıkış Yap:</b> Ortak bilgisayarı bırakmadan önce oturumu kapatın. Süre dolması, kaydedilmemiş verilerin kaydedildiği anlamına gelmez.</li>
   </ul>
-  <div class="note">İlk kurulumda veya parola sıfırlamasından sonra geçici parola kullanıyorsanız, uygulama yeni parola belirlemenizi ister. Yeni parola 10-256 karakter olmalı, en az bir harf ve bir rakam içermeli; yalnız tekrar veya ardışık dizilerden oluşmamalıdır.</div>
+  <div class="note">Yerel hesapta ilk kurulumda veya parola sıfırlamasından sonra geçici parola kullanıyorsanız, uygulama yeni parola belirlemenizi ister. Yeni parola 10-256 karakter olmalı, en az bir harf ve bir rakam içermeli; yalnız tekrar veya ardışık dizilerden oluşmamalıdır.</div>
 </section>
 
 <!-- 2 -->
@@ -203,6 +204,7 @@
   <p><b>Örnek:</b> Çalışan görevi Team Member olan bir Yönetici, Aktivite Giriş'te yalnız kendisini, Aktivite Raporu'nda kendi takımını görür. Çalışan görevi Lider olan bir Normal Kullanıcı ise kendi liderliğine ve alt liderliklere erişir.</p>
   <div class="note"><b>Çalışan kaydı eşleşmesi gerekir.</b> Admin dışındaki bir hesap çalışan kaydına bağlı değilse, Yönetici rolünde ve planlama için liderlik yetkisi olsa bile Aktivite Giriş ve Aktivite Raporu boş gelir. Admin, hesap eşleşmesini ve çalışanın görev/takım bilgilerini kontrol etmelidir.</div>
   <p><b>Takım değişikliği geçmiş raporları değiştirmez.</b> Kullanıcının kapsamı bugünkü organizasyon görevinden gelir; her ayın aktivitesi çalışanın o ay bulunduğu takım altında gösterilir. Eski takımın PO/Lideri yalnız o takıma ait ayları, yeni takımın PO/Lideri kendi takımına ait ayları görür. Çalışan, kendi geçmişinin tamamını ilgili takımlar altında görür; eski takım arkadaşlarının verilerine erişmez. Her ay yalnız bir takımın toplamına eklenir.</p>
+  <div class="note"><b>Tamamlanan projeler:</b> Aktivite Giriş'te gösterme seçimi yalnız görünümü değiştirir. Tamamlanan projelerde de aynı kişi ve ay yetkileri geçerlidir; aylık toplamlar ve kapasite sınırı korunur.</div>
   <h2>Yönetici planlama yetkisi</h2>
   <p><span class="ui">Planlanan Kaynak Dağılımı Yetkisi</span> alanındaki liderlik ve takım atamaları Aktivite Giriş veya Aktivite Raporu kapsamını genişletmez.</p>
   <ul>
@@ -213,7 +215,7 @@
 
 <!-- 3 -->
 <section class="page">
-  <h1>3. Ana Sayfa, arama ve bildirimler <span class="new">YENİ</span></h1>
+  <h1>3. Ana Sayfa, arama ve bildirimler</h1>
   <p>Giriş sonrası varsayılan ekran Ana Sayfa'dır. Üst satırda karşılama, rol, tarih ve hafta numarası; altında açabildiğiniz her ekran için başlığını ve simgesini taşıyan bir kart bulunur. Karta tıklamak ilgili ekranı açar. Farklı bir açılış ekranı için kullanıcı menüsündeki <span class="ui">Varsayılan sekme</span>'yi kullanın.</p>
   <figure>
     <div class="shot" style="height:74mm"><img src="shots/ana-sayfa.jpg" alt="Ana Sayfa"></div>
@@ -257,7 +259,7 @@
     <li><span class="ui">Görünüm</span>: Ayrıntılı, Kompakt veya 5 Yıllık Genel Bakış. <span class="ui">Görünür Dönem</span> 6 aydan 5 yıla kadar seçilir.</li>
     <li><span class="ui">Haftalık Görünüm</span> aylık aşamaları haftalara yansıtır. <span class="ui">Proje Kodlarını Göster</span> açıksa Excel çıktısına kod sütunu eklenir.</li>
     <li>İndirme (↓) düğmesi proje raporunu Excel olarak indirir.</li>
-    <li><b>İlerleme çubuğu</b> <span class="new">YENİ</span> (Admin ve Yönetici): Proje adının altında son kilitli ayın gerçekleşen yüzdesi dolgu, hedef yüzdesi siyah çizgi olarak görünür; renk sapma durumunu gösterir (mavi ileride, yeşil planda, turuncu geride, kırmızı kritik). Değerlendirmesi olmayan projede çubuk çıkmaz.</li>
+    <li><b>İlerleme çubuğu</b> (Admin ve Yönetici): Proje adının altında son kilitli ayın gerçekleşen yüzdesi dolgu, hedef yüzdesi siyah çizgi olarak görünür; renk sapma durumunu gösterir (mavi ileride, yeşil planda, turuncu geride, kırmızı kritik). Değerlendirmesi olmayan projede çubuk çıkmaz.</li>
   </ul>
   <h2>Proje ekleme ve düzenleme</h2>
   <ol>
@@ -300,27 +302,52 @@
   </figure>
 </section>
 
+<section class="page">
+  <h2>Başlık, tarih aralıkları ve kilometre taşları</h2>
+  <p>Başlığı düzenlediğinizde sağdan bir panel açılır. <span class="ui">Başlık ve Detaylar</span> sekmesinde başlık, tarih aralıkları ve açıklamalar birlikte düzenlenir. Her detay açıklamasının kendi başlangıç/bitiş tarihi vardır; tek günlü hedef için Milestone seçilir.</p>
+  <figure><div class="shot" style="height:85mm"><img src="shots/baslik-detaylar.jpg" alt="Sağ panelde Başlık ve Detaylar sekmesi"></div><figcaption>Tarih ve açıklamalar tek içerik sekmesinde yönetilir. Bir başlıkta birden fazla detay bulunabilir.</figcaption></figure>
+  <p><span class="ui">Görünüm</span>, bar rengini ve görünüm biçimini değiştirir; tarihleri değiştirmez. Milestone görünümü, ilgili tek tarihli kaydın seçeneklerinden seçilir. Değişiklikleri Kaydet ile tamamlayın.</p>
+  <figure><div class="shot" style="height:85mm"><img src="shots/baslik-gorunum.jpg" alt="Sağ panelde Görünüm sekmesi"></div><figcaption>Barın görsel seçenekleri içerik düzenlemesinden ayrı sunulur.</figcaption></figure>
+</section>
+
+<section class="page">
+  <h2>Tamamlanan Projeler</h2>
+  <p><span class="ui">Tamamlanan Projeler</span>, Onaylanan Takvim Güncellemeleri'nin sağındadır. Projeler ile aynı takvim görünümünü kullanır; yalnız tamamlanan kayıtları gösterir. Proje görüntüleme kuralları burada da geçerlidir.</p>
+  <figure><div class="shot" style="height:77mm"><img src="shots/tamamlanan-projeler.jpg" alt="Tamamlanan Projeler sekmesi"></div><figcaption>Tamamlanan proje aktif Projeler listesinden çıkar; geçmişi korunur.</figcaption></figure>
+  <h3>Projenin durumunu değiştirme</h3>
+  <ol>
+    <li>Admin veya Normal-Proje hesabıyla proje adına tıklayıp <span class="ui">Proje Bilgilerini Düzenle</span> penceresini açın.</li>
+    <li><span class="ui">Proje Durumu → Tamamlandı</span> seçimini işaretleyip Kaydet'e basın. Tekrar aktif yapmak için tamamlanan proje sekmesinde aynı seçimi kaldırın.</li>
+    <li>Bu işlem projeyi ve dağılımlarını silmez. Kaynak Planlama'da tamamlanan projeler başlangıçta gizlidir; istenirse gösterilebilir.</li>
+  </ol>
+  <figure><div class="shot" style="height:77mm"><img src="shots/proje-durumu.jpg" alt="Proje Durumu çerçevesinde Tamamlandı seçimi"></div><figcaption>Proje Durumu, Görüntüleme yetkisi gibi ayrı bir çerçevede gösterilir.</figcaption></figure>
+</section>
+
 <!-- 5 -->
 <section class="page">
-  <h1>5. Proje Takvimi Güncelle (senaryo)</h1>
-  <p>Bir veya birkaç proje ertelenirse ya da öne çekilirse kaynak durumunun nasıl değişeceğini, kayıtları değiştirmeden gösterir. Projeler ekranının <span class="ui">Proje Takvimi Güncelle</span> alt sekmesindedir; Admin ve Yönetici içindir. Admin, onay bekleyen senaryo sayısını sekmedeki rozetten görür.</p>
-  <figure>
-    <div class="shot" style="height:92mm"><img src="shots/proje-takvimi.jpg" alt="Proje Takvimi Güncelle"></div>
-    <figcaption>Senaryo Ekleme, kayıtlı senaryolar ve Mevcut / Senaryo karşılaştırması. Kötüleşen hücreler kırmızı, iyileşenler yeşil.</figcaption>
-  </figure>
-  <h2>Senaryo hazırlama</h2>
+  <h1>5. Proje Takvimi Güncelle</h1>
+  <p>Admin ve Yönetici, bir veya birkaç projenin ertelenmesi ya da öne çekilmesinin kaynak planına etkisini karşılaştırır. Senaryo hazırlamak gerçek takvimi değiştirmez.</p>
+  <figure><div class="shot" style="height:62mm"><img src="shots/senaryo-kapali.jpg" alt="Kapalı senaryo kartı ve Senaryo Oluştur düğmesi"></div><figcaption>İlk açılışta kart kapalıdır. Senaryo Oluştur ile yeni taslak açılır.</figcaption></figure>
+  <h2>Senaryo oluşturma</h2>
   <ol>
-    <li><span class="ui">Senaryo Ekleme</span> satırında <span class="ui">Proje</span>, <span class="ui">Ay</span> (artı: erteleme, eksi: öne çekme) ve <span class="ui">Başlangıç Ayı</span> seçin. Önceki aylar ve gerçekleşen girişler yerinde kalır. Birden fazla proje için <span class="ui">+ Proje Ekle</span>. "Aşamalar, başlıklar ve kilometre taşları da kaysın" varsayılan olarak açıktır.</li>
-    <li><span class="ui">Ekle</span> senaryoyu taslak olarak kaydeder. <span class="ui">Kopyala</span> aynı projelerle yeni bir senaryo açar; <span class="ui">Temizle</span> satırdaki seçimleri boşaltır. En fazla 3 senaryo yan yana karşılaştırılır.</li>
-    <li>Karşılaştırma; proje bitişini, liderlik ve takım bazında kalan kaynağı gösterir. Hücrenin üzerine gelince mevcut değer görünür.</li>
-    <li>İndirme düğmesi karşılaştırmayı Excel'e aktarır; <span class="ui">Raporlarda Göster</span> Raporlar ekranını seçilen senaryoyla açar.</li>
+    <li><span class="ui">Senaryo Oluştur</span> düğmesine basın. <span class="ui">Senaryo İsmi</span> yazın; <span class="ui">Başlangıç Ayı</span>, <span class="ui">Süre (Ay)</span> ve <span class="ui">Proje</span> seçin. Artı değer erteleme, eksi değer öne çekmedir.</li>
+    <li><span class="ui">+ Proje Ekle</span> ile aynı senaryoya başka proje ekleyin. <span class="ui">Aşamalar, başlıklar ve kilometre taşları da kaysın</span> seçimini kontrol edin. Önceki aylar ve gerçekleşen girişler korunur.</li>
+    <li><span class="ui">Senaryo Ekle</span> ile kaydedin. Kart kapanır ve Senaryo Oluştur yeniden görünür. Yalnız proje seçmek karşılaştırmaya eklemez; bunun için Senaryo Ekle gerekir.</li>
   </ol>
-  <h2>Onay, takvime aktarma ve geri alma (Admin)</h2>
+  <figure><div class="shot" style="height:72mm"><img src="shots/senaryo-olustur.jpg" alt="Senaryo İsmi, Başlangıç Ayı, Süre Ay ve Proje alanları"></div><figcaption>Solda senaryo girişi, sağda sabit yükseklikte kayıtlı senaryolar listesi.</figcaption></figure>
+  <p><span class="ui">Kopyala</span> karttaki bilgilerle alternatif hazırlar; <span class="ui">Temizle</span> kartın seçimlerini boşaltır. En fazla üç senaryo karşılaştırılır; proje bitişi ve liderlik/takım kalan kaynağı birlikte gösterilir.</p>
+</section>
+<section class="page">
+  <h2>Kayıtlı senaryoları düzenleme ve silme</h2>
+  <figure><div class="shot" style="height:74mm"><img src="shots/senaryo-duzenle.jpg" alt="Kayıtlı senaryoyu düzenleme"></div><figcaption>Düzenle ile kart yeniden açılır; Senaryo İsmi dahil değişiklikler Kaydet ile aynı senaryoya yazılır.</figcaption></figure>
   <ul>
-    <li><span class="ui">Kayıtlı Senaryolar</span> listesinde Admin <span class="ui">Onayla</span> ile kararı kaydeder; onaylı senaryonun içeriği değişmez.</li>
-    <li><span class="ui">Takvime Aktar</span> projelerin dönemini, planlanan değerlerini, aşamalarını ve kilometre taşlarını tek işlemde kaydırır; kaç kaydın taşınacağı önce sorulur. Aynı projeleri içeren diğer senaryolar "Kapatıldı" olur. <span class="ui">Kapatılanları Sil</span> bunları topluca siler.</li>
-    <li><span class="ui">Geri Al</span> takvimi aktarmadan önceki haline döndürür. Aktarmadan sonra bu projelerde başka değişiklik yapıldıysa geri alma reddedilir. Yönetici yalnız kendi taslağını düzenler ve siler.</li>
+    <li>Yeni kayıt en üst satıra eklenir. Liste uzadığında kendi içinde kaydırılır. Admin tüm taslakları, Yönetici kendi taslağını düzenleyebilir.</li>
+    <li>Silinebilir satırları işaretleyip <span class="ui">Seçilenleri Sil</span> ile topluca silin. Yönetici kendi taslak/kapatılmış kayıtlarını; Admin takvime aktarılmamış uygun kayıtları silebilir.</li>
+    <li><span class="ui">Raporlarda Göster</span> karşılaştırmayı Raporlar ekranına taşır. Buradaki <span class="ui">Kaldır</span> yalnız rapor karşılaştırmasını kaldırır; kayıtlı senaryoyu silmez. İndirme düğmesi Excel çıktısı verir.</li>
   </ul>
+  <h2>Onaylanan Takvim Güncellemeleri</h2>
+  <figure><div class="shot" style="height:62mm"><img src="shots/onaylanan-takvim.jpg" alt="Onaylanan Takvim Güncellemeleri sekmesi"></div><figcaption>Onaylanan ve takvime aktarılan kayıtlar ayrı sekmede izlenir.</figcaption></figure>
+  <p><b>Admin:</b> <span class="ui">Onayla</span> kararı kaydeder. <span class="ui">Takvime Aktar</span>, onay ve etki kontrolünden sonra planlanan dağılımı ve seçildiyse aşama/başlık/kilometre taşlarını taşır. <span class="ui">Geri Al</span> işleminden sonra başka değişiklik olmuşsa geri alma reddedilir. Takvime aktarılmış kayıt doğrudan silinemez. Yönetici onaylayamaz veya gerçek takvime aktaramaz.</p>
 </section>
 
 <!-- 6 -->
@@ -328,7 +355,7 @@
   <h1>6. Kaynak Planlama</h1>
   <p>Admin ve Yönetici içindir. Değerler kişi bazında değil, takım veya liderlik kaynağı için <b>kişi eşdeğeri</b> olarak girilir (0,5 = yarım kaynak).</p>
   <figure>
-    <div class="shot" style="height:96mm"><img src="shots/kaynak-planlama.jpg" alt="Kaynak Planlama"></div>
+    <div class="shot" style="height:78mm"><img src="shots/kaynak-planlama.jpg" alt="Kaynak Planlama"></div>
     <figcaption>Üstte Kalan Kaynak Raporu (Aktif / Dağıtılan / Kalan Kaynak); altta proje bazında takım dağılımı.</figcaption>
   </figure>
   <h2>Kaynak planlama</h2>
@@ -348,27 +375,42 @@
       <tr><th>Seçimi kaldırmak</th><td><kbd>Esc</kbd> veya tablo dışına tıklama.</td></tr>
     </tbody>
   </table>
-  <p><span class="ui">Gerçekleşen Dağılım Göster</span> plan değerlerinin yanında gerçekleşenleri de gösterir; <span class="ui">Sadece veri olanlar</span> boş satırları gizler.</p>
+  <p><span class="ui">Tamamlanan Projeleri Göster</span>, filtre satırında <span class="ui">Sadece Veri Olanlar</span> yanında bulunur ve ilk açılışta kapalıdır. Açıldığında tamamlanan projelerin kayıtları da gösterilir; bu seçim mevcut dağılımları değiştirmez. Filtre değiştirmeden önce açık hücre girişlerini kaydedin.</p>
+  <p><span class="ui">Gerçekleşen Dağılım Göster</span> plan değerlerinin yanında gerçekleşenleri de gösterir; <span class="ui">Sadece Veri Olanlar</span> boş satırları gizler.</p>
   <div class="warn">Tüm planı temizleyen <span class="ui">Tüm Kaynak Dağılımlarını Sıfırla</span> bu ekranda değil, yalnız Admin'in açabildiği Organizasyon &amp; Çalışan &amp; Yetki ekranındadır (12. bölüm).</div>
 </section>
 
 <!-- 7 -->
 <section class="page">
-  <h1>7. Proje ve Kaynak Değerlendirme <span class="new">YENİ</span></h1>
-  <p>Admin ve Yönetici içindir. Her liderlik, projedeki işinin aylık <b>hedef</b> tamamlanma yüzdesini planlar ve her ay <b>gerçekleşen</b> yüzdeyi girer; sistem sapmayı kaynak planıyla birlikte değerlendirir. Ekranda dört alt sekme vardır.</p>
-  <figure>
-    <div class="shot" style="height:86mm"><img src="shots/hedef-plan.jpg" alt="Hedef Plan / Gerçekleşen Plan Giriş"></div>
-    <figcaption>Hedef Plan / Gerçekleşen Plan Giriş: liderlik bazında proje kartları, durum filtreleri ve ay kilidi.</figcaption>
-  </figure>
-  <h2>Hedef Plan / Gerçekleşen Plan Giriş</h2>
+  <h1>7. Proje ve Kaynak Değerlendirme</h1>
+  <p>Admin ve Yönetici içindir. Liderlikler, projedeki işlerinin hedef ve gerçekleşen tamamlanma yüzdelerini girer. Sistem ilerlemeyi kaynak planıyla birlikte değerlendirir.</p>
+  <figure><div class="shot" style="height:85mm"><img src="shots/hedef-plan.jpg" alt="Giriş sekmesindeki bekleyen adetleri ve tek seçimli filtreler"></div><figcaption>Giriş sekmesinin yanında turuncu hedef plan ve mavi gerçekleşen giriş sayısı; altında Liderlik, Proje Sorumlusu ve bekleyen iş seçimleri.</figcaption></figure>
+  <h2>Sekmedeki bekleyen adetleri</h2>
+  <p>Giriş sekmesindeki <b>turuncu sayı (Hedef Plan Bekleyen)</b>, Yönetici girişi ve proje onayı bekleyen planların toplamıdır; iki alt sayı üzerine gelindiğinde açıklamada görünür. <b>Mavi sayı (Gerçekleşen Giriş Bekleyen):</b> Seçili ayın henüz girilmemiş gerçekleşen kayıtlarıdır. Sayılar kullanıcının yetkili olduğu birimler ve seçili Liderlik/Proje Sorumlusu kapsamında hesaplanır; Admin tüm yetkili kapsamı, Yönetici kendi kapsamını görür.</p>
+  <h2>Tek seçimli bekleyen iş filtreleri</h2>
+  <table class="grid">
+    <thead><tr><th>Seçim</th><th>Gösterilen kayıtlar</th></tr></thead>
+    <tbody>
+      <tr><th>Hedef Plan-Yönetici Girişi Bekleyen</th><td>Henüz girilmemiş veya taslak hedef planlar.</td></tr>
+      <tr><th>Hedef Plan-Proje Onayı Bekleyen</th><td>Proje ekibinin onayını bekleyen hedef planlar.</td></tr>
+      <tr><th>Gerçekleşen Plan-Yönetici Girişi Bekleyen</th><td>Seçili ay için yönetici gerçekleşen girişi beklenen kayıtlar.</td></tr>
+      <tr><th>Değerlendirme Bekliyor</th><td>Gerçekleşeni girilmiş, ay kilidiyle değerlendirilmesi beklenen kayıtlar.</td></tr>
+    </tbody>
+  </table>
+  <p>Aynı anda en fazla bir seçim etkindir. Etkin seçime yeniden basmak süzgeci kaldırır ve tüm yetkili kartları gösterir. Ayrı Tümü düğmesi ve üst satırdaki Hedef Plan / Gerçekleşen Plan açılır filtreleri bulunmaz.</p>
+</section>
+<section class="page">
+  <h2>Ay seçimi, hedef plan ve gerçekleşen girişi</h2>
+  <figure><div class="shot" style="height:78mm"><img src="shots/hedef-plan-aylar.jpg" alt="Gerçekleşen giriş filtresinde açılan yıl ve ay satırı"></div><figcaption>Ay satırı yalnız Gerçekleşen Plan-Yönetici Girişi Bekleyen veya Değerlendirme Bekliyor seçiminde açılır.</figcaption></figure>
+  <p><b>Değerlendirme Bekliyor</b> seçildiğinde işlemdeki varsayılan ay seçilir: önceki ay; takip kapsamına girmiyorsa seçilebilir son ay. Yıl altındaki aylardan başka bir dönem seçebilirsiniz. İçinde bulunulan ay, gelecek aylar ve takip başlamamış dönemler seçilemez. Örneğin Ekim, 1 Kasım’da seçime açılır; değerlendirme raporunun mevcut ay görünümü korunur.</p>
   <ol>
-    <li>Kartta başlangıç yüzdesini ve aylık hedefleri hazırlayın, taslağı kaydedin ve <b>proje ekibi onayına</b> gönderin. Sıra: Yönetici Girişi Bekleniyor → Taslak → Proje Ekibi Onayında → Proje Ekibi Onayladı.</li>
-    <li>Onaydan sonra her ay o aya kadar tamamlanan toplam payı (%) ve açıklamayı girin. Örneğin %45, ay sonuna kadar işin %45'inin bittiğini gösterir.</li>
-    <li>Onaylı plan değişecekse <span class="ui">Hedef Plan Revize Et</span> ile gerekçeli revizyon hazırlanır; revizyon onaylanana kadar önceki plan geçerlidir. Yeni hedef, girilmiş gerçekleşen yüzdeden düşük olamaz (kilitli ay sınırında düşüşe izin verilir).</li>
-    <li>Kayıtlı gerçekleşen değeri ay kilitlenene kadar <span class="ui">Gerçekleşen % Revize Et</span> ile düzeltilir.</li>
+    <li>Hedef plan kartında başlangıç yüzdesini ve aylık hedefleri hazırlayın, taslağı kaydedip proje ekibi onayına gönderin. Sıra: Yönetici Girişi Bekleniyor → Taslak → Proje Ekibi Onayında → Proje Ekibi Onayladı.</li>
+    <li>Onaylı planda, o aya kadar tamamlanan toplam payı (%) ve açıklamayı girin. %45, ay sonuna kadar işin %45'inin tamamlandığını gösterir.</li>
+    <li><span class="ui">Hedef Plan Revize Et</span> ile gerekçeli yeni hedef plan hazırlayın; revizyon onaylanana kadar önceki plan geçerlidir. Kayıtlı gerçekleşen değer, ay kilitlenene kadar <span class="ui">Gerçekleşen % Revize Et</span> ile düzeltilebilir.</li>
+    <li>Admin, Hedef Plan-Proje Onayı Bekleyen seçimini açıp <span class="ui">Hedef Planların Tümünü Onayla</span> ile görünür bekleyen planları onaylar. <span class="ui">Liderlikleri Aç / Kapa</span> kart gruplarını yönetir.</li>
   </ol>
-  <p>Durum kutuları kartları süzer: <b>Hedef Plan Giriş Bekleyen</b>, <b>Hedef Plan Onay Bekleyen</b>, <b>Gerçekleşen Plan Giriş Bekleyen</b> ve seçili ayın <b>Değerlendirme Bekliyor</b> sayısı. Hemen altındaki <b>ay satırından</b> seçim yapılır; tüm aylar yıl bazında listelenir. Gelecek aylar ve takip başlamamış dönemler seçilemez. İlk açılışta önceki ay seçilir; o ay takip kapsamında değilse seçilebilir son ay kullanılır. Admin, seçili bekleyen planları <span class="ui">Hedef Planların Tümünü Onayla</span> ile onaylar. <span class="ui">Liderlikleri Aç / Kapa</span> grupları açar veya kapatır.</p>
-  <div class="note"><b>Ay kilidi (Admin):</b> <span class="ui">[Ay] Ayını Kilitle</span> seçili ayı değişikliğe kapatır ve ayın değerlendirmesini (senaryo uyarılarını) oluşturur. Kilit açılırsa değerlendirme kaldırılır ve girişler yeniden açılır. Yönetici kilitli ayı rozetten görür, kilidi açamaz.</div>
+  <div class="note"><b>Önerileni Uygula:</b> Bir ayın yüzdesi değişirse o ay sabit tutularak önceki ve sonraki düzenlenebilir aylar kaynak ağırlıklarıyla yeniden hesaplanır. Kilitli aylar korunur. Sonuçları kontrol edip kaydedin.</div>
+  <div class="note"><b>Ay kilidi (Admin):</b> [Ay] Ayını Kilitle, seçili ayı değişikliğe kapatır ve değerlendirmeyi oluşturur. Kilit açılırsa değerlendirme kaldırılır; girişler yeniden açılır. Yönetici ay kilidini açamaz.</div>
 </section>
 
 <section class="page">
@@ -382,9 +424,9 @@
     <li>Tüm projeler tek tabloda listelenir; tablo aşağı kaydırıldıkça sonraki projeler yüklenir. <span class="ui">Liderlikleri Aç / Kapa</span> liderlik satırlarını açar. İndirme düğmesi raporu Excel'e aktarır.</li>
   </ul>
   <p><b>Proje toplamı:</b> Liderlik yüzdeleri planlanan kaynak paylarıyla ağırlıklandırılır; kaynak planı tamamen kaldırılmışsa onaylı plandaki kaynak referansı kullanılabilir. Özel ağırlık girmeniz gerekmez. Hedef/gerçekleşen bilgisi veya geçerli kaynak payı olmayan satırın sonucu boş görünebilir; bu durum sıfır ilerleme anlamına gelmez.</p>
-  <h2>Senaryo Uyarıları</h2>
+  <h2>Proje Takvimi Uyarıları</h2>
   <figure>
-    <div class="shot" style="height:34mm"><img src="shots/senaryo-uyarilari.jpg" alt="Senaryo Uyarıları"></div>
+    <div class="shot" style="height:34mm"><img src="shots/senaryo-uyarilari.jpg" alt="Proje Takvimi Uyarıları"></div>
     <figcaption>Kilitli aylarda oluşan uyarılar, durumları ve aksiyon açıklamaları.</figcaption>
   </figure>
   <p>Ay kilitlendiğinde her proje için ilerleme durumu (Planın İlerisinde, Planda, Planın Gerisinde, Kritik Gecikme) ile kaynak durumu (Planlanmamış, Yetersiz, Yeterli, Fazla) birleştirilir ve S-01…S-09 kurallarından uyan uyarı oluşur (örneğin S-02: "Ek kaynak gerekli veya bitiş tarihi revize edilmeli"). Uyarının durumu <b>Açık → Görüldü → Aksiyon Alındı → Kapandı</b> olarak ilerler; her adımda aksiyon açıklaması zorunludur. <span class="ui">Hesap ve geçmiş</span> hesaplamayı ve aksiyon geçmişini gösterir. Liste Excel veya CSV olarak indirilir.</p>
@@ -400,26 +442,27 @@
     <li>Kendi değişikliğinizi kaydetmek için karttaki ilgili kaydetme veya gönderme düğmesini kullanın.</li>
     <li>Bu sırada kayıt uzaktan değişmişse kaydetme çakışma hatası verir. Girdiğiniz değerler korunur; sunucudaki yeni kaydın üzerine yazılmaz.</li>
     <li>Gerekli değerleri not edin. <span class="ui">Taslağı İptal Et</span>, yerel değişikliği bırakıp güncel kayda dönmenizi sağlar; ardından güncel kayıtta yeniden düzenleyin.</li>
-    <li>Sekme değiştirme veya çıkış sırasında taslağı bırakma onayı çıkarsa, düzenlemeye dönmek için vazgeçin. Ay seçimi değişikliği mevcut ayın kaydedilmemiş girişini bırakabilir; ay değiştirmeden kaydedin.</li>
+    <li>Sekme değiştirme veya çıkış sırasında taslağı bırakma onayı çıkarsa, düzenlemeye dönmek için vazgeçin. Ay veya filtre değişiminde kaydedilmemiş giriş uyarısı çıkarsa önce kaydedin ya da taslağı açıkça iptal edin.</li>
   </ol>
   <div class="warn">Bir ay siz düzenlerken Admin tarafından kilitlenirse sunucu değişikliği reddeder. Taslağı iptal edip güncel durumu kontrol edin; gerekli düzeltme için Admin'den kilidi açmasını isteyin.</div>
 </section>
 
 <!-- 8 -->
 <section class="page">
-  <h1>8. Haftalık Kritik Konular <span class="new">YENİ</span></h1>
+  <h1>8. Haftalık Kritik Konular</h1>
   <p>Projelerde <span class="ui">Kritik Konulara Ekle</span> ile işaretlenen notlar proje ve başlık bazında hafta numaralarıyla listelenir. Admin ve Normal-Proje düzenler; Yönetici de görebildiği projelerin kritik başlık, konu ve tarihlerini düzenler. Bu yetki proje adını, genel takvimini veya erişim kurallarını değiştirmez.</p>
   <figure>
     <div class="shot" style="height:96mm"><img src="shots/kritik-konular.jpg" alt="Haftalık Kritik Konular"></div>
-    <figcaption>Durum ve hafta süzgeçleri; gecikmiş konular kırmızı "Gecikti" etiketiyle gösterilir.</figcaption>
+    <figcaption>Durum seçimleri solda, proje filtresi sağdadır. Hafta kutuları mevcut ve önceki tarih aralıklarını birlikte gösterir.</figcaption>
   </figure>
   <ul>
-    <li><b>Durum:</b> Tümü, Açık, Gecikmiş, Tamamlandı (yanında sayıları). <b>Hafta:</b> Tüm haftalar, Geçen hafta, Bu hafta, Gelecek hafta; <span class="ui">Hafta ekle</span> ile başka haftalar seçilir. Konunun kapsadığı haftalar W-numaralarıyla yazılır; 8'den fazla hafta kutusu varsa ilk altısı ve bu hafta görünür, kalanlar <span class="ui">+N hafta</span> düğmesinde toplanır (tıklayınca hepsi açılır).</li>
+    <li><b>Durum:</b> Tümü, Açık, Gecikmiş, Tamamlandı (yanında sayıları). <b>Hafta:</b> Tüm Haftalar, Geçen Hafta, Bu Hafta, Gelecek Hafta; <span class="ui">Hafta Ekle</span> ile başka haftalar seçilir. Konunun kapsadığı haftalar W-numaralarıyla yazılır; 8'den fazla hafta kutusu varsa ilk altısı ve bu hafta görünür, kalanlar <span class="ui">+N hafta</span> düğmesinde toplanır (tıklayınca hepsi açılır).</li>
     <li><span class="ui">Başlık Ekle</span> ve <span class="ui">Başlık Düzenle</span> başlıkları; konu satırındaki <span class="ui">Düzenle</span> notu değiştirir. Değişiklikler Projeler ekranına da yansır.</li>
     <li><span class="ui">Tamamlandı</span> notu tamamlandı olarak işaretler (<span class="ui">Geri Al</span> ile kaldırılır); <span class="ui">Çıkar</span> notu yalnız bu listeden çıkarır, silmez.</li>
+    <li><b>Hafta kutuları:</b> Mevcut tarih aralığındaki geçmiş haftalar gecikme durumunu kırmızı gösterir. Önceki revizyonlardan kalan haftalar düz kırmızı çerçeveyle ayrılır. Hangi tarih aralığından geldiğini görmek için kutunun üzerine gelin.</li>
     <li><span class="ui">Projeleri Aç / Kapa</span> proje gruplarını açar veya kapatır.</li>
   </ul>
-  <h2>Excel çıktısı <span class="new">YENİ</span></h2>
+  <h2>Excel çıktısı</h2>
   <p>İndirme düğmesi her konuyu ayrı satır olarak indirir: Proje ve Başlık (aynı proje ve aynı başlığın satırları birleşik), Detay Açıklama, Başlangıç, Hedef Bitiş ve Durum. Sağda <b>5 hafta sütunu</b> vardır: geçen hafta, bu hafta ve sonraki üç hafta.</p>
   <table class="grid">
     <thead><tr><th>İşaret</th><th>Anlamı</th></tr></thead>
@@ -467,7 +510,7 @@
 <!-- 10 -->
 <section class="page">
   <h1>10. Aktivite Giriş ve takvimler</h1>
-  <p>Çalışanların projelere fiilen ayırdığı süre aylık olarak burada girilir (önceki sürümde "Gerçekleşen Kaynak Dağılımı"). <span class="ui">Görünüm</span>: <b>Proje Bazlı</b> (proje altında kişiler) veya <b>Kişi Bazlı</b> (kişi altında projeler). <span class="ui">Kaynak Dağılım Birimi</span>: Yüzde (%) veya Saat.</p>
+  <p>Çalışanların projelere fiilen ayırdığı süre aylık olarak burada girilir. <span class="ui">Görünüm</span>: <b>Proje Bazlı</b> (proje altında kişiler) veya <b>Kişi Bazlı</b> (kişi altında projeler). <span class="ui">Kaynak Dağılım Birimi</span>: Yüzde (%) veya Saat.</p>
   <figure>
     <div class="shot" style="height:82mm"><img src="shots/aktivite-giris.jpg" alt="Aktivite Giriş"></div>
     <figcaption>Team Member görünümü: yalnız kendi satırı görünür. Hücre altındaki çubuk kişinin o ay tüm projelerdeki toplamını gösterir.</figcaption>
@@ -481,6 +524,19 @@
   <div class="warn">Giriş yalnız içinde bulunulan ay ve geçmiş aylar için, proje dönemi içinde yapılabilir. Proje süreleri ile eğitim toplamı kişinin net aylık kapasitesini aşamaz.</div>
   <h2>Ortak çalışma takvimi (Admin)</h2>
   <p>Araç satırındaki <span class="ui">Çalışma Takvimi</span> resmî tatilleri gösterir; resmî ve dini bayramlar sistemde tanımlıdır. Kuruma özel çalışma dışı günler <b>Elle Girilmiş Tarihler</b> bölümünde eklenir veya silinir; değişiklikler <span class="ui">Takvimi Kaydet</span> ile kalıcı olur.</p>
+</section>
+
+<section class="page">
+  <h2>Tamamlanan projelerin aktivite girişleri</h2>
+  <p><span class="ui">Tamamlanan Projeleri Göster</span>, Aktivite Giriş'te <span class="ui">Sadece Veri Olanlar</span> yanındadır ve ilk açılışta kapalıdır. Kaynak Planlama'daki seçimden bağımsız çalışır.</p>
+  <figure><div class="shot" style="height:95mm"><img src="shots/aktivite-tamamlanan.jpg" alt="Aktivite Giriş ekranında tamamlanan projelerin gösterilmesi"></div><figcaption>Örnek: seçim açıkken yalnız tamamlanan bir proje filtrelenmiş. Kullanıcı kendi yetki kapsamındaki kayıtları görür.</figcaption></figure>
+  <ul>
+    <li>Seçim, hem Proje Bazlı hem Kişi Bazlı görünümde geçerlidir. Sadece Veri Olanlar açıkken yalnız seçili dönemde girişi olan kayıtlar gösterilir.</li>
+    <li>Projeyi gizlemek kayıtları silmez. Aylık toplam, kalan kapasite ve giriş sınırı gizli tamamlanan projelerdeki değerleri de kapsar. Excel çıktısı görünür proje seçimini izler.</li>
+    <li>Kaydedilmemiş, hatalı veya henüz tamamlanmamış hücre/çalışılan saat girişi varsa görünüm değişikliği engellenir. Kaydedin veya Escape ile taslağı iptal edin; ardından yeniden deneyin.</li>
+    <li>Yalnız tamamlanan proje filtrelendiğinde liste boşsa, <span class="ui">Tamamlanan projeler gizli</span> mesajındaki düğmeyle kayıtları açabilirsiniz.</li>
+    <li>Seçim yeni yetki vermez. Aktivite düzenleme ve geçmiş ay kuralları, çalışanın görevi ve proje dönemiyle sınırlı kalır.</li>
+  </ul>
 </section>
 
 <section class="page">
@@ -508,14 +564,14 @@
   </figure>
   <ul>
     <li><span class="ui">Görünüm</span>: Yüzde (%) veya Saat. Değerler seçili projelerdeki aktiviteler ile eğitimin toplamıdır; yüzde hesabında izin ve çalışma takvimi sonrası çalışma saati kullanılır.</li>
-    <li><b>Renk bantları</b> <span class="new">YENİ</span>:
+    <li><b>Renk bantları</b>:
       <span class="band" style="background:#fbe2da"></span>%100 üstü ·
       <span class="band" style="background:#e1f0e7"></span>%90–100 ·
       <span class="band" style="background:#f0f7f2"></span>%70–90 ·
       <span class="band" style="background:#fdf3df"></span>%50–70 ·
       <span class="band" style="background:#f9e1bd"></span>%50 altı. İçinde bulunulan ay ve boş hücreler renklendirilmez; proje filtresi seçiliyken renk kullanılmaz.</li>
     <li>İşbaşı öncesi ve işten ayrılış sonrası aylar ayrıca işaretlenir. Sayfa başına 100 satır gösterilir; <span class="ui">Önceki</span> / <span class="ui">Sonraki</span> ile gezilir.</li>
-    <li><b>Excel'e aktarma</b> <span class="new">YENİ</span>: <span class="ui">Görünüm</span>'ün sağındaki indirme düğmesi raporu Liderlik, Takım, Çalışan ve aylık değer sütunlarıyla, aynı renk bantlarıyla indirir.</li>
+    <li><b>Excel'e aktarma</b>: <span class="ui">Görünüm</span>'ün sağındaki indirme düğmesi raporu Liderlik, Takım, Çalışan ve aylık değer sütunlarıyla, aynı renk bantlarıyla indirir.</li>
     <li><b>Kapsam:</b> Uygulama rolü Yönetici veya Normal Kullanıcı olsa da çalışan görevi belirleyicidir: Team Member/CoE kendi takımını, Product Owner kendi takımını, Lider kendi liderliğini, alt liderlikleri ve bağlı takımları görür. Admin tümünü görür. Çalışan kaydı eşleşmemiş hesapların raporu boştur (2. bölüm).</li>
     <li><b>Takım geçmişi:</b> Kişinin kendi geçmişi tüm takımlarını kapsar. Diğer çalışanlar için yalnız yetkili olduğunuz takımdaki aylar gösterilir. Takım değişikliği eski ayların görünürlüğünü ve toplamlarını ortadan kaldırmaz.</li>
   </ul>
@@ -542,27 +598,29 @@
 <section class="page">
   <h2>Çalışan veya ilan ekleme ve hesap tanımlama</h2>
   <figure>
-    <div class="shot" style="height:88mm"><img src="shots/kaynak-ekle.jpg" alt="Kaynak Ekle"></div>
+    <div class="shot" style="height:88mm"><img src="shots/ad-kullanici-eslestirme.jpg" alt="AD kullanıcısı seçilmiş Kaynak Ekle formu"></div>
     <figcaption>Kaynak Ekle penceresi: solda Kaynak Bilgileri, Organizasyon ve Dönem ve Planlama; sağda Hesap ve Yetkiler.</figcaption>
   </figure>
   <ol>
-    <li><span class="ui">Kaynak Ekle / Yetki Tanımla</span> ile önce <b>Statü</b> ve <b>Kaynak Rolü</b> seçin; Ad Soyad girin.</li>
-    <li><b>Takım</b> seçin; liderlik takımdan kendiliğinden gelir (Lider rolünde yalnız liderlik seçilir). İşbaşı tarihi ve <span class="ui">Kaynak Planlamasına Dahil</span> seçimini girin.</li>
-    <li><span class="ui">Hesap Eşleştirmesi</span> alanından <b>Active Directory</b> seçip kullanıcıyı arayın ve <b>Rol</b> belirleyin. Yönetici için planlama yetkisi ağacından liderlik veya takım seçin. <span class="ui">Kaydet</span>.</li>
-    <li><span class="ui">Uygulama Yetkisini Kaldır</span>, çalışanı ve AD hesabını silmeden erişimi kapatır.</li>
+    <li><span class="ui">Kaynak Ekle / Yetki Tanımla</span> ile <b>Statü</b> ve <b>Kaynak Rolü</b> seçin. Aktif/Pasif İlan dışındaki yeni kayıtlarda hesap eşleştirmesi otomatik <b>Active Directory</b> olur.</li>
+    <li><span class="ui">Kullanıcı Ara</span> alanına ad, kullanıcı adı veya e-posta yazıp aynı adlı düğmeye basın. Sonuç satırındaki <span class="ui">Seç</span> ile tek kullanıcı seçin; başka birini seçmek önceki seçimi değiştirir.</li>
+    <li><b>Ad Soyad, Kullanıcı Adı ve E-posta</b> AD'den gelir; elle değiştirilemez. Aynı kullanıcı adı veya AD hesabı daha önce kayıtlıysa uyarı gösterilir ve Seç kullanılamaz. Mevcut hesabı Düzenle ekranından yönetin.</li>
+    <li><b>Takım</b> seçin; liderlik takımdan gelir. Lider rolünde yalnız liderlik seçilir. Tarihleri ve <span class="ui">Kaynak Planlamasına Dahil</span> seçimini girin. Hesap <b>Rol</b>ünü ve Yönetici için planlama yetkisi ağacını kontrol edin; <span class="ui">Kaydet</span>.</li>
+    <li><span class="ui">Uygulama Yetkisini Kaldır</span>, çalışanı ve AD hesabını silmeden erişimi kapatır. Kullanıcı adı mevcut hesaba bağlı kalır; aynı kişi için ikinci hesap açılmaz.</li>
   </ol>
   <table class="grid">
     <thead><tr><th>Statü</th><th>Form davranışı</th></tr></thead>
     <tbody>
       <tr><th>Aktif Çalışan / Gear Up / SAAT Ücretli Ofis Ç.</th><td>İşbaşı tarihi zorunludur.</td></tr>
-      <tr><th>Aktif İlan</th><td>Ad ve kaynak rolü istenmez. Dahil etmek için tahmini işbaşı tarihi gerekir. İlana hesap tanımlanamaz.</td></tr>
-      <tr><th>Pasif İlan</th><td>Aktif kapasiteye eklenmez.</td></tr>
+      <tr><th>Aktif İlan</th><td>Ad ve kaynak rolü istenmez. Statü ilana çevrilince bekleyen AD seçimi otomatik temizlenir; "İlan kaydına hesap tanımlanamaz." görünür. Dahil etmek için tahmini işbaşı tarihi gerekir. İlana hesap tanımlanamaz.</td></tr>
+      <tr><th>Pasif İlan</th><td>Aktif kapasiteye eklenmez; hesap tanımlanamaz.</td></tr>
       <tr><th>İşten Ayrıldı</th><td>İşbaşı ve ayrılış tarihleri gerekir; eski gerçekleşen kayıtları korunur.</td></tr>
     </tbody>
   </table>
 </section>
 
 <section class="page">
+  <div class="note"><b>AD bağlantısı:</b> IT tarafından yapılandırılır. Bağlantı kurulmamışsa kurumsal kullanıcı seçilemez. Aynı kullanıcı adını veya AD hesabını yeniden eşleştirme girişimi sunucuda da reddedilir.</div>
   <h2>Organizasyon Yapısı</h2>
   <figure>
     <div class="shot" style="height:66mm"><img src="shots/organizasyon-yapisi.jpg" alt="Organizasyon Yapısı"></div>
@@ -588,12 +646,12 @@
   <table class="grid m">
     <thead><tr><th>Ekran</th><th>Admin</th><th>Yönetici</th><th>Normal Kullanıcı</th><th>Normal-Proje</th></tr></thead>
     <tbody>
-      <tr><th>Projeler</th>
+      <tr><th>Projeler / Tamamlanan Projeler</th>
         <td><span class="y">Düzenler</span><small>Tüm projeler</small></td>
         <td><span class="s">Görür</span><small>Görünür projeler</small></td>
         <td><span class="s">Görür</span><small>Görünür projeler</small></td>
         <td><span class="y">Düzenler</span><small>Tüm projeler</small></td></tr>
-      <tr><th>Proje Takvimi Güncelle</th>
+      <tr><th>Proje Takvimi Güncelle / Onaylanan Takvim Güncellemeleri</th>
         <td><span class="y">Düzenler</span><small>Onay, aktarma, geri alma</small></td>
         <td><span class="p">Kapsamlı</span><small>Karşılaştırma ve kendi taslakları</small></td>
         <td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
@@ -640,15 +698,17 @@
       <tr><th>Tüm Kaynak Dağılımlarını Sıfırla, Aktif İlanları Dahil Et</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Hedef plan hazırlama, gerçekleşen % girişi</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Kendi liderlikleri</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Hedef plan onayı, ay kilidi, uyarı ayarları</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-      <tr><th>Senaryo uyarısına aksiyon girme</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Görebildiği projeler</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Takvim uyarısına aksiyon girme</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Görebildiği projeler</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Senaryo taslağı / onay ve takvime aktarma</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Yalnız kendi taslağı</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Projeler ve kritik konular</td></tr>
       <tr><th>Proje ekleme, düzenleme, silme, sıralama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr><th>Projeler ekranında aşama, başlık ve kilometre taşı</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Projeyi Tamamlandı işaretleme / yeniden aktif yapma</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr><th>Proje görüntüleme yetkisini belirleme</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr><th>Kritik konu düzenleme, Tamamlandı, Çıkar</th><td><span class="y">✓</span></td><td><span class="y">✓</span><small>Görünür projeler</small></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Yönetim</td></tr>
       <tr><th>Çalışan / ilan, hesap, rol ve yetki tanımlama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>AD kullanıcısı seçme ve kullanıcı adıyla hesap eşleştirme</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr><th>Liderlik/takım yönetimi, Excel'den içe aktarma, Değişiklik Geçmişi, Veri Yedeği İndir / Yedek Yükle</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
       <tr class="group"><td colspan="5" class="l">Ortak</td></tr>
       <tr><th>Arama, bildirimler, Excel'e aktarma, varsayılan sekme</th><td colspan="4"><span class="y">✓</span><small>Herkes, görebildiği ekranlarda ve verilerle</small></td></tr>
@@ -670,6 +730,7 @@
       <tr><th>Dağılım sınırı uyarısı</th><td>Kişinin o aydaki tüm proje saatlerini, eğitim ve izinlerini birlikte kontrol edin.</td></tr>
       <tr><th>"Kayıt başka kullanıcı tarafından değiştirildi"</th><td>Önce kaydedilmemiş değerlerinizi not edin. Değerlendirme kartında Taslağı İptal Et ile güncel kaydı açın; diğer düzenleyicilerde güncel kaydı yeniden açın. Yeni veri üzerinde düzenleyip kaydedin.</td></tr>
       <tr><th>Bağlantı kesildi / sonuç belirsiz</th><td>Kaydedilmemiş değerleri not edin. İşlemi hemen tekrarlamayın; bağlantı geldiğinde güncel kaydı kontrol edin. Kaydın ulaşmadığından emin olduktan sonra yeniden deneyin.</td></tr>
+      <tr><th>AD kullanıcısı seçilemiyor</th><td>AD bağlantısını IT’ye doğrulatın. Aynı kullanıcı adı veya AD hesabı kayıtlıysa yeni hesap açmayın; mevcut hesabı Düzenle ile yönetin.</td></tr>
       <tr><th>Giriş yapılamıyor</th><td>Tekrarlayan denemeleri durdurun; ekran adı, saat ve hata mesajını IT'ye iletin.</td></tr>
     </tbody>
   </table>

@@ -1,3 +1,6 @@
+import { createPortal } from "react-dom";
+import { baselineStatus, entryStatus } from "./progress-status";
+import { progressGroups, progressLeaders } from "./progress-scope";
 import FilterSelect from "../../components/FilterSelect";
 import { useMemo, useState } from "react";
 import type { Data } from "../../model";
@@ -24,6 +27,7 @@ export type ProgressView = "plan" | "report" | "warnings" | "settings";
 export default function ProjectProgressPanel({
   data,
   actionsHost,
+  countsHost,
   density,
   user,
   saving,
@@ -36,6 +40,7 @@ export default function ProjectProgressPanel({
   onBeforeFilterChange?: () => boolean;
   data: Data;
   actionsHost: HTMLElement | null;
+  countsHost: HTMLElement | null;
   density: WorkspaceDensity;
   user: Principal | null;
   saving: boolean;
@@ -43,13 +48,21 @@ export default function ProjectProgressPanel({
   onSave: (changes: Change[]) => Promise<void>;
 }) {
   const currentMonth = currentPlanningMonth().slice(0, 7);
-  const months = entryMonths(currentMonth, data.projectProgress);
+  const months = entryMonths(
+    currentMonth,
+    data.projectProgress,
+    view === "plan",
+  );
   const [selectedMonth, setMonth] = useState(() =>
     defaultEntryMonth(currentMonth, data.projectProgress),
   );
+  const preferredMonth = defaultEntryMonth(currentMonth, data.projectProgress);
   const month = months.includes(selectedMonth)
     ? selectedMonth
-    : defaultEntryMonth(currentMonth, data.projectProgress);
+    : months.includes(preferredMonth)
+      ? preferredMonth
+      : months.at(-1) || "";
+  const [leader, setLeader] = useState("");
   const [responsible, setResponsible] = useState<string | null>(null);
   const responsibleNames = useMemo(
     () =>
@@ -71,6 +84,25 @@ export default function ProjectProgressPanel({
     [data, responsible],
   );
   const ctx = useMemo(() => progressContext(progressData), [progressData]);
+  // Entry-tab work counts must never include an unfinished report month.
+  const completedMonths = entryMonths(currentMonth, data.projectProgress, true);
+  const workMonth = completedMonths.includes(month)
+    ? month
+    : completedMonths.at(-1) || "";
+  const authorizedLeaders = progressLeaders(ctx, user);
+  const workItems = progressGroups(
+    ctx,
+    leader && authorizedLeaders.includes(leader) ? [leader] : authorizedLeaders,
+  ).flatMap(([, items]) => items);
+  const planEntryCount = workItems.filter((item) =>
+    ["new", "draft"].includes(baselineStatus(item.record)),
+  ).length;
+  const planApprovalCount = workItems.filter(
+    (item) => baselineStatus(item.record) === "pending",
+  ).length;
+  const actualCount = workItems.filter(
+    (item) => entryStatus(item.record, workMonth, currentMonth) === "waiting",
+  ).length;
   // Entry runs from the earliest plan start; with no month to pick yet the
   // report shows the current month.
   const reportMonth = month || currentMonth;
@@ -116,11 +148,34 @@ export default function ProjectProgressPanel({
 
   function resetSharedFilters() {
     setResponsible(null);
+    setLeader("");
     setMonth(defaultEntryMonth(currentMonth, data.projectProgress));
   }
 
   return (
     <section className="panel project-progress">
+      {countsHost &&
+        createPortal(
+          <>
+            <span
+              className="progress-work-count"
+              data-kind="plan"
+              aria-label={`Hedef Plan Bekleyen: ${planEntryCount + planApprovalCount}`}
+              title={`Hedef plan bekleyen: ${planEntryCount + planApprovalCount} (${planEntryCount} yönetici girişi, ${planApprovalCount} proje onayı)`}
+            >
+              {planEntryCount + planApprovalCount}
+            </span>
+            <span
+              className="progress-work-count"
+              data-kind="actual"
+              aria-label={`Gerçekleşen Giriş Bekleyen: ${actualCount}`}
+              title={`${workMonth ? monthLabel(workMonth) : "Takip ayı yok"} gerçekleşen giriş bekleyen: ${actualCount}`}
+            >
+              {actualCount}
+            </span>
+          </>,
+          countsHost,
+        )}
       {view === "warnings" && (
         <ScenarioWarningsPanel
           data={data}
@@ -139,6 +194,8 @@ export default function ProjectProgressPanel({
           actionsHost={actionsHost}
           ctx={ctx}
           responsibleFilter={responsibleFilter}
+          leader={leader}
+          onLeaderChange={setLeader}
           onResetFilters={resetSharedFilters}
           user={user}
           month={month}

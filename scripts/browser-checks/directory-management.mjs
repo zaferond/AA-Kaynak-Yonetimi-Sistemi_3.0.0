@@ -1,4 +1,4 @@
-import { selectWorkspaceTab } from "./fixture.mjs";
+import { selectWorkspaceTab, chooseTestDirectoryUser } from "./fixture.mjs";
 import assert from "node:assert/strict";
 import { directoryRevision } from "../../shared/directory-policy.ts";
 import { applyChanges, applyLeaderChange } from "../../backend/operations.mjs";
@@ -550,9 +550,7 @@ export async function checkDirectoryManagement(f) {
             exact: true,
           })
           .click();
-        await dialog()
-          .getByLabel("Ad Soyad", { exact: true })
-          .fill("QA Direct Leader Employee");
+        await chooseTestDirectoryUser(f, page, "QA Direct Leader Employee");
         await dialog()
           .getByLabel("Kaynak Rolü", { exact: true })
           .selectOption("leader");
@@ -563,7 +561,7 @@ export async function checkDirectoryManagement(f) {
           0,
         );
         await choose("Liderlik", name);
-        await save("/api/changes", "Kaydet");
+        await save("/api/employees/save", "Kaydet");
         await dialog().waitFor({ state: "hidden" });
         const worker = (await f.state()).resources.find(
           (resource) => resource.name === "QA Direct Leader Employee",
@@ -639,6 +637,26 @@ export async function checkDirectoryManagement(f) {
               revision: data.revisions["allocation:" + unit + "|p-a|2026-01"],
             },
           ]),
+        );
+        // AD employee creation also creates an account. Release its scope
+        // before deleting this synthetic leadership; inactive accounts retain grants.
+        const account = (await f.store.users()).find(
+          (user) => user.resourceId === worker.id || user.name === worker.name,
+        );
+        assert(account);
+        await f.store.transaction((c) =>
+          f.store.saveUser(
+            {
+              ...account,
+              active: false,
+              resourceId: "",
+              leaders: [],
+              planningTeams: [],
+              version: account.version + 1,
+              revision: account.revision + 1,
+            },
+            c,
+          ),
         );
         await f.store.mutate(f.actor, (data, actor, session, generation) =>
           applyLeaderChange(

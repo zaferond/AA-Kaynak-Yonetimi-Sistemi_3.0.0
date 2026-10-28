@@ -228,3 +228,7 @@
 .app .person-allocation .actual-hours-item .worked-hours-input {
   width: 88px;
 }
+
+.app .person-allocation .actual-view-bar {
+  flex-wrap: wrap;
+}

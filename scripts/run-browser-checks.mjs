@@ -1,4 +1,10 @@
-import { checkDirectoryEmployeeNumber } from "./browser-checks/directory-employee-number.mjs";
+import {
+  checkPlanningDraftVisibility,
+  checkPlanningScopeOrder,
+} from "./browser-checks/planning-regressions.mjs";
+import { checkCompletedActual } from "./browser-checks/completed-actual.mjs";
+import { checkProgressWorkFilters } from "./browser-checks/progress-work-filters.mjs";
+import { checkDirectoryUsername } from "./browser-checks/directory-username.mjs";
 import { checkCompletedPlanning } from "./browser-checks/completed-planning.mjs";
 import { checkResourceAccountStatus } from "./browser-checks/resource-account-status.mjs";
 import {
@@ -94,9 +100,13 @@ import { checkProjectProgress } from "./browser-checks/project-progress.mjs";
 import { checkProgressManagement } from "./browser-checks/progress-management.mjs";
 
 for (const check of [
+  checkPlanningDraftVisibility,
+  checkPlanningScopeOrder,
   checkCompletedPlanning,
+  checkCompletedActual,
   checkResourceAccountStatus,
-  checkDirectoryEmployeeNumber,
+  checkDirectoryUsername,
+  checkProgressWorkFilters,
   checkProgressFilterDraftGuard,
   checkWarningActionDraftGuard,
   checkProjectCompletion,

@@ -1435,3 +1435,30 @@
 .project-progress .scenario-warning-table td:nth-child(2) .ui-badge {
   white-space: nowrap;
 }
+
+/* Counts sit inside the entry tab; they are visible in every progress view. */
+.progress-work-counts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-inline-start: 6px;
+}
+.progress-work-count {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 5px;
+  border: 1px solid #e4bd76;
+  border-radius: 3px;
+  background: #fff4dc;
+  color: #87550d;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.5;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.progress-work-count[data-kind="actual"] {
+  border-color: #a9c8e4;
+  background: #eaf3fc;
+  color: #245c8d;
+}

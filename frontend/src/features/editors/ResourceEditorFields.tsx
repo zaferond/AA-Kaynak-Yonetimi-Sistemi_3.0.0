@@ -57,20 +57,14 @@ export default function ResourceEditorFields({
         currentPlanningDate(),
       )
     : { leaders: [], teams: [] };
-  const setVersion = (version: Partial<Version>) => {
+  const setVersion = (version: Partial<Version>, kind?: ResourceRole) => {
     const next = { ...editor.version, ...version };
     const form = editor.account?.form;
-    const previousLeaders = editor.version.lead ? [editor.version.lead] : [];
-    const defaultScope =
-      form &&
-      !form.id &&
-      !form.directoryUser &&
-      !form.planningTeams?.length &&
-      form.leaders.length === previousLeaders.length &&
-      form.leaders.every((lead, index) => lead === previousLeaders[index]);
+    const defaultScope = form && !form.id && !form.planningScopeEdited;
     setEditor({
       ...editor,
       version: next,
+      ...(kind ? { assignmentKind: kind } : {}),
       ...(defaultScope && next.lead !== editor.version.lead
         ? {
             account: {
@@ -114,11 +108,8 @@ export default function ResourceEditorFields({
                     : assignmentKind === "leader"
                       ? ""
                       : selectedTeam?.lead || "";
-                setEditor({
-                  ...editor,
-                  assignmentKind: next,
-                  version: {
-                    ...editor.version,
+                setVersion(
+                  {
                     assignmentRole: next,
                     lead,
                     team:
@@ -128,7 +119,8 @@ export default function ResourceEditorFields({
                           ? ""
                           : editor.version.team,
                   },
-                });
+                  next,
+                );
               }}
             >
               {Object.entries(resourceRoleLabels).map(([value, label]) => (
@@ -140,20 +132,6 @@ export default function ResourceEditorFields({
           </label>
         )}
       </div>
-      {!posting && directoryManaged && (
-        <label>
-          Sicil No
-          <input
-            readOnly
-            value={
-              editor.account?.form?.directoryUser?.employeeNumber ||
-              data?.users?.find((user) => user.id === editor.account?.form?.id)
-                ?.employeeNumber ||
-              ""
-            }
-          />
-        </label>
-      )}
       {!posting && (
         <label>
           Ad Soyad

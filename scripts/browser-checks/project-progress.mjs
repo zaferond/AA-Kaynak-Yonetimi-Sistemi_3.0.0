@@ -40,6 +40,11 @@ export async function checkProjectProgress(f) {
   const leader = await f.client("manager");
   const admin = await f.client("root-admin");
   const employee = await f.client("employee");
+  // Exercise September and October as completed entry months.
+  for (const client of [leader, admin]) {
+    await client.page.clock.setFixedTime(new Date("2026-11-02T09:00:00Z"));
+    await client.page.reload();
+  }
   try {
     await f.check(
       "progress: a leader sees its leadership's projects and proposes a baseline",
@@ -50,6 +55,7 @@ export async function checkProjectProgress(f) {
           name: "Ay seçimi",
           exact: true,
         });
+        await page.locator('[data-waiting="actualEntry"]').click();
         await monthStrip.waitFor();
         assert.equal(
           await monthStrip.locator('button[data-month^="2026-"]').count(),
@@ -92,6 +98,7 @@ export async function checkProjectProgress(f) {
             .count(),
           0,
         );
+        await page.locator('[data-waiting="actualEntry"]').click();
         const group = page.getByRole("region", {
           name: f.teamA.lead + " liderliği",
           exact: true,
@@ -319,7 +326,7 @@ export async function checkProjectProgress(f) {
         });
         const approvalBox = strip
           .locator(".progress-waiting-filter button")
-          .filter({ hasText: "Hedef Plan Onay Bekleyen" });
+          .filter({ hasText: "Hedef Plan-Proje Onayı Bekleyen" });
         assert.equal(
           (
             await approvalBox.locator(".progress-waiting-count").textContent()
@@ -358,13 +365,11 @@ export async function checkProjectProgress(f) {
             exact: true,
           })
           .waitFor();
-        const entryFilter = page.getByRole("combobox", {
-          name: "Gerçekleşen Plan",
-          exact: true,
-        });
         assert.equal(
-          await entryFilter.locator('option[value="entered"]').textContent(),
-          "Tamamlandı - Değişikliğe Açık (0)",
+          await page
+            .getByRole("combobox", { name: "Gerçekleşen Plan", exact: true })
+            .count(),
+          0,
         );
         // Approved: the targets are fixed and the actual row appears.
         await card.getByRole("rowheader", { name: "Gerçekleşen %" }).waitFor();
@@ -432,21 +437,16 @@ export async function checkProjectProgress(f) {
           .getByText("Hedef planı onaylandı.", { exact: true })
           .waitFor();
         await selectProgressMonth(page, "2026-09");
-        const entryFilter = page.getByRole("combobox", {
-          name: "Gerçekleşen Plan",
-          exact: true,
-        });
-        const planFilter = page.getByRole("combobox", {
-          name: "Hedef Plan",
-          exact: true,
-        });
-        await entryFilter.selectOption("closed");
+        assert.equal(
+          await page
+            .getByRole("combobox", { name: "Hedef Plan", exact: true })
+            .count(),
+          0,
+        );
+        await page.locator('[data-waiting="actualEntry"]').click();
         assert.equal(await page.locator(".progress-card").count(), 1);
-        await page.getByRole("region", { name, exact: true }).waitFor();
-        await entryFilter.selectOption("entered");
-        assert.equal(await page.locator(".progress-card").count(), 0);
-        await entryFilter.selectOption("waiting");
-        assert.equal(await page.locator(".progress-card").count(), 1);
+        // Clear the category so the card remains visible after submission.
+        await page.locator('[data-waiting="actualEntry"]').click();
         await otherCard
           .getByText(
             "Gerçekleşen Plan Durumu (Eyl 2026): Yönetici Girişi Bekleniyor",
@@ -470,12 +470,11 @@ export async function checkProjectProgress(f) {
               ?.actuals["2026-09"]?.pct === 35,
           "September actual saved",
         );
-        await entryFilter.selectOption("entered");
         // Entered for September and not locked yet: awaiting evaluation.
         const evaluationBox = page
           .getByRole("group", { name: "Bekleyen işler", exact: true })
           .locator(".progress-waiting-filter button")
-          .filter({ hasText: "Eylül Ayı Değerlendirme Bekliyor" });
+          .filter({ hasText: "Değerlendirme Bekliyor" });
         const evaluationCount = async () =>
           (
             await evaluationBox.locator(".progress-waiting-count").textContent()
@@ -487,6 +486,7 @@ export async function checkProjectProgress(f) {
           "September actual awaits evaluation on screen",
         );
         await evaluationBox.click();
+        await selectProgressMonth(page, "2026-09");
         await otherCard.waitFor();
         await evaluationBox.click();
         await otherCard
@@ -623,7 +623,6 @@ export async function checkProjectProgress(f) {
         await actualField.fill("60");
         await noteField.fill("Kaydedilmemiş aylık revizyon");
         page.once("dialog", (dialog) => dialog.accept());
-        await entryFilter.selectOption("");
         await selectProgressMonth(page, "2026-10");
         await f.wait(
           async () =>
@@ -634,7 +633,6 @@ export async function checkProjectProgress(f) {
         );
         assert.equal(await noteField.inputValue(), "");
         await selectProgressMonth(page, "2026-09");
-        await entryFilter.selectOption("entered");
         await reviseActual.waitFor();
         assert.equal(await actualField.count(), 0);
         assert.equal(await noteField.count(), 0);
@@ -683,10 +681,6 @@ export async function checkProjectProgress(f) {
             .getByText(/Ay kilidi/)
             .count(),
           0,
-        );
-        assert.equal(
-          await entryFilter.locator('option[value="entered"]').textContent(),
-          "Tamamlandı - Değişikliğe Kapalı (1)",
         );
         assert.equal(
           await otherCard.locator(".progress-card-entry").count(),
@@ -744,11 +738,10 @@ export async function checkProjectProgress(f) {
         await otherCard
           .getByText("Revizyon Giriş Durumu: Taslak", { exact: true })
           .waitFor();
-        await planFilter.selectOption("draft");
-        await entryFilter.selectOption("entered");
+        await page.locator('[data-waiting="planEntry"]').click();
         assert.equal(await page.locator(".progress-card").count(), 1);
         await otherCard.waitFor();
-        await planFilter.selectOption("");
+        await page.locator('[data-waiting="planEntry"]').click();
         await otherCard
           .getByRole("button", {
             name: "Hedef Planı Onaya Gönder",
@@ -837,7 +830,6 @@ export async function checkProjectProgress(f) {
         );
         await cancelActual.click();
         // Locking a missing entry must not describe it as saved.
-        await entryFilter.selectOption("");
         await selectProgressMonth(page, "2026-10");
         await otherCard
           .getByText(

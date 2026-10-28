@@ -28,7 +28,7 @@ import WorkspaceNavigation, {
 } from "./features/WorkspaceNavigation";
 import WorkspaceFilters from "./features/WorkspaceFilters";
 import PlannedAllocationPanel from "./features/PlannedAllocationPanel";
-import { visiblePlanningProjects } from "./features/planned-allocation/completed-projects";
+import { visibleProjectsByCompletion } from "../../shared/project-completion";
 import { useOnlyDataRows } from "./features/workspace/useOnlyDataRows";
 import { isProjectEditor } from "../../shared/project-access.ts";
 import { useProjectMenus } from "./features/useProjectMenus";
@@ -120,8 +120,12 @@ export default function Portal() {
   const [projectView, setProjectView] = useState<ProjectView>("projects");
   const [showCompletedPlanProjects, setShowCompletedPlanProjects] =
     useState(false);
+  const [showCompletedActualProjects, setShowCompletedActualProjects] =
+    useState(false);
   const [progressActionsHost, setProgressActionsHost] =
     useState<HTMLDivElement | null>(null);
+  const [progressCountsHost, setProgressCountsHost] =
+    useState<HTMLSpanElement | null>(null);
   const [progressView, setProgressView] = useState<ProgressView>("plan");
   const [actualLayout, setActualLayout] = useActualLayout();
   const [actualUnit, setActualUnit] = useState<ActualUnit>("percent");
@@ -549,8 +553,10 @@ export default function Portal() {
     teams,
     projects:
       tab === "plan"
-        ? visiblePlanningProjects(projects, showCompletedPlanProjects)
-        : projects,
+        ? visibleProjectsByCompletion(projects, showCompletedPlanProjects)
+        : tab === "actual"
+          ? visibleProjectsByCompletion(projects, showCompletedActualProjects)
+          : projects,
     months,
     density,
     projectWeekly: timelineWeekly,
@@ -827,11 +833,7 @@ export default function Portal() {
             }}
             projectView={projectView}
             setProjectView={setProjectView}
-            pendingProgressApprovals={
-              data?.projectProgress?.filter(
-                (record) => record.proposal?.status === "pending",
-              ).length || 0
-            }
+            progressCountsRef={setProgressCountsHost}
           />
           {!data ? (
             <div className="loading">
@@ -1032,6 +1034,10 @@ export default function Portal() {
                     <PersonAllocationPanel
                       onResetFilters={resetFilters}
                       layout={actualLayout}
+                      showCompletedProjects={showCompletedActualProjects}
+                      onShowCompletedProjectsChange={
+                        setShowCompletedActualProjects
+                      }
                       unit={actualUnit}
                       // The refresh that follows the user's own save keeps
                       // cells editable (its values are merged in already);
@@ -1208,6 +1214,7 @@ export default function Portal() {
                     onDraftChange={onProgressDraftChange}
                     onBeforeFilterChange={confirmProgressLeave}
                     actionsHost={progressActionsHost}
+                    countsHost={progressCountsHost}
                     density={density}
                     view={progressView}
                     data={data}

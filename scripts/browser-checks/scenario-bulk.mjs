@@ -71,7 +71,7 @@ export async function checkScenarioBulk(f) {
             )?.status === "applied",
           "scenario transferred",
         );
-        assert.equal(await row("Calendar history").count(), 0);
+        await row("Calendar history").waitFor({ state: "hidden" });
         await history();
         await row("Calendar history").waitFor();
         assert.equal(await page.locator(".schedule-scenario-card").count(), 0);

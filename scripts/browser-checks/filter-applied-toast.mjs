@@ -128,10 +128,16 @@ export async function checkFilterAppliedToast(f) {
           ["Proje", "Browser Project A", "Proje Filtresi Uygulandı"],
         ]) {
           await page.getByRole("button", { name: label, exact: true }).click();
-          await page
-            .locator('.pickerpanel[data-state="open"]')
-            .getByRole("checkbox", { name, exact: true })
-            .check();
+          const panel = page.locator('.pickerpanel[data-state="open"]');
+          await panel.waitFor();
+          await panel.evaluate(async (node) => {
+            await Promise.all(
+              node
+                .getAnimations()
+                .map((animation) => animation.finished.catch(() => {})),
+            );
+          });
+          await panel.getByRole("checkbox", { name, exact: true }).check();
           await page.keyboard.press("Escape");
           await page.locator(".pickerpanel").waitFor({ state: "detached" });
           assert.equal(await toast().innerText(), message);

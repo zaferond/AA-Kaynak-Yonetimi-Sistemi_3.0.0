@@ -62,7 +62,7 @@ type Props = {
   setProgressView: (view: ProgressView) => void;
   projectView: ProjectView;
   setProjectView: (view: ProjectView) => void;
-  pendingProgressApprovals: number;
+  progressCountsRef: (node: HTMLSpanElement | null) => void;
 };
 export default function WorkspaceNavigation({
   sidebarHost,
@@ -98,7 +98,7 @@ export default function WorkspaceNavigation({
   setProgressView,
   projectView,
   setProjectView,
-  pendingProgressApprovals,
+  progressCountsRef,
 }: Props) {
   useEffect(() => {
     if (!menu.open) return;
@@ -194,7 +194,14 @@ export default function WorkspaceNavigation({
       {
         value: "plan",
         label: "Hedef Plan / Gerçekleşen Plan Giriş",
-        badge: isAdmin ? pendingProgressApprovals : 0,
+        trailing: (
+          <span
+            className="progress-work-counts"
+            role="group"
+            aria-label="Bekleyen iş özeti"
+            ref={progressCountsRef}
+          />
+        ),
       },
       { value: "report", label: "Proje ve Kaynak Değerlendirme Raporu" },
       { value: "warnings", label: "Proje Takvimi Uyarıları" },

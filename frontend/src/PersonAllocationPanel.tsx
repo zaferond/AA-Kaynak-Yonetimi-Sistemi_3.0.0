@@ -1,9 +1,10 @@
+import { visibleProjectsByCompletion } from "../../shared/project-completion";
 import {
   actualEntryScope,
   canEnterActual,
   canManagePersonalCalendar,
 } from "../../shared/actual-entry-access.ts";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import type { Resource, Project } from "./model";
 import type { ActualUnit } from "./actual-units";
 import { writeBatch } from "./storage";
@@ -32,7 +33,6 @@ export default function PersonAllocationPanel(
   const {
     data,
     user,
-    projects,
     months,
     currentMonth,
     todayDate,
@@ -44,6 +44,13 @@ export default function PersonAllocationPanel(
     layout,
     unit,
   } = props;
+  const panelRef = useRef<HTMLElement | null>(null);
+  const [visibilityError, setVisibilityError] = useState("");
+  const projects = useMemo(
+    () =>
+      visibleProjectsByCompletion(props.projects, props.showCompletedProjects),
+    [props.projects, props.showCompletedProjects],
+  );
   const [phaseDetail, setPhaseDetail] = useState<ActualPhaseDetail | null>(
     null,
   );
@@ -68,8 +75,35 @@ export default function PersonAllocationPanel(
         else next.delete(key);
         return next;
       });
-  const view = useActualAllocationView(props, { layout, query, added });
+  const view = useActualAllocationView(
+    { ...props, projects },
+    { layout, query, added },
+  );
   const { totalRows, people, actualMonths } = view;
+  const completedCount = props.projects.filter(
+    (project) =>
+      project.completed &&
+      (!props.onlyDataRows ||
+        people.some((person) =>
+          months.some(
+            (month) =>
+              (data.actualAllocations?.[
+                person.id + "|" + project.id + "|" + month
+              ] || 0) !== 0,
+          ),
+        )),
+  ).length;
+  function changeCompletedVisibility(show: boolean) {
+    // Both directions can remount/re-group rows. Protect every dirty/in-flight cell.
+    if (panelRef.current?.querySelector('[data-window-keep="true"]')) {
+      setVisibilityError(
+        "Kaydedilmemiş veya tamamlanmamış girişi kaydedin ya da Escape ile iptal edin; ardından proje görünümünü değiştirin.",
+      );
+      return;
+    }
+    setVisibilityError("");
+    props.onShowCompletedProjectsChange(show);
+  }
   const limit = useActualCapacityDialog();
   const { openLimit } = limit;
   const selection = useActualCellSelection({
@@ -143,7 +177,7 @@ export default function PersonAllocationPanel(
     }
   }
   return (
-    <section className="panel person-allocation">
+    <section className="panel person-allocation" ref={panelRef}>
       <ActualAllocationControls
         data={data}
         unit={unit}
@@ -170,48 +204,68 @@ export default function PersonAllocationPanel(
             checked={props.onlyDataRows}
             onCheckedChange={props.onOnlyDataRowsChange}
           />
-          Sadece veri olanlar
+          Sadece Veri Olanlar
         </label>
-        {layout === "project" && (
-          <span className="actual-load-legend">
-            <i aria-hidden="true" />
-            Hücre altındaki çubuk: kişinin o ay tüm projelerdeki toplamı ·
-            kalan, hücre seçilince üstteki Kalan alanında
-          </span>
-        )}
+        <div
+          className="completed-planning-control"
+          data-actual-context-cell="true"
+        >
+          <label title="Görünüm değişir; aylık toplamlar ve kapasite hesabı korunur.">
+            <Switch
+              size="sm"
+              aria-label="Tamamlanan Projeleri Göster"
+              checked={props.showCompletedProjects}
+              onCheckedChange={changeCompletedVisibility}
+            />
+            Tamamlanan Projeleri Göster
+          </label>
+          {completedCount > 0 && (
+            <span className="completed-planning-count">
+              {completedCount} tamamlanan proje{" "}
+              {props.showCompletedProjects ? "gösteriliyor" : "gizli"}
+            </span>
+          )}
+        </div>
         <span className="actual-record-count">
           {totalRows} {layout === "person" ? "kişi" : "kişi / proje satırı"}
         </span>
       </div>
-      <ActualAllocationTable
-        data={data}
-        projects={projects}
-        months={months}
-        currentMonth={currentMonth}
-        todayDate={todayDate}
-        unit={unit}
-        view={view}
-        selectedCell={selectedCell}
-        selectHoursContext={selection.selectHoursContext}
-        clearSelection={selection.clearSelection}
-        save={save}
-        canEditPersonMonth={canEditPersonMonth}
-        canViewPersonalCalendar={canViewPersonalCalendar}
-        openLimit={openLimit}
-        onPhaseDetail={setPhaseDetail}
-        onOpenPersonalCalendar={(resource) => {
-          setCalendarPerson(resource);
-          setCalendarMode("personal");
-        }}
-        personControls={{
-          collapsed,
-          onToggle: (personId) => toggleIn(setCollapsed)(personId),
-          onAdd: (personId, projectId) => {
-            toggleIn(setAdded)(personId + "|" + projectId, true);
-            toggleIn(setCollapsed)(personId, false);
-          },
-        }}
-      />
+      {visibilityError && (
+        <p className="completed-planning-error negative" role="alert">
+          {visibilityError}
+        </p>
+      )}
+      {!!projects.length && (
+        <ActualAllocationTable
+          data={data}
+          projects={projects}
+          months={months}
+          currentMonth={currentMonth}
+          todayDate={todayDate}
+          unit={unit}
+          view={view}
+          selectedCell={selectedCell}
+          selectHoursContext={selection.selectHoursContext}
+          clearSelection={selection.clearSelection}
+          save={save}
+          canEditPersonMonth={canEditPersonMonth}
+          canViewPersonalCalendar={canViewPersonalCalendar}
+          openLimit={openLimit}
+          onPhaseDetail={setPhaseDetail}
+          onOpenPersonalCalendar={(resource) => {
+            setCalendarPerson(resource);
+            setCalendarMode("personal");
+          }}
+          personControls={{
+            collapsed,
+            onToggle: (personId) => toggleIn(setCollapsed)(personId),
+            onAdd: (personId, projectId) => {
+              toggleIn(setAdded)(personId + "|" + projectId, true);
+              toggleIn(setCollapsed)(personId, false);
+            },
+          }}
+        />
+      )}
       <ActualAllocationDialogs
         data={data}
         calendarMode={sharedCalendarOpen ? "shared" : calendarMode}
@@ -232,15 +286,26 @@ export default function PersonAllocationPanel(
       />
       {!projects.length && (
         <EmptyState
-          title="Proje bulunamadı"
+          title={
+            completedCount > 0 && !props.showCompletedProjects
+              ? "Tamamlanan projeler gizli"
+              : "Proje bulunamadı"
+          }
           action={
-            props.onResetFilters && {
-              label: "Filtreleri Sıfırla",
-              onClick: props.onResetFilters,
-            }
+            completedCount > 0 && !props.showCompletedProjects
+              ? {
+                  label: "Tamamlanan Projeleri Göster",
+                  onClick: () => changeCompletedVisibility(true),
+                }
+              : props.onResetFilters && {
+                  label: "Filtreleri Sıfırla",
+                  onClick: props.onResetFilters,
+                }
           }
         >
-          Seçili filtrelere ve döneme uyan proje yok.
+          {completedCount > 0 && !props.showCompletedProjects
+            ? "Seçili filtrelerdeki tamamlanan projeleri görmek için görünüm seçeneğini açın."
+            : "Seçili filtrelere ve döneme uyan proje yok."}
         </EmptyState>
       )}
       {!!projects.length &&

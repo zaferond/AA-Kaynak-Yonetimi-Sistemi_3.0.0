@@ -66,10 +66,7 @@ export async function checkProgressFilterDraftGuard(f) {
           .first()
           .getByLabel(/ · açıklama$/)
           .fill("Protected filter draft");
-        const plan = page.getByRole("combobox", {
-          name: "Hedef Plan",
-          exact: true,
-        });
+        const plan = page.locator('[data-waiting="planApproval"]');
         const cancel = async (action) => {
           let prompted = false;
           page.once("dialog", async (dialog) => {
@@ -80,13 +77,9 @@ export async function checkProgressFilterDraftGuard(f) {
           assert(prompted);
           assert.equal(await field.inputValue(), "37");
         };
-        await cancel(() => plan.selectOption("pending"));
-        assert.equal(await plan.inputValue(), "");
-        await cancel(() =>
-          page
-            .getByRole("combobox", { name: "Gerçekleşen Plan", exact: true })
-            .selectOption("entered"),
-        );
+        await cancel(() => plan.click());
+        assert.equal(await plan.getAttribute("aria-pressed"), "false");
+        await cancel(() => page.locator('[data-waiting="evaluation"]').click());
         await cancel(() =>
           page
             .getByRole("combobox", { name: "Proje Sorumlusu", exact: true })
@@ -101,9 +94,9 @@ export async function checkProgressFilterDraftGuard(f) {
             .click(),
         );
         page.once("dialog", (dialog) => dialog.accept());
-        await plan.selectOption("pending");
+        await plan.click();
         await field.waitFor({ state: "detached" });
-        await plan.selectOption("");
+        await plan.click();
         await field.waitFor();
         assert.equal(await field.inputValue(), "");
         assert.equal(

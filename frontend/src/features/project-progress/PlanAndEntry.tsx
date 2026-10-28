@@ -1,6 +1,5 @@
 import FilterSelect from "../../components/FilterSelect";
 import { useId, useState, type ReactNode } from "react";
-import Badge from "../../components/Badge";
 import { createPortal } from "react-dom";
 import ProgressLeadershipToggle from "./ProgressLeadershipToggle";
 import ProgressMonthLock from "./ProgressMonthLock";
@@ -12,28 +11,28 @@ import ProgressFilters from "./ProgressFilters";
 import {
   baselineStatus,
   entryStatus,
-  PLAN_LABELS,
-  ENTRY_LABELS,
-  entryPresentation,
   type PlanStatus,
-  type EntryStatus,
 } from "./progress-status";
 import {
   progressGroups,
   progressLeaders,
   type ProgressItem,
 } from "./progress-scope";
-import { progressChange, type ProgressContext } from "./progress-view";
+import {
+  progressChange,
+  defaultEntryMonth,
+  type ProgressContext,
+} from "./progress-view";
 import { monthLabel, monthName } from "../../format";
 import EmptyState from "../../components/EmptyState";
 
-/** Quick "waiting work" boxes under the filters; checked boxes combine. */
+/** At most one waiting-work category is active; pressing it again clears it. */
 const WAITING = [
-  { key: "planEntry", label: "Hedef Plan Giriş Bekleyen" },
-  { key: "planApproval", label: "Hedef Plan Onay Bekleyen" },
-  { key: "actualEntry", label: "Gerçekleşen Plan Giriş Bekleyen" },
+  { key: "planEntry", label: "Hedef Plan-Yönetici Girişi Bekleyen" },
+  { key: "planApproval", label: "Hedef Plan-Proje Onayı Bekleyen" },
+  { key: "actualEntry", label: "Gerçekleşen Plan-Yönetici Girişi Bekleyen" },
   // Actual entered for the month; it is evaluated once the month is locked.
-  { key: "evaluation", label: "Ayı Değerlendirme Bekliyor" },
+  { key: "evaluation", label: "Değerlendirme Bekliyor" },
 ] as const;
 type Waiting = (typeof WAITING)[number]["key"];
 
@@ -53,6 +52,8 @@ export default function PlanAndEntry({
   ctx,
   actionsHost,
   responsibleFilter,
+  leader,
+  onLeaderChange,
   onResetFilters,
   user,
   month,
@@ -69,6 +70,8 @@ export default function PlanAndEntry({
   ctx: ProgressContext;
   actionsHost: HTMLElement | null;
   responsibleFilter: ReactNode;
+  leader: string;
+  onLeaderChange: (leader: string) => void;
   onResetFilters: () => void;
   user: Principal | null;
   month: string;
@@ -79,11 +82,8 @@ export default function PlanAndEntry({
   onSave: (changes: Change[]) => Promise<void>;
 }) {
   const leaders = progressLeaders(ctx, user);
-  const [leader, setLeader] = useState("");
-  const [planFilter, setPlanFilter] = useState<"" | PlanStatus>("");
-  const [entryFilter, setEntryFilter] = useState<"" | EntryStatus>("");
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
-  const [waiting, setWaiting] = useState<ReadonlySet<Waiting>>(() => new Set());
+  const [waiting, setWaiting] = useState<Waiting | null>(null);
   const [approval, setApproval] = useState<{
     text: string;
     error?: boolean;
@@ -98,10 +98,8 @@ export default function PlanAndEntry({
   const allowedMonths = new Set(months);
   function resetAllFilters() {
     if (!onBeforeFilterChange()) return;
-    setLeader("");
-    setPlanFilter("");
-    setEntryFilter("");
-    setWaiting(new Set());
+    onLeaderChange("");
+    setWaiting(null);
     onResetFilters();
   }
   const locked = (ctx.data.progressLocks || []).some((l) => l.id === month);
@@ -110,18 +108,6 @@ export default function PlanAndEntry({
   const planOf = (item: ProgressItem) => baselineStatus(item.record);
   const all = progressGroups(ctx, leader ? [leader] : leaders);
   const items = all.flatMap(([, groupItems]) => groupItems);
-  const planCount = (status: PlanStatus) =>
-    items.filter(
-      (item) =>
-        planOf(item) === status &&
-        (!entryFilter || entryOf(item) === entryFilter),
-    ).length;
-  const entryCount = (status: EntryStatus) =>
-    items.filter(
-      (item) =>
-        entryOf(item) === status &&
-        (!planFilter || planOf(item) === planFilter),
-    ).length;
   const isWaiting = (item: ProgressItem, key: Waiting) =>
     key === "planEntry"
       ? ["new", "draft"].includes(planOf(item))
@@ -167,12 +153,7 @@ export default function PlanAndEntry({
     .map(([name, items]): [string, ProgressItem[]] => [
       name,
       items
-        .filter(
-          (item) =>
-            (!planFilter || planOf(item) === planFilter) &&
-            (!entryFilter || entryOf(item) === entryFilter) &&
-            (!waiting.size || [...waiting].some((key) => isWaiting(item, key))),
-        )
+        .filter((item) => !waiting || isWaiting(item, waiting))
         .sort(
           (a, b) =>
             priority(a) - priority(b) ||
@@ -182,13 +163,14 @@ export default function PlanAndEntry({
     .filter(([, items]) => items.length > 0);
   // "Hedef Planların Tümünü Onayla" acts on the selection only: the cards shown under the
   // checked boxes and filters that await approval (actuals need none).
-  const approvable = waiting.size
-    ? groups.flatMap(([, groupItems]) =>
-        groupItems.filter(
-          (item) => planOf(item) === "pending" && item.record?.proposal,
-        ),
-      )
-    : [];
+  const approvable =
+    waiting === "planApproval"
+      ? groups.flatMap(([, groupItems]) =>
+          groupItems.filter(
+            (item) => planOf(item) === "pending" && item.record?.proposal,
+          ),
+        )
+      : [];
 
   return (
     <div className="progress-baseline">
@@ -230,7 +212,7 @@ export default function PlanAndEntry({
           <FilterSelect
             value={leader}
             onChange={(e) =>
-              onBeforeFilterChange() && setLeader(e.target.value)
+              onBeforeFilterChange() && onLeaderChange(e.target.value)
             }
           >
             <option value="">Tümü</option>
@@ -242,78 +224,30 @@ export default function PlanAndEntry({
           </FilterSelect>
         </label>
         {responsibleFilter}
-        <label className="pick progress-status-filter">
-          <span>Hedef Plan</span>
-          <FilterSelect
-            value={planFilter}
-            onChange={(e) =>
-              onBeforeFilterChange() &&
-              setPlanFilter(e.target.value as "" | PlanStatus)
-            }
-          >
-            <option value="">Tümü</option>
-            {(Object.keys(PLAN_ORDER) as PlanStatus[]).map((status) => (
-              <option key={status} value={status}>
-                {PLAN_LABELS[status]} ({planCount(status)})
-              </option>
-            ))}
-          </FilterSelect>
-        </label>
-        <label className="pick progress-status-filter">
-          <span>Gerçekleşen Plan</span>
-          <FilterSelect
-            value={entryFilter}
-            onChange={(e) =>
-              onBeforeFilterChange() &&
-              setEntryFilter(e.target.value as "" | EntryStatus)
-            }
-          >
-            <option value="">Tümü</option>
-            {(Object.keys(ENTRY_LABELS) as (keyof typeof ENTRY_LABELS)[]).map(
-              (status) => (
-                <option key={status} value={status}>
-                  {entryPresentation(status, locked)!.label} (
-                  {entryCount(status)})
-                </option>
-              ),
-            )}
-          </FilterSelect>
-        </label>
       </ProgressFilters>
       <div
         className="progress-waiting-strip"
         role="group"
         aria-label="Bekleyen işler"
       >
-        {/* Square toggles as in Haftalık Kritik Konular. Several may be on at
-            once and combine; "Tümü" clears them. */}
         <div className="progress-waiting-filter">
-          <button
-            type="button"
-            aria-pressed={!waiting.size}
-            onClick={() => onBeforeFilterChange() && setWaiting(new Set())}
-          >
-            Tümü <span>{items.length}</span>
-          </button>
           {WAITING.map(({ key, label }) => (
             <button
               key={key}
               type="button"
-              aria-pressed={waiting.has(key)}
+              aria-pressed={waiting === key}
               data-waiting={key}
-              onClick={() =>
-                onBeforeFilterChange() &&
-                setWaiting((previous) => {
-                  const next = new Set(previous);
-                  if (next.has(key)) next.delete(key);
-                  else next.add(key);
-                  return next;
-                })
-              }
+              onClick={() => {
+                if (!onBeforeFilterChange()) return;
+                const next = waiting === key ? null : key;
+                if (next === "evaluation")
+                  onMonthChange(
+                    defaultEntryMonth(currentMonth, ctx.data.projectProgress),
+                  );
+                setWaiting(next);
+              }}
             >
-              {key === "evaluation"
-                ? `${month ? monthName(month) : "Seçili"} ${label}`
-                : label}{" "}
+              {label}{" "}
               <span className="progress-waiting-count">
                 {waitingCount(key)}
               </span>
@@ -326,9 +260,9 @@ export default function PlanAndEntry({
             className="button primary progress-approve-all"
             disabled={saving || !approvable.length}
             title={
-              waiting.size
-                ? "Seçili kutulara uyan ve onay bekleyen hedef planları onaylar"
-                : "Önce onaylanacak kutuyu seçin"
+              waiting === "planApproval"
+                ? "Görünen ve proje onayı bekleyen hedef planları onaylar"
+                : "Önce Hedef Plan-Proje Onayı Bekleyen filtresini seçin"
             }
             onClick={() => void approveAll()}
           >
@@ -347,38 +281,48 @@ export default function PlanAndEntry({
           </span>
         )}
       </div>
-      <div className="progress-month-strip" role="group" aria-label="Ay seçimi">
-        {monthYears.map((year) => (
-          <div className="progress-month-year" key={year}>
-            <strong>{year}</strong>
-            <div className="progress-waiting-filter progress-month-filter">
-              {Array.from(
-                { length: 12 },
-                (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`,
-              ).map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  data-month={value}
-                  aria-label={monthLabel(value)}
-                  aria-pressed={month === value}
-                  disabled={!allowedMonths.has(value)}
-                  title={
-                    !allowedMonths.has(value)
-                      ? value > currentMonth
-                        ? "Gelecek ay için gerçekleşen girişi yapılamaz."
-                        : "Takip dönemi başlamadı."
-                      : undefined
-                  }
-                  onClick={() => onMonthChange(value)}
-                >
-                  {monthName(value)}
-                </button>
-              ))}
+      {(waiting === "actualEntry" || waiting === "evaluation") && (
+        <div
+          className="progress-month-strip"
+          role="group"
+          aria-label="Ay seçimi"
+        >
+          {monthYears.map((year) => (
+            <div className="progress-month-year" key={year}>
+              <strong>{year}</strong>
+              <div className="progress-waiting-filter progress-month-filter">
+                {Array.from(
+                  { length: 12 },
+                  (_, index) => `${year}-${String(index + 1).padStart(2, "0")}`,
+                ).map((value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    data-month={value}
+                    aria-label={monthLabel(value)}
+                    aria-pressed={month === value}
+                    disabled={!allowedMonths.has(value)}
+                    title={
+                      !allowedMonths.has(value)
+                        ? value === currentMonth
+                          ? "Ay henüz tamamlanmadı; bir sonraki ay seçilebilir."
+                          : value > currentMonth
+                            ? "Gelecek ay için gerçekleşen girişi yapılamaz."
+                            : "Takip dönemi başlamadı."
+                        : undefined
+                    }
+                    onClick={() =>
+                      onBeforeFilterChange() && onMonthChange(value)
+                    }
+                  >
+                    {monthName(value)}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       {groups.length ? (
         groups.map(([name, items]) => (
           <section

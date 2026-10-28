@@ -10,12 +10,7 @@ export function syntheticDirectory(password) {
   return {
     configured: true,
     add(user) {
-      // Synthetic identities have a stable employee number unless explicitly absent.
-      user.employeeNumber ??= user.id.toUpperCase();
-      entries.set(
-        user.id,
-        structuredClone({ employeeNumber: user.id, ...user }),
-      );
+      entries.set(user.id, structuredClone(user));
     },
     disable(id) {
       disabled.add(id);

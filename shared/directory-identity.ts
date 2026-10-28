@@ -5,8 +5,6 @@ const text = (max: number) =>
     .trim()
     .max(max)
     .regex(/^[^\u0000-\u001f\u007f]*$/);
-export const normalizeEmployeeNumber = (value: string = "") =>
-  value.normalize("NFKC").trim().toUpperCase();
 export const directoryUserSchema = z
   .object({
     id: z.string().regex(/^[a-f0-9]{32}$/),
@@ -14,10 +12,6 @@ export const directoryUserSchema = z
       .min(1)
       .transform((value) => value.toLowerCase()),
     name: text(150).min(1),
-    employeeNumber: text(512)
-      .transform(normalizeEmployeeNumber)
-      .pipe(text(512))
-      .optional(),
     email: text(320).refine(
       (value) => !value || /^[^\s@]+@[^\s@]+$/.test(value),
     ),

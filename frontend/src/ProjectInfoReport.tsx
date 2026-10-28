@@ -105,9 +105,9 @@ export default function ProjectInfoReport({
   const thisWeek = isoWeek(today);
   const weeks = useMemo(() => reportWeeks(groups), [groups]);
   const quickWeeks: [string, IsoWeek][] = [
-    ["Geçen hafta", shiftWeek(thisWeek, -1)],
-    ["Bu hafta", thisWeek],
-    ["Gelecek hafta", shiftWeek(thisWeek, 1)],
+    ["Geçen Hafta", shiftWeek(thisWeek, -1)],
+    ["Bu Hafta", thisWeek],
+    ["Gelecek Hafta", shiftWeek(thisWeek, 1)],
   ];
   const weekCount = (week: IsoWeek) =>
     weeks.find((entry) => entry.week.key === week.key)?.count || 0;
@@ -296,7 +296,7 @@ export default function ProjectInfoReport({
               aria-pressed={weekKeys.size === 0}
               onClick={() => setWeekKeys(new Set())}
             >
-              Tüm haftalar
+              Tüm Haftalar
             </button>
             {quickWeeks.map(([label, week]) => (
               <button
@@ -326,13 +326,13 @@ export default function ProjectInfoReport({
             <label className="project-info-week-add">
               <CalendarPlus size={14} aria-hidden="true" />
               <FilterSelect
-                aria-label="Hafta ekle"
+                aria-label="Hafta Ekle"
                 value=""
                 onChange={(event) => {
                   if (event.target.value) toggleWeek(event.target.value);
                 }}
               >
-                <option value="">Hafta ekle</option>
+                <option value="">Hafta Ekle</option>
                 {weeks
                   .filter(({ week }) => !weekKeys.has(week.key))
                   .map(({ week, count }) => (

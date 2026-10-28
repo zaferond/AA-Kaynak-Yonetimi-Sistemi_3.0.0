@@ -92,7 +92,7 @@ export function useActualAllocationView(
           onlyDataRows,
         })
       : [];
-  // "Sadece veri olanlar": a person row stays only if it has a value in the
+  // "Sadece Veri Olanlar": a person row stays only if it has a value in the
   // visible months for that project; projects without such rows are hidden.
   const dataLists =
     onlyDataRows && person.layout === "project"

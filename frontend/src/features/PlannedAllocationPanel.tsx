@@ -30,13 +30,10 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
   );
   function changeCompletedVisibility(show: boolean) {
     if (
-      !show &&
-      props.planTableRef.current?.querySelector(
-        '[data-completed-project="true"] [data-window-keep="true"]',
-      )
+      props.planTableRef.current?.querySelector('[data-window-keep="true"]')
     ) {
       setVisibilityError(
-        "Tamamlanan projedeki değişikliği kaydedin veya Escape ile iptal edin; ardından projeleri gizleyebilirsiniz.",
+        "Değişiklikleri kaydedin veya Escape ile iptal edin; ardından tamamlanan proje görünümünü değiştirebilirsiniz.",
       );
       return;
     }
@@ -65,17 +62,17 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
             checked={onlyDataRows}
             onCheckedChange={props.onOnlyDataRowsChange}
           />
-          Sadece veri olanlar
+          Sadece Veri Olanlar
         </label>
         <div className="completed-planning-control">
           <label>
             <Switch
               size="sm"
-              aria-label="Tamamlanan projeleri göster"
+              aria-label="Tamamlanan Projeleri Göster"
               checked={props.showCompletedProjects}
               onCheckedChange={changeCompletedVisibility}
             />
-            Tamamlanan projeleri göster
+            Tamamlanan Projeleri Göster
           </label>
           {completedCount > 0 && (
             <span className="completed-planning-count">
@@ -101,7 +98,7 @@ export default function PlannedAllocationPanel(props: PlannedAllocationProps) {
           action={
             teams.length && completedCount > 0 && !props.showCompletedProjects
               ? {
-                  label: "Tamamlanan projeleri göster",
+                  label: "Tamamlanan Projeleri Göster",
                   onClick: () => changeCompletedVisibility(true),
                 }
               : props.onResetFilters && {

@@ -38,7 +38,6 @@ function fixture({
   entries = [entry()],
   references = [],
   groupDN = "",
-  employeeNumberAttribute = "employeeID",
   now = () => Date.now(),
   limits,
 } = {}) {
@@ -51,7 +50,7 @@ function fixture({
     gate: null,
   };
   const directory = new ActiveDirectory(
-    { ...config, groupDN, employeeNumberAttribute },
+    { ...config, groupDN },
     () => ({
       async bind(dn, password) {
         calls.push({ method: "bind", dn, password });
@@ -140,7 +139,6 @@ test("directory search isolates malicious/UTF-8 input in BER values, scopes by O
   assert.equal(result.hasMore, true);
   assert.deepEqual(Object.keys(result.users[0]).sort(), [
     "email",
-    "employeeNumber",
     "id",
     "name",
     "username",
@@ -385,36 +383,15 @@ test("schema 32 preserves schema 31 credentials, roles and employee links and en
   }
 });
 
-test("Sicil No mapping reads the configured AD attribute and preserves leading zeros", async () => {
-  const standard = fixture({ entries: [entry({ employeeID: " 00123 " })] });
-  assert.equal(
-    (await standard.directory.getUser(guid)).employeeNumber,
-    "00123",
-  );
-  assert(
-    standard.calls
-      .find((c) => c.method === "search")
-      .options.attributes.includes("employeeID"),
-  );
-  const custom = fixture({
-    employeeNumberAttribute: "employeeNumber",
-    entries: [entry({ employeeID: "999", employeeNumber: "00042" })],
+test("AD identity uses username and GUID without requesting or exposing employee numbers", async () => {
+  const f = fixture({
+    entries: [entry({ employeeID: "00123", employeeNumber: "00456" })],
   });
-  assert.equal(
-    (await custom.directory.listUsers()).users[0].employeeNumber,
-    "00042",
-  );
-  assert.equal((await fixture().directory.getUser(guid)).employeeNumber, "");
-  assert.throws(
-    () =>
-      activeDirectoryConfig({
-        AD_ENABLED: "true",
-        AD_LDAP_URL: config.url,
-        AD_BASE_DN: config.baseDN,
-        AD_BIND_DN: config.bindDN,
-        AD_BIND_PASSWORD: config.bindPassword,
-        AD_EMPLOYEE_NUMBER_ATTRIBUTE: "employeeID)(objectClass=*)",
-      }),
-    /AD_EMPLOYEE_NUMBER_ATTRIBUTE/,
-  );
+  const user = await f.directory.getUser(guid);
+  assert.equal(user.username, "employee");
+  assert(!Object.hasOwn(user, "employeeNumber"));
+  const attributes = f.calls.find((c) => c.method === "search").options
+    .attributes;
+  assert(!attributes.includes("employeeID"));
+  assert(!attributes.includes("employeeNumber"));
 });

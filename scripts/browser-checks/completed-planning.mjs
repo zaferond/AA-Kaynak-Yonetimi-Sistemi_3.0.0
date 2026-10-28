@@ -40,7 +40,7 @@ export async function checkCompletedPlanning(f) {
     });
   const toggle = () =>
     page.getByRole("switch", {
-      name: "Tamamlanan projeleri göster",
+      name: "Tamamlanan Projeleri Göster",
       exact: true,
     });
   const doneCells = () => page.locator('[data-plan-cell*="|p-b|"]');
@@ -77,7 +77,7 @@ export async function checkCompletedPlanning(f) {
           0,
         );
         const previous = await page
-            .getByRole("switch", { name: "Sadece veri olanlar", exact: true })
+            .getByRole("switch", { name: "Sadece Veri Olanlar", exact: true })
             .boundingBox(),
           next = await toggle().boundingBox();
         assert(next.x > previous.x && Math.abs(next.y - previous.y) < 3);
@@ -105,7 +105,7 @@ export async function checkCompletedPlanning(f) {
           )
           .waitFor();
         await page
-          .getByRole("switch", { name: "Sadece veri olanlar", exact: true })
+          .getByRole("switch", { name: "Sadece Veri Olanlar", exact: true })
           .click();
         await toggle().click();
         assert.equal(await doneCells().count(), 0);
@@ -121,7 +121,7 @@ export async function checkCompletedPlanning(f) {
         const totals = await summary().innerText();
         await page
           .getByRole("button", {
-            name: "Tamamlanan projeleri göster",
+            name: "Tamamlanan Projeleri Göster",
             exact: true,
           })
           .click();

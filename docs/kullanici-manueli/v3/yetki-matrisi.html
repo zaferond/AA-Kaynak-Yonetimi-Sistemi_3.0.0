@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Askeri Araçlar Kaynak Yönetimi Sistemi – Kullanıcı Manueli ve Yetki Matrisi</title>
+<style>
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 100 700; font-style: normal;
+    src: url("../../../frontend/assets/fonts/ibm-plex-sans-latin-ext.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 100 700; font-style: normal;
+    src: url("../../../frontend/assets/fonts/ibm-plex-sans-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @page { size: A4; margin: 18mm 15mm 18mm 15mm; }
+  :root {
+    --ink: #1f2a36; --muted: #5d6b7a; --brand: #234f7a; --brand-soft: #e8eef5;
+    --line: #cdd5de; --yes: #1f5c3a; --yes-bg: #e2efe6; --part: #7a5a12; --part-bg: #f6edd6;
+    --see: #23384f; --see-bg: #e6ecf3; --no: #8a949e; --warn-bg: #fbf3e4; --warn-line: #d9a85b;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); background: #fff;
+    font: 9.8pt/1.45 "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+  h1, h2, h3 { color: var(--brand); line-height: 1.2; }
+  h1 { font-size: 18pt; margin: 0 0 4mm; padding-bottom: 2.5mm; border-bottom: 2px solid var(--brand); }
+  h2 { font-size: 12.5pt; margin: 5mm 0 2mm; }
+  h3 { font-size: 10.5pt; margin: 4mm 0 1.5mm; }
+  p { margin: 0 0 2.2mm; }
+  ul, ol { margin: 0 0 2.5mm; padding-left: 5.5mm; }
+  li { margin-bottom: 1mm; }
+  .page { break-before: page; }
+  .ui { font-weight: 600; color: #1d3f63; }
+  kbd { font: 600 8.5pt "IBM Plex Sans", Arial, sans-serif; border: 1px solid var(--line);
+    border-radius: 1mm; padding: 0 1.2mm; background: #f4f6f8; }
+
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-band { background: #1d2632; color: #fff; border-radius: 3mm; padding: 16mm 12mm; margin-top: 24mm;
+    border-left: 3mm solid #4c7bab; }
+  .cover-band .kicker { font-size: 9.5pt; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+  .cover-band h1 { color: #fff; border: 0; font-size: 25pt; margin: 4mm 0 3mm; padding: 0; }
+  .cover-band .sub { font-size: 14pt; opacity: .95; }
+  .meta { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  .meta td { padding: 2mm 3mm; border-bottom: 1px solid var(--line); }
+  .meta td:first-child { color: var(--muted); width: 45mm; }
+  .toc { margin-top: 9mm; }
+  .toc ol { padding-left: 6mm; font-size: 10.5pt; columns: 2; column-gap: 10mm; }
+  .toc li { margin-bottom: 1.5mm; break-inside: avoid; }
+
+  .note { background: var(--brand-soft); border-left: 3px solid var(--brand); padding: 2.5mm 3.5mm;
+    margin: 2.5mm 0 3mm; border-radius: 1.5mm; break-inside: avoid; }
+  .warn { background: var(--warn-bg); border-left: 3px solid var(--warn-line); padding: 2.5mm 3.5mm;
+    margin: 2.5mm 0 3mm; border-radius: 1.5mm; break-inside: avoid; }
+  .new { display: inline-block; background: #234f7a; color: #fff; font-size: 7pt; font-weight: 700;
+    border-radius: 1mm; padding: .2mm 1.4mm; vertical-align: .4mm; letter-spacing: .04em; }
+
+  figure { margin: 2.5mm 0 3.5mm; break-inside: avoid; }
+  .shot { border: 1px solid var(--line); border-radius: 2mm; overflow: hidden; }
+  .shot img { display: block; width: 100%; }
+  figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 1.2mm; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 8.7pt; margin: 2mm 0 4mm; }
+  table.grid th, table.grid td { border: 1px solid var(--line); padding: 1.3mm 2mm; vertical-align: top; text-align: left; }
+  table.grid thead th { background: var(--brand); color: #fff; font-weight: 600; }
+  table.grid tbody th { background: #f3f6f9; font-weight: 600; width: 56mm; }
+  table.grid tr { break-inside: avoid; }
+  table.operation-matrix { font-size: 8.5pt; }
+  table.operation-matrix th, table.operation-matrix td { padding: .65mm 1.7mm; }
+  table.grid tr.group td { background: #dfe7ef; font-weight: 700; color: var(--brand); padding: 1.1mm 2mm; }
+  .m td { text-align: center; }
+  .m td.l { text-align: left; }
+  .y, .p, .s { display: inline-block; border-radius: 1mm; padding: .4mm 1.6mm; font-weight: 700; font-size: 8.2pt; }
+  .y { background: var(--yes-bg); color: var(--yes); }
+  .p { background: var(--part-bg); color: var(--part); }
+  .s { background: var(--see-bg); color: var(--see); }
+  .n { color: var(--no); }
+  .m small { display: block; color: var(--muted); font-size: 7.5pt; line-height: 1.3; margin-top: .6mm; }
+  .legend { font-size: 8.5pt; color: var(--muted); margin-bottom: 2mm; }
+  .legend > span { margin-right: 4mm; white-space: nowrap; display: inline-block; margin-bottom: 1mm; }
+  .band { display: inline-block; width: 3.2mm; height: 3.2mm; border: 1px solid #c7ced6; vertical-align: -.5mm; margin-right: 1mm; }
+
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin: 2mm 0 3mm; }
+  .role { border: 1px solid var(--line); border-radius: 2mm; padding: 3mm 3.5mm; break-inside: avoid; }
+  .role h3 { margin: 0 0 1.5mm; }
+  .role p { margin: 0; font-size: 9.1pt; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+</style>
+</head>
+<body><!-- 13 -->
+<section class="page">
+  <h1>Yetki Matrisi</h1><p>Belge sürümü 3.3 · 27.10.2026. Uygulama rolü ekran erişimini; kaynak görevi aktivite kişi kapsamını belirler.</p>
+  <div class="legend"><span><span class="y">Düzenler</span> görüntüler ve değiştirir</span><span><span class="p">Kapsamlı</span> yalnız belirtilen kapsamda</span><span><span class="s">Görür</span> yalnız görüntüler</span><span><span class="n">—</span> erişim yok</span></div>
+  <h2>1. Ekran erişimi</h2>
+  <table class="grid m">
+    <thead><tr><th>Ekran</th><th>Admin</th><th>Yönetici</th><th>Normal Kullanıcı</th><th>Normal-Proje</th></tr></thead>
+    <tbody>
+      <tr><th>Projeler / Tamamlanan Projeler</th>
+        <td><span class="y">Düzenler</span><small>Tüm projeler</small></td>
+        <td><span class="s">Görür</span><small>Görünür projeler</small></td>
+        <td><span class="s">Görür</span><small>Görünür projeler</small></td>
+        <td><span class="y">Düzenler</span><small>Tüm projeler</small></td></tr>
+      <tr><th>Proje Takvimi Güncelle / Onaylanan Takvim Güncellemeleri</th>
+        <td><span class="y">Düzenler</span><small>Onay, aktarma, geri alma</small></td>
+        <td><span class="p">Kapsamlı</span><small>Karşılaştırma ve kendi taslakları</small></td>
+        <td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Kaynak Planlama</th>
+        <td><span class="y">Düzenler</span><small>Tüm takımlar</small></td>
+        <td><span class="p">Kapsamlı</span><small>Tümünü görür; verilen liderlik/takımı düzenler</small></td>
+        <td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Proje ve Kaynak Değerlendirme</th>
+        <td><span class="y">Düzenler</span><small>Onay, ay kilidi, uyarı ayarları</small></td>
+        <td><span class="p">Kapsamlı</span><small>Kendi liderliklerinin hedef ve gerçekleşen girişi</small></td>
+        <td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Haftalık Kritik Konular</th>
+        <td><span class="y">Düzenler</span></td><td><span class="y">Düzenler</span><small>Görünür projeler</small></td><td><span class="n">—</span></td><td><span class="y">Düzenler</span></td></tr>
+      <tr><th>Raporlar ve Head Count</th>
+        <td><span class="s">Görür</span><small>+ Aktif İlanları Dahil Et</small></td><td><span class="s">Görür</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Aktivite Giriş</th>
+        <td><span class="y">Düzenler</span><small>Tüm çalışanlar</small></td>
+        <td colspan="2"><span class="p">Kapsamlı</span><small>Çalışan kaydındaki göreve göre: Team Member kendisi, PO takımı, Lider liderliği ve alt liderlikleri</small></td>
+        <td><span class="n">—</span></td></tr>
+      <tr><th>Aktivite Raporu</th>
+        <td><span class="s">Görür</span><small>Tümü</small></td>
+        <td colspan="2"><span class="s">Görür</span><small>Çalışan görevine göre: Team Member/CoE ve PO kendi takımı; Lider kendi liderliği, alt liderlikler ve bağlı takımlar</small></td>
+        <td><span class="n">—</span></td></tr>
+      <tr><th>Organizasyon &amp; Çalışan &amp; Yetki</th>
+        <td><span class="y">Düzenler</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:8.6pt;color:var(--muted)">"Görünür projeler": proje görüntüleme yetkisine göre görülebilen projeler (4. bölüm). Arama ve bildirimler de bu kapsamla sınırlıdır.</p>
+  <div class="note">Yetkiler sunucu tarafında da denetlenir. Ekranda kilitli görünen bir işlem başka bir yoldan gönderilse bile reddedilir.</div>
+</section>
+
+<section class="page">
+  <h2>2. İşlem yetkileri</h2>
+  <table class="grid m operation-matrix">
+    <thead><tr><th>İşlem</th><th>Admin</th><th>Yönetici</th><th>Normal Kullanıcı</th><th>Normal-Proje</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="5" class="l">Aktivite ve takvim</td></tr>
+      <tr><th>Kendi aktivite girişini yapmak</th><td><span class="y">✓</span></td><td><span class="y">✓</span><small>Çalışan kaydı eşleşmişse</small></td><td><span class="y">✓</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Başka çalışanın aktivite girişi</th><td><span class="y">✓</span></td><td colspan="2"><span class="p">Kapsamlı</span><small>Uygulama rolünden bağımsız: PO kendi takımını, Lider liderliğini ve alt liderliklerini</small></td><td><span class="n">—</span></td></tr>
+      <tr><th>Başka çalışanın izin / eğitim takvimi</th><td><span class="y">✓</span></td><td colspan="2"><span class="p">Kapsamlı</span><small>Aktivitesini girebildiği kişiler (PO, Lider)</small></td><td><span class="n">—</span></td></tr>
+      <tr><th>Ortak çalışma takvimi</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr class="group"><td colspan="5" class="l">Planlama ve değerlendirme</td></tr>
+      <tr><th>Kaynak planlama girişi</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Verilen liderlik veya takım</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Tüm Kaynak Dağılımlarını Sıfırla, Aktif İlanları Dahil Et</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Hedef plan hazırlama, gerçekleşen % girişi</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Kendi liderlikleri</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Hedef plan onayı, ay kilidi, uyarı ayarları</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Takvim uyarısına aksiyon girme</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Görebildiği projeler</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Senaryo taslağı / onay ve takvime aktarma</th><td><span class="y">✓</span></td><td><span class="p">Kapsamlı</span><small>Yalnız kendi taslağı</small></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr class="group"><td colspan="5" class="l">Projeler ve kritik konular</td></tr>
+      <tr><th>Proje ekleme, düzenleme, silme, sıralama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Projeler ekranında aşama, başlık ve kilometre taşı</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Projeyi Tamamlandı işaretleme / yeniden aktif yapma</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Proje görüntüleme yetkisini belirleme</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr><th>Kritik konu düzenleme, Tamamlandı, Çıkar</th><td><span class="y">✓</span></td><td><span class="y">✓</span><small>Görünür projeler</small></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+      <tr class="group"><td colspan="5" class="l">Yönetim</td></tr>
+      <tr><th>Çalışan / ilan, hesap, rol ve yetki tanımlama</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>AD kullanıcısı seçme ve kullanıcı adıyla hesap eşleştirme</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr><th>Liderlik/takım yönetimi, Excel'den içe aktarma, Değişiklik Geçmişi, Veri Yedeği İndir / Yedek Yükle</th><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+      <tr class="group"><td colspan="5" class="l">Ortak</td></tr>
+      <tr><th>Arama, bildirimler, Excel'e aktarma, varsayılan sekme</th><td colspan="4"><span class="y">✓</span><small>Herkes, görebildiği ekranlarda ve verilerle</small></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="page">
+  <h2>3. Aktivite kişi kapsamı</h2>
+  <p>Aşağıdaki kişi kapsamı, ekranı açabilen Yönetici ve Normal Kullanıcı hesapları için aynıdır. Aktivite Raporu salt okunurdur; aktivite ve izin/eğitim değişiklikleri Aktivite Giriş'ten yapılır.</p>
+  <table class="grid">
+    <thead><tr><th>Çalışan kaydındaki görev</th><th>Aktivite Giriş ve izin/eğitim</th><th>Aktivite Raporu</th></tr></thead>
+    <tbody>
+      <tr><th>Team Member, CoE</th><td>Yalnız kendisi</td><td>Kendi takımı</td></tr>
+      <tr><th>Product Owner</th><td>Kendisi ve kendi takımı</td><td>Kendisi ve kendi takımı</td></tr>
+      <tr><th>Lider</th><td>Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar</td><td>Kendisi, kendi liderliği, alt liderlikler ve bağlı takımlar</td></tr>
+      <tr><th>Admin (uygulama rolü)</th><td>Herkes</td><td>Herkes</td></tr>
+    </tbody>
+  </table>
+  <p><b>Örnek:</b> Çalışan görevi Team Member olan bir Yönetici, Aktivite Giriş'te yalnız kendisini, Aktivite Raporu'nda kendi takımını görür. Çalışan görevi Lider olan bir Normal Kullanıcı ise kendi liderliğine ve alt liderliklere erişir.</p>
+  <div class="note"><b>Çalışan kaydı eşleşmesi gerekir.</b> Admin dışındaki bir hesap çalışan kaydına bağlı değilse, Yönetici rolünde ve planlama için liderlik yetkisi olsa bile Aktivite Giriş ve Aktivite Raporu boş gelir. Admin, hesap eşleşmesini ve çalışanın görev/takım bilgilerini kontrol etmelidir.</div>
+  <p><b>Takım değişikliği geçmiş raporları değiştirmez.</b> Kullanıcının kapsamı bugünkü organizasyon görevinden gelir; her ayın aktivitesi çalışanın o ay bulunduğu takım altında gösterilir. Eski takımın PO/Lideri yalnız o takıma ait ayları, yeni takımın PO/Lideri kendi takımına ait ayları görür. Çalışan, kendi geçmişinin tamamını ilgili takımlar altında görür; eski takım arkadaşlarının verilerine erişmez. Her ay yalnız bir takımın toplamına eklenir.</p>
+  <div class="note"><b>Tamamlanan projeler:</b> Aktivite Giriş'te gösterme seçimi yalnız görünümü değiştirir. Tamamlanan projelerde de aynı kişi ve ay yetkileri geçerlidir; aylık toplamlar ve kapasite sınırı korunur.</div>
+  <h2>Yönetici planlama yetkisi</h2>
+  <p><span class="ui">Planlanan Kaynak Dağılımı Yetkisi</span> alanındaki liderlik ve takım atamaları Aktivite Giriş veya Aktivite Raporu kapsamını genişletmez.</p>
+  <ul>
+    <li><b>Liderlik yetkisi:</b> Seçilen liderlik ve altındaki tüm liderlik/takımlar için Kaynak Planlama girişi.</li>
+    <li><b>Takım yetkisi:</b> Yalnız seçilen takım için Kaynak Planlama girişi.</li>
+  </ul>
+</section></body></html>

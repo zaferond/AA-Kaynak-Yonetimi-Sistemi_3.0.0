@@ -21,6 +21,8 @@ export type PersonAllocationPanelProps = {
   todayDate: string;
   selectedPersonIds: string[];
   onlyDataRows: boolean;
+  showCompletedProjects: boolean;
+  onShowCompletedProjectsChange: (show: boolean) => void;
   onOnlyDataRowsChange: (only: boolean) => void;
   canEditCalendar: boolean;
   sharedCalendarOpen: boolean;

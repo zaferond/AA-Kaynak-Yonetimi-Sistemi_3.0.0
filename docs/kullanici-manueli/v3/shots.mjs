@@ -71,8 +71,33 @@ async function run(name, fn) {
     await fn();
   } catch (e) {
     failures.push(name);
-    console.log("HATA", name, e.message.split("\n")[0]);
+    console.log("HATA", name, e.message);
   }
+}
+
+async function draftShot(page) {
+  const evaluation = page.locator('[data-waiting="evaluation"]');
+  if ((await evaluation.getAttribute("aria-pressed")) !== "true")
+    await evaluation.click();
+  const revise = page
+    .getByRole("button", { name: "Gerçekleşen % Revize Et", exact: true })
+    .first();
+  const name = await revise.evaluate((button) =>
+    button.closest(".progress-card").getAttribute("aria-label"),
+  );
+  await revise.click();
+  const card = page.getByRole("region", { name, exact: true });
+  await card
+    .locator('input[inputmode="decimal"]:not([disabled])')
+    .first()
+    .fill("37");
+  const notice = card.locator("..").locator(".progress-draft-notice");
+  await notice.waitFor();
+  await notice.scrollIntoViewIfNeeded();
+  await shot(page, "degerlendirme-taslagi");
+  await notice
+    .getByRole("button", { name: "Taslağı İptal Et", exact: true })
+    .click();
 }
 
 try {
@@ -85,6 +110,91 @@ try {
     await page.locator("#login-username").waitFor();
     await page.waitForTimeout(800);
     await shot(page, "giris");
+    await ctx.close();
+  });
+
+  await run("baslik", async () => {
+    const { ctx, page } = await login(ACCOUNTS.admin);
+    await open(page, "Projeler");
+    await page
+      .getByRole("switch", { name: "Detayları Göster", exact: true })
+      .check();
+    await page.getByTitle("Başlık Düzenle", { exact: true }).first().click();
+    await page
+      .getByRole("tab", { name: "Başlık ve Detaylar", exact: true })
+      .waitFor();
+    await shot(page, "baslik-detaylar");
+    await page.getByRole("tab", { name: "Görünüm", exact: true }).click();
+    await shot(page, "baslik-gorunum");
+    await ctx.close();
+  });
+
+  await run("degerlendirme", async () => {
+    const { ctx, page } = await login(ACCOUNTS.admin);
+    await open(page, "Proje ve Kaynak Değerlendirme");
+    await shot(page, "hedef-plan");
+    await page.locator('[data-waiting="actualEntry"]').click();
+    await page.getByRole("group", { name: "Ay seçimi", exact: true }).waitFor();
+    await shot(page, "hedef-plan-aylar");
+    await page.locator('[data-waiting="actualEntry"]').click();
+    await draftShot(page);
+    await section(page, "Proje ve Kaynak Değerlendirme Raporu");
+    await shot(page, "degerlendirme-raporu");
+    await section(page, "Proje Takvimi Uyarıları");
+    await shot(page, "senaryo-uyarilari");
+    await section(page, "Uyarı Ayarları");
+    await shot(page, "uyari-ayarlari");
+    await ctx.close();
+  });
+
+  await run("aktivite", async () => {
+    const { ctx, page } = await login(ACCOUNTS.normal);
+    await open(page, "Aktivite Giriş");
+    const completed = page.getByRole("switch", {
+      name: "Tamamlanan Projeleri Göster",
+      exact: true,
+    });
+    await completed.waitFor();
+    await shot(page, "aktivite-giris");
+    await completed.click();
+    await page.getByRole("button", { name: "Proje", exact: true }).click();
+    await page
+      .locator('.pickerpanel[data-state="open"]')
+      .getByRole("checkbox", {
+        name: running.completedProjectName,
+        exact: true,
+      })
+      .check();
+    await page.keyboard.press("Escape");
+    await page
+      .locator(".person-allocation [data-project-heading]")
+      .first()
+      .waitFor();
+    await shot(page, "aktivite-tamamlanan");
+    await ctx.close();
+  });
+
+  await run("hesap", async () => {
+    const {ctx,page}=await login(ACCOUNTS.admin);
+    await open(page,"Organizasyon & Çalışan & Yetki");
+    await page.getByRole("button",{name:"Kaynak Ekle / Yetki Tanımla",exact:true}).click();
+    await shot(page,"kaynak-ekle");
+    await page.locator(".resource-account-section").getByRole("button",{name:"Deniz Aksoy kullanıcısını seç",exact:true}).click();
+    await shot(page,"ad-kullanici-eslestirme");
+    await ctx.close();
+  });
+
+  await run("planlama", async () => {
+    const {ctx,page}=await login(ACCOUNTS.admin);
+    await open(page,"Kaynak Planlama");
+    await shot(page,"kaynak-planlama");
+    await ctx.close();
+  });
+
+  await run("kritik", async () => {
+    const {ctx,page}=await login(ACCOUNTS.admin);
+    await open(page,"Haftalık Kritik Konular");
+    await shot(page,"kritik-konular");
     await ctx.close();
   });
 
@@ -122,19 +232,30 @@ try {
       .getByText("Görüntüleme yetkisi")
       .first()
       .waitFor({ timeout: 4000 });
+    await shot(page, "proje-durumu");
     await page.getByText("Yalnızca seçilenler").click();
     await page.waitForTimeout(400);
     await shot(page, "proje-yetki");
-    await page.keyboard.press("Escape");
+    await page
+      .locator('[data-slot="dialog-content"]')
+      .getByRole("button", { name: "Vazgeç", exact: true })
+      .click();
     await page.waitForTimeout(500);
     await section(page, "Proje Takvimi Güncelle");
+    await shot(page, "senaryo-kapali");
+    await page
+      .getByRole("button", { name: "Senaryo Oluştur", exact: true })
+      .click();
     // A +3 month comparison of one project.
     const card = page.locator(".schedule-scenario-card").first();
+    await card.getByLabel("Proje", { exact: true }).selectOption({ index: 1 });
     await card
-      .getByLabel("Proje", { exact: true })
-      .selectOption({ label: "BOZKURT Paletli Piyade Muharebe Aracı" });
+      .getByLabel("Senaryo İsmi", { exact: true })
+      .fill("Alternatif Takvim · 3 ay erteleme");
+    await card.getByLabel("Süre (Ay)", { exact: true }).fill("3");
+    await shot(page, "senaryo-olustur");
     // Saved only in the temporary copy.
-    await card.getByRole("button", { name: /senaryosunu ekle$/ }).click();
+    await card.locator(".schedule-card-buttons .flow-button").click();
     await page.locator(".schedule-comparison").waitFor();
     await page.waitForTimeout(1200);
     console.log(
@@ -146,34 +267,36 @@ try {
     );
     await page.waitForTimeout(800);
     await shot(page, "proje-takvimi");
+    // Open the saved draft from its current row, with no calendar changes.
+    await page
+      .getByRole("button", { name: "Düzenle", exact: true })
+      .first()
+      .click();
+    await card.getByLabel("Senaryo İsmi", { exact: true }).waitFor();
+    await shot(page, "senaryo-duzenle");
+    await card.locator(".schedule-card-buttons .flow-button").click();
+    await page
+      .getByRole("button", { name: "Senaryo Oluştur", exact: true })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "Onayla", exact: true })
+      .first()
+      .click();
+    await page.waitForTimeout(800);
+    await section(page, "Onaylanan Takvim Güncellemeleri");
+    await shot(page, "onaylanan-takvim");
+    await section(page, "Tamamlanan Projeler");
+    await shot(page, "tamamlanan-projeler");
 
     await open(page, "Kaynak Planlama");
     await shot(page, "kaynak-planlama");
 
     await open(page, "Proje ve Kaynak Değerlendirme");
     await shot(page, "hedef-plan");
-    await page
-      .getByRole("button", { name: "Gerçekleşen % Revize Et", exact: true })
-      .first()
-      .click();
-    const draftField = page
-      .locator('.progress-card input[inputmode="decimal"]:not([disabled])')
-      .first();
-    await draftField.fill("37");
-    await page
-      .locator(".progress-card")
-      .first()
-      .getByLabel(/ · açıklama$/)
-      .fill("Eylül ayı ilerleme taslağı; henüz gönderilmedi.");
-    await page.locator(".progress-draft-notice").first().waitFor();
-    await shot(page, "degerlendirme-taslagi");
-    await page
-      .getByRole("button", { name: "Taslağı İptal Et", exact: true })
-      .first()
-      .click();
+    await draftShot(page);
     await section(page, "Proje ve Kaynak Değerlendirme Raporu");
     await shot(page, "degerlendirme-raporu");
-    await section(page, "Senaryo Uyarıları");
+    await section(page, "Proje Takvimi Uyarıları");
     await shot(page, "senaryo-uyarilari");
     await section(page, "Uyarı Ayarları");
     await shot(page, "uyari-ayarlari");
@@ -193,7 +316,18 @@ try {
       .click();
     await page.waitForTimeout(900);
     await shot(page, "kaynak-ekle");
-    await page.keyboard.press("Escape");
+    const account = page.locator(".resource-account-section");
+    await account
+      .getByRole("button", {
+        name: "Deniz Aksoy kullanıcısını seç",
+        exact: true,
+      })
+      .click();
+    await shot(page, "ad-kullanici-eslestirme");
+    await page
+      .locator('[data-slot="dialog-content"]')
+      .getByRole("button", { name: "Vazgeç", exact: true })
+      .click();
     await page.waitForTimeout(500);
     await page
       .getByRole("button", { name: "Değişiklik Geçmişi", exact: true })

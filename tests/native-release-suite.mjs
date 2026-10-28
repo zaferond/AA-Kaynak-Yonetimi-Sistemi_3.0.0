@@ -278,7 +278,6 @@ export async function nativeReleaseSuite(stores, checked) {
         email: "synthetic@example.test",
         authSource: "ldap",
         directoryId: id,
-        employeeNumber: id.toUpperCase(),
         role: "manager",
         leaders: [],
         active: true,

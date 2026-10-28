@@ -186,7 +186,7 @@ export async function checkCriticalProjectFilter(f) {
             .getByRole("button", { name: "Vazgeç", exact: true })
             .click();
           await manager.page
-            .getByRole("combobox", { name: "Hafta ekle", exact: true })
+            .getByRole("combobox", { name: "Hafta Ekle", exact: true })
             .selectOption("2026-W10");
           await manager.page.waitForFunction(() =>
             document.querySelector(

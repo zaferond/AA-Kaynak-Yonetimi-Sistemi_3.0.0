@@ -1,15 +1,13 @@
 import assert from "node:assert/strict";
 import { selectWorkspaceTab } from "./fixture.mjs";
 
-export async function checkDirectoryEmployeeNumber(f) {
-  const employeeNumber = "00042";
+export async function checkDirectoryUsername(f) {
   const existing = {
-    _id: "sicil-existing",
-    username: "sicil.existing",
+    _id: "username-existing",
+    username: "qa.existing",
     name: "Synthetic Existing",
     authSource: "ldap",
     directoryId: "1".repeat(32),
-    employeeNumber,
     role: "normal",
     leaders: [],
     active: false,
@@ -20,24 +18,15 @@ export async function checkDirectoryEmployeeNumber(f) {
   await f.store.bootstrapUser(existing);
   f.addDirectoryUser({
     id: "2".repeat(32),
-    username: "sicil.duplicate",
+    username: " QA.EXISTING ",
     name: "Synthetic Duplicate",
     email: "duplicate@example.invalid",
-    employeeNumber: " ０００４２ ",
   });
   f.addDirectoryUser({
     id: "3".repeat(32),
-    username: "sicil.missing",
-    name: "Synthetic Missing",
-    email: "missing@example.invalid",
-    employeeNumber: "",
-  });
-  f.addDirectoryUser({
-    id: "4".repeat(32),
-    username: "sicil.unique",
+    username: "qa.unique",
     name: "Synthetic Unique",
     email: "unique@example.invalid",
-    employeeNumber: "00043",
   });
   const { page, context } = await f.client("root-admin");
   const form = page.locator('.employee-access-editor[data-state="open"]');
@@ -48,7 +37,7 @@ export async function checkDirectoryEmployeeNumber(f) {
       .getByRole("button", { name: "Kaynak Ekle / Yetki Tanımla", exact: true })
       .click();
     await f.check(
-      "Sicil No: duplicates including revoked accounts and missing numbers cannot be selected",
+      "AD username: a different GUID with an existing inactive username cannot be selected",
       async () => {
         await account
           .getByLabel("Kullanıcı Ara", { exact: true })
@@ -64,17 +53,13 @@ export async function checkDirectoryEmployeeNumber(f) {
         assert(await duplicate.isDisabled());
         assert(
           await account
-            .getByRole("button", {
-              name: "Synthetic Missing kullanıcısını seç",
-              exact: true,
-            })
-            .isDisabled(),
+            .getByText(/Bu kullanıcı adı veya AD hesabı zaten kayıtlı/)
+            .count(),
         );
-        assert(await account.getByText(/Sicil No zaten eşleştirilmiş/).count());
       },
     );
     await f.check(
-      "Sicil No: AD value is read only above Ad Soyad in both identity panels",
+      "AD username: no employee-number field; single selection and read-only directory identity remain",
       async () => {
         await account
           .getByRole("button", {
@@ -82,19 +67,27 @@ export async function checkDirectoryEmployeeNumber(f) {
             exact: true,
           })
           .click();
-        const numbers = form.getByLabel("Sicil No", { exact: true });
-        assert.equal(await numbers.count(), 2);
-        for (const field of await numbers.all()) {
-          assert.equal(await field.inputValue(), "00043");
-          assert.equal(await field.getAttribute("readonly"), "");
-          assert(
-            await field.evaluate((input) => {
-              const next = input.closest("label").nextElementSibling;
-              return next?.textContent.includes("Ad Soyad");
-            }),
-          );
-        }
-        await f.capture(page, "sicil-no-ad-selection.png");
+        assert.equal(
+          await form.getByLabel("Sicil No", { exact: true }).count(),
+          0,
+        );
+        assert.equal(
+          await account
+            .getByLabel("Kullanıcı Adı", { exact: true })
+            .inputValue(),
+          "qa.unique",
+        );
+        assert.equal(
+          await account
+            .getByLabel("Kullanıcı Adı", { exact: true })
+            .getAttribute("readonly"),
+          "",
+        );
+        assert.equal(
+          await account.getByRole("button", { name: / seçildi$/ }).count(),
+          1,
+        );
+        await f.capture(page, "ad-username-selection");
       },
     );
   } finally {

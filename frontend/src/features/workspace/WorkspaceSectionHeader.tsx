@@ -6,6 +6,7 @@ export type WorkspaceSectionTab = {
   value: string;
   label: string;
   badge?: number;
+  trailing?: ReactNode;
 };
 
 /** The same heading, view tabs and page actions across the workspace. */
@@ -49,6 +50,7 @@ export default function WorkspaceSectionHeader({
               {tabs.map((item) => (
                 <TabsTrigger key={item.value} value={item.value}>
                   {item.label}
+                  {item.trailing}
                   {!!item.badge && (
                     <Badge
                       tone="warning"
